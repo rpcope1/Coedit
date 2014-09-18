@@ -103,7 +103,7 @@ begin
   //
   lines.LoadFromStream(DCD_client.Output);
   list.Clear;
-  for i := 1 to lines.Count-1 do
+  for i := 0 to lines.Count-1 do
   begin
     item := lines.Strings[i];
     kind := item[length(item)];
@@ -174,8 +174,8 @@ begin
   DCD_client.Execute;
   //
   str := 'a';
-  setlength(str, 384);
-  i := DCD_client.Output.Read(str[1], 384);
+  setlength(str, 256);
+  i := DCD_client.Output.Read(str[1], 256);
   setLength(str, i);
   if str <> '' then
   begin
@@ -197,12 +197,6 @@ initialization
   DCD_client.ShowWindow := swoHIDE;
   dcdOn := fileExists(DCD_server.Executable) and fileExists(DCD_client.Executable);
   lines := TStringList.Create;
-  {$IFDEF WINDOWS}
-  // phobos + runtime
-  {$ENDIF}
-  {$IFDEF POSIX}
-  // phobos + runtime
-  {$ENDIF}
 finalization
   DCD_server.Active := false;
   DCD_client.Active := false;
