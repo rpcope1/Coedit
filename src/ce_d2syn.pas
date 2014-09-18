@@ -421,7 +421,7 @@ end;
 
 //TODO-cnumber literals: stricter, separate parser for each form (bin,dec,hex,float,etc)
 //TODO-cstring literals: delimited strings.
-//TODO-ccomments: correct nested comments handling (inc/dec)
+//TODO-ccomments: nested comments with multiple nesting on the same line.
 //TODO-cfeature: something like pascal {$region} : /*folder blabla*/  /*endfolder*/
 
 {$BOOLEVAL ON}
@@ -514,10 +514,14 @@ begin
   // block comments 2
   if fCurrRange.rangeKinds = [] then if readDelim(reader, fTokStop, '/+') then
   begin
+    inc(fCurrRange.nestedCommentsCount);
     if readDelim(reader, fTokStop, '+') then fTokKind := tkDDocs
       else fTokKind := tkCommt;
     if readUntil(reader, fTokStop, '+/') then
+    begin
+      dec(fCurrRange.nestedCommentsCount);
       exit;
+    end;
     if fTokKind = tkDDocs then fCurrRange.rangeKinds += [rkBlockDoc2]
       else fCurrRange.rangeKinds += [rkBlockCom2];
     readLine(reader, fTokStop);
@@ -529,10 +533,15 @@ begin
   begin
     if (rkBlockDoc2 in fCurrRange.rangeKinds) then fTokKind := tkDDocs
       else fTokKind := tkCommt;
+    if readUntil(reader, fTokStop, '/+') then
+      inc(fCurrRange.nestedCommentsCount)
+    else readerReset;
     if readUntil(reader, fTokStop, '+/') then
     begin
+      dec(fCurrRange.nestedCommentsCount);
+      if fCurrRange.nestedCommentsCount <> 0 then
+        exit;
       fCurrRange.rangeKinds -= [rkBlockDoc2, rkBlockCom2];
-
       if fkComments2 in fFoldKinds then
         EndCodeFoldBlock;
       exit;
