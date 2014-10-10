@@ -419,7 +419,6 @@ begin
   next;
 end;
 
-//TODO-cnumber literals: stricter, separate parser for each form (bin,dec,hex,float,etc)
 //TODO-cstring literals: delimited strings.
 //TODO-ccomments: nested comments with multiple nesting on the same line.
 //TODO-cfeature: something like pascal {$region} : /*folder blabla*/  /*endfolder*/
