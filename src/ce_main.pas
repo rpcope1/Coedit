@@ -11,13 +11,12 @@ uses
   ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_plugin, ce_synmemo, ce_widget,
   ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf, ce_search,
   ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_customtools,
-  ce_observer, ce_writableComponent;
+  ce_observer, ce_writableComponent, ce_toolseditor;
 
 type
 
   // TODO-cfeature: options
   // TODO-cwidget: options editor
-  // TODO-cwidget: custom tools editor
   // TODO-cfeature: tools menu
 
   { TCEMainForm }
@@ -183,6 +182,7 @@ type
     fFindWidg:  TCESearchWidget;
     fExplWidg: TCEMiniExplorerWidget;
     fLibMWidg: TCELibManEditorWidget;
+    fTlsEdWidg: TCEToolsEditorWidget;
     fProjMru: TMruFileList;
     fFileMru: TMruFileList;
     fLibMan: TLibraryManager;
@@ -264,6 +264,7 @@ type
     property WidgetList: TCEWidgetList read fWidgList;
     property MessageWidget: TCEMessagesWidget read fMesgWidg;
     property LibraryManager: TLibraryManager read fLibMan;
+    property CustomTools: TCETools read fTools;
   end;
 
   procedure PlugDispatchToHost(aPlugin: TCEPlugin; opCode: LongWord; data0: Integer; data1, data2: Pointer); cdecl;
@@ -286,6 +287,7 @@ begin
   InitMRUs;
   InitLibMan;
   InitTools;
+  //
   InitWidgets;
   InitDocking;
   InitSettings;
@@ -444,6 +446,7 @@ begin
   fFindWidg := TCESearchWidget.create(self);
   fExplWidg := TCEMiniExplorerWidget.create(self);
   fLibMWidg := TCELibManEditorWidget.create(self);
+  fTlsEdWidg:= TCEToolsEditorWidget.create(self);
 
   fWidgList.addWidget(@fMesgWidg);
   fWidgList.addWidget(@fEditWidg);
@@ -453,6 +456,7 @@ begin
   fWidgList.addWidget(@fFindWidg);
   fWidgList.addWidget(@fExplWidg);
   fWidgList.addWidget(@fLibMWidg);
+  fWidgList.addWidget(@fTlsEdWidg);
 
   for widg in fWidgList do
   begin
@@ -504,6 +508,7 @@ begin
 
   DockMaster.GetAnchorSite(fExplWidg).Close;
   DockMaster.GetAnchorSite(fLibMWidg).Close;
+  DockMaster.GetAnchorSite(fTlsEdWidg).Close;
   LoadDocking;
 end;
 

@@ -10,7 +10,7 @@ object CEMainForm: TCEMainForm
   OnCloseQuery = FormCloseQuery
   OnDropFiles = FormDropFiles
   ShowHint = True
-  LCLVersion = '1.2.4.0'
+  LCLVersion = '1.2.6.0'
   object mainMenu: TMainMenu
     Images = imgList
     top = 1

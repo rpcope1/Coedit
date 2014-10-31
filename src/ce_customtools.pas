@@ -16,15 +16,17 @@ type
     fShowWin: TShowWindowOptions;
     fOpts: TProcessOptions;
     fParameters: TStringList;
-    fName: string;
+    fToolAlias: string;
+    fShortcut: string;
     procedure setParameters(const aValue: TStringList);
   published
-    property name: string read fName write fName;
+    property toolAlias: string read fToolAlias write fToolAlias;
     property options: TProcessOptions read fOpts write fOpts;
     property executable: string read fExecutable write fExecutable;
     property workingDirectory: string read fWorkingDir write fWorkingDir;
     property parameters: TStringList read fParameters write setParameters;
     property showWindows: TShowWindowOptions read fShowWin write fShowWin;
+    //property shortcut: string read fShortcut write fShortcut;
   public
     constructor create(ACollection: TCollection); override;
     destructor destroy; override;
@@ -55,7 +57,7 @@ uses
 constructor TCEToolItem.create(ACollection: TCollection);
 begin
   inherited;
-  fName := format('<tool %d>', [ID]);
+  fToolAlias := format('<tool %d>', [ID]);
   fParameters := TStringList.create;
 end;
 
@@ -78,12 +80,15 @@ begin
   proc := TProcess.Create(nil);
   try
     proc.Options := fOpts;
-    proc.Executable := CEMainForm.expandSymbolicString(fExecutable);
+    if fExecutable <> '' then
+      proc.Executable := CEMainForm.expandSymbolicString(fExecutable);
     proc.ShowWindow := fShowWin;
-    proc.CurrentDirectory := CEMainForm.expandSymbolicString(fWorkingDir);
+    if fWorkingDir <> '' then
+      proc.CurrentDirectory := CEMainForm.expandSymbolicString(fWorkingDir);
     proc.Parameters.Clear;
     for i:= 0 to fParameters.Count-1 do
-      proc.Parameters.Add(CEMainForm.expandSymbolicString(fParameters.Strings[i]));
+      if fParameters.Strings[i] <> '' then
+        proc.Parameters.Add(CEMainForm.expandSymbolicString(fParameters.Strings[i]));
     proc.Options := proc.Options - [poUsePipes, poWaitOnExit];
     proc.Execute;
   finally
