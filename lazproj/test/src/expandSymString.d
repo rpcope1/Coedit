@@ -6,20 +6,36 @@ import std.getopt;
 /*
 pass:
 
---a=<CPF> --b=<CPP> --c=<CPR> --d=<CFF> --e=<CFP> --f=<CI> --g=<CAF> --h=<CAP> --j=<CPN> --k=<CPFS>
+--a=<CAF> --b=<CAP> --c=<CFF> --d=<CFP> --e=<CI> --f=<CFP> --g=<CPP> --h=<CPR> --i=<CPN> --j=<CPFS>
 
 as parameters in "Run, Compile and Run file..."
 <CPFS>: only the first item is displayed but the symbol is expanded as expected.
 */
+
 void main(string args[])
 {
+    auto opt2symbol = [
+    // coedit
+    'a' : "CoeditApplicationFile..: ",
+    'b' : "CoeditApplicationPath..: ",
+    // file
+    'c' : "currentFileFilename....: ",
+    'd' : "CurrentFilePath........: ",
+    'e' : "CurrentIdentifier......: ",
+    // project
+    'f' : "CurrentProjectFile.....: ",
+    'g' : "CurrentProjectPath.....: ",
+    'h' : "CurrentProjectRoot.....: ",
+    'i' : "CurrentProjectName.....: ",
+    'j' : "CurrentProjectFiles....: "
+    ];
 
     string expanded;
-    for (char c = 'a'; c != 'z'; c++)
+    foreach (c; 'a'..'z')
     {
         expanded = "";
         getopt(args, std.getopt.config.passThrough, c, &expanded);
-        if (expanded.length != 0)
-            writeln(c, " : ", expanded);
+        if (expanded.length)
+            writeln(opt2symbol[c], expanded);
     }
 }

@@ -6,28 +6,28 @@ Coedit is a simple IDE for the [D2](http://dlang.org) lang. (**Co** mpile & **Ed
 Current features
 ----------------
 - multi platform (Win/Linux).
-- projects.
-- multiple project configurations (set of switches and options).
-- compile, run directly from the UI.
+- full featured project format and advanced project editor.
+- compile and run directly from the UI.
 - instant run (without saving, script-like).
 - synchronized edition in a block.
-- D syntax highlighter, folding, identifier markup.
-- member list of the current module.
-- manager for the static libraries.
+- D2 syntax highlighter, folding, identifier markup.
+- module symbol list.
+- static libraries manager.
 - search and replace.
+- user-defined tools powered by a string interpolation system.
 - [D Completion Daemon](https://github.com/Hackerpilot/DCD) integration for completion proposal and source code hints.
 - mini file browser.
 
 Missing features before the first beta
 --------------------------------------
-- Options editor. (the big missing stuff)
+- Options editor. (the big missing thing)
 
 Project information
 -------------------
 - status: alpha 6.
 - license: MIT.
-- programmed in Object Pascal with [Lazarus + FPC](http://www.lazarus.freepascal.org) as IDE/compilo.
-- based on *dmd* (*gdc* or *lmd* specific options are not handled).
+- programmed in Object Pascal with [Lazarus & FPC](http://www.lazarus.freepascal.org) as IDE & compiler.
+- based on *DMD* (the alternative backends, LDC or GDC, are not supported).
 
 Setup & test
 ------------
