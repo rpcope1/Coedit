@@ -187,7 +187,6 @@ end;
 
 procedure TCEProject.setConfIx(aValue: Integer);
 begin
-  if fConfIx = aValue then exit;
   beforeChanged;
   if aValue < 0 then aValue := 0;
   if aValue > fOptsColl.Count-1 then aValue := fOptsColl.Count-1;
