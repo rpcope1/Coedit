@@ -567,8 +567,14 @@ begin
   if fAllInst then aList.Add('-allinst');
   if fMain then aList.Add('-main');
   if fRelease then aList.Add('-release');
-  for opt in fVerIds do
+  for opt in fVerIds do begin
+    if opt[1] = ';' then
+      continue;
+    if length(opt) > 1 then
+      if opt[1..2] = '//' then
+        continue;
     aList.Add('-version=' + opt );
+  end;
   //
   if fRelease then
     begin
