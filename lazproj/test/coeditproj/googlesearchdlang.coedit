@@ -1,0 +1,22 @@
+object CurrentProject: TCEProject
+  OptionsCollection = <  
+    item
+      name = 'release'
+      outputOptions.inlining = True
+      outputOptions.noBoundsCheck = False
+      outputOptions.boundsCheck = offAlways
+      outputOptions.optimizations = True
+      outputOptions.release = True
+      pathsOptions.outputFilename = '<CAP>googlesearch'
+      preBuildProcess.options = []
+      preBuildProcess.showWindow = swoNone
+      postBuildProcess.options = []
+      postBuildProcess.showWindow = swoNone
+      runOptions.options = []
+      runOptions.showWindow = swoNone
+    end>
+  Sources.Strings = (
+    '..\src\googlesearch.d'
+  )
+  ConfigurationIndex = 0
+end
