@@ -1232,6 +1232,7 @@ begin
     dmdproc.Options := [poStdErrToOutput, poUsePipes];
     dmdproc.Executable := DCompiler;
     dmdproc.Parameters.Add(editor.fileName);
+    dmdproc.Parameters.Add('-vcolumns');
     dmdproc.Parameters.Add('-w');
     dmdproc.Parameters.Add('-wi');
     dmdproc.Parameters.Add('-of' + fname + exeExt);
