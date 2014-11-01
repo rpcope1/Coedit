@@ -88,7 +88,7 @@ begin
     proc.Parameters.Clear;
     for i:= 0 to fParameters.Count-1 do
       if fParameters.Strings[i] <> '' then
-        proc.Parameters.Add(CEMainForm.expandSymbolicString(fParameters.Strings[i]));
+        proc.Parameters.AddText(CEMainForm.expandSymbolicString(fParameters.Strings[i]));
     proc.Options := proc.Options - [poUsePipes, poWaitOnExit];
     proc.Execute;
   finally

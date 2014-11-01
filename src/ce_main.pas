@@ -1268,7 +1268,7 @@ var
   dmdproc: TProcess;
   ppproc: TProcess;
   olddir, prjpath, ppname: string;
-  i: NativeInt;
+  i, j: NativeInt;
 begin
 
   fMesgWidg.ClearAllMessages;
@@ -1283,8 +1283,11 @@ begin
         try
           preBuildProcess.setProcess(ppproc);
           ppproc.Executable := ppname;
-          for i:= 0 to ppproc.Parameters.Count-1 do
-            ppproc.Parameters.Strings[i] := expandSymbolicString(ppproc.Parameters.Strings[i]);
+          j := ppproc.Parameters.Count-1;
+          for i:= 0 to j do
+            ppproc.Parameters.AddText(expandSymbolicString(ppproc.Parameters.Strings[i]));
+          for i:= 0 to j do
+            ppproc.Parameters.Delete(0);
           if ppproc.CurrentDirectory = '' then
             ppproc.CurrentDirectory := extractFilePath(ppproc.Executable);
           ppproc.Execute;
@@ -1342,8 +1345,11 @@ begin
           try
             postBuildProcess.setProcess(ppproc);
             ppproc.Executable := ppname;
-            for i:= 0 to ppproc.Parameters.Count-1 do
-              ppproc.Parameters.Strings[i] := expandSymbolicString(ppproc.Parameters.Strings[i]);
+            j := ppproc.Parameters.Count-1;
+            for i:= 0 to j do
+              ppproc.Parameters.AddText(expandSymbolicString(ppproc.Parameters.Strings[i]));
+            for i:= 0 to j do
+              ppproc.Parameters.Delete(0);
             if ppproc.CurrentDirectory = '' then
               ppproc.CurrentDirectory := extractFilePath(ppproc.Executable);
             ppproc.Execute;
@@ -1724,7 +1730,7 @@ var
   elems: TStringList;
   elem: string;
   begs, ends: boolean;
-  i: integer;
+  i, j, extLen: integer;
 begin
   if symString = '' then
     exit('``');
@@ -1768,6 +1774,28 @@ begin
             if fProject <> nil then
               if fileExists(fProject.fileName) then
                 result += fProject.fileName;
+          end;
+        'CPFS', 'CurrentProjectFiles':
+          begin
+            if fProject <> nil then
+              if fileExists(fProject.fileName) then
+                for j := 0 to fProject.Sources.Count-1 do
+                begin
+                  result += fProject.getAbsoluteSourceName(j);
+                  if fProject.Sources.Count > 1 then
+                    if j <> fProject.Sources.Count-1 then
+                      result += LineEnding;
+                end;
+          end;
+        'CPN', 'CurrentProjectName':
+          begin
+            if fProject <> nil then
+              if fileExists(fProject.fileName) then
+              begin
+                result += extractFileName(fProject.fileName);
+                extLen := length(ExtractFileExt(result));
+                result := result[1..length(result)-extLen];
+              end;
           end;
         'CPP', 'CurrentProjectPath':
           begin

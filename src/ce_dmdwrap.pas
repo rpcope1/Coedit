@@ -920,7 +920,7 @@ begin
       str2 := '-' + str1
     else
       str2 := str1;
-    aList.Add(CEMainForm.expandSymbolicString(str2));
+    aList.AddText(CEMainForm.expandSymbolicString(str2));
   end;
 end;
 
