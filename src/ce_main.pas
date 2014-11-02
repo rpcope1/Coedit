@@ -34,6 +34,7 @@ type
     actEdFind: TAction;
     actEdFindNext: TAction;
     actFileOpenContFold: TAction;
+    actLayoutSave: TAction;
     actProjOpenContFold: TAction;
     actProjOptView: TAction;
     actProjSource: TAction;
@@ -116,6 +117,7 @@ type
     MenuItem59: TMenuItem;
     MenuItem60: TMenuItem;
     MenuItem61: TMenuItem;
+    mnuLayout: TMenuItem;
     mnuItemMruFile: TMenuItem;
     mnuItemMruProj: TMenuItem;
     mnuItemWin: TMenuItem;
@@ -134,6 +136,7 @@ type
     procedure actFileOpenContFoldExecute(Sender: TObject);
     procedure actFileSaveAllExecute(Sender: TObject);
     procedure actEdIndentExecute(Sender: TObject);
+    procedure actLayoutSaveExecute(Sender: TObject);
     procedure actProjCompAndRunWithArgsExecute(Sender: TObject);
     procedure actProjCompileAndRunExecute(Sender: TObject);
     procedure actProjCompileExecute(Sender: TObject);
@@ -253,6 +256,12 @@ type
     procedure mruProjItemClick(Sender: TObject);
     procedure mruClearClick(Sender: TObject);
 
+    // layout
+    procedure layoutMnuItemClick(sender: TObject);
+    procedure layoutLoadFromFile(const aFilename: string);
+    procedure layoutSaveToFile(const aFilename: string);
+    procedure layoutUpdateMenu;
+
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -291,6 +300,7 @@ begin
   InitWidgets;
   InitDocking;
   InitSettings;
+  layoutUpdateMenu;
   //
   newProj;
   checkCompilo;
@@ -561,11 +571,7 @@ begin
   if WindowState = wsMinimized then
     WindowState := wsNormal;
   for i:= 0 to fWidgList.Count-1 do
-  begin
-    if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then
-      DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState := wsNormal;
     DockMaster.GetAnchorSite(fWidgList.widget[i]).Show;
-  end;
   if not Visible then exit;
   //
   forceDirectory(getDocPath);
@@ -1528,6 +1534,90 @@ begin
   if win = nil then exit;
   win.Show;
   win.BringToFront;
+end;
+
+procedure TCEMainForm.layoutLoadFromFile(const aFilename: string);
+var
+  xcfg: TXMLConfigStorage;
+begin
+  if not fileExists(aFilename) then
+    exit;
+  //
+  xcfg := TXMLConfigStorage.Create(aFilename, true);
+  try
+    DockMaster.LoadLayoutFromConfig(xcfg, false);
+  finally
+    xcfg.Free;
+  end;
+end;
+
+procedure TCEMainForm.layoutSaveToFile(const aFilename: string);
+var
+  xcfg: TXMLConfigStorage;
+  i: NativeInt;
+begin
+  // TODO-cbugfix: possible loading AV, xml saved after undocking some widgets, xml file abnormal size.
+  for i:= 0 to fWidgList.Count-1 do
+    DockMaster.GetAnchorSite(fWidgList.widget[i]).Show;
+  //
+  forceDirectory(extractFilePath(aFilename));
+  xcfg := TXMLConfigStorage.Create(aFilename, false);
+  try
+    DockMaster.SaveLayoutToConfig(xcfg);
+    xcfg.WriteToDisk;
+  finally
+    xcfg.Free;
+  end;
+end;
+
+procedure TCEMainForm.layoutUpdateMenu;
+var
+  lst: TStringList;
+  itm: TMenuItem;
+  i: NativeInt;
+begin
+  mnuLayout.Clear;
+  //
+  itm := TMenuItem.Create(self);
+  itm.Action := actLayoutSave;
+  mnuLayout.Add(itm);
+  mnuLayout.AddSeparator;
+  //
+  lst := TStringList.Create;
+  try
+    listFiles(lst, getDocPath + 'layouts' + DirectorySeparator);
+    for i := 0 to lst.Count-1 do
+    begin
+      itm := TMenuItem.Create(self);
+      itm.Caption := extractFileName(lst.Strings[i]);
+      itm.Caption := itm.Caption[1..length(itm.Caption) - length(extractFileExt(itm.Caption))];
+      itm.OnClick := @layoutMnuItemClick;
+      itm.ImageIndex := 32;
+      mnuLayout.Add(itm);
+    end;
+  finally
+    lst.Free;
+  end;
+end;
+
+procedure TCEMainForm.layoutMnuItemClick(sender: TObject);
+begin
+  layoutLoadFromFile(getDocPath + 'layouts' + DirectorySeparator +
+    TMenuItem(sender).Caption + '.xml');
+end;
+
+procedure TCEMainForm.actLayoutSaveExecute(Sender: TObject);
+var
+  fname: string;
+begin
+  if not InputQuery('New layout name', '', fname) then
+    exit;
+  //
+  fname := extractFileName(fname);
+  if extractFileExt(fname) <> '.xml' then
+    fname += '.xml';
+  layoutSaveToFile(getDocPath + 'layouts' + DirectorySeparator + fname);
+  layoutUpdateMenu;
 end;
 {$ENDREGION}
 
