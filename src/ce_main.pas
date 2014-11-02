@@ -1576,6 +1576,9 @@ end;
 
 procedure TCEMainForm.mruProjItemClick(Sender: TObject);
 begin
+  if fProject <> nil then if fProject.modified then if dlgOkCancel(
+    'The latest mdofifications are not saved, continue ?')
+      = mrCancel then exit;
   openProj(TMenuItem(Sender).Hint);
 end;
 
@@ -1584,7 +1587,6 @@ begin
   if fProject <> nil then if fProject.modified then if dlgOkCancel(
     'The latest mdofifications are not saved, continue ?')
       = mrCancel then exit;
-
   closeProj;
   newProj;
 end;
@@ -1626,7 +1628,6 @@ begin
   if fProject <> nil then if fProject.modified then if dlgOkCancel(
     'The latest mdofifications are not saved, continue ?')
       = mrCancel then exit;
-
   with TOpenDialog.Create(nil) do
   try
     if execute then openProj(filename);
