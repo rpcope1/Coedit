@@ -862,12 +862,12 @@ procedure TCEMainForm.ApplicationProperties1ShowHint(var HintStr: string;
   var CanShow: Boolean; var HintInfo: THintInfo);
 begin
   CanShow := true;
-  {if EditWidget.currentEditor <> nil then
-    if EditWidget.currentEditor.Focused then
+  if fDoc <> nil then
+    if fDoc.Focused then
     begin
-      HintStr := EditWidget.getEditorHint;
+      HintStr := fEditWidg.getEditorHint;
       CanShow := HintStr <> '';
-    end;}
+    end;
 end;
 {$ENDREGION}
 
