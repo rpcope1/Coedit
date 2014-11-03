@@ -1,0 +1,80 @@
+inherited CEWidget1: TCEWidget1
+  Left = 874
+  Height = 589
+  Top = 248
+  Width = 499
+  ClientHeight = 589
+  ClientWidth = 499
+  inherited Back: TPanel
+    Height = 589
+    Width = 499
+    ClientHeight = 589
+    ClientWidth = 499
+    inherited Content: TPanel
+      Height = 589
+      Width = 499
+      ClientHeight = 589
+      ClientWidth = 499
+      object lstGdbOut: TMemo[0]
+        Left = 4
+        Height = 524
+        Top = 61
+        Width = 491
+        Align = alClient
+        BorderSpacing.Around = 4
+        Font.Height = -12
+        Font.Name = 'Lucida Console'
+        ParentFont = False
+        ReadOnly = True
+        ScrollBars = ssBoth
+        TabOrder = 0
+      end
+      object Edit1: TEdit[1]
+        Left = 4
+        Height = 23
+        Top = 34
+        Width = 491
+        Align = alTop
+        BorderSpacing.Around = 4
+        OnKeyPress = Edit1KeyPress
+        TabOrder = 1
+      end
+      object Panel1: TPanel[2]
+        Left = 4
+        Height = 26
+        Top = 4
+        Width = 491
+        Align = alTop
+        BorderSpacing.Around = 4
+        Caption = 'Panel1'
+        ClientHeight = 26
+        ClientWidth = 491
+        TabOrder = 2
+        object Button1: TButton
+          Left = 8
+          Height = 25
+          Top = 0
+          Width = 75
+          Caption = 'start'
+          OnClick = Button1Click
+          TabOrder = 0
+        end
+        object Button2: TButton
+          Left = 88
+          Height = 25
+          Top = 0
+          Width = 75
+          Caption = 'stop'
+          OnClick = Button2Click
+          TabOrder = 1
+        end
+      end
+    end
+  end
+  object IdleTimer1: TIdleTimer[2]
+    Interval = 100
+    OnTimer = IdleTimer1Timer
+    left = 211
+    top = 16
+  end
+end
