@@ -53,7 +53,7 @@ procedure TCEProcInputWidget.txtInpKeyPress(Sender: TObject; var Key: char);
 begin
   if fProc = nil then
     exit;
-  if key <> lineEnding[1] then
+  if key <> #13 then
     exit;
   sendInput;
 end;
