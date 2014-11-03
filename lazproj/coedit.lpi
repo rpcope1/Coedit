@@ -140,7 +140,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="28">
+    <Units Count="29">
       <Unit0>
         <Filename Value="coedit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -317,6 +317,14 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ce_procinput"/>
       </Unit27>
+      <Unit28>
+        <Filename Value="..\src\ce_cdbcmd.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="CECdbWidget"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_cdbcmd"/>
+      </Unit28>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

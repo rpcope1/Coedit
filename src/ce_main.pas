@@ -11,7 +11,7 @@ uses
   ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_plugin, ce_synmemo, ce_widget,
   ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf, ce_search,
   ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_customtools,
-  ce_observer, ce_writableComponent, ce_toolseditor, ce_procinput;
+  ce_observer, ce_writableComponent, ce_toolseditor, ce_procinput, ce_cdbcmd;
 
 type
 
@@ -190,6 +190,7 @@ type
     fFileMru: TMruFileList;
     fLibMan: TLibraryManager;
     fPrInpWidg: TCEProcInputWidget;
+    fCdbWidg: TCECdbWidget;
     fTools: TCETools;
 
     fRunProc: TAsyncProcess;
@@ -465,6 +466,10 @@ begin
   fTlsEdWidg:= TCEToolsEditorWidget.create(self);
   fPrInpWidg:= TCEProcInputWidget.create(self);
 
+  {$IFDEF WIN32}
+  fCdbWidg  := TCECdbWidget.create(self);
+  {$ENDIF}
+
   fWidgList.addWidget(@fMesgWidg);
   fWidgList.addWidget(@fEditWidg);
   fWidgList.addWidget(@fProjWidg);
@@ -475,6 +480,10 @@ begin
   fWidgList.addWidget(@fLibMWidg);
   fWidgList.addWidget(@fTlsEdWidg);
   fWidgList.addWidget(@fPrInpWidg);
+
+  {$IFDEF WIN32}
+  fWidgList.addWidget(@fCdbWidg);
+  {$ENDIF}
 
   for widg in fWidgList do
   begin
