@@ -300,6 +300,8 @@ begin
       result := getAbsoluteFilename(result);
     exit;
   end;
+  if Sources.Count = 0 then
+    exit;
   result := extractFilename(Sources.Strings[0]);
   result := result[1..length(result) - length(extractFileExt(result))];
   result := extractFilePath(fileName) + DirectorySeparator + result + exeExt;
