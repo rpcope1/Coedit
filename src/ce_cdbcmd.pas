@@ -26,7 +26,6 @@ type
     procedure btnStartClick(Sender: TObject);
     procedure btnStepClick(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
     procedure txtCdbCmdKeyPress(Sender: TObject; var Key: char);
   private
     fCdbProc: TAsyncProcess;
@@ -96,6 +95,7 @@ procedure TCECdbWidget.btnStartClick(Sender: TObject);
 var
   outname: string;
 begin
+  lstCdbOut.Clear;
   if fProject = nil then exit;
   outname := fProject.outputFilename;
   if not fileExists(outname) then exit;
@@ -139,13 +139,12 @@ begin
 end;
 
 procedure TCECdbWidget.btnStopClick(Sender: TObject);
+const
+  cmd = 'q'#13#10;
 begin
+  if fCdbProc <> nil then
+    fCdbProc.Input.Write(cmd[1], length(cmd));
   cdbFree;
-end;
-
-procedure TCECdbWidget.Button2Click(Sender: TObject);
-begin
-
 end;
 
 procedure TCECdbWidget.txtCdbCmdKeyPress(Sender: TObject; var Key: char);
