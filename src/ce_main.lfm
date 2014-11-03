@@ -3185,10 +3185,4 @@ object CEMainForm: TCEMainForm
     OnShowHint = ApplicationProperties1ShowHint
     left = 96
   end
-  object OutputTimer: TIdleTimer
-    Interval = 100
-    OnTimer = OutputTimerTimer
-    left = 128
-    top = 1
-  end
 end

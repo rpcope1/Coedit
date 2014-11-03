@@ -60,7 +60,6 @@ type
     actEdUnIndent: TAction;
     Actions: TActionList;
     ApplicationProperties1: TApplicationProperties;
-    OutputTimer: TIdleTimer;
     imgList: TImageList;
     mainMenu: TMainMenu;
     MenuItem1: TMenuItem;
@@ -171,7 +170,6 @@ type
       var CanShow: Boolean; var HintInfo: THintInfo);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
-    procedure OutputTimerTimer(Sender: TObject);
   private
 
     fDoc: TCESynMemo;
@@ -194,7 +192,7 @@ type
     fPrInpWidg: TCEProcInputWidget;
     fTools: TCETools;
 
-    fRunProc: TProcess;// TAsyncProcess;
+    fRunProc: TAsyncProcess;
 
     // ICEMultiDocObserver
     procedure docNew(const aDoc: TCESynMemo);
@@ -237,6 +235,7 @@ type
 
     // run & exec sub routines
     procedure asyncprocOutput(sender: TObject);
+    procedure asyncprocTerminate(sender: TObject);
     procedure ProcessOutputToMsg(const aProcess: TProcess;aCtxt: TMessageContext = mcUnknown);
     procedure compileAndRunFile(const edIndex: NativeInt; const runArgs: string = '');
     procedure compileProject(const aProject: TCEProject);
@@ -1243,29 +1242,38 @@ begin
   end;
 end;
 
-procedure TCEMainForm.OutputTimerTimer(Sender: TObject);
+procedure TCEMainForm.asyncprocOutput(sender: TObject);
+var
+  proc: TProcess;
 begin
-  if fRunProc <> nil then
-    ProcessOutputToMsg(fRunProc, mcEditor);
+  proc := TProcess(sender);
+  if proc = fRunProc then
+    ProcessOutputToMsg(TAsyncProcess(sender), mcEditor);
 end;
 
-procedure TCEMainForm.asyncprocOutput(sender: TObject);
+procedure TCEMainForm.asyncprocTerminate(sender: TObject);
+var
+  proc: TProcess;
 begin
-  //ProcessOutputToMsg(TAsyncProcess(sender), mcEditor);
+  proc := TProcess(sender);
+  ProcessOutputToMsg(TAsyncProcess(sender), mcEditor);
+  if proc = fRunProc then
+    FreeRunnableProc;
+  if proc = fPrInpWidg.process then
+    fPrInpWidg.process := nil;
 end;
 
 procedure TCEMainForm.compileAndRunFile(const edIndex: NativeInt; const runArgs: string = '');
 var
   editor: TCESynMemo;
   dmdproc: TProcess;
-  //runproc: TProcess;
   fname: string;
 begin
 
   FreeRunnableProc;
-  fRunProc := TProcess.Create(nil);
-  //fRunProc := TAsyncProcess.Create(nil);
-  //fRunProc.OnReadData := @asyncprocOutput;
+  fRunProc := TAsyncProcess.Create(nil);
+  fRunProc.OnReadData := @asyncprocOutput;
+  fRunProc.OnTerminate:= @asyncprocTerminate;
 
   dmdproc := TProcess.Create(nil);
   editor  := fEditWidg.editor[edIndex];
@@ -1296,29 +1304,21 @@ begin
     begin
       ProcessOutputToMsg(dmdproc, mcEditor);
       fMesgWidg.addCeInf(editor.fileName + ' successfully compiled', mcEditor );
-      fRunProc.Options := fRunProc.Options + [poStderrToOutPut, poUsePipes];
+      fRunProc.Options := fRunProc.Options + [poNoConsole, poStderrToOutPut, poUsePipes];
       fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
       fRunProc.Parameters.DelimitedText := expandSymbolicString(runArgs);
       fRunProc.Executable := fname + exeExt;
       fPrInpWidg.process := fRunProc;
       fRunProc.Execute;
-
-      //ProcessOutputToMsg(fRunProc, mcEditor);
-
-      //repeat ProcessOutputToMsg(runproc, mcEditor) until not runproc.Running;
-       //sysutils.DeleteFile(fname + exeExt);
-       sysutils.DeleteFile(fname + objExt);
+      sysutils.DeleteFile(fname + objExt);
     end
     else begin
       ProcessOutputToMsg(dmdproc, mcEditor);
       fMesgWidg.addCeErr(editor.fileName  + ' has not been compiled', mcEditor );
     end;
 
-    //fPrInpWidg.process := nil;
-
   finally
     dmdproc.Free;
-    //runproc.Free;
   end;
 end;
 
