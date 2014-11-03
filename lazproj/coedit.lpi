@@ -52,6 +52,11 @@
             <Debugging>
               <UseHeaptrc Value="True"/>
             </Debugging>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
           </Linking>
           <Other>
             <CompilerMessages>
@@ -135,7 +140,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="27">
+    <Units Count="28">
       <Unit0>
         <Filename Value="coedit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -304,6 +309,14 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ce_toolseditor"/>
       </Unit26>
+      <Unit27>
+        <Filename Value="..\src\ce_procinput.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="CEProcInputWidget"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_procinput"/>
+      </Unit27>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

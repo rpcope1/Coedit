@@ -5,13 +5,13 @@ unit ce_main;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, SynEditKeyCmds, SynHighlighterLFM, Forms,
+  Classes, SysUtils, FileUtil, SynEditKeyCmds, SynHighlighterLFM, Forms, asyncprocess,
   AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls, Graphics,
   Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, ComCtrls, dynlibs,
   ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_plugin, ce_synmemo, ce_widget,
   ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf, ce_search,
   ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_customtools,
-  ce_observer, ce_writableComponent, ce_toolseditor;
+  ce_observer, ce_writableComponent, ce_toolseditor, ce_procinput;
 
 type
 
@@ -60,6 +60,7 @@ type
     actEdUnIndent: TAction;
     Actions: TActionList;
     ApplicationProperties1: TApplicationProperties;
+    OutputTimer: TIdleTimer;
     imgList: TImageList;
     mainMenu: TMainMenu;
     MenuItem1: TMenuItem;
@@ -170,6 +171,7 @@ type
       var CanShow: Boolean; var HintInfo: THintInfo);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
+    procedure OutputTimerTimer(Sender: TObject);
   private
 
     fDoc: TCESynMemo;
@@ -189,7 +191,10 @@ type
     fProjMru: TMruFileList;
     fFileMru: TMruFileList;
     fLibMan: TLibraryManager;
+    fPrInpWidg: TCEProcInputWidget;
     fTools: TCETools;
+
+    fRunProc: TProcess;// TAsyncProcess;
 
     // ICEMultiDocObserver
     procedure docNew(const aDoc: TCESynMemo);
@@ -224,12 +229,14 @@ type
     procedure LoadDocking;
     procedure SaveDocking;
     procedure KillPlugs;
+    procedure FreeRunnableProc;
 
     // widget interfaces subroutines
     procedure checkWidgetActions(const aWidget: TCEWidget);
     procedure widgetShowFromAction(sender: TObject);
 
     // run & exec sub routines
+    procedure asyncprocOutput(sender: TObject);
     procedure ProcessOutputToMsg(const aProcess: TProcess;aCtxt: TMessageContext = mcUnknown);
     procedure compileAndRunFile(const edIndex: NativeInt; const runArgs: string = '');
     procedure compileProject(const aProject: TCEProject);
@@ -457,6 +464,7 @@ begin
   fExplWidg := TCEMiniExplorerWidget.create(self);
   fLibMWidg := TCELibManEditorWidget.create(self);
   fTlsEdWidg:= TCEToolsEditorWidget.create(self);
+  fPrInpWidg:= TCEProcInputWidget.create(self);
 
   fWidgList.addWidget(@fMesgWidg);
   fWidgList.addWidget(@fEditWidg);
@@ -467,6 +475,7 @@ begin
   fWidgList.addWidget(@fExplWidg);
   fWidgList.addWidget(@fLibMWidg);
   fWidgList.addWidget(@fTlsEdWidg);
+  fWidgList.addWidget(@fPrInpWidg);
 
   for widg in fWidgList do
   begin
@@ -661,6 +670,21 @@ begin
   fPlugList.Free;
 end;
 
+procedure TCEMainForm.FreeRunnableProc;
+var
+  fname: string;
+begin
+  if fRunProc = nil then
+    exit;
+  //
+  fname := fRunProc.Executable;
+  fRunProc.Terminate(0);
+  fRunProc.Free;
+  fRunProc := nil;
+  if fileExists(fname) then
+    sysutils.DeleteFile(fname);
+end;
+
 destructor TCEMainForm.destroy;
 begin
   SaveSettings;
@@ -671,6 +695,7 @@ begin
   fProjMru.Free;
   fFileMru.Free;
   fProject.Free;
+  FreeRunnableProc;
   //
   EntitiesConnector.removeObserver(self);
   inherited;
@@ -1177,21 +1202,25 @@ var
   dt: PMessageItemData;
   i: NativeInt;
   msg: string;
+  hasRead: boolean;
 begin
   If not (poUsePipes in aProcess.Options) then exit;
   //
   readCnt := 0;
+  readSz := 0;
+  hasRead := false;
   ioBuffSz := aProcess.PipeBufferSize;
   str := TMemorystream.Create;
   lns := TStringList.Create;
-  readSz := 0;
   try
-    repeat
-      str.SetSize(readSz + ioBuffSz);
+    while aProcess.Output.NumBytesAvailable <> 0 do
+    begin
+      hasRead := true;
+      str.Size := str.Size + ioBuffSz;
       readCnt := aProcess.Output.Read((str.Memory + readSz)^, ioBuffSz);
-      Inc(readSz, readCnt);
-    until readCnt = 0;
-    Str.SetSize(readSz);
+      readSz += readCnt;
+    end;
+    str.Size := readSz;
     lns.LoadFromStream(Str);
     for i:= 0 to lns.Count-1 do begin
       msg := lns.Strings[i];
@@ -1209,19 +1238,36 @@ begin
   finally
     str.Free;
     lns.Free;
-    fMesgWidg.scrollToBack;
+    if hasRead then
+      fMesgWidg.scrollToBack;
   end;
+end;
+
+procedure TCEMainForm.OutputTimerTimer(Sender: TObject);
+begin
+  if fRunProc <> nil then
+    ProcessOutputToMsg(fRunProc, mcEditor);
+end;
+
+procedure TCEMainForm.asyncprocOutput(sender: TObject);
+begin
+  //ProcessOutputToMsg(TAsyncProcess(sender), mcEditor);
 end;
 
 procedure TCEMainForm.compileAndRunFile(const edIndex: NativeInt; const runArgs: string = '');
 var
   editor: TCESynMemo;
   dmdproc: TProcess;
-  runproc: TProcess;
+  //runproc: TProcess;
   fname: string;
 begin
+
+  FreeRunnableProc;
+  fRunProc := TProcess.Create(nil);
+  //fRunProc := TAsyncProcess.Create(nil);
+  //fRunProc.OnReadData := @asyncprocOutput;
+
   dmdproc := TProcess.Create(nil);
-  runproc := TProcess.Create(nil);
   editor  := fEditWidg.editor[edIndex];
   try
 
@@ -1250,13 +1296,17 @@ begin
     begin
       ProcessOutputToMsg(dmdproc, mcEditor);
       fMesgWidg.addCeInf(editor.fileName + ' successfully compiled', mcEditor );
-      runproc.Options := [poStderrToOutPut, poUsePipes];
-      runproc.CurrentDirectory := extractFilePath(runProc.Executable);
-      runproc.Parameters.DelimitedText := expandSymbolicString(runArgs);
-      runproc.Executable := fname + exeExt;
-      runproc.Execute;
-      repeat ProcessOutputToMsg(runproc, mcEditor) until not runproc.Running;
-       sysutils.DeleteFile(fname + exeExt);
+      fRunProc.Options := fRunProc.Options + [poStderrToOutPut, poUsePipes];
+      fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
+      fRunProc.Parameters.DelimitedText := expandSymbolicString(runArgs);
+      fRunProc.Executable := fname + exeExt;
+      fPrInpWidg.process := fRunProc;
+      fRunProc.Execute;
+
+      //ProcessOutputToMsg(fRunProc, mcEditor);
+
+      //repeat ProcessOutputToMsg(runproc, mcEditor) until not runproc.Running;
+       //sysutils.DeleteFile(fname + exeExt);
        sysutils.DeleteFile(fname + objExt);
     end
     else begin
@@ -1264,9 +1314,11 @@ begin
       fMesgWidg.addCeErr(editor.fileName  + ' has not been compiled', mcEditor );
     end;
 
+    //fPrInpWidg.process := nil;
+
   finally
     dmdproc.Free;
-    runproc.Free;
+    //runproc.Free;
   end;
 end;
 
