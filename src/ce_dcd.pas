@@ -91,6 +91,7 @@ var
   i: NativeInt;
   kind: Char;
   item: string;
+  asComp: boolean;
 begin
   if not dcdOn then exit;
   lazyServerStart;
@@ -102,8 +103,13 @@ begin
   DCD_client.Execute;
   //
   lines.LoadFromStream(DCD_client.Output);
+  if lines.Count = 0 then
+    exit;
+  asComp := lines.Strings[0] = 'identifiers';
+  if not asComp then
+    exit;
   list.Clear;
-  for i := 0 to lines.Count-1 do
+  for i := 1 to lines.Count-1 do
   begin
     item := lines.Strings[i];
     kind := item[length(item)];
