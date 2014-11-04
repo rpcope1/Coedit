@@ -190,7 +190,9 @@ type
     fFileMru: TMruFileList;
     fLibMan: TLibraryManager;
     fPrInpWidg: TCEProcInputWidget;
+    {$IFDEF WIN32}
     fCdbWidg: TCECdbWidget;
+    {$ENDIF}
     fTools: TCETools;
 
     fRunProc: TAsyncProcess;
@@ -1931,14 +1933,13 @@ begin
         'CPFS', 'CurrentProjectFiles':
           begin
             if fProject <> nil then
-              if fileExists(fProject.fileName) then
-                for j := 0 to fProject.Sources.Count-1 do
-                begin
-                  result += fProject.getAbsoluteSourceName(j);
-                  if fProject.Sources.Count > 1 then
-                    if j <> fProject.Sources.Count-1 then
-                      result += LineEnding;
-                end;
+              for j := 0 to fProject.Sources.Count-1 do
+              begin
+                result += fProject.getAbsoluteSourceName(j);
+                if fProject.Sources.Count > 1 then
+                  if j <> fProject.Sources.Count-1 then
+                    result += LineEnding;
+              end;
           end;
         'CPN', 'CurrentProjectName':
           begin
