@@ -36,6 +36,7 @@ type
     procedure setMaxCount(aValue: Integer);
     function checkItem(const S: string): boolean; virtual;
     procedure Put(Index: Integer; const S: string); override;
+    procedure InsertItem(Index: Integer; const S: string); override;
   published
     property maxCount: Integer read fMaxCount write setMaxCount;
   public
@@ -257,6 +258,13 @@ begin
 end;
 
 procedure TMRUList.Put(Index: Integer; const S: string);
+begin
+  if not (checkItem(S)) then exit;
+  inherited;
+  clearOutOfRange;
+end;
+
+procedure TMRUList.InsertItem(Index: Integer; const S: string);
 begin
   if not (checkItem(S)) then exit;
   inherited;
