@@ -580,7 +580,9 @@ var
 begin
   if aPath[length(aPath)] = '*' then
   begin
-    pth := aPath[1..length(aPath)-2];
+    pth := aPath[1..length(aPath)-1];
+    if pth[length(pth)] in ['/','\'] then
+      pth := pth[1..length(pth)-1];
     if not directoryExists(pth) then exit(false);
     //
     files := TStringList.Create;
