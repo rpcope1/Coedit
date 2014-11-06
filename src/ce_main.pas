@@ -1283,6 +1283,7 @@ begin
 
   FreeRunnableProc;
   fRunProc := TAsyncProcess.Create(nil);
+  fRunProc.Options := [poStderrToOutPut, poUsePipes];
   fRunProc.OnReadData := @asyncprocOutput;
   fRunProc.OnTerminate:= @asyncprocTerminate;
 
@@ -1315,7 +1316,6 @@ begin
     begin
       ProcessOutputToMsg(dmdproc, mcEditor);
       fMesgWidg.addCeInf(editor.fileName + ' successfully compiled', mcEditor );
-      fRunProc.Options := fRunProc.Options + [poNoConsole, poStderrToOutPut, poUsePipes];
       fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
       fRunProc.Parameters.DelimitedText := expandSymbolicString(runArgs);
       fRunProc.Executable := fname + exeExt;
