@@ -1284,6 +1284,7 @@ begin
   FreeRunnableProc;
   fRunProc := TAsyncProcess.Create(nil);
   fRunProc.Options := [poStderrToOutPut, poUsePipes];
+  fRunProc.ShowWindow := swoHIDE;
   fRunProc.OnReadData := @asyncprocOutput;
   fRunProc.OnTerminate:= @asyncprocTerminate;
 
