@@ -68,7 +68,7 @@ begin
   if DCD_server <> nil then
     FreeAndNil(DCD_server);
   DCD_server := TProcess.Create(nil);
-  DCD_server.Executable := extractFilePath(application.ExeName) + directorySeparator + 'dcd-server' + exeExt;
+  DCD_server.Executable := 'dcd-server' + exeExt;
   DCD_server.Options := [poUsePipes{$IFDEF WINDOWS}, poNewConsole{$ENDIF}];
   DCD_server.ShowWindow := swoHIDE;
 end;
@@ -198,10 +198,10 @@ end;
 initialization
   createServer;
   DCD_client := TProcess.Create(nil);
-  DCD_client.Executable := extractFilePath(application.ExeName) + directorySeparator + 'dcd-client' + exeExt;
+  DCD_client.Executable := 'dcd-client' + exeExt;
   DCD_client.Options := [poUsePipes{$IFDEF WINDOWS}, poNewConsole{$ENDIF}];
   DCD_client.ShowWindow := swoHIDE;
-  dcdOn := fileExists(DCD_server.Executable) and fileExists(DCD_client.Executable);
+  dcdOn := exeInSysPath(DCD_server.Executable) and exeInSysPath(DCD_client.Executable);
   lines := TStringList.Create;
 finalization
   DCD_server.Active := false;

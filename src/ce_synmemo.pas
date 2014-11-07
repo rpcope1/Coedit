@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, SynEdit, SynMemo, ce_d2syn, SynEditHighlighter, controls,
   lcltype, LazSynEditText, SynPluginSyncroEdit, SynEditKeyCmds, ce_project,
-  SynHighlighterLFM, SynEditMouseCmds, ce_common, ce_observer, menus;
+  SynHighlighterLFM, SynEditMouseCmds, ce_common, ce_observer;
 
 type
   TCESynMemo = class(TSynMemo)
