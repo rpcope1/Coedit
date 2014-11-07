@@ -8,8 +8,8 @@ uses
   {$IFDEF DEBUG}
   LclProc,
   {$ENDIF}
-  Classes, SysUtils, ce_common, ce_writableComponent ,ce_dmdwrap, ce_libman,
-  ce_observer;
+  Classes, SysUtils, process, asyncprocess, ce_common, ce_writableComponent,
+  ce_dmdwrap, ce_libman, ce_observer;
 
 type
 
@@ -34,6 +34,8 @@ type
     fLibMan: TLibraryManager;
     fChangedCount: NativeInt;
     fProjectSubject: TCECustomSubject;
+    fRunner: TAsyncProcess;
+    fLogMessager: TCECustomSubject;
     procedure doChanged;
     procedure setLibAliases(const aValue: TStringList);
     procedure subMemberChanged(sender : TObject);
@@ -43,6 +45,7 @@ type
     procedure setConfIx(aValue: Integer);
     function getConfig(const ix: integer): TCompilerConfiguration;
     function getCurrConf: TCompilerConfiguration;
+    procedure runPrePostProcess(const processInfo: TCompileProcOptions);
   protected
     procedure afterSave; override;
     procedure afterLoad; override;
@@ -68,6 +71,8 @@ type
     function addConfiguration: TCompilerConfiguration;
     procedure getOpts(const aList: TStrings);
     function outputFilename: string;
+    procedure runProject;
+    procedure compileProject;
     //
     property libraryManager: TLibraryManager read fLibMan write fLibMan;
     property configuration[ix: integer]: TCompilerConfiguration read getConfig;
@@ -79,11 +84,12 @@ type
 implementation
 
 uses
-  ce_interfaces, controls, dialogs;
+  ce_interfaces, controls, dialogs, ce_main;
 
 constructor TCEProject.create(aOwner: TComponent);
 begin
   inherited create(aOwner);
+  fLogMessager := TCELogMessageSubject.create;
   fProjectSubject := TCEProjectSubject.create;
   //
   fLibAliases := TStringList.Create;
@@ -103,6 +109,7 @@ destructor TCEProject.destroy;
 begin
   subjProjClosing(TCEProjectSubject(fProjectSubject), self);
   fProjectSubject.Free;
+  fLogMessager.Free;
   //
   fOnChange := nil;
   fLibAliases.Free;
@@ -429,6 +436,78 @@ begin
     Skip := true;
     Handled := false;
   end;
+end;
+
+procedure TCEProject.runPrePostProcess(const processInfo: TCompileProcOptions);
+var
+  process: TProcess;
+  pname: string;
+  i, j: integer;
+begin
+  with currentConfiguration do
+  begin
+    pname := CEMainForm.expandSymbolicString(preBuildProcess.executable);
+    if pname <> '``' then
+      if exeInSysPath(pname) then
+      begin
+        process := TProcess.Create(nil);
+        try
+          processInfo.setProcess(process);
+          process.Executable := pname;
+          j := process.Parameters.Count-1;
+          for i:= 0 to j do
+            process.Parameters.AddText(CEMainForm.expandSymbolicString(process.Parameters.Strings[i]));
+          for i:= 0 to j do
+            process.Parameters.Delete(0);
+          if process.CurrentDirectory = '' then
+            process.CurrentDirectory := extractFilePath(process.Executable);
+          process.Execute;
+          if not (poWaitOnExit in process.Options) then
+            if poUsePipes in process.Options then
+              subjLmProcess(TCELogMessageSubject(fLogMessager), process, @Self, amcProj, amkBub);
+        finally
+          process.Free;
+        end;
+      end
+      else subjLmStandard(TCELogMessageSubject(fLogMessager),
+        'the pre/post compilation executable does not exist', @Self, amcProj, amkBub);
+  end;
+end;
+
+procedure TCEProject.runProject;
+begin
+  killProcess(fRunner);
+  fRunner := TAsyncProcess.Create(nil);
+end;
+
+procedure TCEProject.compileProject;
+var
+  compilproc: TProcess;
+  olddir: string;
+begin
+
+  runPrePostProcess(currentConfiguration.preBuildProcess);
+
+  compilproc := TProcess.Create(nil);
+  getDir(0, olddir);
+  try
+    compilproc.Executable := DCompiler;
+    compilproc.Options := compilproc.Options + [poStderrToOutPut, poUsePipes];
+    compilproc.ShowWindow := swoHIDE;
+    getOpts(compilproc.Parameters);
+    compilproc.Execute;
+    subjLmProcess(TCELogMessageSubject(fLogMessager), compilproc, @Self, amcProj, amkBub);
+    if compilproc.ExitStatus <> 0 then
+    else ;
+
+    runPrePostProcess(currentConfiguration.postBuildProcess);
+
+  finally
+    compilproc.Free;
+    chDir(olddir);
+  end;
+
+
 end;
 
 initialization

@@ -5,7 +5,8 @@ unit ce_interfaces;
 interface
 
 uses
-  Classes, SysUtils, actnList, menus, ce_synmemo, ce_project, ce_observer;
+  Classes, SysUtils, actnList, process, menus,
+  ce_synmemo, ce_project, ce_observer;
 
 type
 
@@ -137,6 +138,30 @@ type
   end;
 
 
+  /// describes the message kind, when Auto implies that a ICELogMessageObserver guess the kind.
+  TCEAppMessageKind = (amkAuto, amkBub, amkInf, amkWarn, amkErr);
+  /// describes the message context. Used by a ICELogMessageObserver to filter the messages.
+  TCEAppMessageCtxt = (amcApp, amcTool, amcProj, amcEdit);
+
+  (**
+   * An implementer get some log messages.
+   *)
+  ICELogMessageObserver = interface
+  ['ICEMessage']
+    // a TCELogMessageSubject sends a message based on a string.
+    procedure lmStandard(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+    // a TCELogMessageSubject sends a message based on a process output.
+    procedure lmProcess(const aValue: TProcess; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+  end;
+  (**
+   * An implementer sends some log messages.
+   *)
+  TCELogMessageSubject = class(TCECustomSubject)
+  protected
+    function acceptObserver(aObject: TObject): boolean; override;
+  end;
+
+
 {
   subject Primitives:
 
@@ -147,27 +172,34 @@ type
   (**
    * TCEMultiDocSubject primitives.
    *)
-   procedure subjDocNew(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);      {$IFDEF RELEASE}inline;{$ENDIF}
-   procedure subjDocClosing(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);  {$IFDEF RELEASE}inline;{$ENDIF}
-   procedure subjDocFocused(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);  {$IFDEF RELEASE}inline;{$ENDIF}
-   procedure subjDocChanged(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);  {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjDocNew(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);      {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjDocClosing(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);  {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjDocFocused(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);  {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjDocChanged(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);  {$IFDEF RELEASE}inline;{$ENDIF}
 
 
   (**
    * TCEProjectSubject primitives.
    *)
-   procedure subjProjNew(aSubject: TCEProjectSubject; aProj: TCEProject);     {$IFDEF RELEASE}inline;{$ENDIF}
-   procedure subjProjClosing(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
-   procedure subjProjFocused(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
-   procedure subjProjChanged(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjProjNew(aSubject: TCEProjectSubject; aProj: TCEProject);     {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjProjClosing(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjProjFocused(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjProjChanged(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
 
   (**
    * TCESessionOptionsSubject primitives.
    *)
-   procedure subjSesOptsBeforeSave(aSubject: TCESessionOptionsSubject);                       {$IFDEF RELEASE}inline;{$ENDIF}
-   procedure subjSesOptsDeclareProperties(aSubject: TCESessionOptionsSubject; aFiler: TFiler);{$IFDEF RELEASE}inline;{$ENDIF}
-   procedure subjSesOptsAfterLoad(aSubject: TCESessionOptionsSubject);                        {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjSesOptsBeforeSave(aSubject: TCESessionOptionsSubject);                       {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjSesOptsDeclareProperties(aSubject: TCESessionOptionsSubject; aFiler: TFiler);{$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjSesOptsAfterLoad(aSubject: TCESessionOptionsSubject);                        {$IFDEF RELEASE}inline;{$ENDIF}
 
+  (**
+   * TCELogMessageSubject primitives.
+   *)
+  procedure subjLmStandard(aSubject: TCELogMessageSubject; const aValue: string;
+      aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+  procedure subjLmProcess(aSubject: TCELogMessageSubject; const aValue: TProcess;
+      aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
 
 implementation
 
@@ -280,7 +312,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION TCEEditableShortCutSubject}
+{$REGION TCEMainMenuSubject}
 function TCEMainMenuSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICEMainMenuProvider);
@@ -292,5 +324,31 @@ function TCEEditableShortCutSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICEEditableShortCut);
 end;
+{$ENDREGION}
+
+{$REGION TCELogMessageSubject}
+function TCELogMessageSubject.acceptObserver(aObject: TObject): boolean;
+begin
+  exit(aObject is ICELogMessageObserver);
+end;
+
+procedure subjLmStandard(aSubject: TCELogMessageSubject; const aValue: string;
+  aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+var
+  i: Integer;
+begin
+  with aSubject do for i:= 0 to fObservers.Count-1 do
+    (fObservers.Items[i] as ICELogMessageObserver).lmStandard(aValue, aData, aCtxt, aKind);
+end;
+
+procedure subjLmProcess(aSubject: TCELogMessageSubject; const aValue: TProcess;
+      aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+var
+  i: Integer;
+begin
+  with aSubject do for i:= 0 to fObservers.Count-1 do
+    (fObservers.Items[i] as ICELogMessageObserver).lmProcess(aValue, aData, aCtxt, aKind);
+end;
+
 {$ENDREGION}
 end.

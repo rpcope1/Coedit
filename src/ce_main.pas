@@ -197,6 +197,8 @@ type
 
     fRunProc: TAsyncProcess;
 
+    fLogMessager: TCELogMessageSubject;
+
     // ICEMultiDocObserver
     procedure docNew(const aDoc: TCESynMemo);
     procedure docClosing(const aDoc: TCESynMemo);
@@ -280,7 +282,7 @@ type
     function expandSymbolicString(const symString: string): string;
     //
     property WidgetList: TCEWidgetList read fWidgList;
-    property MessageWidget: TCEMessagesWidget read fMesgWidg;
+    //property MessageWidget: TCEMessagesWidget read fMesgWidg;
     property LibraryManager: TLibraryManager read fLibMan;
     property CustomTools: TCETools read fTools;
   end;
@@ -300,6 +302,8 @@ uses
 constructor TCEMainForm.create(aOwner: TComponent);
 begin
   inherited create(aOwner);
+  fLogMessager := TCELogMessageSubject.create;
+  //
   EntitiesConnector.addObserver(self);
   //
   InitMRUs;
@@ -590,7 +594,10 @@ begin
   if WindowState = wsMinimized then
     WindowState := wsNormal;
   for i:= 0 to fWidgList.Count-1 do
+  begin
     DockMaster.GetAnchorSite(fWidgList.widget[i]).Show;
+    DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState := wsNormal;
+  end;
   if not Visible then exit;
   //
   forceDirectory(getDocPath);
@@ -688,9 +695,7 @@ begin
     exit;
   //
   fname := fRunProc.Executable;
-  fRunProc.Terminate(0);
-  fRunProc.Free;
-  fRunProc := nil;
+  killProcess(fRunProc);
   if fileExists(fname) then
     sysutils.DeleteFile(fname);
 end;
@@ -707,6 +712,7 @@ begin
   fProject.Free;
   FreeRunnableProc;
   //
+  fLogMessager.Free;
   EntitiesConnector.removeObserver(self);
   inherited;
 end;
@@ -1622,7 +1628,10 @@ var
 begin
   // TODO-cbugfix: possible loading AV, xml saved after undocking some widgets, xml file abnormal size.
   for i:= 0 to fWidgList.Count-1 do
+  begin
     DockMaster.GetAnchorSite(fWidgList.widget[i]).Show;
+    DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState := wsNormal;
+  end;
   //
   forceDirectory(extractFilePath(aFilename));
   xcfg := TXMLConfigStorage.Create(aFilename, false);
@@ -2012,24 +2021,24 @@ begin
 
   ctxt := opCode and $0F000000;
   oper := opCode and $000FFFFF;
-
+{
   case ctxt of
     CTXT_MSGS:
       case oper of
-        DT_ERR:  CEMainForm.MessageWidget.addCeErr(PChar(data1));
-        DT_INF:  CEMainForm.MessageWidget.addCeInf(PChar(data1));
-        DT_WARN: CEMainForm.MessageWidget.addCeWarn(PChar(data1));
-        else CEMainForm.MessageWidget.addCeWarn('unsupported dispatcher opCode');
+        //DT_ERR:  CEMainForm.MessageWidget.addCeErr(PChar(data1));
+        //DT_INF:  CEMainForm.MessageWidget.addCeInf(PChar(data1));
+        //DT_WARN: CEMainForm.MessageWidget.addCeWarn(PChar(data1));
+        //else CEMainForm.MessageWidget.addCeWarn('unsupported dispatcher opCode');
       end;
     CTXT_DLGS:
       case oper of
         DT_ERR: dlgOkError(PChar(data1));
         DT_INF: dlgOkInfo(PChar(data1));
         DT_WARN: dlgOkInfo(PChar(data1));
-        else CEMainForm.MessageWidget.addCeWarn('unsupported dispatcher opCode');
+        //else CEMainForm.MessageWidget.addCeWarn('unsupported dispatcher opCode');
       end;
-    else CEMainForm.MessageWidget.addCeWarn('unsupported dispatcher opCode');
-  end;
+    //else CEMainForm.MessageWidget.addCeWarn('unsupported dispatcher opCode');
+  end;}
 
 end;
 

@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, ComCtrls, Buttons, lcltype, strutils, ce_widget, ce_common;
+  Menus, ComCtrls, Buttons, lcltype, strutils, ce_widget, ce_common,
+  ce_interfaces, ce_observer;
 
 type
   TCEMiniExplorerWidget = class(TCEWidget)
@@ -31,6 +32,7 @@ type
   private
     fFavorites: TStringList;
     fLastFold: string;
+    fLogMessager: TCELogMessageSubject;
     procedure lstFavDblClick(Sender: TObject);
     procedure optset_LastFold(aReader: TReader);
     procedure optget_LastFold(aWriter: TWriter);
@@ -69,6 +71,7 @@ uses
 constructor TCEMiniExplorerWidget.create(aIwner: TComponent);
 begin
   inherited;
+  fLogMessager := TCELogMessageSubject.create;
   fFavorites := TStringList.Create;
   fFavorites.onChange := @favStringsChange;
   lstFiles.OnDeletion := @lstDeletion;
@@ -87,6 +90,7 @@ end;
 
 destructor TCEMiniExplorerWidget.destroy;
 begin
+  fLogMessager.Free;
   fFavorites.Free;
   inherited;
 end;
@@ -253,8 +257,9 @@ begin
   if lstFiles.Selected.Data = nil then exit;
   fname := PString(lstFiles.Selected.Data)^;
   if not fileExists(fname) then exit;
-  if not shellOpen(fname) then CEMainForm.MessageWidget.addCeErr
-    (format('the shell failed to open "%s"', [shortenPath(fname, 25)]));
+  if not shellOpen(fname) then subjLmStandard(fLogMessager,
+    (format('the shell failed to open "%s"', [shortenPath(fname, 25)])),
+    nil, amcTool, amkErr);
 end;
 
 {$ENDREGION}

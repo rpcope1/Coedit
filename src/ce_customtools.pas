@@ -5,12 +5,14 @@ unit ce_customtools;
 interface
 
 uses
-  Classes, SysUtils, process, ce_common, ce_writableComponent;
+  Classes, SysUtils, process, asyncprocess, ce_common, ce_writableComponent,
+  ce_interfaces, ce_observer;
 
 type
 
   TCEToolItem = class(TCollectionItem)
   private
+    fProcess: TAsyncProcess;
     fExecutable: string;
     fWorkingDir: string;
     fShowWin: TShowWindowOptions;
@@ -18,6 +20,7 @@ type
     fParameters: TStringList;
     fToolAlias: string;
     fShortcut: string;
+    fLogMessager: TCELogMessageSubject;
     procedure setParameters(const aValue: TStringList);
   published
     property toolAlias: string read fToolAlias write fToolAlias;
@@ -59,11 +62,14 @@ begin
   inherited;
   fToolAlias := format('<tool %d>', [ID]);
   fParameters := TStringList.create;
+  fLogMessager := TCELogMessageSubject.create;
 end;
 
 destructor TCEToolItem.destroy;
 begin
   fParameters.Free;
+  fLogMessager.Free;
+  killProcess(fProcess);
   inherited;
 end;
 
@@ -75,25 +81,22 @@ end;
 procedure TCEToolItem.execute;
 var
   i: Integer;
-  proc: TProcess;
 begin
-  proc := TProcess.Create(nil);
-  try
-    proc.Options := fOpts;
-    if fExecutable <> '' then
-      proc.Executable := CEMainForm.expandSymbolicString(fExecutable);
-    proc.ShowWindow := fShowWin;
-    if fWorkingDir <> '' then
-      proc.CurrentDirectory := CEMainForm.expandSymbolicString(fWorkingDir);
-    proc.Parameters.Clear;
-    for i:= 0 to fParameters.Count-1 do
-      if fParameters.Strings[i] <> '' then
-        proc.Parameters.AddText(CEMainForm.expandSymbolicString(fParameters.Strings[i]));
-    proc.Options := proc.Options - [poUsePipes, poWaitOnExit];
-    proc.Execute;
-  finally
-    proc.Free;
-  end;
+  killProcess(fProcess);
+  fProcess := TAsyncProcess.Create(nil);
+  //
+  fProcess.Options := fOpts;
+  if fExecutable <> '' then
+    fProcess.Executable := CEMainForm.expandSymbolicString(fExecutable);
+  fProcess.ShowWindow := fShowWin;
+  if fWorkingDir <> '' then
+    fProcess.CurrentDirectory := CEMainForm.expandSymbolicString(fWorkingDir);
+  fProcess.Parameters.Clear;
+  for i:= 0 to fParameters.Count-1 do
+    if fParameters.Strings[i] <> '' then
+      fProcess.Parameters.AddText(CEMainForm.expandSymbolicString(fParameters.Strings[i]));
+  subjLmProcess(fLogMessager, fProcess, nil, amcTool, amkBub);
+  fProcess.Execute;
 end;
 
 constructor TCETools.create(aOwner: TComponent);

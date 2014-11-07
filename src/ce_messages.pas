@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, ce_project,
-  ce_synmemo, ce_dlangutils, ce_interfaces, ce_observer;
+  lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, process, asyncprocess,
+  ce_common, ce_project, ce_synmemo, ce_dlangutils, ce_interfaces, ce_observer;
 
 type
 
@@ -21,7 +21,7 @@ type
     position: TPoint;
   end;
 
-  TCEMessagesWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver)
+  TCEMessagesWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver, ICELogMessageObserver)
     imgList: TImageList;
     List: TTreeView;
     procedure ListDblClick(Sender: TObject);
@@ -45,6 +45,9 @@ type
     procedure setMaxMessageCount(aValue: Integer);
     procedure listDeletion(Sender: TObject; Node: TTreeNode);
     function newMessageItemData(aCtxt: TMessageContext): PMessageItemData;
+    procedure processOutput(Sender: TObject);
+    procedure processTerminate(Sender: TObject);
+    procedure logProcessOutput(const aProcess: TProcess);
     //
     procedure optset_MaxMessageCount(aReader: TReader);
     procedure optget_MaxMessageCount(awriter: TWriter);
@@ -57,6 +60,7 @@ type
     procedure scrollToBack;
     procedure addMessage(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
     procedure addMessage(const aMsg: string; const aData: PMessageItemData);
+    procedure addCeBub(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
     procedure addCeInf(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
     procedure addCeErr(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
     procedure addCeWarn(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
@@ -76,6 +80,11 @@ type
     procedure docClosing(const aDoc: TCESynMemo);
     procedure docFocused(const aDoc: TCESynMemo);
     procedure docChanged(const aDoc: TCESynMemo);
+    //
+    procedure lmStandard(const aValue: string; aData: Pointer;
+      aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+    procedure lmProcess(const aValue: TProcess; aData: Pointer;
+      aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
     //
     procedure ClearAllMessages;
     procedure ClearMessages(aCtxt: TMessageContext);
@@ -309,6 +318,58 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION ICELogMessageObserver ---------------------------------------------------}
+
+procedure TCEMessagesWidget.lmStandard(const aValue: string; aData: Pointer;
+  aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+begin
+    case aKInd of
+    amkBub: addCeBub(aValue);
+    amkInf: addCeInf(aValue);
+    amkWarn:addCeWarn(aValue);
+    amkErr: addCeErr(aValue);
+  end;
+end;
+
+procedure TCEMessagesWidget.lmProcess(const aValue: TProcess; aData: Pointer;
+  aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+begin
+   if not (poUsePipes in aValue.Options) then
+    exit;
+   //
+  if aValue is TAsyncProcess then begin
+    TAsyncProcess(aValue).OnReadData := @processOutput;
+    TAsyncProcess(aValue).OnTerminate := @processTerminate;
+  end else
+    logProcessOutput(aValue);
+end;
+
+procedure TCEMessagesWidget.processOutput(Sender: TObject);
+begin
+  logProcessOutput(TProcess(Sender));
+end;
+
+procedure TCEMessagesWidget.processTerminate(Sender: TObject);
+begin
+  logProcessOutput(TProcess(Sender));
+end;
+
+procedure TCEMessagesWidget.logProcessOutput(const aProcess: TProcess);
+var
+  lst: TStringList;
+  str: string;
+begin
+  lst := TStringList.Create;
+  try
+    processOutputToStrings(aProcess, lst);
+    for str in lst do
+      addCeBub(str);
+  finally
+    lst.Free;
+  end;
+end;
+{$ENDREGION}
+
 {$REGION Messages --------------------------------------------------------------}
 procedure TCEMessagesWidget.clearOutOfRangeMessg;
 begin
@@ -393,6 +454,18 @@ begin
       else List.Items.Delete(List.Items[i]);
     end;
   end;
+end;
+
+procedure TCEMessagesWidget.addCeBub(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
+var
+  item: TTreeNode;
+begin
+  item := List.Items.Add(nil, 'Coedit message: ' + aMsg);
+  item.Data := newMessageItemData(aCtxt);
+  item.ImageIndex := 0;
+  item.SelectedIndex := 0;
+  clearOutOfRangeMessg;
+  scrollToBack;
 end;
 
 procedure TCEMessagesWidget.addCeInf(const aMsg: string; aCtxt: TMessageContext = mcUnknown);

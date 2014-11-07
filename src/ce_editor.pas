@@ -248,7 +248,7 @@ end;
 
 procedure TCEEditorWidget.removeEditor(const aIndex: NativeInt);
 begin
-  CEMainForm.MessageWidget.ClearMessages(mcEditor);
+  //CEMainForm.MessageWidget.ClearMessages(mcEditor);
   editor[aIndex].OnChange:= nil;
   pageControl.Pages[aIndex].Free;
 end;
@@ -399,11 +399,11 @@ begin
   fKeyChanged := false;
   if fDoc.Lines.Count = 0 then exit;
   //
-  if fProj = nil then
-    CEMainForm.MessageWidget.ClearMessages(mcEditor)
-  else begin
+  //if fProj = nil then
+    //CEMainForm.MessageWidget.ClearMessages(mcEditor)
+  //else begin
     // if the source is in proj then we want to keep messages to correct mistakes.
-  end;
+  //end;
 
   lex(fDoc.Lines.Text, tokLst);
 
@@ -428,7 +428,7 @@ begin
   if md = '' then md := extractFileName(fDoc.fileName);
   pageControl.ActivePage.Caption := md;
 
-  CEMainForm.MessageWidget.scrollToBack;
+  //CEMainForm.MessageWidget.scrollToBack;
   tokLst.Clear;
   errLst.Clear;
 end;

@@ -24,6 +24,7 @@ type
     procedure TreeFilterEdit1AfterFilter(Sender: TObject);
     procedure TreeKeyPress(Sender: TObject; var Key: char);
   private
+    fLogMessager: TCELogMessageSubject;
     fActRefresh: TAction;
     fActRefreshOnChange: TAction;
     fActRefreshOnFocus: TAction;
@@ -85,6 +86,7 @@ uses ce_main, ce_libman;
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEStaticExplorerWidget.create(aOwner: TComponent);
 begin
+  fLogMessager := TCELogMessageSubject.create;
   fAutoRefresh := false;
   fRefreshOnFocus := true;
   fRefreshOnChange := false;
@@ -132,6 +134,8 @@ end;
 destructor TCEStaticExplorerWidget.destroy;
 begin
   EntitiesConnector.removeObserver(self);
+  //
+  fLogMessager.Free;
   inherited;
 end;
 {$ENDREGION}
@@ -479,7 +483,7 @@ begin
         'struct'    :ndCat := Tree.Items.AddChildObject(ndStruct, nme, ln);
         'template'  :ndCat := Tree.Items.AddChildObject(ndTmp, nme, ln);
         'variable'  :ndCat := Tree.Items.AddChildObject(ndVar, nme, ln);
-        else CEMainForm.MessageWidget.addCeWarn('static explorer does not handle this kind: ' + knd);
+        else subjLmStandard(fLogMessager, 'static explorer does not handle this kind: ' + knd, nil, amcApp, amkWarn);
       end;
 
       if ndCat = nil then

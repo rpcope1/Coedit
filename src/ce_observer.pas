@@ -44,7 +44,8 @@ type
   end;
 
   (**
-   * Standard implementation of an ICESubject
+   * Standard implementation of an ICESubject.
+   * Any descendant adds itself to the global EntitiesConnector.
    *)
   TCECustomSubject = class(ICESubject)
   protected
