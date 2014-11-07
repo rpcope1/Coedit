@@ -9,7 +9,7 @@ uses
   {$IFDEF WINDOWS}
   Windows,
   {$ENDIF}
-  ActnList, dialogs, forms, process;
+  ActnList, dialogs, forms, process, asyncprocess;
 
 const
   DdiagFilter = 'D source|*.d|D interface|*.di|All files|*.*';
@@ -178,6 +178,16 @@ type
    * Returns true if anExeName can be spawn without its full path.
    *)
   function exeInSysPath(anExeName: string): boolean;
+
+  (**
+   * Clears then fills aList with aProcess output stream.
+   *)
+  procedure processOutputToStrings(const aProcess: TProcess; var aList: TStringList);
+
+  (**
+   * Terminates and frees aProcess;
+   *)
+  procedure killProcess(var aProcess: TAsyncProcess);
 
 implementation
 
@@ -664,6 +674,42 @@ begin
     exit(true)
   else
     exit(ExeSearch(anExeName, '') <> '');
+end;
+
+procedure processOutputToStrings(const aProcess: TProcess; var aList: TStringList);
+var
+  str: TMemoryStream;
+  sum: Integer;
+  cnt: Integer;
+const
+  buffSz = 1024;
+begin
+  if not (poUsePipes in aProcess.Options) then
+    exit;
+  //
+  sum := 0;
+  str := TMemoryStream.Create;
+  try
+    while aProcess.Output.NumBytesAvailable <> 0 do begin
+      str.Size := str.Size + buffSz;
+      cnt := aProcess.Output.Read((str.Memory + sum)^, buffSz);
+      sum += cnt;
+    end;
+    str.Size := sum;
+    aList.LoadFromStream(str);
+  finally
+    str.Free;
+  end;
+end;
+
+procedure killProcess(var aProcess: TAsyncProcess);
+begin
+  if aProcess = nil then
+    exit;
+  if aProcess.Running then
+    aProcess.Terminate(0);
+  aProcess.Free;
+  aProcess := nil;
 end;
 
 initialization
