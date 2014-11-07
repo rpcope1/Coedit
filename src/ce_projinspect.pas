@@ -36,6 +36,8 @@ type
     fActSelConf: TAction;
     fProject: TCEProject;
     fFileNode, fConfNode: TTreeNode;
+    fImpsNode, fInclNode: TTreeNode;
+    fXtraNode: TTreeNode;
     procedure actUpdate(sender: TObject);
     procedure TreeDblClick(sender: TObject);
     procedure actOpenFileExecute(sender: TObject);
@@ -74,6 +76,9 @@ begin
   Tree.OnDblClick := @TreeDblClick;
   fFileNode := Tree.Items[0];
   fConfNode := Tree.Items[1];
+  fImpsNode := Tree.Items[2];
+  fInclNode := Tree.Items[3];
+  fXtraNode := Tree.Items[4];
   //
   Tree.PopupMenu := contextMenu;
   //
@@ -280,20 +285,25 @@ end;
 
 procedure TCEProjectInspectWidget.UpdateByEvent;
 var
-  src, conf: string;
+  src, fold, conf: string;
+  lst: TStringList;
   itm: TTreeNode;
   i: NativeInt;
 begin
   fConfNode.DeleteChildren;
   fFileNode.DeleteChildren;
+  fImpsNode.DeleteChildren;
+  fInclNode.DeleteChildren;
+  fXtraNode.DeleteChildren;
   if fProject = nil then exit;
-  //
+  // display main sources
   for src in fProject.Sources do
    begin
      itm := Tree.Items.AddChild(fFileNode, src);
      itm.ImageIndex := 2;
      itm.SelectedIndex := 2;
    end;
+  // display configurations
   for i := 0 to fProject.OptionsCollection.Count-1 do
   begin
     conf := fProject.configuration[i].name;
@@ -302,6 +312,41 @@ begin
     itm.ImageIndex := 3;
     itm.SelectedIndex:= 3;
   end;
+  // display Imports (-J)
+  for fold in FProject.currentConfiguration.pathsOptions.Imports do
+  begin
+    itm := Tree.Items.AddChild(fImpsNode, shortenPath(fold));
+    itm.ImageIndex := 5;
+    itm.SelectedIndex := 5;
+  end;
+  fImpsNode.Collapse(false);
+  // display Includes (-I)
+  for fold in FProject.currentConfiguration.pathsOptions.Includes do
+  begin
+    itm := Tree.Items.AddChild(fInclNode, shortenPath(fold));
+    itm.ImageIndex := 5;
+    itm.SelectedIndex := 5;
+  end;
+  fInclNode.Collapse(false);
+  // display extra sources (external .lib, *.a, *.d)
+  for src in FProject.currentConfiguration.pathsOptions.Sources do
+  begin
+    lst := TStringList.Create;
+    try
+      if listAsteriskPath(src, lst) then for src in lst do begin
+        itm := Tree.Items.AddChild(fXtraNode, shortenPath(src));
+        itm.ImageIndex := 2;
+        itm.SelectedIndex := 2;
+      end else begin
+        itm := Tree.Items.AddChild(fXtraNode, shortenPath(src));
+        itm.ImageIndex := 2;
+        itm.SelectedIndex := 2;
+      end;
+    finally
+      lst.Free;
+    end;
+  end;
+  fXtraNode.Collapse(false);
 end;
 
 end.
