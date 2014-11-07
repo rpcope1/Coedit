@@ -578,6 +578,10 @@ var
   pth, ext, fname: string;
   files: TStringList;
 begin
+  result := false;
+  if aPath = '' then
+    exit;
+  //
   if aPath[length(aPath)] = '*' then
   begin
     pth := aPath[1..length(aPath)-1];
