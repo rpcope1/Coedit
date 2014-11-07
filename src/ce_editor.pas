@@ -341,6 +341,7 @@ begin
     fDoc.Lines.SaveToStream(str);
     str.SaveToFile(fname);
     srcpos := fDoc.SelStart;
+    if srcpos > 0 then srcpos -= -1;
     completion.ItemList.Clear;
     ce_dcd.getCompletion(fname, srcpos, completion.ItemList);
   finally

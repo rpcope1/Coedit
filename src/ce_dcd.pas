@@ -88,10 +88,10 @@ end;
 
 procedure getCompletion(const aFilename: string; aPosition: Integer; const list: TStrings);
 var
-  i: NativeInt;
+  i, j: NativeInt;
   kind: Char;
   item: string;
-  asComp: boolean;
+  asComp, asTips: boolean;
 begin
   if not dcdOn then exit;
   lazyServerStart;
@@ -106,10 +106,12 @@ begin
   if lines.Count = 0 then
     exit;
   asComp := lines.Strings[0] = 'identifiers';
-  if not asComp then
+  asTips := lines.Strings[0] = 'calltips';
+  if asTips then
     exit;
+  if asComp then j := 1 else j := 0;
   list.Clear;
-  for i := 1 to lines.Count-1 do
+  for i := j to lines.Count-1 do
   begin
     item := lines.Strings[i];
     kind := item[length(item)];
