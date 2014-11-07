@@ -147,51 +147,42 @@
         <UnitName Value="coedit"/>
       </Unit0>
       <Unit1>
-        <Filename Value="..\src\ce_main.pas"/>
+        <Filename Value="..\src\ce_cdbcmd.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="CEMainForm"/>
+        <ComponentName Value="CECdbWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_main"/>
+        <UnitName Value="ce_cdbcmd"/>
       </Unit1>
       <Unit2>
-        <Filename Value="..\src\ce_widget.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="CEWidget"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_widget"/>
-      </Unit2>
-      <Unit3>
         <Filename Value="..\src\ce_common.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_common"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\src\ce_customtools.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_customtools"/>
       </Unit3>
       <Unit4>
-        <Filename Value="..\src\ce_messages.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="CEMessagesWidget"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_messages"/>
-      </Unit4>
-      <Unit5>
-        <Filename Value="..\src\ce_editor.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="CEEditorWidget"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_editor"/>
-      </Unit5>
-      <Unit6>
         <Filename Value="..\src\ce_d2syn.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_d2syn"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\src\ce_dcd.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_dcd"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="..\src\ce_dlang.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_dlang"/>
       </Unit6>
       <Unit7>
-        <Filename Value="..\src\ce_synmemo.pas"/>
+        <Filename Value="..\src\ce_dlangutils.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_synmemo"/>
+        <UnitName Value="ce_dlangutils"/>
       </Unit7>
       <Unit8>
         <Filename Value="..\src\ce_dmdwrap.pas"/>
@@ -199,64 +190,64 @@
         <UnitName Value="ce_dmdwrap"/>
       </Unit8>
       <Unit9>
-        <Filename Value="..\src\ce_projconf.pas"/>
+        <Filename Value="..\src\ce_editor.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="CEProjectConfigurationWidget"/>
+        <ComponentName Value="CEEditorWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_projconf"/>
+        <UnitName Value="ce_editor"/>
       </Unit9>
       <Unit10>
-        <Filename Value="..\src\ce_projinspect.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="CEProjectInspectWidget"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_projinspect"/>
-      </Unit10>
-      <Unit11>
-        <Filename Value="..\src\ce_project.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_project"/>
-      </Unit11>
-      <Unit12>
         <Filename Value="..\src\ce_interfaces.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_interfaces"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="..\src\ce_libman.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_libman"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="..\src\ce_libmaneditor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="CELibManEditorWidget"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_libmaneditor"/>
       </Unit12>
       <Unit13>
-        <Filename Value="..\src\ce_staticexplorer.pas"/>
+        <Filename Value="..\src\ce_main.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="CEStaticExplorerWidget"/>
+        <ComponentName Value="CEMainForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_staticexplorer"/>
+        <UnitName Value="ce_main"/>
       </Unit13>
       <Unit14>
-        <Filename Value="..\src\ce_search.pas"/>
+        <Filename Value="..\src\ce_messages.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="CESearchWidget"/>
+        <ComponentName Value="CEMessagesWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_search"/>
+        <UnitName Value="ce_messages"/>
       </Unit14>
       <Unit15>
-        <Filename Value="..\src\ce_dlang.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_dlang"/>
-      </Unit15>
-      <Unit16>
-        <Filename Value="..\src\ce_dlangutils.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_dlangutils"/>
-      </Unit16>
-      <Unit17>
         <Filename Value="..\src\ce_miniexplorer.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="CEMiniExplorerWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ce_miniexplorer"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="..\src\ce_observer.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_observer"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="..\src\ce_options.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_options"/>
       </Unit17>
       <Unit18>
         <Filename Value="..\src\ce_plugin.pas"/>
@@ -264,42 +255,54 @@
         <UnitName Value="ce_plugin"/>
       </Unit18>
       <Unit19>
-        <Filename Value="..\src\ce_libman.pas"/>
+        <Filename Value="..\src\ce_procinput.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_libman"/>
-      </Unit19>
-      <Unit20>
-        <Filename Value="..\src\ce_libmaneditor.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="CELibManEditorWidget"/>
+        <ComponentName Value="CEProcInputWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_libmaneditor"/>
+        <UnitName Value="ce_procinput"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="..\src\ce_projconf.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="CEProjectConfigurationWidget"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_projconf"/>
       </Unit20>
       <Unit21>
-        <Filename Value="..\src\ce_dcd.pas"/>
+        <Filename Value="..\src\ce_project.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_dcd"/>
+        <UnitName Value="ce_project"/>
       </Unit21>
       <Unit22>
-        <Filename Value="..\src\ce_customtools.pas"/>
+        <Filename Value="..\src\ce_projinspect.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_customtools"/>
+        <ComponentName Value="CEProjectInspectWidget"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_projinspect"/>
       </Unit22>
       <Unit23>
-        <Filename Value="..\src\ce_observer.pas"/>
+        <Filename Value="..\src\ce_search.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_observer"/>
+        <ComponentName Value="CESearchWidget"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_search"/>
       </Unit23>
       <Unit24>
-        <Filename Value="..\src\ce_writablecomponent.pas"/>
+        <Filename Value="..\src\ce_staticexplorer.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_writableComponent"/>
+        <ComponentName Value="CEStaticExplorerWidget"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_staticexplorer"/>
       </Unit24>
       <Unit25>
-        <Filename Value="..\src\ce_options.pas"/>
+        <Filename Value="..\src\ce_synmemo.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_options"/>
+        <UnitName Value="ce_synmemo"/>
       </Unit25>
       <Unit26>
         <Filename Value="..\src\ce_toolseditor.pas"/>
@@ -310,20 +313,17 @@
         <UnitName Value="ce_toolseditor"/>
       </Unit26>
       <Unit27>
-        <Filename Value="..\src\ce_procinput.pas"/>
+        <Filename Value="..\src\ce_widget.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="CEProcInputWidget"/>
+        <ComponentName Value="CEWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_procinput"/>
+        <UnitName Value="ce_widget"/>
       </Unit27>
       <Unit28>
-        <Filename Value="..\src\ce_cdbcmd.pas"/>
+        <Filename Value="..\src\ce_writablecomponent.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="CECdbWidget"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_cdbcmd"/>
+        <UnitName Value="ce_writableComponent"/>
       </Unit28>
     </Units>
   </ProjectOptions>
