@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, SynEdit, SynMemo, ce_d2syn, SynEditHighlighter, controls,
   lcltype, LazSynEditText, SynPluginSyncroEdit, SynEditKeyCmds, ce_project,
-  SynHighlighterLFM, SynEditMouseCmds, ce_common, ce_observer;
+  SynHighlighterLFM, SynEditMouseCmds, ce_common, ce_observer, menus;
 
 type
   TCESynMemo = class(TSynMemo)
@@ -21,6 +21,7 @@ type
     fIdentifier: string;
     fTempFileName: string;
     fMultiDocSubject: TCECustomSubject;
+    fStoredFontSize: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
   protected
@@ -70,6 +71,7 @@ begin
       eoTrimTrailingSpaces, eoDragDropEditing, eoShowCtrlMouseLinks,
       eoEnhanceHomeKey, eoTabIndent];
   Options2 := [eoEnhanceEndKey, eoFoldedCopyPaste, eoOverwriteBlock];
+  fStoredFontSize := Font.Size;
 
   MouseOptions := MouseOptions +
     [ emAltSetsColumnMode, emDragDropEditing, emCtrlWheelZoom];
@@ -203,6 +205,12 @@ procedure TCESynMemo.KeyDown(var Key: Word; Shift: TShiftState);
 begin
   inherited;
   identifierToD2Syn;
+  //
+  if (Shift = [ssCtrl]) then case Key of
+    VK_ADD: if Font.Size < 50 then Font.Size := Font.Size + 1;
+    VK_SUBTRACT: if Font.Size > 3 then Font.Size := Font.Size - 1;
+    VK_DECIMAL: Font.Size := fStoredFontSize;
+  end;
 end;
 
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
