@@ -1,29 +1,29 @@
 inherited CEProjectInspectWidget: TCEProjectInspectWidget
   Left = 1390
-  Height = 281
+  Height = 241
   Top = 26
-  Width = 347
+  Width = 341
   AllowDropFiles = True
   Caption = 'Project inspector'
-  ClientHeight = 281
-  ClientWidth = 347
+  ClientHeight = 241
+  ClientWidth = 341
   OnDropFiles = FormDropFiles
   inherited Back: TPanel
-    Height = 281
-    Width = 347
-    ClientHeight = 281
-    ClientWidth = 347
+    Height = 241
+    Width = 341
+    ClientHeight = 241
+    ClientWidth = 341
     inherited Content: TPanel
-      Height = 281
-      Width = 347
-      ClientHeight = 281
-      ClientWidth = 347
+      Height = 241
+      Width = 341
+      ClientHeight = 241
+      ClientWidth = 341
       PopupMenu = nil
       object Tree: TTreeView[0]
         Left = 2
-        Height = 251
+        Height = 211
         Top = 28
-        Width = 343
+        Width = 337
         Align = alClient
         AutoExpand = True
         BorderSpacing.Around = 2
@@ -51,12 +51,12 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
         Left = 2
         Height = 24
         Top = 2
-        Width = 343
+        Width = 337
         Align = alTop
         BorderSpacing.Around = 2
         BevelOuter = bvNone
         ClientHeight = 24
-        ClientWidth = 343
+        ClientWidth = 337
         TabOrder = 1
         object btnAddFile: TSpeedButton
           Left = 0
@@ -199,7 +199,7 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
           Left = 112
           Height = 23
           Top = 0
-          Width = 197
+          Width = 191
           ButtonWidth = 28
           NumGlyphs = 1
           Align = alCustom
@@ -305,12 +305,12 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
     end
   end
   inherited contextMenu: TPopupMenu
-    left = 8
-    top = 352
+    left = 128
+    top = 48
   end
   object imgList: TImageList[2]
-    left = 40
-    top = 352
+    left = 160
+    top = 48
     Bitmap = {
       4C69060000001000000010000000B3B3B1EFB0B0ADFFAEAEACFFAEAEACFFAEAE
       ACFFAFAFACFFAFAFADFFB1B1AFD5B4B4B100B5B5B300B5B5B300B5B5B300B5B5

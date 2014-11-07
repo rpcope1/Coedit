@@ -315,6 +315,8 @@ begin
   // display Imports (-J)
   for fold in FProject.currentConfiguration.pathsOptions.Imports do
   begin
+    if fold = '' then
+      continue;
     itm := Tree.Items.AddChild(fImpsNode, shortenPath(fold));
     itm.ImageIndex := 5;
     itm.SelectedIndex := 5;
@@ -323,6 +325,8 @@ begin
   // display Includes (-I)
   for fold in FProject.currentConfiguration.pathsOptions.Includes do
   begin
+    if fold = '' then
+      continue;
     itm := Tree.Items.AddChild(fInclNode, shortenPath(fold));
     itm.ImageIndex := 5;
     itm.SelectedIndex := 5;
@@ -331,6 +335,8 @@ begin
   // display extra sources (external .lib, *.a, *.d)
   for src in FProject.currentConfiguration.pathsOptions.Sources do
   begin
+    if src = '' then
+      continue;
     lst := TStringList.Create;
     try
       if listAsteriskPath(src, lst) then for src in lst do begin
