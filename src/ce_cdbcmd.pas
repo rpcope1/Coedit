@@ -33,7 +33,6 @@ type
     procedure cdbOutput(sender: TObject);
     procedure cdbTerminate(sender: TObject);
     procedure cdbOutputToGui;
-    procedure cdbFree;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -62,7 +61,7 @@ end;
 destructor TCECdbWidget.destroy;
 begin
   if Enabled then begin
-    cdbFree;
+    killProcess(fCdbProc);
     EntitiesConnector.removeObserver(self);
   end;
   inherited;
@@ -100,7 +99,7 @@ begin
   outname := fProject.outputFilename;
   if not fileExists(outname) then exit;
   //
-  cdbFree;
+  killProcess(fCdbProc);
   fCdbProc := TAsyncProcess.create(nil);
   fCdbProc.Executable := 'cdb';
   fCdbProc.Parameters.Add('-c');
@@ -144,7 +143,7 @@ const
 begin
   if fCdbProc <> nil then
     fCdbProc.Input.Write(cmd[1], length(cmd));
-  cdbFree;
+  killProcess(fCdbProc);
 end;
 
 procedure TCECdbWidget.txtCdbCmdKeyPress(Sender: TObject; var Key: char);
@@ -166,34 +165,20 @@ end;
 
 procedure TCECdbWidget.cdbOutputToGui;
 var
-  str: TMemoryStream;
   lst: TStringList;
   cnt: Integer;
-  sum: Integer;
 begin
   if fCdbProc = nil then exit;
-
-  cnt := 0;
-  sum := 0;
-  str := TMemoryStream.Create;
+  //
   lst := TStringList.Create;
-
-  while fCdbProc.Output.NumBytesAvailable <> 0 do
-  begin
-    str.Size := str.Size + 1024;
-    cnt := fCdbProc.Output.Read((str.Memory + sum)^, 1024);
-    sum += cnt;
+  try
+    processOutputToStrings(fCdbProc, lst);
+    for cnt := 0 to lst.Count-1 do
+      lstCdbOut.AddItem(lst.Strings[cnt], nil);
+    lstCdbOut.Items[lstCdbOut.Items.Count-1].MakeVisible(true);
+  finally
+    lst.Free;
   end;
-
-  str.Size := sum;
-  lst.LoadFromStream(str);
-
-  for cnt := 0 to lst.Count-1 do
-    lstCdbOut.AddItem(lst.Strings[cnt], nil);
-  lstCdbOut.Items[lstCdbOut.Items.Count-1].MakeVisible(true);
-
-  lst.Free;
-  str.Free;
 end;
 
 procedure TCECdbWidget.cdbOutput(sender: TObject);
@@ -204,18 +189,7 @@ end;
 procedure TCECdbWidget.cdbTerminate(sender: TObject);
 begin
   cdbOutputToGui;
-  cdbFree;
-end;
-
-procedure TCECdbWidget.cdbFree;
-begin
-  if fCdbProc = nil then
-    exit;
-  //
-  if fCdbProc.Running then
-    fCdbProc.Terminate(0);
-  fCdbProc.Free;
-    fCdbProc := nil;
+  killProcess(fCdbProc);
 end;
 
 end.
