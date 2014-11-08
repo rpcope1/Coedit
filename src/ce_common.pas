@@ -189,6 +189,11 @@ type
    *)
   procedure killProcess(var aProcess: TAsyncProcess);
 
+  (**
+   * Ensures that the in/out process pipes are not redirected, that it has a console, if it waits on exit.
+   *)
+  procedure ensureNoPipeIfWait(const aProcess: TProcess);
+
 implementation
 
 // https://stackoverflow.com/questions/25438091/objectbinarytotext-error-with-a-treader-twriter-helper-class
@@ -710,6 +715,15 @@ begin
     aProcess.Terminate(0);
   aProcess.Free;
   aProcess := nil;
+end;
+
+procedure ensureNoPipeIfWait(const aProcess: TProcess);
+begin
+  if not (poWaitonExit in aProcess.Options) then
+    exit;
+  //
+  aProcess.Options := aProcess.Options - [poStderrToOutPut, poUsePipes];
+  aProcess.Options := aProcess.Options + [poNewConsole];
 end;
 
 initialization
