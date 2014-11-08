@@ -95,7 +95,7 @@ begin
   for i:= 0 to fParameters.Count-1 do
     if fParameters.Strings[i] <> '' then
       fProcess.Parameters.AddText(CEMainForm.expandSymbolicString(fParameters.Strings[i]));
-  subjLmProcess(fLogMessager, fProcess, nil, amcTool, amkBub);
+  subjLmProcess(fLogMessager, fProcess, nil, amcMisc, amkBub);
   fProcess.Execute;
 end;
 

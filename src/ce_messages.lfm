@@ -1,27 +1,27 @@
 inherited CEMessagesWidget: TCEMessagesWidget
-  Left = 812
+  Left = 1135
   Height = 172
-  Top = 258
-  Width = 744
+  Top = 183
+  Width = 739
   Caption = 'Messages'
   ClientHeight = 172
-  ClientWidth = 744
+  ClientWidth = 739
   inherited Back: TPanel
     Height = 172
-    Width = 744
+    Width = 739
     ClientHeight = 172
-    ClientWidth = 744
+    ClientWidth = 739
     inherited Content: TPanel
       Height = 172
-      Width = 744
+      Width = 739
       ClientHeight = 172
-      ClientWidth = 744
+      ClientWidth = 739
       PopupMenu = nil
       object List: TTreeView[0]
         Left = 2
-        Height = 168
-        Top = 2
-        Width = 740
+        Height = 140
+        Top = 30
+        Width = 735
         Align = alClient
         BorderSpacing.Around = 2
         DefaultItemHeight = 16
@@ -42,15 +42,84 @@ inherited CEMessagesWidget: TCEMessagesWidget
         OnKeyDown = ListKeyDown
         Options = [tvoAllowMultiselect, tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoToolTips, tvoThemedDraw]
       end
+      object selCtxt: TToolBar[1]
+        Left = 2
+        Height = 26
+        Top = 2
+        Width = 735
+        AutoSize = True
+        BorderSpacing.Around = 2
+        BorderWidth = 150
+        ButtonHeight = 24
+        ButtonWidth = 100
+        Flat = False
+        ShowCaptions = True
+        TabOrder = 1
+        Wrapable = False
+        object btnSelAll: TToolButton
+          Left = 1
+          Top = 2
+          Caption = 'All'
+          Down = True
+        end
+        object ToolButton2: TToolButton
+          Left = 101
+          Top = 2
+          Width = 5
+          Caption = 'ToolButton2'
+          Style = tbsDivider
+        end
+        object btnSelEdit: TToolButton
+          Left = 106
+          Top = 2
+          Caption = 'Editor'
+        end
+        object ToolButton4: TToolButton
+          Left = 206
+          Top = 2
+          Width = 5
+          Caption = 'ToolButton4'
+          Style = tbsDivider
+        end
+        object btnSelProj: TToolButton
+          Left = 211
+          Top = 2
+          Caption = 'Project'
+        end
+        object ToolButton8: TToolButton
+          Left = 311
+          Top = 2
+          Width = 5
+          Caption = 'ToolButton8'
+          Style = tbsDivider
+        end
+        object btnSelApp: TToolButton
+          Left = 316
+          Top = 2
+          Caption = 'Application'
+        end
+        object ToolButton10: TToolButton
+          Left = 416
+          Top = 2
+          Width = 5
+          Caption = 'ToolButton10'
+          Style = tbsDivider
+        end
+        object btnSelMisc: TToolButton
+          Left = 421
+          Top = 2
+          Caption = 'Misc.'
+        end
+      end
     end
   end
   inherited contextMenu: TPopupMenu
-    left = 8
-    top = 8
+    left = 16
+    top = 40
   end
   object imgList: TImageList[2]
-    left = 40
-    top = 8
+    left = 56
+    top = 40
     Bitmap = {
       4C69050000001000000010000000CF986200D1996200D1996234D0965DBCCF94
       5BFFCE945AFFCE935AFFCE935AFFCE935AFFCE935AFFCE945AFFCF945BFFD096

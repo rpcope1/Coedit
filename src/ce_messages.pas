@@ -11,19 +11,36 @@ uses
 
 type
 
-  TMessageContext = (mcUnknown, mcProject, mcEditor, mcApplication);
 
-  PMessageItemData = ^TMessageItemData;
-  TMessageItemData = record
-    ctxt: TMessageContext;
-    editor: TCESynMemo;
-    project: TCEProject;
-    position: TPoint;
+  PMessageData = ^TMessageData;
+  TMessageData = record
+    ctxt: TCEAppMessageCtxt;
+    data: Pointer;
   end;
+
+  // keep trace of the initial info sent with a TProcess
+  PProcessMessage = ^TProcessMessage;
+  TProcessMessage = record
+    aData: Pointer;
+    aCtxt: TCEAppMessageCtxt;
+    aKind: TCEAppMessageKind;
+  end;
+
+  { TCEMessagesWidget }
 
   TCEMessagesWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver, ICELogMessageObserver)
     imgList: TImageList;
     List: TTreeView;
+    selCtxt: TToolBar;
+    btnSelAll: TToolButton;
+    ToolButton10: TToolButton;
+    btnSelMisc: TToolButton;
+    ToolButton2: TToolButton;
+    btnSelEdit: TToolButton;
+    ToolButton4: TToolButton;
+    btnSelProj: TToolButton;
+    ToolButton8: TToolButton;
+    btnSelApp: TToolButton;
     procedure ListDblClick(Sender: TObject);
     procedure ListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
@@ -35,7 +52,8 @@ type
     fMaxMessCnt: Integer;
     fProj: TCEProject;
     fDoc: TCESynMemo;
-    procedure filterMessages;
+    fCtxt: TCEAppMessageCtxt;
+    procedure filterMessages(aCtxt: TCEAppMessageCtxt);
     procedure clearOutOfRangeMessg;
     procedure actClearEdiExecute(Sender: TObject);
     procedure actClearAllExecute(Sender: TObject);
@@ -44,10 +62,11 @@ type
     procedure actSelAllExecute(Sender: TObject);
     procedure setMaxMessageCount(aValue: Integer);
     procedure listDeletion(Sender: TObject; Node: TTreeNode);
-    function newMessageItemData(aCtxt: TMessageContext): PMessageItemData;
     procedure processOutput(Sender: TObject);
     procedure processTerminate(Sender: TObject);
     procedure logProcessOutput(const aProcess: TProcess);
+    procedure selCtxtClick(Sender: TObject);
+    function iconIndex(aKind: TCEAppMessageKind): Integer;
     //
     procedure optset_MaxMessageCount(aReader: TReader);
     procedure optget_MaxMessageCount(awriter: TWriter);
@@ -58,12 +77,6 @@ type
     destructor destroy; override;
     //
     procedure scrollToBack;
-    procedure addMessage(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
-    procedure addMessage(const aMsg: string; const aData: PMessageItemData);
-    procedure addCeBub(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
-    procedure addCeInf(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
-    procedure addCeErr(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
-    procedure addCeWarn(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
     //
     procedure sesoptDeclareProperties(aFiler: TFiler); override;
     //
@@ -85,17 +98,15 @@ type
       aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
     procedure lmProcess(const aValue: TProcess; aData: Pointer;
       aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
-    //
-    procedure ClearAllMessages;
-    procedure ClearMessages(aCtxt: TMessageContext);
+    procedure lmClearbyContext(aCtxt: TCEAppMessageCtxt);
+    procedure lmClearbyData(aData: Pointer);
   end;
 
   TMessageKind = (msgkUnknown, msgkInfo, msgkHint, msgkWarn, msgkError);
 
-  function semanticMsgAna(const aMessg: string): TMessageKind;
+  function semanticMsgAna2(const aMessg: string): TCEAppMessageKind;
   function getLineFromDmdMessage(const aMessage: string): TPoint;
   function openFileFromDmdMessage(const aMessage: string): boolean;
-  function newMessageData: PMessageItemData;
 
 implementation
 {$R *.lfm}
@@ -107,6 +118,7 @@ uses
 constructor TCEMessagesWidget.create(aOwner: TComponent);
 begin
   fMaxMessCnt := 125;
+  fCtxt := amcAll;
   //
   fActClearAll := TAction.Create(self);
   fActClearAll.OnExecute := @actClearAllExecute;
@@ -129,6 +141,12 @@ begin
   List.PopupMenu := contextMenu;
   List.OnDeletion := @ListDeletion;
   //
+  btnSelProj.OnClick  := @selCtxtClick;
+  btnSelMisc.OnClick  := @selCtxtClick;
+  btnSelEdit.OnClick  := @selCtxtClick;
+  btnSelApp.OnClick   := @selCtxtClick;
+  btnSelAll.OnClick   := @selCtxtClick;
+  //
   EntitiesConnector.addObserver(self);
 end;
 
@@ -141,7 +159,7 @@ end;
 procedure TCEMessagesWidget.listDeletion(Sender: TObject; Node: TTreeNode);
 begin
   if node.Data <> nil then
-    Dispose( PMessageItemData(Node.Data));
+    Dispose( PMessageData(Node.Data));
 end;
 
 procedure TCEMessagesWidget.ListKeyDown(Sender: TObject; var Key: Word;
@@ -157,8 +175,33 @@ begin
       if List.Items[i].MultiSelected then
         List.Items.Delete(List.Items[i]);
     end
-    else ClearAllMessages;
+    else lmClearbyContext(amcAll);
   end;
+end;
+
+procedure TCEMessagesWidget.selCtxtClick(Sender: TObject);
+var
+  btn: TToolButton;
+  i: Integer;
+begin
+  if sender = nil then
+    exit;
+  //
+  fCtxt := amcAll;
+  btn := TToolButton(Sender);
+  for i := 0 to selCtxt.ButtonCount-1 do
+    selCtxt.Buttons[i].Down := selCtxt.Buttons[i] = btn;
+  if btn = btnSelAll  then
+    fCtxt := amcAll
+  else if btn = btnSelEdit then
+    fCtxt := amcEdit
+  else if btn = btnSelProj then
+    fCtxt := amcProj
+  else if btn = btnSelApp then
+    fCtxt := amcApp
+  else if btn = btnSelMisc then
+    fCtxt := amcMisc;
+  filterMessages(fCtxt);
 end;
 {$ENDREGION}
 
@@ -214,12 +257,12 @@ end;
 
 procedure TCEMessagesWidget.actClearAllExecute(Sender: TObject);
 begin
-  ClearAllMessages;
+  lmClearbyContext(amcAll);
 end;
 
 procedure TCEMessagesWidget.actClearEdiExecute(Sender: TObject);
 begin
-  ClearMessages(mcEditor);
+  lmClearbyData(@fDoc);
 end;
 
 procedure TCEMessagesWidget.actCopyMsgExecute(Sender: TObject);
@@ -269,21 +312,21 @@ end;
 procedure TCEMessagesWidget.projNew(const aProject: TCEProject);
 begin
   fProj := aProject;
-  filterMessages;
+  filterMessages(fCtxt);
 end;
 
 procedure TCEMessagesWidget.projClosing(const aProject: TCEProject);
 begin
   if fProj = aProject then
-    ClearMessages(mcProject);
+    lmClearByData(@fProj);
   fProj := nil;
-  filterMessages;
+  filterMessages(fCtxt);
 end;
 
 procedure TCEMessagesWidget.projFocused(const aProject: TCEProject);
 begin
   fProj := aProject;
-  filterMessages;
+  filterMessages(fCtxt);
 end;
 
 procedure TCEMessagesWidget.projChanged(const aProject: TCEProject);
@@ -295,21 +338,21 @@ end;
 procedure TCEMessagesWidget.docNew(const aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
-  filterMessages;
+  filterMessages(fCtxt);
 end;
 
 procedure TCEMessagesWidget.docClosing(const aDoc: TCESynMemo);
 begin
   if aDoc <> fDoc then exit;
-  ClearMessages(mcEditor);
+  lmClearbyData(@fDoc);
   fDoc := nil;
-  filterMessages;
+  filterMessages(fCtxt);
 end;
 
 procedure TCEMessagesWidget.docFocused(const aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
-  filterMessages;
+  filterMessages(fCtxt);
 end;
 
 procedure TCEMessagesWidget.docChanged(const aDoc: TCESynMemo);
@@ -318,17 +361,24 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION ICELogMessageObserver ---------------------------------------------------}
-
+{$REGION ICELogMessageObserver -------------------------------------------------}
 procedure TCEMessagesWidget.lmStandard(const aValue: string; aData: Pointer;
   aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+var
+  dt: PMessageData;
+   item: TTreeNode;
 begin
-    case aKInd of
-    amkBub: addCeBub(aValue);
-    amkInf: addCeInf(aValue);
-    amkWarn:addCeWarn(aValue);
-    amkErr: addCeErr(aValue);
-  end;
+  if aKind = amkAuto then
+    aKind := semanticMsgAna2(aValue);
+  dt := new(PMessageData);
+  dt^.data := aData;
+  dt^.ctxt := aCtxt;
+  item := List.Items.Add(nil, aValue);
+  item.Data := dt;
+  item.ImageIndex := iconIndex(aKind);
+  item.SelectedIndex := item.ImageIndex;
+  clearOutOfRangeMessg;
+  scrollToBack;
   Application.ProcessMessages;
 end;
 
@@ -338,11 +388,16 @@ begin
    if not (poUsePipes in aValue.Options) then
     exit;
    //
-  if aValue is TAsyncProcess then begin
+   aValue.Tag := (Byte(aCtxt) << 8) + Byte(aKind);
+   //
+  if (aValue is TAsyncProcess) then
+  begin
     TAsyncProcess(aValue).OnReadData := @processOutput;
     TAsyncProcess(aValue).OnTerminate := @processTerminate;
-  end else
-    logProcessOutput(aValue);
+  end;
+  // always process message: a TAsyncProcess may be already terminated.
+  logProcessOutput(aValue);
+  //
   Application.ProcessMessages;
 end;
 
@@ -365,36 +420,65 @@ begin
   try
     processOutputToStrings(aProcess, lst);
     for str in lst do
-      addCeBub(str);
+      // initial info should be in a TProcessMessage
+      lmStandard(str, nil, amcAll, amkBub);
   finally
     lst.Free;
+    Application.ProcessMessages;
+  end;
+end;
+
+procedure TCEMessagesWidget.lmClearByContext(aCtxt: TCEAppMessageCtxt);
+var
+  i: Integer;
+  msgdt: PMessageData;
+begin
+  if aCtxt = amcAll then
+  begin
+    List.Items.Clear;
+    exit;
+  end;
+  for i := List.Items.Count-1 downto 0 do
+  begin
+    msgdt := PMessageData(List.Items[i].Data);
+    if msgdt^.ctxt = aCtxt then
+      List.Items.Delete(List.Items[i]);
+  end;
+end;
+
+procedure TCEMessagesWidget.lmClearByData(aData: Pointer);
+var
+  i: Integer;
+  msgdt: PMessageData;
+begin
+  if aData = nil then
+    exit;
+  for i := List.Items.Count-1 downto 0 do
+  begin
+    msgdt := PMessageData(List.Items[i].Data);
+    if (msgdt^.data = aData) or (msgdt^.data = Pointer(aData^)) then
+      List.Items.Delete(List.Items[i]);
   end;
 end;
 {$ENDREGION}
 
 {$REGION Messages --------------------------------------------------------------}
+function TCEMessagesWidget.iconIndex(aKind: TCEAppMessageKind): Integer;
+begin
+  case aKind of
+    amkBub:  exit(0);
+    amkInf:  exit(1);
+    amkHint: exit(2);
+    amkWarn: exit(3);
+    amkErr:  exit(4);
+    else exit(0);
+  end;
+end;
+
 procedure TCEMessagesWidget.clearOutOfRangeMessg;
 begin
   while List.Items.Count > fMaxMessCnt do
     List.Items.Delete(List.Items.GetFirstNode);
-end;
-
-function newMessageData: PMessageItemData;
-begin
-  result := new(PMessageItemData);
-  result^.ctxt := mcUnknown;
-  result^.project := nil;
-  result^.editor := nil;
-  result^.position := point(0,0);
-end;
-
-function TCEMessagesWidget.newMessageItemData(aCtxt: TMessageContext): PMessageItemData;
-begin
-  result := new(PMessageItemData);
-  result^.ctxt := aCtxt;
-  result^.project := fProj;
-  result^.editor := fDoc;
-  result^.position := point(0,0);
 end;
 
 procedure TCEMessagesWidget.scrollToBack;
@@ -405,159 +489,74 @@ begin
 end;
 
 procedure TCEMessagesWidget.ListDblClick(Sender: TObject);
-var
-  dat: PMessageItemData;
+//var
+  //dat: PMessageItemData;
 begin
-  if List.Selected = nil then exit;
-  if List.Selected.Data = nil then exit;
-  //
-  dat := PMessageItemData(List.Selected.Data);
-  if dat^.editor = nil then exit;
-  CEMainForm.openFile(dat^.editor.fileName);
-  dat^.editor.CaretXY := dat^.position;
-  dat^.editor.SelectLine;
+  //if List.Selected = nil then exit;
+  //if List.Selected.Data = nil then exit;
+  ////
+  //dat := PMessageItemData(List.Selected.Data);
+  //if dat^.editor = nil then exit;
+  //CEMainForm.openFile(dat^.editor.fileName);
+  //dat^.editor.CaretXY := dat^.position;
+  //dat^.editor.SelectLine;
 end;
 
-procedure TCEMessagesWidget.filterMessages;
+procedure TCEMessagesWidget.filterMessages(aCtxt: TCEAppMessageCtxt);
 var
+  msgdt: PMessageData;
   itm: TTreeNode;
-  dat: PMessageItemData;
   i: NativeInt;
 begin
   if updating then exit;
   for i := 0 to List.Items.Count-1 do
   begin
     itm := List.Items[i];
-    dat := PMessageItemData(itm.Data);
-    case dat^.ctxt of
-      mcProject: itm.Visible := fProj = dat^.project;
-      mcEditor: itm.Visible := fDoc = dat^.editor;
-      else itm.Visible := true;
+    Itm.Visible := false;
+    msgdt := PMessageData(itm.Data);
+    if aCtxt = amcAll then
+    begin
+      Itm.Visible := true;
+      continue;
+    end
+    else case msgdt^.ctxt of
+      // PMessageData.data can be either a reference or a pointer
+      amcEdit: itm.Visible := ((fDoc  = TCESynMemo(msgdt^.data)) or (fDoc  = TCESynMemo(msgdt^.data^)))
+        and (aCtxt = amcEdit);
+      amcProj: itm.Visible := ((fProj = TCEProject(msgdt^.data)) or (fProj = TCEProject(msgdt^.data^)))
+        and (aCtxt = amcProj);
+      amcApp:  itm.Visible := aCtxt = amcApp;
+      amcMisc: itm.Visible := aCtxt = amcMisc;
     end;
   end;
 end;
 
-procedure TCEMessagesWidget.ClearAllMessages;
-begin
-  List.Items.Clear;
-end;
-
-procedure TCEMessagesWidget.ClearMessages(aCtxt: TMessageContext);
-var
-  i: Integer;
-  dt: TMessageItemData;
-begin
-  for i := List.Items.Count-1 downto 0 do
-  begin
-    dt := PMessageItemData(List.Items[i].Data)^;
-    if dt.ctxt = aCtxt then case aCtxt of
-      mcEditor: if dt.editor = fDoc then List.Items.Delete(List.Items[i]);
-      mcProject: if dt.project = fProj then List.Items.Delete(List.Items[i]);
-      else List.Items.Delete(List.Items[i]);
-    end;
-  end;
-end;
-
-procedure TCEMessagesWidget.addCeBub(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
-var
-  item: TTreeNode;
-begin
-  item := List.Items.Add(nil, 'Coedit message: ' + aMsg);
-  item.Data := newMessageItemData(aCtxt);
-  item.ImageIndex := 0;
-  item.SelectedIndex := 0;
-  clearOutOfRangeMessg;
-  scrollToBack;
-end;
-
-procedure TCEMessagesWidget.addCeInf(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
-var
-  item: TTreeNode;
-begin
-  item := List.Items.Add(nil, 'Coedit information: ' + aMsg);
-  item.Data := newMessageItemData(aCtxt);
-  item.ImageIndex := 1;
-  item.SelectedIndex := 1;
-  clearOutOfRangeMessg;
-  scrollToBack;
-end;
-
-procedure TCEMessagesWidget.addCeWarn(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
-var
-  item: TTreeNode;
-begin
-  item := List.Items.Add(nil, 'Coedit warning: ' + aMsg);
-  item.Data := newMessageItemData(aCtxt);
-  item.ImageIndex := 3;
-  item.SelectedIndex := 3;
-  clearOutOfRangeMessg;
-  scrollToBack;
-end;
-
-procedure TCEMessagesWidget.addCeErr(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
-var
-  item: TTreeNode;
-begin
-  item := List.Items.Add(nil, 'Coedit error: ' + aMsg);
-  item.Data := newMessageItemData(aCtxt);
-  item.ImageIndex := 4;
-  item.SelectedIndex := 4;
-  clearOutOfRangeMessg;
-  scrollToBack;
-end;
-
-procedure TCEMessagesWidget.addMessage(const aMsg: string; const aData: PMessageItemData);
-var
-  item: TTreeNode;
-  imgIx: Integer;
-begin
-  item := List.Items.Add(nil, aMsg);
-  item.Data := aData;
-  imgIx := Integer(semanticMsgAna(aMsg));
-  item.ImageIndex := imgIx;
-  item.SelectedIndex := imgIx;
-  clearOutOfRangeMessg;
-end;
-
-procedure TCEMessagesWidget.addMessage(const aMsg: string; aCtxt: TMessageContext = mcUnknown);
-var
-  item: TTreeNode;
-  imgIx: Integer;
-begin
-  item := List.Items.Add(nil, aMsg);
-  item.Data := newMessageItemData(aCtxt);
-  imgIx := Integer(semanticMsgAna(aMsg));
-  item.ImageIndex := imgIx;
-  item.SelectedIndex := imgIx;
-  clearOutOfRangeMessg;
-end;
-
-function semanticMsgAna(const aMessg: string): TMessageKind;
+function semanticMsgAna2(const aMessg: string): TCEAppMessageKind;
 var
   pos: Nativeint;
   idt: string;
-function checkIdent: TMessageKind;
+function checkIdent: TCEAppMessageKind;
 begin
   case idt of
     'ERROR', 'error', 'Error', 'Invalid', 'invalid',
     'exception', 'Exception', 'illegal', 'Illegal',
     'fatal', 'Fatal', 'Critical', 'critical':
-      exit(msgkError);
+      exit(amkErr);
     'Warning', 'warning', 'caution', 'Caution':
-      exit(msgkWarn);
+      exit(amkWarn);
     'Hint', 'hint', 'Tip', 'tip', 'advice', 'Advice',
     'suggestion', 'Suggestion':
-      exit(msgkHint);
+      exit(amkHint);
     'Information', 'information':
-      exit(msgkInfo);
+      exit(amkInf);
     else
-      exit(msgkUnknown);
+      exit(amkBub);
   end;
 end;
 begin
   idt := '';
   pos := 1;
-  result := msgkUnknown;
+  result := amkBub;
   while(true) do
   begin
     if pos > length(aMessg) then exit;
@@ -565,7 +564,7 @@ begin
     begin
       Inc(pos);
       result := checkIdent;
-      if result <> msgkUnknown then exit;
+      if result <> amkBub then exit;
       idt := '';
       continue;
     end;
@@ -573,7 +572,7 @@ begin
     begin
       Inc(pos);
       result := checkIdent;
-      if result <> msgkUnknown then exit;
+      if result <> amkBub then exit;
       idt := '';
       continue;
     end;

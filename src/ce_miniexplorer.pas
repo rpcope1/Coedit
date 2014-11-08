@@ -259,7 +259,7 @@ begin
   if not fileExists(fname) then exit;
   if not shellOpen(fname) then subjLmStandard(fLogMessager,
     (format('the shell failed to open "%s"', [shortenPath(fname, 25)])),
-    nil, amcTool, amkErr);
+    nil, amcMisc, amkErr);
 end;
 
 {$ENDREGION}
