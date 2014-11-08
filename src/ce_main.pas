@@ -243,8 +243,6 @@ type
     procedure asyncprocTerminate(sender: TObject);
     procedure ProcessOutputToMsg(const aProcess: TProcess;aCtxt: TMessageContext = mcUnknown);
     procedure compileAndRunFile(const edIndex: NativeInt; const runArgs: string = '');
-    procedure compileProject(const aProject: TCEProject);
-    procedure runProject(const aProject: TCEProject; const runArgs: string = '');
 
     // file sub routines
     procedure newFile;
@@ -1343,160 +1341,6 @@ begin
   end;
 end;
 
-procedure TCEMainForm.compileProject(const aProject: TCEProject);
-(*var
-  dmdproc: TProcess;
-  ppproc: TProcess;
-  olddir, prjpath, ppname: string;
-  i, j: NativeInt;*)
-begin
-  fMesgWidg.ClearAllMessages;
-  fProject.compileProject;
-(*
-  with fProject.currentConfiguration do
-  begin
-    ppname := expandSymbolicString(preBuildProcess.executable);
-    if ppname <> '``' then
-      if exeInSysPath(ppname) then
-      begin
-        ppproc := TProcess.Create(nil);
-        try
-          preBuildProcess.setProcess(ppproc);
-          ppproc.Executable := ppname;
-          j := ppproc.Parameters.Count-1;
-          for i:= 0 to j do
-            ppproc.Parameters.AddText(expandSymbolicString(ppproc.Parameters.Strings[i]));
-          for i:= 0 to j do
-            ppproc.Parameters.Delete(0);
-          if ppproc.CurrentDirectory = '' then
-            ppproc.CurrentDirectory := extractFilePath(ppproc.Executable);
-          ppproc.Execute;
-          if not (poWaitOnExit in ppproc.Options) then
-            if poUsePipes in ppproc.Options then
-              repeat ProcessOutputToMsg(ppproc, mcProject) until not ppproc.Running;
-        finally
-          ppproc.Free;
-        end;
-      end
-      else fMesgWidg.addCeWarn('the pre-compilation executable does not exist', mcProject);
-  end;
-
-  if aProject.Sources.Count = 0 then
-  begin
-    fMesgWidg.addCeWarn('the project has no source files', mcProject);
-    exit;
-  end;
-
-  olddir := '';
-  dmdproc := TProcess.Create(nil);
-  getDir(0, olddir);
-  try
-
-    fMesgWidg.addCeInf( 'compiling ' + aProject.fileName, mcProject);
-    application.ProcessMessages;
-
-    prjpath := extractFilePath(aProject.fileName);
-    if directoryExists(prjpath) then
-    begin
-      chDir(prjpath);
-      dmdProc.CurrentDirectory := prjpath;
-    end;
-    {$IFDEF RELEASE}
-    dmdProc.ShowWindow := swoHIDE;
-    {$ENDIF}
-    dmdproc.Options := [poStdErrToOutput, poUsePipes];
-    dmdproc.Executable := DCompiler;
-    aProject.getOpts(dmdproc.Parameters);
-    dmdproc.Execute;
-
-    repeat ProcessOutputToMsg(dmdproc, mcProject) until not dmdproc.Running;
-    if (dmdProc.ExitStatus = 0) then
-      fMesgWidg.addCeInf(aProject.fileName + ' successfully compiled', mcProject)
-    else
-      fMesgWidg.addCeErr(aProject.fileName + ' has not been compiled', mcProject);
-
-    with fProject.currentConfiguration do
-    begin
-      ppname := expandSymbolicString(postBuildProcess.executable);
-      if ppname <> '``' then
-        if exeInSysPath(ppname) then
-        begin
-          ppproc := TProcess.Create(nil);
-          try
-            postBuildProcess.setProcess(ppproc);
-            ppproc.Executable := ppname;
-            j := ppproc.Parameters.Count-1;
-            for i:= 0 to j do
-              ppproc.Parameters.AddText(expandSymbolicString(ppproc.Parameters.Strings[i]));
-            for i:= 0 to j do
-              ppproc.Parameters.Delete(0);
-            if ppproc.CurrentDirectory = '' then
-              ppproc.CurrentDirectory := extractFilePath(ppproc.Executable);
-            ppproc.Execute;
-            if not (poWaitOnExit in ppproc.Options) then
-              if poUsePipes in ppproc.Options then
-                repeat ProcessOutputToMsg(ppproc, mcProject) until not ppproc.Running;
-          finally
-            ppproc.Free;
-          end;
-        end
-        else fMesgWidg.addCeWarn('the post-compilation executable does not exist', mcProject);
-    end;
-
-  finally
-    dmdproc.Free;
-    chDir(olddir);
-  end;
-  *)
-end;
-
-procedure TCEMainForm.runProject(const aProject: TCEProject; const runArgs: string = '');
-var
-  runproc: TProcess;
-  procname, prm: string;
-  i: NativeInt;
-begin
-  if aProject.currentConfiguration.outputOptions.binaryKind <>
-    executable then exit;
-
-  runproc := TProcess.Create(nil);
-  try
-    aProject.currentConfiguration.runOptions.setProcess(runProc);
-    prm := ''; i := 1;
-    repeat
-        prm := ExtractDelimited(i, runArgs, [' ']);
-        prm := expandSymbolicString(prm);
-        if prm <> '``' then
-          runProc.Parameters.AddText(prm);
-        Inc(i);
-    until prm = '``';
-    procname := aProject.outputFilename;
-
-    if not fileExists(procname) then
-    begin
-      fMesgWidg.addCeErr('output executable missing: ' + procname, mcProject);
-      exit;
-    end;
-
-    // If poWaitonExit and if there are a lot of output then Coedit hangs.
-    if poWaitonExit in runproc.Options then
-    begin
-      runproc.Options := runproc.Options - [poStderrToOutPut, poUsePipes];
-      runproc.Options := runproc.Options + [poNewConsole];
-    end;
-
-    runproc.Executable := procname;
-    if runproc.CurrentDirectory = '' then
-      runproc.CurrentDirectory := extractFilePath(runproc.Executable);
-    runproc.Execute;
-    repeat ProcessOutputToMsg(runproc, mcProject) until not runproc.Running;
-
-  finally
-    runproc.Free;
-  end;
-
-end;
-
 procedure TCEMainForm.actFileCompAndRunExecute(Sender: TObject);
 begin
   if fEditWidg = nil then exit;
@@ -1528,13 +1372,12 @@ end;
 
 procedure TCEMainForm.actProjCompileExecute(Sender: TObject);
 begin
-  compileProject(fProject);
+  fProject.compileProject;
 end;
 
 procedure TCEMainForm.actProjCompileAndRunExecute(Sender: TObject);
 begin
-  compileProject(fProject);
-    //runProject(fProject);
+  if fProject.compileProject then
     fProject.runProject;
 end;
 
@@ -1542,11 +1385,10 @@ procedure TCEMainForm.actProjCompAndRunWithArgsExecute(Sender: TObject);
 var
   runargs: string;
 begin
-  compileProject(fProject);
-  //
+  if not fProject.compileProject then
+    exit;
   runargs := '';
   if InputQuery('Execution arguments', '', runargs) then
-    //runProject(fProject, runargs);
     fProject.runProject(runargs);
 end;
 
@@ -1582,10 +1424,9 @@ begin
   end;
   goto _run;
   _rbld:
-    compileProject(fProject);
+    fProject.compileProject;
   _run:
     if fileExists(fProject.outputFilename) then
-      //runProject(fProject);
       fProject.runProject;
 end;
 
@@ -1595,7 +1436,7 @@ var
 begin
   runargs := '';
   if InputQuery('Execution arguments', '', runargs) then
-    runProject(fProject, runargs);
+    fProject.runProject(runargs);
 end;
 {$ENDREGION}
 
