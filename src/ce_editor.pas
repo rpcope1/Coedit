@@ -101,6 +101,7 @@ begin
   end;
   //
   EntitiesConnector.addObserver(self);
+  EntitiesConnector.endUpdate;
 end;
 
 destructor TCEEditorWidget.destroy;

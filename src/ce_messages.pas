@@ -148,6 +148,7 @@ begin
   btnSelAll.OnClick   := @selCtxtClick;
   //
   EntitiesConnector.addObserver(self);
+  EntitiesConnector.endUpdate;
 end;
 
 destructor TCEMessagesWidget.destroy;
@@ -317,8 +318,10 @@ end;
 
 procedure TCEMessagesWidget.projClosing(const aProject: TCEProject);
 begin
-  if fProj = aProject then
-    lmClearByData(@fProj);
+  if fProj <> aProject then
+    exit;
+  //
+  lmClearByData(aProject);
   fProj := nil;
   filterMessages(fCtxt);
 end;
@@ -388,17 +391,17 @@ begin
    if not (poUsePipes in aValue.Options) then
     exit;
    //
-   aValue.Tag := (Byte(aCtxt) << 8) + Byte(aKind);
+   aValue.Tag := (Byte(aCtxt) shl 8) + Byte(aKind);
    //
   if (aValue is TAsyncProcess) then
   begin
     TAsyncProcess(aValue).OnReadData := @processOutput;
     TAsyncProcess(aValue).OnTerminate := @processTerminate;
   end;
-  // always process message: a TAsyncProcess may be already terminated.
+  if aValue.Output = nil then
+    exit;
+  // always process messages: a TAsyncProcess may be already terminated.
   logProcessOutput(aValue);
-  //
-  Application.ProcessMessages;
 end;
 
 procedure TCEMessagesWidget.processOutput(Sender: TObject);
@@ -425,6 +428,7 @@ begin
   finally
     lst.Free;
     Application.ProcessMessages;
+    filterMessages(fCtxt);
   end;
 end;
 
@@ -456,7 +460,7 @@ begin
   for i := List.Items.Count-1 downto 0 do
   begin
     msgdt := PMessageData(List.Items[i].Data);
-    if (msgdt^.data = aData) or (msgdt^.data = Pointer(aData^)) then
+    if (msgdt^.data = aData) then
       List.Items.Delete(List.Items[i]);
   end;
 end;
@@ -520,11 +524,8 @@ begin
       continue;
     end
     else case msgdt^.ctxt of
-      // PMessageData.data can be either a reference or a pointer
-      amcEdit: itm.Visible := ((fDoc  = TCESynMemo(msgdt^.data)) or (fDoc  = TCESynMemo(msgdt^.data^)))
-        and (aCtxt = amcEdit);
-      amcProj: itm.Visible := ((fProj = TCEProject(msgdt^.data)) or (fProj = TCEProject(msgdt^.data^)))
-        and (aCtxt = amcProj);
+      amcEdit: itm.Visible := (fDoc  = TCESynMemo(msgdt^.data)) and (aCtxt = amcEdit);
+      amcProj: itm.Visible := (fProj = TCEProject(msgdt^.data)) and (aCtxt = amcProj);
       amcApp:  itm.Visible := aCtxt = amcApp;
       amcMisc: itm.Visible := aCtxt = amcMisc;
     end;

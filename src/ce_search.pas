@@ -92,6 +92,7 @@ begin
   fReplaceMru:= TMruList.Create;
   //
   EntitiesConnector.addObserver(self);
+  EntitiesConnector.endUpdate;
 end;
 
 destructor TCESearchWidget.Destroy;

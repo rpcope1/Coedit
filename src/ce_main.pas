@@ -316,6 +316,8 @@ begin
   newProj;
   checkCompilo;
   getCMdParams;
+  //
+  EntitiesConnector.endUpdate;
 end;
 
 procedure TCEMainForm.checkCompilo;
@@ -723,9 +725,10 @@ end;
 
 procedure TCEMainForm.ApplicationProperties1Exception(Sender: TObject;E: Exception);
 begin
-  //if fMesgWidg = nil then
-    //ce_common.dlgOkError(E.Message)
-  //else fMesgWidg.addCeErr(E.Message);
+  if fMesgWidg = nil then
+    ce_common.dlgOkError(E.Message)
+  else
+    fMesgWidg.lmStandard(E.Message, nil, amcApp, amkErr);
 end;
 
 procedure TCEMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
