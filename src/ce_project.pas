@@ -45,13 +45,14 @@ type
     procedure setConfIx(aValue: Integer);
     function getConfig(const ix: integer): TCompilerConfiguration;
     function getCurrConf: TCompilerConfiguration;
-    procedure runPrePostProcess(const processInfo: TCompileProcOptions);
+    function runPrePostProcess(const processInfo: TCompileProcOptions): Boolean;
+    function getCanBeRun: boolean;
   protected
     procedure afterSave; override;
     procedure afterLoad; override;
     procedure setFilename(const aValue: string); override;
     procedure readerPropNoFound(Reader: TReader; Instance: TPersistent;
-      var PropName: string; IsPath: boolean; var Handled, Skip: Boolean); override;
+      var PropName: string; IsPath: Boolean; var Handled, Skip: Boolean); override;
   published
     property RootFolder: string read fRootFolder write setRoot;
     property OptionsCollection: TCollection read fOptsColl write setOptsColl;
@@ -71,14 +72,15 @@ type
     function addConfiguration: TCompilerConfiguration;
     procedure getOpts(const aList: TStrings);
     function outputFilename: string;
-    procedure runProject;
-    procedure compileProject;
+    function runProject: Boolean;
+    function compileProject: Boolean;
     //
     property libraryManager: TLibraryManager read fLibMan write fLibMan;
     property configuration[ix: integer]: TCompilerConfiguration read getConfig;
     property currentConfiguration: TCompilerConfiguration read getCurrConf;
     property onChange: TNotifyEvent read fOnChange write fOnChange;
-    property modified: boolean read fModified;
+    property modified: Boolean read fModified;
+    property canBeRun: Boolean read getCanBeRun;
   end;
 
 implementation
@@ -355,7 +357,7 @@ procedure TCEProject.afterLoad;
 var
   i, j: Integer;
   src, ini, newdir: string;
-  hasPatched: boolean;
+  hasPatched: Boolean;
 begin
   patchPlateformPaths(fSrcs);
   doChanged;
@@ -406,7 +408,7 @@ begin
 end;
 
 procedure TCEProject.readerPropNoFound(Reader: TReader; Instance: TPersistent;
-      var PropName: string; IsPath: boolean; var Handled, Skip: Boolean);
+      var PropName: string; IsPath: Boolean; var Handled, Skip: Boolean);
 //var
   //idt: string;
   //curr: TCompilerConfiguration;
@@ -438,76 +440,113 @@ begin
   end;
 end;
 
-procedure TCEProject.runPrePostProcess(const processInfo: TCompileProcOptions);
+function TCEProject.getCanBeRun: boolean;
+begin
+  if currentConfiguration = nil then
+    exit(false)
+  else
+    exit(fileExists(outputFilename) and (currentConfiguration.outputOptions.binaryKind = executable));
+end;
+
+function TCEProject.runPrePostProcess(const processInfo: TCompileProcOptions): Boolean;
 var
   process: TProcess;
   pname: string;
   i, j: integer;
 begin
-  with currentConfiguration do
-  begin
-    pname := CEMainForm.expandSymbolicString(preBuildProcess.executable);
-    if pname <> '``' then
-      if exeInSysPath(pname) then
-      begin
-        process := TProcess.Create(nil);
-        try
-          processInfo.setProcess(process);
-          process.Executable := pname;
-          j := process.Parameters.Count-1;
-          for i:= 0 to j do
-            process.Parameters.AddText(CEMainForm.expandSymbolicString(process.Parameters.Strings[i]));
-          for i:= 0 to j do
-            process.Parameters.Delete(0);
-          if process.CurrentDirectory = '' then
-            process.CurrentDirectory := extractFilePath(process.Executable);
-          process.Execute;
-          if not (poWaitOnExit in process.Options) then
-            if poUsePipes in process.Options then
-              subjLmProcess(TCELogMessageSubject(fLogMessager), process, @Self, amcProj, amkBub);
-        finally
-          process.Free;
-        end;
-      end
-      else subjLmStandard(TCELogMessageSubject(fLogMessager),
-        'the pre/post compilation executable does not exist', @Self, amcProj, amkBub);
+  pname := CEMainForm.expandSymbolicString(processInfo.executable);
+  if (not exeInSysPath(pname)) and (pname <> '``') then
+    exit(false)
+  else if (pname = '``') then
+    exit(true);
+  //
+  process := TProcess.Create(nil);
+  try
+    processInfo.setProcess(process);
+    process.Executable := pname;
+    j := process.Parameters.Count-1;
+    for i:= 0 to j do
+      process.Parameters.AddText(CEMainForm.expandSymbolicString(process.Parameters.Strings[i]));
+    for i:= 0 to j do
+      process.Parameters.Delete(0);
+    if process.CurrentDirectory = '' then
+      process.CurrentDirectory := extractFilePath(process.Executable);
+    ensureNoPipeIfWait(process);
+    process.Execute;
+    while process.Running do
+    if not (poWaitOnExit in process.Options) then
+      if poUsePipes in process.Options then
+        subjLmProcess(TCELogMessageSubject(fLogMessager), process, @Self, amcProj, amkBub);
+  finally
+    result := process.ExitStatus = 0;
+    process.Free;
   end;
 end;
 
-procedure TCEProject.runProject;
+function TCEProject.runProject: Boolean;
 begin
+  result := false;
   killProcess(fRunner);
   fRunner := TAsyncProcess.Create(nil);
+  result := true;
 end;
 
-procedure TCEProject.compileProject;
+function TCEProject.compileProject: Boolean;
 var
+  config: TCompilerConfiguration;
   compilproc: TProcess;
-  olddir: string;
+  olddir, prjpath: string;
+  prjname: string;
 begin
-
-  runPrePostProcess(currentConfiguration.preBuildProcess);
-
+  result := false;
+  config := currentConfiguration;
+    if config = nil then
+    begin
+      subjLmStandard(TCELogMessageSubject(fLogMessager),
+        'unexpected project error: no active configuration', @Self, amcProj, amkErr);
+      exit;
+    end;
+  //
+  if not runPrePostProcess(config.preBuildProcess) then
+    subjLmStandard(TCELogMessageSubject(fLogMessager),
+      'project warning: the pre-compilation process has not been executed', @Self, amcProj, amkWarn);
+  //
+  prjname := shortenPath(filename, 25);
   compilproc := TProcess.Create(nil);
+  olddir := '';
   getDir(0, olddir);
   try
+    subjLmStandard(TCELogMessageSubject(fLogMessager),
+      'compiling ' + prjname, @Self, amcProj, amkInf);
+    prjpath := extractFilePath(fileName);
+    if directoryExists(prjpath) then
+    begin
+      chDir(prjpath);
+      compilproc.CurrentDirectory := prjpath;
+    end;
     compilproc.Executable := DCompiler;
     compilproc.Options := compilproc.Options + [poStderrToOutPut, poUsePipes];
     compilproc.ShowWindow := swoHIDE;
     getOpts(compilproc.Parameters);
     compilproc.Execute;
-    subjLmProcess(TCELogMessageSubject(fLogMessager), compilproc, @Self, amcProj, amkBub);
-    if compilproc.ExitStatus <> 0 then
-    else ;
+    while compilProc.Running do
+      subjLmProcess(TCELogMessageSubject(fLogMessager), compilproc, @Self, amcProj, amkBub);
+    if compilproc.ExitStatus = 0 then begin
+      subjLmStandard(TCELogMessageSubject(fLogMessager),
+        prjname + ' has been successfully compiled', @Self, amcProj, amkInf);
+      result := true;
+    end else
+      subjLmStandard(TCELogMessageSubject(fLogMessager),
+        prjname + ' has not been compiled', @Self, amcProj, amkWarn);
 
-    runPrePostProcess(currentConfiguration.postBuildProcess);
+  if not runPrePostProcess(config.PostBuildProcess) then
+    subjLmStandard(TCELogMessageSubject(fLogMessager),
+      'project warning: the post-compilation process has not been executed', @Self, amcProj, amkWarn);
 
   finally
     compilproc.Free;
     chDir(olddir);
   end;
-
-
 end;
 
 initialization

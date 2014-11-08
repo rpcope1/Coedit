@@ -1341,15 +1341,15 @@ begin
 end;
 
 procedure TCEMainForm.compileProject(const aProject: TCEProject);
-var
+(*var
   dmdproc: TProcess;
   ppproc: TProcess;
   olddir, prjpath, ppname: string;
-  i, j: NativeInt;
+  i, j: NativeInt;*)
 begin
-
   fMesgWidg.ClearAllMessages;
-
+  fProject.compileProject;
+(*
   with fProject.currentConfiguration do
   begin
     ppname := expandSymbolicString(preBuildProcess.executable);
@@ -1444,6 +1444,7 @@ begin
     dmdproc.Free;
     chDir(olddir);
   end;
+  *)
 end;
 
 procedure TCEMainForm.runProject(const aProject: TCEProject; const runArgs: string = '');
