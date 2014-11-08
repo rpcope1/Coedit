@@ -329,6 +329,7 @@ begin
     amkWarn:addCeWarn(aValue);
     amkErr: addCeErr(aValue);
   end;
+  Application.ProcessMessages;
 end;
 
 procedure TCEMessagesWidget.lmProcess(const aValue: TProcess; aData: Pointer;
@@ -342,6 +343,7 @@ begin
     TAsyncProcess(aValue).OnTerminate := @processTerminate;
   end else
     logProcessOutput(aValue);
+  Application.ProcessMessages;
 end;
 
 procedure TCEMessagesWidget.processOutput(Sender: TObject);

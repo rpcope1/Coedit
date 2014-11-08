@@ -138,13 +138,15 @@ type
   end;
 
 
+
   /// describes the message kind, when Auto implies that a ICELogMessageObserver guess the kind.
   TCEAppMessageKind = (amkAuto, amkBub, amkInf, amkWarn, amkErr);
   /// describes the message context. Used by a ICELogMessageObserver to filter the messages.
   TCEAppMessageCtxt = (amcApp, amcTool, amcProj, amcEdit);
 
   (**
-   * An implementer get some log messages.
+   * An implementer gets some log messages.
+   * AData: either an editor or a project, according to aCtxt.
    *)
   ICELogMessageObserver = interface
   ['ICEMessage']
@@ -177,7 +179,6 @@ type
   procedure subjDocFocused(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);  {$IFDEF RELEASE}inline;{$ENDIF}
   procedure subjDocChanged(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);  {$IFDEF RELEASE}inline;{$ENDIF}
 
-
   (**
    * TCEProjectSubject primitives.
    *)
@@ -197,13 +198,13 @@ type
    * TCELogMessageSubject primitives.
    *)
   procedure subjLmStandard(aSubject: TCELogMessageSubject; const aValue: string;
-      aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+      aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind); {$IFDEF RELEASE}inline;{$ENDIF}
   procedure subjLmProcess(aSubject: TCELogMessageSubject; const aValue: TProcess;
-      aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+      aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind); {$IFDEF RELEASE}inline;{$ENDIF}
 
 implementation
 
-{$REGION TCEMultiDocSubject-----------------------------------------------------}
+{$REGION TCEMultiDocSubject ----------------------------------------------------}
 function TCEMultiDocSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICEMultiDocObserver);
@@ -242,7 +243,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION TCEProjectSubject------------------------------------------------------}
+{$REGION TCEProjectSubject -----------------------------------------------------}
 function TCEProjectSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICEProjectObserver);
@@ -281,7 +282,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION TCESessionOptionsSubject-----------------------------------------------}
+{$REGION TCESessionOptionsSubject ----------------------------------------------}
 function TCESessionOptionsSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICESessionOptionsObserver);
@@ -312,21 +313,21 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION TCEMainMenuSubject}
+{$REGION TCEMainMenuSubject ----------------------------------------------------}
 function TCEMainMenuSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICEMainMenuProvider);
 end;
 {$ENDREGION}
 
-{$REGION TCEEditableShortCutSubject}
+{$REGION TCEEditableShortCutSubject --------------------------------------------}
 function TCEEditableShortCutSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICEEditableShortCut);
 end;
 {$ENDREGION}
 
-{$REGION TCELogMessageSubject}
+{$REGION TCELogMessageSubject --------------------------------------------------}
 function TCELogMessageSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICELogMessageObserver);
