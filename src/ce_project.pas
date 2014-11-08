@@ -8,7 +8,7 @@ uses
   {$IFDEF DEBUG}
   LclProc,
   {$ENDIF}
-  Classes, SysUtils, process, asyncprocess, ce_common, ce_writableComponent,
+  Classes, SysUtils, process, asyncprocess, strUtils, ce_common, ce_writableComponent,
   ce_dmdwrap, ce_libman, ce_observer;
 
 type
@@ -72,7 +72,7 @@ type
     function addConfiguration: TCompilerConfiguration;
     procedure getOpts(const aList: TStrings);
     function outputFilename: string;
-    function runProject: Boolean;
+    function runProject(const runArgs: string = ''): Boolean;
     function compileProject: Boolean;
     //
     property libraryManager: TLibraryManager read fLibMan write fLibMan;
@@ -483,11 +483,39 @@ begin
   end;
 end;
 
-function TCEProject.runProject: Boolean;
+function TCEProject.runProject(const runArgs: string = ''): Boolean;
+var
+  prm: string;
+  i: Integer;
 begin
   result := false;
   killProcess(fRunner);
-  fRunner := TAsyncProcess.Create(nil);
+  //
+  fRunner := TAsyncProcess.Create(nil); // fRunner can use the input process widget.
+  currentConfiguration.runOptions.setProcess(fRunner);
+  prm := '';
+  i := 1;
+  repeat
+    prm := ExtractDelimited(i, runArgs, [' ']);
+    prm := CEMainForm.expandSymbolicString(prm);
+    if prm <> '``' then
+      fRunner.Parameters.AddText(prm);
+    Inc(i);
+  until prm = '``';
+  //
+  if not fileExists(outputFilename) then
+  begin
+    subjLmStandard(TCELogMessageSubject(fLogMessager),
+        'output executable missing: ' + shortenPath(outputFilename,25), @Self, amcProj, amkErr);
+    exit;
+  end;
+  //
+  fRunner.Executable := outputFilename;
+  if fRunner.CurrentDirectory = '' then
+    fRunner.CurrentDirectory := extractFilePath(fRunner.Executable);
+  subjLmProcess(TCELogMessageSubject(fLogMessager), fRunner, @Self, amcProj, amkBub);
+  fRunner.Execute;
+  //
   result := true;
 end;
 

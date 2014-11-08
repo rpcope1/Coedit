@@ -1531,7 +1531,8 @@ end;
 procedure TCEMainForm.actProjCompileAndRunExecute(Sender: TObject);
 begin
   compileProject(fProject);
-  runProject(fProject);
+    //runProject(fProject);
+    fProject.runProject;
 end;
 
 procedure TCEMainForm.actProjCompAndRunWithArgsExecute(Sender: TObject);
@@ -1542,7 +1543,8 @@ begin
   //
   runargs := '';
   if InputQuery('Execution arguments', '', runargs) then
-    runProject(fProject, runargs);
+    //runProject(fProject, runargs);
+    fProject.runProject(runargs);
 end;
 
 procedure TCEMainForm.actProjRunExecute(Sender: TObject);
@@ -1580,7 +1582,8 @@ begin
     compileProject(fProject);
   _run:
     if fileExists(fProject.outputFilename) then
-      runProject(fProject);
+      //runProject(fProject);
+      fProject.runProject;
 end;
 
 procedure TCEMainForm.actProjRunWithArgsExecute(Sender: TObject);
