@@ -814,11 +814,14 @@ begin
     actProjCompile.Enabled := hasProj;
     actProjCompileAndRun.Enabled := hasProj;
     actProjCompAndRunWithArgs.Enabled := hasProj;
-    actProjRun.Enabled := hasProj;
-    actProjRunWithArgs.Enabled := hasProj;
-    actProjSource.Enabled := hasProj;
     actProjOptView.Enabled := hasProj;
     actProjOpenContFold.Enabled := hasProj;
+    if hasProj then
+    begin
+      actProjSource.Enabled := fileExists(fProject.Filename);
+      actProjRun.Enabled := fProject.canBeRun;
+      actProjRunWithArgs.Enabled := fProject.canBeRun;
+    end;
 
     actFileAddToProj.Enabled := hasEd and hasProj;
 
