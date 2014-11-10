@@ -227,7 +227,7 @@ begin
       begin
         fname := lst.Strings[i];
         ext := extractFileExt(fname);
-        if (ext = '.d') or (ext = '.di') then
+        if dExtList.IndexOf(ext) <> -1 then
           fProject.addSource(fname);
       end;
     finally

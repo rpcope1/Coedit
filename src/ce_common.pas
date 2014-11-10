@@ -18,7 +18,7 @@ const
   libExt = {$IFDEF WINDOWS} '.lib' {$ELSE} '.a' {$ENDIF};
 
 var
-  DExtList: TStringList;
+  dExtList: TStringList;
   DCompiler: string = 'dmd';
 
 type
@@ -136,7 +136,7 @@ type
    * Reduces a filename if its length is over the threshold defined by charThresh.
    * Even if the result is not usable anymore, it avoids any "visually-overloaded" MRU menu.
    *)
-  function shortenPath(const aPath: string; charThresh: Word = 80): string;
+  function shortenPath(const aPath: string; charThresh: Word = 60): string;
 
   (**
    * Returns the folder Coedit documents and settings.
@@ -482,7 +482,7 @@ begin
   {$HINTS ON}{$WARNINGS ON}
 end;
 
-function shortenPath(const aPath: string; charThresh: Word = 80): string;
+function shortenPath(const aPath: string; charThresh: Word = 60): string;
 var
   i: NativeInt;
   sepCnt: NativeInt;
@@ -728,9 +728,8 @@ end;
 
 initialization
   RegisterClasses([TMRUList, TMRUFileList]);
-  DExtList := TStringList.Create;
-  DExtList.Add('.d');
-  DExtList.Add('.di');
+  dExtList := TStringList.Create;
+  dExtList.AddStrings(['.d', '.D', '.di', '.DI', '.Di', '.dI']);
 finalization
-  DExtList.Free;
+  dExtList.Free;
 end.

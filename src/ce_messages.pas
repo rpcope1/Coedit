@@ -92,7 +92,7 @@ type
 
   TMessageKind = (msgkUnknown, msgkInfo, msgkHint, msgkWarn, msgkError);
 
-  function semanticMsgAna2(const aMessg: string): TCEAppMessageKind;
+  function guessMessageKind(const aMessg: string): TCEAppMessageKind;
   function getLineFromDmdMessage(const aMessage: string): TPoint;
   function openFileFromDmdMessage(const aMessage: string): boolean;
 
@@ -360,7 +360,7 @@ var
    item: TTreeNode;
 begin
   if aKind = amkAuto then
-    aKind := semanticMsgAna2(aValue);
+    aKind := guessMessageKind(aValue);
   dt := new(PMessageData);
   dt^.data := aData;
   dt^.ctxt := aCtxt;
@@ -474,7 +474,7 @@ begin
   end;
 end;
 
-function semanticMsgAna2(const aMessg: string): TCEAppMessageKind;
+function guessMessageKind(const aMessg: string): TCEAppMessageKind;
 var
   pos: Nativeint;
   idt: string;
@@ -585,12 +585,16 @@ begin
   while(true) do
   begin
     inc(i);
-    if i > length(aMessage) then exit;
+    if i > length(aMessage) then
+      exit;
     if aMessage[i] = '(' then
     begin
-      if not fileExists(ident) then exit;
+      if not fileExists(ident) then
+        exit;
       ext := extractFileExt(ident);
-      if not (ext = '.d') or (ext = '.di') then exit;
+      // import(file) : ext may be different
+      if not dExtList.IndexOf(ext) = -1 then
+        exit;
       CEMainForm.openFile(ident);
       result := true;
     end;

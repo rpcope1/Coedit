@@ -817,7 +817,7 @@ begin
   for str in fSrcs do if str <> '' then
   begin
     if not
-      listAsteriskPath(str, aList, DExtList)
+      listAsteriskPath(str, aList, dExtList)
     then
       aList.Add(str);
   end;

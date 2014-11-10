@@ -154,7 +154,7 @@ var
   ext: string;
 begin
   ext := extractFileExt(aFilename);
-  if (ext <> '.d') and (ext <> '.di') then
+  if dExtList.IndexOf(ext) = -1 then
     Highlighter := nil;
   Lines.LoadFromFile(aFilename);
   fFilename := aFilename;
