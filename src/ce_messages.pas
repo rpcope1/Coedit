@@ -335,7 +335,7 @@ end;
 procedure TCEMessagesWidget.docClosing(const aDoc: TCESynMemo);
 begin
   if aDoc <> fDoc then exit;
-  lmClearbyData(@fDoc);
+  lmClearbyData(fDoc);
   fDoc := nil;
   filterMessages(fCtxt);
 end;
