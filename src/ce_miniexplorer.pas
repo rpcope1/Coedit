@@ -257,7 +257,7 @@ begin
   if lstFiles.Selected.Data = nil then exit;
   fname := PString(lstFiles.Selected.Data)^;
   if not fileExists(fname) then exit;
-  if not shellOpen(fname) then subjLmStandard(fLogMessager,
+  if not shellOpen(fname) then subjLmFromString(fLogMessager,
     (format('the shell failed to open "%s"', [shortenPath(fname, 25)])),
     nil, amcMisc, amkErr);
 end;

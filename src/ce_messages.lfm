@@ -58,6 +58,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
         Wrapable = False
         object btnSelAll: TToolButton
           Left = 1
+          Hint = 'unfiltered messages'
           Top = 2
           Caption = 'All'
           Down = True
@@ -71,6 +72,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
         end
         object btnSelEdit: TToolButton
           Left = 106
+          Hint = 'messages related to the current document'
           Top = 2
           Caption = 'Editor'
         end
@@ -83,6 +85,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
         end
         object btnSelProj: TToolButton
           Left = 211
+          Hint = 'message related to the current project'
           Top = 2
           Caption = 'Project'
         end
@@ -95,6 +98,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
         end
         object btnSelApp: TToolButton
           Left = 316
+          Hint = 'messages related to Coedit'
           Top = 2
           Caption = 'Application'
         end
@@ -107,6 +111,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
         end
         object btnSelMisc: TToolButton
           Left = 421
+          Hint = 'miscellaneous messages, custom tools output, etc'
           Top = 2
           Caption = 'Misc.'
         end

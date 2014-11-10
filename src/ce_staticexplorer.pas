@@ -484,7 +484,7 @@ begin
         'struct'    :ndCat := Tree.Items.AddChildObject(ndStruct, nme, ln);
         'template'  :ndCat := Tree.Items.AddChildObject(ndTmp, nme, ln);
         'variable'  :ndCat := Tree.Items.AddChildObject(ndVar, nme, ln);
-        else subjLmStandard(fLogMessager, 'static explorer does not handle this kind: ' + knd, nil, amcApp, amkWarn);
+        else subjLmFromString(fLogMessager, 'static explorer does not handle this kind: ' + knd, nil, amcApp, amkWarn);
       end;
 
       if ndCat = nil then

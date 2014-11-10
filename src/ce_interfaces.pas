@@ -151,9 +151,7 @@ type
   ICELogMessageObserver = interface
   ['ICEMessage']
     // a TCELogMessageSubject sends a message based on a string.
-    procedure lmStandard(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
-    // a TCELogMessageSubject sends a message based on a process output.
-    procedure lmProcess(const aValue: TProcess; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+    procedure lmFromString(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
     // a TCELogMessageSubject sends a clearing request based on a context.
     procedure lmClearByContext(aCtxt: TCEAppMessageCtxt);
     // a TCELogMessageSubject sends a clearing request based on a data.
@@ -201,9 +199,7 @@ type
   (**
    * TCELogMessageSubject primitives.
    *)
-  procedure subjLmStandard(aSubject: TCELogMessageSubject; const aValue: string;
-      aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind); {$IFDEF RELEASE}inline;{$ENDIF}
-  procedure subjLmProcess(aSubject: TCELogMessageSubject; const aValue: TProcess;
+  procedure subjLmFromString(aSubject: TCELogMessageSubject; const aValue: string;
       aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind); {$IFDEF RELEASE}inline;{$ENDIF}
   procedure subjLmClearByContext(aSubject: TCELogMessageSubject; aCtxt: TCEAppMessageCtxt); {$IFDEF RELEASE}inline;{$ENDIF}
   procedure subjLmClearByData(aSubject: TCELogMessageSubject; aData: Pointer); {$IFDEF RELEASE}inline;{$ENDIF}
@@ -339,22 +335,13 @@ begin
   exit(aObject is ICELogMessageObserver);
 end;
 
-procedure subjLmStandard(aSubject: TCELogMessageSubject; const aValue: string;
+procedure subjLmFromString(aSubject: TCELogMessageSubject; const aValue: string;
   aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
 var
   i: Integer;
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICELogMessageObserver).lmStandard(aValue, aData, aCtxt, aKind);
-end;
-
-procedure subjLmProcess(aSubject: TCELogMessageSubject; const aValue: TProcess;
-      aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
-var
-  i: Integer;
-begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICELogMessageObserver).lmProcess(aValue, aData, aCtxt, aKind);
+    (fObservers.Items[i] as ICELogMessageObserver).lmFromString(aValue, aData, aCtxt, aKind);
 end;
 
 procedure subjLmClearByContext(aSubject: TCELogMessageSubject; aCtxt: TCEAppMessageCtxt);

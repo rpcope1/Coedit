@@ -241,7 +241,6 @@ type
     // run & exec sub routines
     procedure asyncprocOutput(sender: TObject);
     procedure asyncprocTerminate(sender: TObject);
-    //procedure ProcessOutputToMsg(const aProcess: TProcess;aCtxt: TMessageContext = mcUnknown);
     procedure compileAndRunFile(const edIndex: NativeInt; const runArgs: string = '');
 
     // file sub routines
@@ -728,7 +727,7 @@ begin
   if fMesgWidg = nil then
     ce_common.dlgOkError(E.Message)
   else
-    fMesgWidg.lmStandard(E.Message, nil, amcApp, amkErr);
+    fMesgWidg.lmFromString(E.Message, nil, amcApp, amkErr);
 end;
 
 procedure TCEMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -1212,75 +1211,49 @@ end;
 {$ENDREGION}
 
 {$REGION run -------------------------------------------------------------------}
-//procedure TCEMainForm.ProcessOutputToMsg(const aProcess: TProcess; aCtxt: TMessageContext = mcUnknown);
-//var
-//  str: TMemoryStream;
-//  lns: TStringList;
-//  readCnt: LongInt;
-//  readSz: LongInt;
-//  ioBuffSz: LongInt;
-//  dt: PMessageItemData;
-//  i: NativeInt;
-//  msg: string;
-//  hasRead: boolean;
-//begin
-//  If not (poUsePipes in aProcess.Options) then exit;
-//  //
-//  readCnt := 0;
-//  readSz := 0;
-//  hasRead := false;
-//  ioBuffSz := aProcess.PipeBufferSize;
-//  str := TMemorystream.Create;
-//  lns := TStringList.Create;
-//  try
-//    while aProcess.Output.NumBytesAvailable <> 0 do
-//    begin
-//      hasRead := true;
-//      str.Size := str.Size + ioBuffSz;
-//      readCnt := aProcess.Output.Read((str.Memory + readSz)^, ioBuffSz);
-//      readSz += readCnt;
-//    end;
-//    str.Size := readSz;
-//    lns.LoadFromStream(Str);
-//    for i:= 0 to lns.Count-1 do begin
-//      msg := lns.Strings[i];
-//      dt := newMessageData;
-//      dt^.ctxt := aCtxt;
-//      dt^.project := fProject;
-//      dt^.position := getLineFromDmdMessage(msg);
-//      if openFileFromDmdMessage(msg) then
-//        dt^.ctxt := mcEditor;
-//      dt^.editor := fDoc;
-//      fEditWidg.endUpdatebyDelay; // messages would be cleared by the delayed module name detection.
-//      //fMesgWidg.addMessage(msg, dt);
-//      application.ProcessMessages;
-//    end;
-//  finally
-//    str.Free;
-//    lns.Free;
-//    if hasRead then
-//      fMesgWidg.scrollToBack;
-//  end;
-//end;
-
 procedure TCEMainForm.asyncprocOutput(sender: TObject);
 var
   proc: TProcess;
+  lst: TStringList;
+  str: string;
 begin
   proc := TProcess(sender);
-  if proc = fRunProc then
-    subjLmProcess(fLogMessager, TAsyncProcess(sender), nil, amcEdit, amkBub);
+  lst := TStringList.Create;
+  try
+    processOutputToStrings(proc, lst);
+    if proc = fRunProc then for str in lst do
+      subjLmFromString(fLogMessager, str, fDoc, amcEdit, amkBub);
+  finally
+    lst.Free;
+  end;
 end;
 
 procedure TCEMainForm.asyncprocTerminate(sender: TObject);
 var
   proc: TProcess;
+  lst: TStringList;
+  str: string;
 begin
   proc := TProcess(sender);
-  //ProcessOutputToMsg(TAsyncProcess(sender), mcEditor);
-  subjLmProcess(fLogMessager, proc, nil, amcEdit, amkBub);
-  if proc = fRunProc then
-    FreeRunnableProc;
+  lst := TStringList.Create;
+  try
+    processOutputToStrings(proc, lst);
+    // runnable module
+    if proc = fRunProc then
+    begin
+      for str in lst do
+        subjLmFromString(fLogMessager, str, fDoc, amcEdit, amkBub);
+      FreeRunnableProc;
+    // runnable compiler
+    end else
+    if proc.Executable = DCompiler then
+    begin
+      for str in lst do
+        subjLmFromString(fLogMessager, str, fDoc, amcEdit, amkAuto);
+    end;
+  finally
+    lst.Free;
+  end;
   if proc = fPrInpWidg.process then
     fPrInpWidg.process := nil;
 end;
@@ -1304,7 +1277,7 @@ begin
   try
 
     subjLmClearByData(fLogMessager, editor);
-    subjLmStandard(fLogMessager, 'compiling ' + shortenPath(editor.fileName,25),
+    subjLmFromString(fLogMessager, 'compiling ' + shortenPath(editor.fileName,25),
       editor, amcEdit, amkInf);
 
     if fileExists(editor.fileName) then editor.save
@@ -1324,12 +1297,11 @@ begin
     LibraryManager.getLibFiles(nil, dmdproc.Parameters);
     LibraryManager.getLibSources(nil, dmdproc.Parameters);
     dmdproc.Execute;
-    while dmdproc.Running do
-      subjLmProcess(fLogMessager, dmdProc, editor, amcEdit, amkInf);
+    while dmdproc.Running do asyncprocOutput(dmdProc);
 
     if (dmdProc.ExitStatus = 0) then
     begin
-      subjLmStandard(fLogMessager, shortenPath(editor.fileName,25)
+      subjLmFromString(fLogMessager, shortenPath(editor.fileName,25)
         + ' successfully compiled', editor, amcEdit, amkInf);
 
       fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
@@ -1340,7 +1312,7 @@ begin
       sysutils.DeleteFile(fname + objExt);
     end
     else begin
-      subjLmStandard(fLogMessager, shortenPath(editor.fileName,25)
+      subjLmFromString(fLogMessager, shortenPath(editor.fileName,25)
         + ' has not been compiled', editor, amcEdit, amkErr);
     end;
 

@@ -12,22 +12,16 @@ uses
 type
 
 
+  (**
+   * the struct linked to a log message. allow to be filtered.
+   *)
   PMessageData = ^TMessageData;
   TMessageData = record
     ctxt: TCEAppMessageCtxt;
     data: Pointer;
   end;
 
-  // keep trace of the initial info sent with a TProcess
-  PProcessMessage = ^TProcessMessage;
-  TProcessMessage = record
-    aData: Pointer;
-    aCtxt: TCEAppMessageCtxt;
-    aKind: TCEAppMessageKind;
-  end;
-
   { TCEMessagesWidget }
-
   TCEMessagesWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver, ICELogMessageObserver)
     imgList: TImageList;
     List: TTreeView;
@@ -62,9 +56,6 @@ type
     procedure actSelAllExecute(Sender: TObject);
     procedure setMaxMessageCount(aValue: Integer);
     procedure listDeletion(Sender: TObject; Node: TTreeNode);
-    procedure processOutput(Sender: TObject);
-    procedure processTerminate(Sender: TObject);
-    procedure logProcessOutput(const aProcess: TProcess);
     procedure selCtxtClick(Sender: TObject);
     function iconIndex(aKind: TCEAppMessageKind): Integer;
     //
@@ -94,10 +85,7 @@ type
     procedure docFocused(const aDoc: TCESynMemo);
     procedure docChanged(const aDoc: TCESynMemo);
     //
-    procedure lmStandard(const aValue: string; aData: Pointer;
-      aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
-    procedure lmProcess(const aValue: TProcess; aData: Pointer;
-      aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+    procedure lmFromString(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
     procedure lmClearbyContext(aCtxt: TCEAppMessageCtxt);
     procedure lmClearbyData(aData: Pointer);
   end;
@@ -365,7 +353,7 @@ end;
 {$ENDREGION}
 
 {$REGION ICELogMessageObserver -------------------------------------------------}
-procedure TCEMessagesWidget.lmStandard(const aValue: string; aData: Pointer;
+procedure TCEMessagesWidget.lmFromString(const aValue: string; aData: Pointer;
   aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
 var
   dt: PMessageData;
@@ -383,53 +371,6 @@ begin
   clearOutOfRangeMessg;
   scrollToBack;
   Application.ProcessMessages;
-end;
-
-procedure TCEMessagesWidget.lmProcess(const aValue: TProcess; aData: Pointer;
-  aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
-begin
-   if not (poUsePipes in aValue.Options) then
-    exit;
-   //
-   aValue.Tag := (Byte(aCtxt) shl 8) + Byte(aKind);
-   //
-  if (aValue is TAsyncProcess) then
-  begin
-    TAsyncProcess(aValue).OnReadData := @processOutput;
-    TAsyncProcess(aValue).OnTerminate := @processTerminate;
-  end;
-  if aValue.Output = nil then
-    exit;
-  // always process messages: a TAsyncProcess may be already terminated.
-  logProcessOutput(aValue);
-end;
-
-procedure TCEMessagesWidget.processOutput(Sender: TObject);
-begin
-  logProcessOutput(TProcess(Sender));
-end;
-
-procedure TCEMessagesWidget.processTerminate(Sender: TObject);
-begin
-  logProcessOutput(TProcess(Sender));
-end;
-
-procedure TCEMessagesWidget.logProcessOutput(const aProcess: TProcess);
-var
-  lst: TStringList;
-  str: string;
-begin
-  lst := TStringList.Create;
-  try
-    processOutputToStrings(aProcess, lst);
-    for str in lst do
-      // initial info should be in a TProcessMessage
-      lmStandard(str, nil, amcAll, amkBub);
-  finally
-    lst.Free;
-    Application.ProcessMessages;
-    filterMessages(fCtxt);
-  end;
 end;
 
 procedure TCEMessagesWidget.lmClearByContext(aCtxt: TCEAppMessageCtxt);

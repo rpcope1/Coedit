@@ -22,6 +22,7 @@ type
     fShortcut: string;
     fLogMessager: TCELogMessageSubject;
     procedure setParameters(const aValue: TStringList);
+    procedure processOUtput(sender: TObject);
   published
     property toolAlias: string read fToolAlias write fToolAlias;
     property options: TProcessOptions read fOpts write fOpts;
@@ -83,8 +84,10 @@ var
   i: Integer;
 begin
   killProcess(fProcess);
-  fProcess := TAsyncProcess.Create(nil);
   //
+  fProcess := TAsyncProcess.Create(nil);
+  fProcess.OnReadData:= @processOutput;
+  fProcess.OnTerminate:= @processOutput;
   fProcess.Options := fOpts;
   if fExecutable <> '' then
     fProcess.Executable := CEMainForm.expandSymbolicString(fExecutable);
@@ -95,8 +98,22 @@ begin
   for i:= 0 to fParameters.Count-1 do
     if fParameters.Strings[i] <> '' then
       fProcess.Parameters.AddText(CEMainForm.expandSymbolicString(fParameters.Strings[i]));
-  subjLmProcess(fLogMessager, fProcess, nil, amcMisc, amkBub);
   fProcess.Execute;
+end;
+
+procedure TCEToolItem.processOutput(sender: TObject);
+var
+  lst: TStringList;
+  str: string;
+begin
+  lst := TStringList.Create;
+  try
+    processOutputToStrings(fProcess, lst);
+    for str in lst do
+      subjLmFromString(fLogMessager, str, nil, amcMisc, amkAuto);
+  finally
+    lst.Free;
+  end;
 end;
 
 constructor TCETools.create(aOwner: TComponent);

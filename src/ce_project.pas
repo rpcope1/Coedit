@@ -501,7 +501,7 @@ begin
   config := currentConfiguration;
   if config = nil then
   begin
-    subjLmStandard(TCELogMessageSubject(fLogMessager),
+    subjLmFromString(TCELogMessageSubject(fLogMessager),
       'unexpected project error: no active configuration', Self, amcProj, amkErr);
     exit;
   end;
@@ -509,7 +509,7 @@ begin
   subjLmClearByData(TCELogMessageSubject(fLogMessager), Self);
   //
   if not runPrePostProcess(config.preBuildProcess) then
-    subjLmStandard(TCELogMessageSubject(fLogMessager),
+    subjLmFromString(TCELogMessageSubject(fLogMessager),
       'project warning: the pre-compilation process has not been properly executed', Self, amcProj, amkWarn);
   //
   prjname := shortenPath(filename, 25);
@@ -517,7 +517,7 @@ begin
   olddir := '';
   getDir(0, olddir);
   try
-    subjLmStandard(TCELogMessageSubject(fLogMessager),
+    subjLmFromString(TCELogMessageSubject(fLogMessager),
       'compiling ' + prjname, Self, amcProj, amkInf);
     prjpath := extractFilePath(fileName);
     if directoryExists(prjpath) then
@@ -533,15 +533,15 @@ begin
     while compilProc.Running do
       compProcOutput(compilproc);
     if compilproc.ExitStatus = 0 then begin
-      subjLmStandard(TCELogMessageSubject(fLogMessager),
+      subjLmFromString(TCELogMessageSubject(fLogMessager),
         prjname + ' has been successfully compiled', Self, amcProj, amkInf);
       result := true;
     end else
-      subjLmStandard(TCELogMessageSubject(fLogMessager),
+      subjLmFromString(TCELogMessageSubject(fLogMessager),
         prjname + ' has not been compiled', Self, amcProj, amkWarn);
 
     if not runPrePostProcess(config.PostBuildProcess) then
-      subjLmStandard(TCELogMessageSubject(fLogMessager),
+      subjLmFromString(TCELogMessageSubject(fLogMessager),
         'project warning: the post-compilation process has not been properly executed', Self, amcProj, amkWarn);
 
   finally
@@ -572,7 +572,7 @@ begin
   //
   if not fileExists(outputFilename) then
   begin
-    subjLmStandard(TCELogMessageSubject(fLogMessager),
+    subjLmFromString(TCELogMessageSubject(fLogMessager),
         'output executable missing: ' + shortenPath(outputFilename, 25), Self, amcProj, amkErr);
     exit;
   end;
@@ -600,7 +600,7 @@ begin
   try
     processOutputToStrings(proc, lst);
     for str in lst do
-      subjLmStandard(TCELogMessageSubject(fLogMessager),
+      subjLmFromString(TCELogMessageSubject(fLogMessager),
         str, Self, amcProj, amkBub);
   finally
     lst.Free;
@@ -616,7 +616,7 @@ begin
   try
     processOutputToStrings(proc, lst);
     for str in lst do
-      subjLmStandard(TCELogMessageSubject(fLogMessager),
+      subjLmFromString(TCELogMessageSubject(fLogMessager),
         str, Self, amcProj, amkAuto);
   finally
     lst.Free;
