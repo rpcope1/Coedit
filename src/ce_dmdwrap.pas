@@ -214,6 +214,7 @@ type
     procedure setSrcs(const aValue: TStringList);
     procedure setIncl(const aValue: TStringList);
     procedure setImpt(const aValue: TStringList);
+    procedure strLstChange(sender: TObject);
   published
     property outputFilename: string read fFname write setFname;
     property objectDirectory: string read fObjDir write setObjDir;
@@ -808,6 +809,18 @@ begin
   fSrcs := TStringList.Create;
   fIncl := TStringList.Create;
   fImpt := TStringList.Create;
+  // setSrcs(), setIncl(), setImpt() are not called when reloading from
+  // a stream but rather the TSgringList.Assign()
+  fSrcs.OnChange:= @strLstChange;
+  fIncl.OnChange:= @strLstChange;
+  fImpt.OnChange:= @strLstChange;
+end;
+
+procedure TPathsOpts.strLstChange(sender: TObject);
+begin
+  TStringList(sender).BeginUpdate; // onChange not called anymore
+  patchPlateformPaths(TStringList(sender));
+  // EndUpdate is not called to avoid an infinite loop
 end;
 
 procedure TPathsOpts.getOpts(const aList: TStrings);
@@ -816,7 +829,9 @@ var
 begin
   for str in fSrcs do if str <> '' then
   begin
+    str := (CEMainForm.expandSymbolicString(str));
     if not
+      // files are directly put in aList
       listAsteriskPath(str, aList, dExtList)
     then
       aList.Add(str);
@@ -834,6 +849,7 @@ end;
 procedure TPathsOpts.assign(aValue: TPersistent);
 var
   src: TPathsOpts;
+  i: Integer;
 begin
   if (aValue is TPathsOpts) then
   begin
