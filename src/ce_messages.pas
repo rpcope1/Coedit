@@ -493,17 +493,18 @@ begin
 end;
 
 procedure TCEMessagesWidget.ListDblClick(Sender: TObject);
-//var
-  //dat: PMessageItemData;
+var
+  pos: TPoint;
+  msg: string;
 begin
-  //if List.Selected = nil then exit;
-  //if List.Selected.Data = nil then exit;
-  ////
-  //dat := PMessageItemData(List.Selected.Data);
-  //if dat^.editor = nil then exit;
-  //CEMainForm.openFile(dat^.editor.fileName);
-  //dat^.editor.CaretXY := dat^.position;
-  //dat^.editor.SelectLine;
+  if List.Selected = nil then exit;
+  msg := List.Selected.Text;
+  if not openFileFromDmdMessage(msg) then exit;
+  // from here since a doc has the focus,  List.Selected is nil
+  pos := getLineFromDmdMessage(msg);
+  if fDoc = nil then exit;
+  fDoc.CaretXY := pos;
+  fDoc.SelectLine;
 end;
 
 procedure TCEMessagesWidget.filterMessages(aCtxt: TCEAppMessageCtxt);
