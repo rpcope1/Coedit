@@ -360,10 +360,14 @@ end;
 {$REGION TDocOpts --------------------------------------------------------------}
 procedure TDocOpts.getOpts(const aList: TStrings);
 begin
-  if fGenDoc then aList.Add('-D');
-  if fGenJson then aList.Add('-X');
-  if fDocDir <> '' then aList.Add('-Dd' + CEMainForm.expandSymbolicString(fDocDir));
-  if fJsonFname <> '' then aList.Add('-Xf' + CEMainForm.expandSymbolicString(fJsonFname));
+  if fGenDoc then
+    aList.Add('-D');
+  if fGenJson then
+    aList.Add('-X');
+  if fDocDir <> '' then
+    aList.Add('-Dd' + CEMainForm.expandSymbolicString(fDocDir));
+  if fJsonFname <> '' then
+    aList.Add('-Xf' + CEMainForm.expandSymbolicString(fJsonFname));
 end;
 
 procedure TDocOpts.assign(aValue: TPersistent);
@@ -389,7 +393,8 @@ begin
     exit;
   end;
   //
-  if fGenDoc = aValue then exit;
+  if fGenDoc = aValue then
+    exit;
   fGenDoc := aValue;
   doChanged;
 end;
@@ -402,24 +407,29 @@ begin
     exit;
   end;
   //
-  if fGenJson = aValue then exit;
+  if fGenJson = aValue then
+    exit;
   fGenJson := aValue;
   doChanged;
 end;
 
 procedure TDocOpts.setDocDir(const aValue: string);
 begin
-  if fDocDir = aValue then exit;
+  if fDocDir = aValue then
+    exit;
   fDocDir := patchPlateformPath(aValue);
-  if fDocDir <> '' then setGenDoc(true);
+  if fDocDir <> '' then
+    setGenDoc(true);
   doChanged;
 end;
 
 procedure TDocOpts.setJSONFile(const aValue: string);
 begin
-  if fJsonFname = aValue then exit;
+  if fJsonFname = aValue then
+    exit;
   fJsonFname := patchPlateformPath(aValue);
-  if fJsonFname <> '' then setGenJSON(true);
+  if fJsonFname <> '' then
+    setGenJSON(true);
   doChanged;
 end;
 {$ENDREGION}
@@ -849,7 +859,6 @@ end;
 procedure TPathsOpts.assign(aValue: TPersistent);
 var
   src: TPathsOpts;
-  i: Integer;
 begin
   if (aValue is TPathsOpts) then
   begin

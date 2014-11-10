@@ -232,7 +232,8 @@ end;
 procedure TReaderEx.ReadPersistent(aValue: TPersistent);
 begin
   ReadListBegin;
-  while not EndOfList do ReadProperty(aValue);
+  while not EndOfList do
+    ReadProperty(aValue);
   ReadListEnd;
 end;
 
@@ -250,13 +251,16 @@ end;
 
 procedure TMRUList.clearOutOfRange;
 begin
-  while Count > fMaxCount do delete(Count-1);
+  while Count > fMaxCount do
+    delete(Count-1);
 end;
 
 procedure TMRUList.setMaxCount(aValue: Integer);
 begin
-  if aValue < 0 then aValue := 0;
-  if fMaxCount = aValue then exit;
+  if aValue < 0 then
+    aValue := 0;
+  if fMaxCount = aValue then
+    exit;
   clearOutOfRange;
 end;
 
@@ -265,30 +269,36 @@ var
   i: NativeInt;
 begin
   i := indexOf(S);
-  if i = -1 then exit(true);
-  if i = 0 then exit(false);
-  if Count < 2 then exit(false);
+  if i = -1 then
+    exit(true);
+  if i = 0 then
+    exit(false);
+  if Count < 2 then
+    exit(false);
   exchange(i, i-1);
   exit( false);
 end;
 
 procedure TMRUList.Put(Index: Integer; const S: string);
 begin
-  if not (checkItem(S)) then exit;
+  if not (checkItem(S)) then
+    exit;
   inherited;
   clearOutOfRange;
 end;
 
 procedure TMRUList.InsertItem(Index: Integer; const S: string);
 begin
-  if not (checkItem(S)) then exit;
+  if not (checkItem(S)) then
+    exit;
   inherited;
   clearOutOfRange;
 end;
 
 procedure TMRUList.Insert(Index: Integer; const S: string);
 begin
-  if not (checkItem(S)) then exit;
+  if not (checkItem(S)) then
+    exit;
   inherited;
   clearOutOfRange;
 end;
@@ -299,7 +309,8 @@ var
 begin
   inherited;
   for i := Count-1 downto 0 do
-    if not fileExists(Strings[i]) then Delete(i);
+    if not fileExists(Strings[i]) then
+      Delete(i);
 end;
 
 function TMRUFileList.checkItem(const S: string): boolean;
@@ -498,7 +509,8 @@ begin
   while(i <> length(drv)+1) do
   begin
     Inc(sepCnt, Byte(aPath[i] = directorySeparator));
-    if sepCnt = 2 then break;
+    if sepCnt = 2 then
+      break;
     Dec(i);
   end;
   pth1 := aPath[i..length(aPath)];
@@ -518,7 +530,7 @@ begin
   PIDL := nil;
   SHGetSpecialFolderLocation(0, CSIDL_APPDATA, PIDL);
   SHGetPathFromIDList(PIDL, Folder);
-  result:=Folder;
+  result := Folder;
   {$ENDIF}
   {$IFDEF UNIX}
   result := ExpandFileName('~/');
@@ -600,7 +612,7 @@ begin
   if aPath[length(aPath)] = '*' then
   begin
     pth := aPath[1..length(aPath)-1];
-    if pth[length(pth)] in ['/','\'] then
+    if pth[length(pth)] in ['/', '\'] then
       pth := pth[1..length(pth)-1];
     if not directoryExists(pth) then exit(false);
     //

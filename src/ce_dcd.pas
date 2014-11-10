@@ -78,10 +78,10 @@ begin
   if not dcdOn then exit;
   //
   if not DCD_server.Running then
-    DCD_server.Parameters.Add('-I'+ aFilename)
+    DCD_server.Parameters.Add('-I' + aFilename)
   else if DCD_client <> nil then begin
     DCD_client.Parameters.Clear;
-    DCD_client.Parameters.Add('-I'+ aFilename);
+    DCD_client.Parameters.Add('-I' + aFilename);
     DCD_client.Execute;
   end;
 end;
@@ -93,7 +93,8 @@ var
   item: string;
   asComp, asTips: boolean;
 begin
-  if not dcdOn then exit;
+  if not dcdOn then
+    exit;
   lazyServerStart;
   //
   DCD_client.Parameters.Clear;
@@ -144,10 +145,11 @@ var
   i: Integer;
   str: string;
 begin
-  if not dcdOn then exit;
+  if not dcdOn then
+    exit;
   lazyServerStart;
-  //
-  if DCD_client.Running then exit;
+  if DCD_client.Running then
+    exit;
   //
   DCD_client.Parameters.Clear;
   DCD_client.Parameters.Add('-c');
@@ -169,10 +171,11 @@ var
   i: Integer;
   str, loc: string;
 begin
-  if not dcdOn then exit;
+  if not dcdOn then
+    exit;
   lazyServerStart;
-  //
-  if DCD_client.Running then exit;
+  if DCD_client.Running then
+    exit;
   //
   DCD_client.Parameters.Clear;
   DCD_client.Parameters.Add('-l');
@@ -188,7 +191,8 @@ begin
   if str <> '' then
   begin
     i := Pos(#9, str);
-    if i = -1 then exit;
+    if i = -1 then
+      exit;
     loc := str[i+1..length(str)];
     str := str[1..i-1];
     aFilename := str;

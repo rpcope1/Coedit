@@ -137,7 +137,7 @@ begin
     if LibraryManager = nil then exit;
     for i:= 0 to LibraryManager.libraries.Count-1 do
     begin
-      itm := TLibraryItem( LibraryManager.libraries.Items[i]);
+      itm := TLibraryItem(LibraryManager.libraries.Items[i]);
       row := List.Items.Add;
       row.Caption := itm.libAlias;
       row.SubItems.Add(itm.libFile);

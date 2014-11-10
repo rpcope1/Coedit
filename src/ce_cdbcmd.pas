@@ -98,9 +98,11 @@ var
   outname: string;
 begin
   lstCdbOut.Clear;
-  if fProject = nil then exit;
+  if fProject = nil then
+    exit;
   outname := fProject.outputFilename;
-  if not fileExists(outname) then exit;
+  if not fileExists(outname) then
+    exit;
   //
   killProcess(fCdbProc);
   fCdbProc := TAsyncProcess.create(nil);
@@ -120,7 +122,8 @@ procedure TCECdbWidget.btnStepClick(Sender: TObject);
 const
   cmd = 'p'#13#10;
 begin
-  if fCdbProc = nil then exit;
+  if fCdbProc = nil then
+    exit;
   fCdbProc.Input.Write(cmd[1], length(cmd));
 end;
 
@@ -128,7 +131,8 @@ procedure TCECdbWidget.btnGoClick(Sender: TObject);
 const
   cmd = 'g'#13#10;
 begin
-  if fCdbProc = nil then exit;
+  if fCdbProc = nil then
+    exit;
   fCdbProc.Input.Write(cmd[1], length(cmd));
 end;
 
@@ -136,7 +140,8 @@ procedure TCECdbWidget.btnDisasmClick(Sender: TObject);
 const
   cmd = 'u'#13#10;
 begin
-  if fCdbProc = nil then exit;
+  if fCdbProc = nil then
+    exit;
   fCdbProc.Input.Write(cmd[1], length(cmd));
 end;
 
@@ -144,7 +149,8 @@ procedure TCECdbWidget.btnStopClick(Sender: TObject);
 const
   cmd = 'q'#13#10;
 begin
-  if fCdbProc <> nil then
+  if fCdbProc <> nil
+    then
     fCdbProc.Input.Write(cmd[1], length(cmd));
   killProcess(fCdbProc);
 end;
@@ -171,7 +177,8 @@ var
   lst: TStringList;
   cnt: Integer;
 begin
-  if fCdbProc = nil then exit;
+  if fCdbProc = nil then
+    exit;
   //
   lst := TStringList.Create;
   try

@@ -5,9 +5,8 @@ unit ce_miniexplorer;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, ComCtrls, Buttons, lcltype, strutils, ce_widget, ce_common,
-  ce_interfaces, ce_observer;
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, ExtCtrls, Menus, ComCtrls,
+  Buttons, lcltype, strutils, ce_widget, ce_common, ce_interfaces, ce_observer;
 
 type
   TCEMiniExplorerWidget = class(TCEWidget)

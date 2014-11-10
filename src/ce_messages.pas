@@ -11,7 +11,6 @@ uses
 
 type
 
-
   (**
    * the struct linked to a log message. allow to be filtered.
    *)
@@ -89,8 +88,6 @@ type
     procedure lmClearbyContext(aCtxt: TCEAppMessageCtxt);
     procedure lmClearbyData(aData: Pointer);
   end;
-
-  TMessageKind = (msgkUnknown, msgkInfo, msgkHint, msgkWarn, msgkError);
 
   function guessMessageKind(const aMessg: string): TCEAppMessageKind;
   function getLineFromDmdMessage(const aMessage: string): TPoint;
@@ -197,9 +194,12 @@ end;
 {$REGION ICESessionOptionsObserver ------------------------------------------------------}
 procedure TCEMessagesWidget.setMaxMessageCount(aValue: Integer);
 begin
-  if aValue < 10 then aValue := 10;
-  if aValue > 1023 then aValue := 1023;
-  if fMaxMessCnt = aValue then exit;
+  if aValue < 10 then
+    aValue := 10;
+  if aValue > 1023 then
+    aValue := 1023;
+  if fMaxMessCnt = aValue then
+    exit;
   fMaxMessCnt := aValue;
   clearOutOfRangeMessg;
 end;
@@ -217,7 +217,8 @@ end;
 procedure TCEMessagesWidget.sesoptDeclareProperties(aFiler: TFiler);
 begin
   inherited;
-  aFiler.DefineProperty(Name + '_MaxMessageCount', @optset_MaxMessageCount, @optget_MaxMessageCount, true);
+  aFiler.DefineProperty(Name + '_MaxMessageCount', @optset_MaxMessageCount,
+    @optget_MaxMessageCount, true);
 end;
 {$ENDREGION}
 
@@ -260,8 +261,9 @@ var
   str: string;
 begin
   str := '';
-  for i := 0 to List.Items.Count-1 do if List.Items[i].MultiSelected then
-    str += List.Items[i].Text + LineEnding;
+  for i := 0 to List.Items.Count-1 do
+      if List.Items[i].MultiSelected then
+        str += List.Items[i].Text + LineEnding;
   Clipboard.AsText := str;
 end;
 
@@ -428,7 +430,8 @@ end;
 
 procedure TCEMessagesWidget.scrollToBack;
 begin
-  if not Visible then exit;
+  if not Visible then
+    exit;
   if List.BottomItem <> nil then
     List.BottomItem.MakeVisible;
 end;
@@ -438,12 +441,15 @@ var
   pos: TPoint;
   msg: string;
 begin
-  if List.Selected = nil then exit;
+  if List.Selected = nil then
+    exit;
   msg := List.Selected.Text;
-  if not openFileFromDmdMessage(msg) then exit;
-  // from here since a doc has the focus,  List.Selected is nil
+  if not openFileFromDmdMessage(msg) then
+    exit;
+  // from here, since a doc has the focus, List.Selected is nil
   pos := getLineFromDmdMessage(msg);
-  if fDoc = nil then exit;
+  if fDoc = nil then
+    exit;
   fDoc.CaretXY := pos;
   fDoc.SelectLine;
 end;
@@ -454,7 +460,8 @@ var
   itm: TTreeNode;
   i: NativeInt;
 begin
-  if updating then exit;
+  if updating then
+    exit;
   for i := 0 to List.Items.Count-1 do
   begin
     itm := List.Items[i];
@@ -502,12 +509,14 @@ begin
   result := amkBub;
   while(true) do
   begin
-    if pos > length(aMessg) then exit;
+    if pos > length(aMessg) then
+      exit;
     if aMessg[pos] in [#0..#32] then
     begin
       Inc(pos);
       result := checkIdent;
-      if result <> amkBub then exit;
+      if result <> amkBub then
+        exit;
       idt := '';
       continue;
     end;
@@ -592,7 +601,7 @@ begin
       if not fileExists(ident) then
         exit;
       ext := extractFileExt(ident);
-      // import(file) : ext may be different
+      // error in import(file) content: ext may be different
       if not dExtList.IndexOf(ext) = -1 then
         exit;
       CEMainForm.openFile(ident);

@@ -280,7 +280,8 @@ var
 begin
   savedReader := aReader;
   savedPos := aPosition;
-  if readDelim(aReader, aPosition, aDelim) then exit(true);
+  if readDelim(aReader, aPosition, aDelim) then
+      exit(true);
   aReader := savedReader;
   aPosition := savedPos;
   exit(false);
@@ -293,7 +294,8 @@ var
 begin
   savedReader := aReader;
   savedPos := aPosition;
-  if readDelim(aReader, aPosition, aDelim) then exit(true);
+  if readDelim(aReader, aPosition, aDelim) then
+    exit(true);
   aReader := savedReader;
   aPosition := savedPos;
   exit(false);

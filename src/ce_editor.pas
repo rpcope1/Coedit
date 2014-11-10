@@ -79,7 +79,7 @@ implementation
 {$R *.lfm}
 
 uses
-  ce_main, ce_messages;
+  ce_main;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEEditorWidget.create(aOwner: TComponent);
@@ -182,7 +182,8 @@ function TCEEditorWidget.getEditorIndex: NativeInt;
 begin
   if pageControl.PageCount > 0 then
     result := pageControl.PageIndex
-  else result := -1;
+  else
+    result := -1;
 end;
 
 function TCEEditorWidget.getEditor(index: NativeInt): TCESynMemo;
@@ -217,7 +218,7 @@ procedure TCEEditorWidget.completionCodeCompletion(var Value: string;
   SourceValue: string; var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char;
   Shift: TShiftState);
 begin
-  // warning: '20' depends on ce_dcd, case knd of...
+  // warning: '20' depends on ce_dcd, case knd of, string literals length
   Value := Value[1..length(Value)-20];
 end;
 
@@ -383,7 +384,7 @@ const
 begin
   if fDoc = nil then exit;
   //
-  editorStatus.Panels[0].Text := format('%d : %d',[fDoc.CaretY, fDoc.CaretX]);
+  editorStatus.Panels[0].Text := format('%d : %d', [fDoc.CaretY, fDoc.CaretX]);
   editorStatus.Panels[1].Text := modstr[fDoc.modified];
   editorStatus.Panels[2].Text := fDoc.fileName;
 end;
