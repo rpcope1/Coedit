@@ -29,6 +29,7 @@ type
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:Integer); override;
   public
     constructor Create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -74,7 +75,7 @@ begin
   fStoredFontSize := Font.Size;
 
   MouseOptions := MouseOptions +
-    [ emAltSetsColumnMode, emDragDropEditing, emCtrlWheelZoom];
+    [emAltSetsColumnMode, emDragDropEditing, emCtrlWheelZoom];
   Gutter.LineNumberPart.ShowOnlyLineNumbersMultiplesOf := 5;
   Gutter.LineNumberPart.MarkupInfo.Foreground := clGray;
   Gutter.SeparatorPart.LineOffset := 1;
@@ -224,6 +225,13 @@ procedure TCESynMemo.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:In
 begin
   inherited;
   identifierToD2Syn;
+end;
+
+procedure TCESynMemo.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:Integer);
+begin
+  inherited;
+  if (Button = mbMiddle) and (Shift = [ssCtrl]) then
+    Font.Size := fStoredFontSize;
 end;
 
 initialization
