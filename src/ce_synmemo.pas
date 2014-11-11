@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, SynEdit, SynMemo, ce_d2syn, SynEditHighlighter, controls,
-  lcltype, LazSynEditText, SynPluginSyncroEdit, SynEditKeyCmds, ce_project,
-  SynHighlighterLFM, SynEditMouseCmds, ce_common, ce_observer;
+  lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
+  ce_common, ce_observer;
 
 type
   TCESynMemo = class(TSynMemo)
@@ -15,7 +15,6 @@ type
     fFilename: string;
     fModified: boolean;
     fFileDate: double;
-    fAssocProject: TCEProject;
     fIsDSource: boolean;
     fIsConfig: boolean;
     fIdentifier: string;
@@ -45,7 +44,6 @@ type
     property Identifier: string read fIdentifier;
     property fileName: string read fFilename;
     property modified: boolean read fModified;
-    property project: TCEProject read fAssocProject write fAssocProject;
     property tempFilename: string read fTempFileName;
     //
     property isDSource: boolean read fIsDSource;

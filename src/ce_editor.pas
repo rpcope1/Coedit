@@ -7,14 +7,13 @@ interface
 uses
   Classes, SysUtils, FileUtil, ExtendedNotebook, Forms, Controls, lcltype,
   Graphics, SynEditKeyCmds, ComCtrls, SynEditHighlighter, ExtCtrls, Menus,
-  SynEditHighlighterFoldBase, SynMacroRecorder, SynPluginSyncroEdit, SynEdit,
-  SynHighlighterLFM, SynCompletion, AnchorDocking, ce_widget, ce_d2syn, ce_interfaces,
-  ce_synmemo, ce_dlang, ce_project, ce_common, types, ce_dcd, ce_observer;
+  SynMacroRecorder, SynPluginSyncroEdit, SynEdit, SynCompletion, ce_widget,
+  ce_interfaces, ce_synmemo, ce_dlang, ce_common, ce_dcd, ce_observer;
 
 type
 
   { TCEEditorWidget }
-  TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver)
+  TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver)
     imgList: TImageList;
     PageControl: TExtendedNotebook;
     macRecorder: TSynMacroRecorder;
@@ -24,18 +23,14 @@ type
       var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char; Shift: TShiftState);
     procedure completionExecute(Sender: TObject);
     procedure PageControlChange(Sender: TObject);
-    procedure PageControlCloseTabClicked(Sender: TObject);
   protected
     procedure UpdateByDelay; override;
     procedure UpdateByEvent; override;
   private
     fKeyChanged: boolean;
-    fProj: TCEProject;
     fDoc: TCESynMemo;
-
     // http://bugs.freepascal.org/view.php?id=26329
     fSyncEdit: TSynPluginSyncroEdit;
-
     tokLst: TLexTokenList;
     errLst: TLexErrorList;
     procedure memoKeyPress(Sender: TObject; var Key: char);
@@ -61,19 +56,10 @@ type
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
     //
-    procedure projNew(aProject: TCEProject);
-    procedure projClosing(aProject: TCEProject);
-    procedure projFocused(aProject: TCEProject);
-    procedure projChanged(aProject: TCEProject);
-    //
-    procedure projCompile(aProject: TCEProject); //warning: removed from itf
-    procedure projRun(aProject: TCEProject); //warning: removed from itf
-    //
     property editor[index: NativeInt]: TCESynMemo read getEditor;
     property editorCount: NativeInt read getEditorCount;
     property editorIndex: NativeInt read getEditorIndex;
   end;
-
 
 implementation
 {$R *.lfm}
@@ -140,42 +126,6 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION ICEProjectObserver ----------------------------------------------------}
-procedure TCEEditorWidget.projNew(aProject: TCEProject);
-begin
-  fProj := aProject;
-end;
-
-procedure TCEEditorWidget.projClosing(aProject: TCEProject);
-begin
-  if fProj <> aProject then
-    exit;
-  fProj := nil;
-end;
-
-procedure TCEEditorWidget.projFocused(aProject: TCEProject);
-begin
-  fProj := aProject;
-end;
-
-procedure TCEEditorWidget.projChanged(aProject: TCEProject);
-begin
-  if fProj <> aProject then
-    exit;
-  fProj := aProject;
-end;
-
-procedure TCEEditorWidget.projCompile(aProject: TCEProject);
-begin
-  endUpdateByDelay; // warning not trigered anymore
-end;
-
-procedure TCEEditorWidget.projRun(aProject: TCEProject);
-begin
-  endUpdateByDelay; // warning not trigered anymore
-end;
-{$ENDREGION}
-
 function TCEEditorWidget.getEditorCount: NativeInt;
 begin
   result := pageControl.PageCount;
@@ -223,12 +173,6 @@ procedure TCEEditorWidget.completionCodeCompletion(var Value: string;
 begin
   // warning: '20' depends on ce_dcd, case knd of, string literals length
   Value := Value[1..length(Value)-20];
-end;
-
-procedure TCEEditorWidget.PageControlCloseTabClicked(Sender: TObject);
-begin
-  // closeBtn not implemented (Win.)
-  CEMainForm.actFileClose.Execute;
 end;
 
 procedure TCEEditorWidget.addEditor;
@@ -404,11 +348,6 @@ begin
   fKeyChanged := false;
   if fDoc.Lines.Count = 0 then exit;
   //
-  //if fProj = nil then
-    //CEMainForm.MessageWidget.ClearMessages(mcEditor)
-  //else begin
-    // if the source is in proj then we want to keep messages to correct mistakes.
-  //end;
 
   lex(fDoc.Lines.Text, tokLst);
 
