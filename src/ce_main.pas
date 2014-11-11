@@ -1222,7 +1222,10 @@ begin
   try
     processOutputToStrings(proc, lst);
     if proc = fRunProc then for str in lst do
-      subjLmFromString(fLogMessager, str, fDoc, amcEdit, amkBub);
+      subjLmFromString(fLogMessager, str, fDoc, amcEdit, amkBub)
+    else if proc.Executable = DCompiler then
+      for str in lst do
+        subjLmFromString(fLogMessager, str, fDoc, amcEdit, amkAuto);
   finally
     lst.Free;
   end;
@@ -1245,11 +1248,6 @@ begin
         subjLmFromString(fLogMessager, str, fDoc, amcEdit, amkBub);
       FreeRunnableProc;
     // runnable compiler
-    end else
-    if proc.Executable = DCompiler then
-    begin
-      for str in lst do
-        subjLmFromString(fLogMessager, str, fDoc, amcEdit, amkAuto);
     end;
   finally
     lst.Free;
