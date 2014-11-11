@@ -2022,7 +2022,7 @@ object CEMainForm: TCEMainForm
     end
     object actProjOpts: TAction
       Category = 'Project'
-      Caption = 'Projects options'
+      Caption = 'Project configuration'
       ImageIndex = 24
       OnExecute = actProjOptsExecute
     end
@@ -2048,7 +2048,7 @@ object CEMainForm: TCEMainForm
     end
     object actProjOptView: TAction
       Category = 'Project'
-      Caption = 'View project options'
+      Caption = 'View project command line'
       ImageIndex = 12
       OnExecute = actProjOptViewExecute
     end
