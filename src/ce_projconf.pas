@@ -70,13 +70,18 @@ end;
 
 procedure TCEProjectConfigurationWidget.projClosing(const aProject: TCEProject);
 begin
+  if fProj <> aProject then
+    exit;
   Grid.TIObject := nil;
   Grid.ItemIndex := -1;
+  self.selConf.Clear;
   fProj := nil;
 end;
 
 procedure TCEProjectConfigurationWidget.projChanged(const aProject: TCEProject);
 begin
+  if fProj <> aProject then
+    exit;
   beginUpdateByEvent;
   fProj := aProject;
   endUpdateByEvent;

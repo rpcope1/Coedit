@@ -148,7 +148,8 @@ end;
 
 procedure TCEEditorWidget.projClosing(const aProject: TCEProject);
 begin
-  if fProj <> aProject then exit;
+  if fProj <> aProject then
+    exit;
   fProj := nil;
 end;
 
@@ -159,6 +160,8 @@ end;
 
 procedure TCEEditorWidget.projChanged(const aProject: TCEProject);
 begin
+  if fProj <> aProject then
+    exit;
   fProj := aProject;
 end;
 

@@ -129,6 +129,8 @@ end;
 
 procedure TCEProjectInspectWidget.projClosing(const aProject: TCEProject);
 begin
+  if fProject <> aProject then
+    exit;
   fProject := nil;
   UpdateByEvent;
 end;
@@ -141,7 +143,8 @@ end;
 
 procedure TCEProjectInspectWidget.projChanged(const aProject: TCEProject);
 begin
-  fProject := aProject;
+  if fProject <> aProject then
+    exit;
   UpdateByEvent;
 end;
 {$ENDREGION}

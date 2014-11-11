@@ -79,6 +79,8 @@ end;
 
 procedure TCECdbWidget.projClosing(const aProject: TCEProject);
 begin
+  if fProject <> aProject then
+    exit;
   fProject := nil;
 end;
 
@@ -89,7 +91,6 @@ end;
 
 procedure TCECdbWidget.projChanged(const aProject: TCEProject);
 begin
-  fProject := aProject;
 end;
 {$ENDREGION --------------------------------------------------------------------}
 

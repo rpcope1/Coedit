@@ -266,6 +266,8 @@ end;
 
 procedure TCEStaticExplorerWidget.projClosing(const aProject: TCEProject);
 begin
+  if fProj <> aProject then
+    exit;
   fProj := nil;
 end;
 
@@ -276,7 +278,6 @@ end;
 
 procedure TCEStaticExplorerWidget.projChanged(const aProject: TCEProject);
 begin
-  fProj := aProject;
 end;
 {$ENDREGION}
 
