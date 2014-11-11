@@ -191,7 +191,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION ICESessionOptionsObserver ------------------------------------------------------}
+{$REGION ICESessionOptionsObserver ---------------------------------------------}
 procedure TCEMessagesWidget.setMaxMessageCount(aValue: Integer);
 begin
   if aValue < 10 then
@@ -511,7 +511,7 @@ begin
   begin
     if pos > length(aMessg) then
       exit;
-    if aMessg[pos] in [#0..#32] then
+    if aMessg[pos] in [#0..#32, ',', ':', ';', '.'] then
     begin
       Inc(pos);
       result := checkIdent;
