@@ -601,7 +601,6 @@ begin
       if not fileExists(ident) then
         exit;
       ext := extractFileExt(ident);
-      // error in import(file) content: ext may be different
       if dExtList.IndexOf(ext) = -1 then
         exit;
       CEMainForm.openFile(ident);
