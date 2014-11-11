@@ -1,0 +1,20 @@
+object CurrentProject: TCEProject
+  OptionsCollection = <  
+    item
+      name = 'release'
+      outputOptions.boundsCheck = offAlways
+      pathsOptions.Imports.Strings = (
+        '..\src\'
+      )
+      preBuildProcess.options = []
+      preBuildProcess.showWindow = swoNone
+      postBuildProcess.options = []
+      postBuildProcess.showWindow = swoNone
+      runOptions.options = [poUsePipes, poStderrToOutPut]
+      runOptions.showWindow = swoNone
+    end>
+  Sources.Strings = (
+    '..\src\mixin_errfile_main.d'
+  )
+  ConfigurationIndex = 0
+end
