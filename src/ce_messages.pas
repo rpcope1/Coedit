@@ -468,10 +468,7 @@ begin
     Itm.Visible := false;
     msgdt := PMessageData(itm.Data);
     if aCtxt = amcAll then
-    begin
-      Itm.Visible := true;
-      continue;
-    end
+      Itm.Visible := true
     else case msgdt^.ctxt of
       amcEdit: itm.Visible := (fDoc  = TCESynMemo(msgdt^.data)) and (aCtxt = amcEdit);
       amcProj: itm.Visible := (fProj = TCEProject(msgdt^.data)) and (aCtxt = amcProj);
@@ -602,7 +599,7 @@ begin
         exit;
       ext := extractFileExt(ident);
       // error in import(file) content: ext may be different
-      if not dExtList.IndexOf(ext) = -1 then
+      if dExtList.IndexOf(ext) = -1 then
         exit;
       CEMainForm.openFile(ident);
       result := true;
