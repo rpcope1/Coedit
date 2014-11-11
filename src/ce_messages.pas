@@ -272,6 +272,7 @@ var
   i: NativeInt;
 begin
   for i := 0 to List.Items.Count-1 do
+    if List.Items[i].Visible then
       List.Items[i].MultiSelected := true;
 end;
 
@@ -373,6 +374,7 @@ begin
   clearOutOfRangeMessg;
   scrollToBack;
   Application.ProcessMessages;
+  filterMessages(fCtxt);
 end;
 
 procedure TCEMessagesWidget.lmClearByContext(aCtxt: TCEAppMessageCtxt);
@@ -466,6 +468,7 @@ begin
   begin
     itm := List.Items[i];
     Itm.Visible := false;
+    Itm.Selected := false;
     msgdt := PMessageData(itm.Data);
     if aCtxt = amcAll then
       Itm.Visible := true
