@@ -74,15 +74,15 @@ type
     function contextActionCount: integer; override;
     function contextAction(index: integer): TAction; override;
     //
-    procedure projNew(const aProject: TCEProject);
-    procedure projClosing(const aProject: TCEProject);
-    procedure projFocused(const aProject: TCEProject);
-    procedure projChanged(const aProject: TCEProject);
+    procedure projNew(aProject: TCEProject);
+    procedure projClosing(aProject: TCEProject);
+    procedure projFocused(aProject: TCEProject);
+    procedure projChanged(aProject: TCEProject);
     //
-    procedure docNew(const aDoc: TCESynMemo);
-    procedure docClosing(const aDoc: TCESynMemo);
-    procedure docFocused(const aDoc: TCESynMemo);
-    procedure docChanged(const aDoc: TCESynMemo);
+    procedure docNew(aDoc: TCESynMemo);
+    procedure docClosing(aDoc: TCESynMemo);
+    procedure docFocused(aDoc: TCESynMemo);
+    procedure docChanged(aDoc: TCESynMemo);
     //
     procedure lmFromString(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
     procedure lmClearbyContext(aCtxt: TCEAppMessageCtxt);
@@ -301,13 +301,13 @@ end;
 {$ENDREGION}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
-procedure TCEMessagesWidget.projNew(const aProject: TCEProject);
+procedure TCEMessagesWidget.projNew(aProject: TCEProject);
 begin
   fProj := aProject;
   filterMessages(fCtxt);
 end;
 
-procedure TCEMessagesWidget.projClosing(const aProject: TCEProject);
+procedure TCEMessagesWidget.projClosing(aProject: TCEProject);
 begin
   if fProj <> aProject then
     exit;
@@ -317,25 +317,25 @@ begin
   filterMessages(fCtxt);
 end;
 
-procedure TCEMessagesWidget.projFocused(const aProject: TCEProject);
+procedure TCEMessagesWidget.projFocused(aProject: TCEProject);
 begin
   fProj := aProject;
   filterMessages(fCtxt);
 end;
 
-procedure TCEMessagesWidget.projChanged(const aProject: TCEProject);
+procedure TCEMessagesWidget.projChanged(aProject: TCEProject);
 begin
 end;
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
-procedure TCEMessagesWidget.docNew(const aDoc: TCESynMemo);
+procedure TCEMessagesWidget.docNew(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
   filterMessages(fCtxt);
 end;
 
-procedure TCEMessagesWidget.docClosing(const aDoc: TCESynMemo);
+procedure TCEMessagesWidget.docClosing(aDoc: TCESynMemo);
 begin
   if aDoc <> fDoc then exit;
   lmClearbyData(fDoc);
@@ -343,13 +343,13 @@ begin
   filterMessages(fCtxt);
 end;
 
-procedure TCEMessagesWidget.docFocused(const aDoc: TCESynMemo);
+procedure TCEMessagesWidget.docFocused(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
   filterMessages(fCtxt);
 end;
 
-procedure TCEMessagesWidget.docChanged(const aDoc: TCESynMemo);
+procedure TCEMessagesWidget.docChanged(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
 end;

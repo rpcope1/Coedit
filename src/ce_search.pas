@@ -52,10 +52,10 @@ type
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
     //
-    procedure docNew(const aDoc: TCESynMemo);
-    procedure docClosing(const aDoc: TCESynMemo);
-    procedure docFocused(const aDoc: TCESynMemo);
-    procedure docChanged(const aDoc: TCESynMemo);
+    procedure docNew(aDoc: TCESynMemo);
+    procedure docClosing(aDoc: TCESynMemo);
+    procedure docFocused(aDoc: TCESynMemo);
+    procedure docChanged(aDoc: TCESynMemo);
     //
     function contextName: string; override;
     function contextActionCount: integer; override;
@@ -276,25 +276,25 @@ end;
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
-procedure TCESearchWidget.docNew(const aDoc: TCESynMemo);
+procedure TCESearchWidget.docNew(aDoc: TCESynMemo);
 begin
   fEditor := aDoc;
   UpdateByEvent;
 end;
 
-procedure TCESearchWidget.docClosing(const aDoc: TCESynMemo);
+procedure TCESearchWidget.docClosing(aDoc: TCESynMemo);
 begin
   if fEditor = aDoc then fEditor := nil;
   UpdateByEvent;
 end;
 
-procedure TCESearchWidget.docFocused(const aDoc: TCESynMemo);
+procedure TCESearchWidget.docFocused(aDoc: TCESynMemo);
 begin
   fEditor := aDoc;
   UpdateByEvent;
 end;
 
-procedure TCESearchWidget.docChanged(const aDoc: TCESynMemo);
+procedure TCESearchWidget.docChanged(aDoc: TCESynMemo);
 begin
 end;
 {$ENDREGION}

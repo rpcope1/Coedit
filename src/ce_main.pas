@@ -200,10 +200,10 @@ type
     fLogMessager: TCELogMessageSubject;
 
     // ICEMultiDocObserver
-    procedure docNew(const aDoc: TCESynMemo);
-    procedure docClosing(const aDoc: TCESynMemo);
-    procedure docFocused(const aDoc: TCESynMemo);
-    procedure docChanged(const aDoc: TCESynMemo);
+    procedure docNew(aDoc: TCESynMemo);
+    procedure docClosing(aDoc: TCESynMemo);
+    procedure docFocused(aDoc: TCESynMemo);
+    procedure docChanged(aDoc: TCESynMemo);
 
     // ICESessionOptionsObserver
     procedure sesoptBeforeSave;
@@ -922,23 +922,23 @@ end;
 {$ENDREGION}
 
 {$REGION ICEMultiDocMonitor ----------------------------------------------------}
-procedure TCEMainForm.docNew(const aDoc: TCESynMemo);
+procedure TCEMainForm.docNew(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
 end;
 
-procedure TCEMainForm.docClosing(const aDoc: TCESynMemo);
+procedure TCEMainForm.docClosing(aDoc: TCESynMemo);
 begin
   if aDoc <> fDoc then exit;
   fDoc := nil;
 end;
 
-procedure TCEMainForm.docFocused(const aDoc: TCESynMemo);
+procedure TCEMainForm.docFocused(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
 end;
 
-procedure TCEMainForm.docChanged(const aDoc: TCESynMemo);
+procedure TCEMainForm.docChanged(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
 end;
@@ -1275,7 +1275,7 @@ begin
   try
 
     subjLmClearByData(fLogMessager, editor);
-    subjLmFromString(fLogMessager, 'compiling ' + shortenPath(editor.fileName,25),
+    subjLmFromString(fLogMessager, 'compiling ' + shortenPath(editor.fileName, 25),
       editor, amcEdit, amkInf);
 
     if fileExists(editor.fileName) then editor.save

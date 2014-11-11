@@ -56,18 +56,18 @@ type
     procedure focusedEditorChanged;
     function getEditorHint: string;
     //
-    procedure docNew(const aDoc: TCESynMemo);
-    procedure docClosing(const aDoc: TCESynMemo);
-    procedure docFocused(const aDoc: TCESynMemo);
-    procedure docChanged(const aDoc: TCESynMemo);
+    procedure docNew(aDoc: TCESynMemo);
+    procedure docClosing(aDoc: TCESynMemo);
+    procedure docFocused(aDoc: TCESynMemo);
+    procedure docChanged(aDoc: TCESynMemo);
     //
-    procedure projNew(const aProject: TCEProject);
-    procedure projClosing(const aProject: TCEProject);
-    procedure projFocused(const aProject: TCEProject);
-    procedure projChanged(const aProject: TCEProject);
+    procedure projNew(aProject: TCEProject);
+    procedure projClosing(aProject: TCEProject);
+    procedure projFocused(aProject: TCEProject);
+    procedure projChanged(aProject: TCEProject);
     //
-    procedure projCompile(const aProject: TCEProject); //warning: removed from itf
-    procedure projRun(const aProject: TCEProject); //warning: removed from itf
+    procedure projCompile(aProject: TCEProject); //warning: removed from itf
+    procedure projRun(aProject: TCEProject); //warning: removed from itf
     //
     property editor[index: NativeInt]: TCESynMemo read getEditor;
     property editorCount: NativeInt read getEditorCount;
@@ -114,24 +114,24 @@ end;
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
-procedure TCEEditorWidget.docNew(const aDoc: TCESynMemo);
+procedure TCEEditorWidget.docNew(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
 end;
 
-procedure TCEEditorWidget.docClosing(const aDoc: TCESynMemo);
+procedure TCEEditorWidget.docClosing(aDoc: TCESynMemo);
 begin
   if fDoc <> aDoc then exit;
   fDoc := nil;
 end;
 
-procedure TCEEditorWidget.docFocused(const aDoc: TCESynMemo);
+procedure TCEEditorWidget.docFocused(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
   focusedEditorChanged;
 end;
 
-procedure TCEEditorWidget.docChanged(const aDoc: TCESynMemo);
+procedure TCEEditorWidget.docChanged(aDoc: TCESynMemo);
 begin
   if fDoc <> aDoc then exit;
   fKeyChanged := true;
@@ -141,36 +141,36 @@ end;
 {$ENDREGION}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
-procedure TCEEditorWidget.projNew(const aProject: TCEProject);
+procedure TCEEditorWidget.projNew(aProject: TCEProject);
 begin
   fProj := aProject;
 end;
 
-procedure TCEEditorWidget.projClosing(const aProject: TCEProject);
+procedure TCEEditorWidget.projClosing(aProject: TCEProject);
 begin
   if fProj <> aProject then
     exit;
   fProj := nil;
 end;
 
-procedure TCEEditorWidget.projFocused(const aProject: TCEProject);
+procedure TCEEditorWidget.projFocused(aProject: TCEProject);
 begin
   fProj := aProject;
 end;
 
-procedure TCEEditorWidget.projChanged(const aProject: TCEProject);
+procedure TCEEditorWidget.projChanged(aProject: TCEProject);
 begin
   if fProj <> aProject then
     exit;
   fProj := aProject;
 end;
 
-procedure TCEEditorWidget.projCompile(const aProject: TCEProject);
+procedure TCEEditorWidget.projCompile(aProject: TCEProject);
 begin
   endUpdateByDelay; // warning not trigered anymore
 end;
 
-procedure TCEEditorWidget.projRun(const aProject: TCEProject);
+procedure TCEEditorWidget.projRun(aProject: TCEProject);
 begin
   endUpdateByDelay; // warning not trigered anymore
 end;

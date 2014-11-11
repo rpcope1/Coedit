@@ -45,10 +45,10 @@ type
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     //
-    procedure projNew(const aProject: TCEProject);
-    procedure projClosing(const aProject: TCEProject);
-    procedure projFocused(const aProject: TCEProject);
-    procedure projChanged(const aProject: TCEProject);
+    procedure projNew(aProject: TCEProject);
+    procedure projClosing(aProject: TCEProject);
+    procedure projFocused(aProject: TCEProject);
+    procedure projChanged(aProject: TCEProject);
     //
     function contextName: string; override;
     function contextActionCount: integer; override;
@@ -121,13 +121,13 @@ end;
 {$ENDREGION}
 
 {$REGION ICEProjectMonitor -----------------------------------------------------}
-procedure TCEProjectInspectWidget.projNew(const aProject: TCEProject);
+procedure TCEProjectInspectWidget.projNew(aProject: TCEProject);
 begin
   fProject := aProject;
   UpdateByEvent;
 end;
 
-procedure TCEProjectInspectWidget.projClosing(const aProject: TCEProject);
+procedure TCEProjectInspectWidget.projClosing(aProject: TCEProject);
 begin
   if fProject <> aProject then
     exit;
@@ -135,13 +135,13 @@ begin
   UpdateByEvent;
 end;
 
-procedure TCEProjectInspectWidget.projFocused(const aProject: TCEProject);
+procedure TCEProjectInspectWidget.projFocused(aProject: TCEProject);
 begin
   fProject := aProject;
   UpdateByEvent;
 end;
 
-procedure TCEProjectInspectWidget.projChanged(const aProject: TCEProject);
+procedure TCEProjectInspectWidget.projChanged(aProject: TCEProject);
 begin
   if fProject <> aProject then
     exit;

@@ -53,13 +53,13 @@ type
   ICEMultiDocObserver = interface
   ['ICEMultiDocObserver']
     // aDoc has been created (empty, runnable, project source, ...).
-    procedure docNew(const aDoc: TCESynMemo);
+    procedure docNew(aDoc: TCESynMemo);
     // aDoc is the document being edited.
-    procedure docFocused(const aDoc: TCESynMemo);
+    procedure docFocused(aDoc: TCESynMemo);
     // aDoc content has just been modified (edited, saved).
-    procedure docChanged(const aDoc: TCESynMemo);
+    procedure docChanged(aDoc: TCESynMemo);
     // aDoc is about to be closed.
-    procedure docClosing(const aDoc: TCESynMemo);
+    procedure docClosing(aDoc: TCESynMemo);
   end;
   (**
    * An implementer informs some ICEMultiDocObserver about the current file(s)
@@ -77,13 +77,13 @@ type
   ICEProjectObserver = interface
   ['ICEProjectObserver']
     // aProject has been created/opened
-    procedure projNew(const aProject: TCEProject);
+    procedure projNew(aProject: TCEProject);
     // aProject has been modified: switches, source name, ...
-    procedure projChanged(const aProject: TCEProject);
+    procedure projChanged(aProject: TCEProject);
     // aProject is about to be closed.
-    procedure projClosing(const aProject: TCEProject);
+    procedure projClosing(aProject: TCEProject);
     // not used yet: the active project is now aProject
-    procedure projFocused(const aProject: TCEProject);
+    procedure projFocused(aProject: TCEProject);
   end;
   (**
    * An implementer informs some ICEProjectObserver about the current project(s)

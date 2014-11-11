@@ -146,12 +146,12 @@ type
   (**
    * Fills aList with the names of the files located in aPath.
    *)
-  procedure listFiles(const aList: TStrings; const aPath: string; recursive: boolean = false);
+  procedure listFiles(aList: TStrings; const aPath: string; recursive: boolean = false);
 
   (**
    * Fills aList with the names of the folders located in aPath.
    *)
-  procedure listFolders(const aList: TStrings; const aPath: string);
+  procedure listFolders(aList: TStrings; const aPath: string);
 
   (**
    * Checks if aPath contains at least one sub-folder.
@@ -161,13 +161,13 @@ type
   (**
    * Fills aList with the system drives.
    *)
-  procedure listDrives(const aList: TStrings);
+  procedure listDrives(aList: TStrings);
 
   (**
    * If aPath ends with an asterisk then fills aList with the names of the files located in aPath.
    * Returns true if aPath was 'asterisk-ifyed'.
    *)
-  function listAsteriskPath(const aPath: string; const aList: TStrings; const someExts: TStrings = nil): boolean;
+  function listAsteriskPath(const aPath: string; aList: TStrings; someExts: TStrings = nil): boolean;
 
   (**
    * Lets the shell open a file
@@ -182,7 +182,7 @@ type
   (**
    * Clears then fills aList with aProcess output stream.
    *)
-  procedure processOutputToStrings(const aProcess: TProcess; var aList: TStringList);
+  procedure processOutputToStrings(aProcess: TProcess; var aList: TStringList);
 
   (**
    * Terminates and frees aProcess;
@@ -192,7 +192,7 @@ type
   (**
    * Ensures that the in/out process pipes are not redirected, that it has a console, if it waits on exit.
    *)
-  procedure ensureNoPipeIfWait(const aProcess: TProcess);
+  procedure ensureNoPipeIfWait(aProcess: TProcess);
 
 implementation
 
@@ -544,7 +544,7 @@ begin
     (sr.Attr and faDirectory = faDirectory);
 end;
 
-procedure listFiles(const aList: TStrings; const aPath: string; recursive: boolean = false);
+procedure listFiles(aList: TStrings; const aPath: string; recursive: boolean = false);
 var
   sr: TSearchrec;
 procedure tryAdd;
@@ -566,7 +566,7 @@ begin
   end;
 end;
 
-procedure listFolders(const aList: TStrings; const aPath: string);
+procedure listFolders(aList: TStrings; const aPath: string);
 var
   sr: TSearchrec;
 begin
@@ -600,7 +600,7 @@ begin
   result := res;
 end;
 
-function listAsteriskPath(const aPath: string; const aList: TStrings; const someExts: TStrings = nil): boolean;
+function listAsteriskPath(const aPath: string; aList: TStrings; someExts: TStrings = nil): boolean;
 var
   pth, ext, fname: string;
   files: TStringList;
@@ -638,7 +638,7 @@ begin
   exit(false);
 end;
 
-procedure listDrives(const aList: TStrings);
+procedure listDrives(aList: TStrings);
 {$IFDEF WINDOWS}
 var
   drv: char;
@@ -693,7 +693,7 @@ begin
     exit(ExeSearch(anExeName, '') <> '');
 end;
 
-procedure processOutputToStrings(const aProcess: TProcess; var aList: TStringList);
+procedure processOutputToStrings(aProcess: TProcess; var aList: TStringList);
 var
   str: TMemoryStream;
   sum: Integer;
@@ -729,7 +729,7 @@ begin
   aProcess := nil;
 end;
 
-procedure ensureNoPipeIfWait(const aProcess: TProcess);
+procedure ensureNoPipeIfWait(aProcess: TProcess);
 begin
   if not (poWaitonExit in aProcess.Options) then
     exit;

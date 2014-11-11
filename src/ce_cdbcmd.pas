@@ -37,10 +37,10 @@ type
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     //
-    procedure projNew(const aProject: TCEProject);
-    procedure projClosing(const aProject: TCEProject);
-    procedure projFocused(const aProject: TCEProject);
-    procedure projChanged(const aProject: TCEProject);
+    procedure projNew(aProject: TCEProject);
+    procedure projClosing(aProject: TCEProject);
+    procedure projFocused(aProject: TCEProject);
+    procedure projChanged(aProject: TCEProject);
   end;
 
 implementation
@@ -72,24 +72,24 @@ end;
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION ICEProjectMonitor -----------------------------------------------------}
-procedure TCECdbWidget.projNew(const aProject: TCEProject);
+procedure TCECdbWidget.projNew(aProject: TCEProject);
 begin
   fProject := aProject;
 end;
 
-procedure TCECdbWidget.projClosing(const aProject: TCEProject);
+procedure TCECdbWidget.projClosing(aProject: TCEProject);
 begin
   if fProject <> aProject then
     exit;
   fProject := nil;
 end;
 
-procedure TCECdbWidget.projFocused(const aProject: TCEProject);
+procedure TCECdbWidget.projFocused(aProject: TCEProject);
 begin
   fProject := aProject;
 end;
 
-procedure TCECdbWidget.projChanged(const aProject: TCEProject);
+procedure TCECdbWidget.projChanged(aProject: TCEProject);
 begin
 end;
 {$ENDREGION --------------------------------------------------------------------}

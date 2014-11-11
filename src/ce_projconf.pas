@@ -36,10 +36,10 @@ type
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     //
-    procedure projNew(const aProject: TCEProject);
-    procedure projClosing(const aProject: TCEProject);
-    procedure projChanged(const aProject: TCEProject);
-    procedure projFocused(const aProject: TCEProject);
+    procedure projNew(aProject: TCEProject);
+    procedure projClosing(aProject: TCEProject);
+    procedure projChanged(aProject: TCEProject);
+    procedure projFocused(aProject: TCEProject);
   end;
 
 implementation
@@ -61,14 +61,14 @@ begin
   inherited;
 end;
 
-procedure TCEProjectConfigurationWidget.projNew(const aProject: TCEProject);
+procedure TCEProjectConfigurationWidget.projNew(aProject: TCEProject);
 begin
   beginUpdateByEvent;
   fProj := aProject;
   endUpdateByEvent;
 end;
 
-procedure TCEProjectConfigurationWidget.projClosing(const aProject: TCEProject);
+procedure TCEProjectConfigurationWidget.projClosing(aProject: TCEProject);
 begin
   if fProj <> aProject then
     exit;
@@ -78,7 +78,7 @@ begin
   fProj := nil;
 end;
 
-procedure TCEProjectConfigurationWidget.projChanged(const aProject: TCEProject);
+procedure TCEProjectConfigurationWidget.projChanged(aProject: TCEProject);
 begin
   if fProj <> aProject then
     exit;
@@ -87,7 +87,7 @@ begin
   endUpdateByEvent;
 end;
 
-procedure TCEProjectConfigurationWidget.projFocused(const aProject: TCEProject);
+procedure TCEProjectConfigurationWidget.projFocused(aProject: TCEProject);
 begin
   beginUpdateByEvent;
   fProj := aProject;

@@ -61,19 +61,19 @@ type
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     //
-    procedure docNew(const aDoc: TCESynMemo);
-    procedure docClosing(const aDoc: TCESynMemo);
-    procedure docFocused(const aDoc: TCESynMemo);
-    procedure docChanged(const aDoc: TCESynMemo);
+    procedure docNew(aDoc: TCESynMemo);
+    procedure docClosing(aDoc: TCESynMemo);
+    procedure docFocused(aDoc: TCESynMemo);
+    procedure docChanged(aDoc: TCESynMemo);
     //
     function contextName: string; override;
     function contextActionCount: integer; override;
     function contextAction(index: integer): TAction; override;
     //
-    procedure projNew(const aProject: TCEProject);
-    procedure projClosing(const aProject: TCEProject);
-    procedure projFocused(const aProject: TCEProject);
-    procedure projChanged(const aProject: TCEProject);
+    procedure projNew(aProject: TCEProject);
+    procedure projClosing(aProject: TCEProject);
+    procedure projFocused(aProject: TCEProject);
+    procedure projChanged(aProject: TCEProject);
     //
     procedure sesoptDeclareProperties(aFiler: TFiler); override;
   end;
@@ -230,53 +230,55 @@ end;
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
-procedure TCEStaticExplorerWidget.docNew(const aDoc: TCESynMemo);
+procedure TCEStaticExplorerWidget.docNew(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
   beginUpdateByDelay;
 end;
 
-procedure TCEStaticExplorerWidget.docClosing(const aDoc: TCESynMemo);
+procedure TCEStaticExplorerWidget.docClosing(aDoc: TCESynMemo);
 begin
   if fDoc <> aDoc then exit;
   fDoc := nil;
   beginUpdateByDelay;
 end;
 
-procedure TCEStaticExplorerWidget.docFocused(const aDoc: TCESynMemo);
+procedure TCEStaticExplorerWidget.docFocused(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
   if fAutoRefresh then beginUpdateByDelay
   else if fRefreshOnFocus then Rescan;
 end;
 
-procedure TCEStaticExplorerWidget.docChanged(const aDoc: TCESynMemo);
+procedure TCEStaticExplorerWidget.docChanged(aDoc: TCESynMemo);
 begin
   if fDoc <> aDoc then exit;
-  if fAutoRefresh then beginUpdateByDelay
-  else if fRefreshOnChange then Rescan;
+  if fAutoRefresh then
+    beginUpdateByDelay
+  else if fRefreshOnChange then
+    Rescan;
 end;
 {$ENDREGION}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
-procedure TCEStaticExplorerWidget.projNew(const aProject: TCEProject);
+procedure TCEStaticExplorerWidget.projNew(aProject: TCEProject);
 begin
   fProj := aProject;
 end;
 
-procedure TCEStaticExplorerWidget.projClosing(const aProject: TCEProject);
+procedure TCEStaticExplorerWidget.projClosing(aProject: TCEProject);
 begin
   if fProj <> aProject then
     exit;
   fProj := nil;
 end;
 
-procedure TCEStaticExplorerWidget.projFocused(const aProject: TCEProject);
+procedure TCEStaticExplorerWidget.projFocused(aProject: TCEProject);
 begin
   fProj := aProject;
 end;
 
-procedure TCEStaticExplorerWidget.projChanged(const aProject: TCEProject);
+procedure TCEStaticExplorerWidget.projChanged(aProject: TCEProject);
 begin
 end;
 {$ENDREGION}
