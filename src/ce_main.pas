@@ -190,6 +190,7 @@ type
     fFileMru: TMruFileList;
     fLibMan: TLibraryManager;
     fPrInpWidg: TCEProcInputWidget;
+    fInitialized: boolean;
     {$IFDEF WIN32}
     fCdbWidg: TCECdbWidget;
     {$ENDIF}
@@ -279,7 +280,6 @@ type
     function expandSymbolicString(const symString: string): string;
     //
     property WidgetList: TCEWidgetList read fWidgList;
-    //property MessageWidget: TCEMessagesWidget read fMesgWidg;
     property LibraryManager: TLibraryManager read fLibMan;
     property CustomTools: TCETools read fTools;
   end;
@@ -317,6 +317,7 @@ begin
   getCMdParams;
   //
   EntitiesConnector.endUpdate;
+  fInitialized := true;
 end;
 
 procedure TCEMainForm.checkCompilo;
@@ -574,6 +575,8 @@ procedure TCEMainForm.SaveSettings;
 var
   opts: TCEOptions;
 begin
+  if not fInitialized then
+    exit;
   opts := TCEOptions.create(nil);
   try
     forceDirectory(getDocPath);
@@ -590,6 +593,8 @@ var
   xcfg: TXMLConfigStorage;
   i: NativeInt;
 begin
+  if not fInitialized then
+    exit;
   if WindowState = wsMinimized then
     WindowState := wsNormal;
   for i:= 0 to fWidgList.Count-1 do
