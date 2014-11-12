@@ -135,7 +135,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="29">
+    <Units Count="30">
       <Unit0>
         <Filename Value="coedit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -307,19 +307,24 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ce_toolseditor"/>
       </Unit26>
-      <Unit27>
+	  <Unit27>
+        <Filename Value="..\src\ce_txtsyn.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_txtsyn"/>
+      </Unit27>
+      <Unit28>
         <Filename Value="..\src\ce_widget.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="CEWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ce_widget"/>
-      </Unit27>
-      <Unit28>
+      </Unit28>
+      <Unit29>
         <Filename Value="..\src\ce_writablecomponent.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_writableComponent"/>
-      </Unit28>
+      </Unit29>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

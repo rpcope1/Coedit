@@ -5,8 +5,8 @@ unit ce_synmemo;
 interface
 
 uses
-  Classes, SysUtils, SynEdit, SynMemo, ce_d2syn, SynEditHighlighter, controls,
-  lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
+  Classes, SysUtils, SynEdit, SynMemo, ce_d2syn, ce_txtsyn ,SynEditHighlighter,
+  controls, lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
   ce_common, ce_observer;
 
 type
@@ -16,6 +16,7 @@ type
     fModified: boolean;
     fFileDate: double;
     fIsDSource: boolean;
+    fIsTxtFile: boolean;
     fIsConfig: boolean;
     fIdentifier: string;
     fTempFileName: string;
@@ -53,6 +54,7 @@ type
 var
   D2Syn: TSynD2Syn;
   LfmSyn: TSynLfmSyn;
+  TxtSyn: TSynTxtSyn;
 
 implementation
 
@@ -133,12 +135,16 @@ begin
   inherited;
   fIsDSource := Highlighter = D2Syn;
   fIsConfig := Highlighter = LfmSyn;
+  fIsTxtFile := Highlighter = TxtSyn;
 end;
 
 procedure TCESynMemo.identifierToD2Syn;
 begin
   fIdentifier := GetWordAtRowCol(LogicalCaretXY);
-  if fIsDSource then D2Syn.CurrentIdentifier := fIdentifier;
+  if fIsDSource then
+    D2Syn.CurrentIdentifier := fIdentifier
+  else if fIsTxtFile then
+    TxtSyn.CurrIdent := fIdentifier;
 end;
 
 procedure TCESynMemo.changeNotify(Sender: TObject);
@@ -154,7 +160,7 @@ var
 begin
   ext := extractFileExt(aFilename);
   if dExtList.IndexOf(ext) = -1 then
-    Highlighter := nil;
+    Highlighter := TxtSyn;
   Lines.LoadFromFile(aFilename);
   fFilename := aFilename;
   FileAge(fFilename, fFileDate);
@@ -163,9 +169,16 @@ begin
 end;
 
 procedure TCESynMemo.saveToFile(const aFilename: string);
+var
+  ext: string;
 begin
   Lines.SaveToFile(aFilename);
   fFilename := aFilename;
+  ext := extractFileExt(aFilename);
+  if dExtList.IndexOf(ext) = -1 then
+    Highlighter := TxtSyn
+  else
+    Highlighter := D2Syn;
   FileAge(fFilename, fFileDate);
   fModified := false;
   if fFilename <> fTempFileName then
@@ -235,11 +248,14 @@ end;
 initialization
   D2Syn := TSynD2Syn.create(nil);
   LfmSyn := TSynLFMSyn.Create(nil);
+  TxtSyn := TSynTxtSyn.create(nil);
+  //
   LfmSyn.KeyAttri.Foreground := clNavy;
   LfmSyn.KeyAttri.Style := [fsBold];
   LfmSyn.NumberAttri.Foreground := clMaroon;
   LfmSyn.StringAttri.Foreground := clBlue;
 finalization
-  D2Syn.free;
+  D2Syn.Free;
   LfmSyn.Free;
+  TxtSyn.Free;
 end.
