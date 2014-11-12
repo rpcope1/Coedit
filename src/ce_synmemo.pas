@@ -175,9 +175,7 @@ begin
   Lines.SaveToFile(aFilename);
   fFilename := aFilename;
   ext := extractFileExt(aFilename);
-  if dExtList.IndexOf(ext) = -1 then
-    Highlighter := TxtSyn
-  else
+  if dExtList.IndexOf(ext) <> -1 then
     Highlighter := D2Syn;
   FileAge(fFilename, fFileDate);
   fModified := false;
