@@ -321,7 +321,7 @@ begin
   begin
     if fold = '' then
       continue;
-    itm := Tree.Items.AddChild(fImpsNode, shortenPath(fold));
+    itm := Tree.Items.AddChild(fImpsNode, shortenPath(CEMainForm.expandSymbolicString(fold)));
     itm.ImageIndex := 5;
     itm.SelectedIndex := 5;
   end;
@@ -331,7 +331,7 @@ begin
   begin
     if fold = '' then
       continue;
-    itm := Tree.Items.AddChild(fInclNode, shortenPath(fold));
+    itm := Tree.Items.AddChild(fInclNode, shortenPath(CEMainForm.expandSymbolicString(fold)));
     itm.ImageIndex := 5;
     itm.SelectedIndex := 5;
   end;
@@ -344,11 +344,11 @@ begin
     lst := TStringList.Create;
     try
       if listAsteriskPath(src, lst) then for src in lst do begin
-        itm := Tree.Items.AddChild(fXtraNode, shortenPath(src));
+        itm := Tree.Items.AddChild(fXtraNode, shortenPath(CEMainForm.expandSymbolicString(src)));
         itm.ImageIndex := 2;
         itm.SelectedIndex := 2;
       end else begin
-        itm := Tree.Items.AddChild(fXtraNode, shortenPath(src));
+        itm := Tree.Items.AddChild(fXtraNode, shortenPath(CEMainForm.expandSymbolicString(src)));
         itm.ImageIndex := 2;
         itm.SelectedIndex := 2;
       end;
