@@ -258,7 +258,7 @@ type
     procedure setExecutable(const aValue: string);
     procedure setWorkDir(const aValue: string);
     procedure setOptions(const aValue: TProcessOptions);
-    procedure setParameters(const aValue: TStringList);
+    procedure setParameters(aValue: TStringList);
     procedure setShowWin(const aValue: TShowWindowOptions);
   protected
     property executable: string read fExecutable write setExecutable;
@@ -271,7 +271,7 @@ type
     destructor destroy; override;
     procedure assign(source: TPersistent); override;
     procedure getOpts(const aList: TStrings); override;
-    procedure setProcess(const aProcess: TProcess);
+    procedure setProcess(aProcess: TProcess);
   end;
 
   (*****************************************************************************
@@ -986,7 +986,7 @@ begin
   if source is TCustomProcOptions then
   begin
     src := TCustomProcOptions(source);
-    fParameters.Assign(src.fParameters);
+    fParameters := src.fParameters;
     fOptions := src.fOptions;
     fExecutable := src.fExecutable;
     fShowWin := src.fShowWin;
@@ -998,7 +998,9 @@ procedure TCustomProcOptions.getOpts(const aList: TStrings);
 begin
 end;
 
-procedure TCustomProcOptions.setProcess(const aProcess: TProcess);
+procedure TCustomProcOptions.setProcess(aProcess: TProcess);
+var
+  i: Integer;
 begin
   aProcess.Parameters := fParameters;
   aProcess.Executable := fExecutable;
@@ -1029,7 +1031,7 @@ begin
   doChanged;
 end;
 
-procedure TCustomProcOptions.setParameters(const aValue: TStringList);
+procedure TCustomProcOptions.setParameters(aValue: TStringList);
 begin
   fParameters.Assign(aValue);
   doChanged;

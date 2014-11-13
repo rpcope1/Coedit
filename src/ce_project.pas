@@ -559,16 +559,26 @@ begin
   killProcess(fRunner);
   //
   fRunner := TAsyncProcess.Create(nil); // fRunner can use the input process widget.
+
+  // TODO-cbugfix: parameters are not copied from src to target.
   currentConfiguration.runOptions.setProcess(fRunner);
-  prm := '';
-  i := 1;
-  repeat
-    prm := ExtractDelimited(i, runArgs, [' ']);
-    prm := CEMainForm.expandSymbolicString(prm);
-    if prm <> '``' then
-      fRunner.Parameters.AddText(prm);
-    Inc(i);
-  until prm = '``';
+
+  //fRunner.Parameters.SaveToFile('C:\dst.txt');
+  //currentConfiguration.runOptions.parameters.SaveToFile('C:\src.txt');
+
+
+  if runArgs <> '' then
+  begin
+    prm := '';
+    i := 1;
+    repeat
+      prm := ExtractDelimited(i, runArgs, [' ']);
+      prm := CEMainForm.expandSymbolicString(prm);
+      if prm <> '``' then
+        fRunner.Parameters.AddText(prm);
+      Inc(i);
+    until prm = '``';
+  end;
   //
   if not fileExists(outputFilename) then
   begin

@@ -307,7 +307,7 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ce_toolseditor"/>
       </Unit26>
-	  <Unit27>
+      <Unit27>
         <Filename Value="..\src\ce_txtsyn.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_txtsyn"/>
