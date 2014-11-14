@@ -5,10 +5,9 @@ unit ce_staticexplorer;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Graphics,
-  Dialogs, ExtCtrls, Menus, ComCtrls, ce_widget, jsonparser, fpjson,
-  ce_synmemo, process, actnlist, Buttons, ce_common, ce_project, ce_observer,
-  ce_interfaces;
+  Classes, SysUtils, TreeFilterEdit, Forms, Controls, Graphics, ExtCtrls, Menus,
+  ComCtrls, ce_widget, jsonparser, fpjson, asyncprocess, process, actnlist, Buttons,
+  ce_common, ce_project, ce_observer, ce_synmemo, ce_interfaces;
 
 type
 
@@ -24,6 +23,7 @@ type
     procedure TreeFilterEdit1AfterFilter(Sender: TObject);
     procedure TreeKeyPress(Sender: TObject; var Key: char);
   private
+    fDmdProc: TAsyncProcess;
     fLogMessager: TCELogMessageSubject;
     fActRefresh: TAction;
     fActRefreshOnChange: TAction;
@@ -35,15 +35,18 @@ type
     fAutoRefresh: boolean;
     fRefreshOnChange: boolean;
     fRefreshOnFocus: boolean;
+    fJsonFname: string;
     ndAlias, ndClass, ndEnum, ndFunc: TTreeNode;
     ndImp, ndIntf, ndMix, ndStruct, ndTmp, ndVar: TTreeNode;
-    procedure Rescan;
     procedure TreeDblClick(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure actAutoRefreshExecute(Sender: TObject);
     procedure actRefreshOnChangeExecute(Sender: TObject);
     procedure actRefreshOnFocusExecute(Sender: TObject);
     procedure updateVisibleCat;
+    //
+    procedure produceJsonInfo;
+    procedure jsonInfoProduced(sender: TObject);
     //
     procedure optget_AutoRefresh(aWriter: TWriter);
     procedure optset_AutoRefresh(aReader: TReader);
@@ -136,6 +139,7 @@ destructor TCEStaticExplorerWidget.destroy;
 begin
   EntitiesConnector.removeObserver(self);
   //
+  killProcess(fDmdProc);
   fLogMessager.Free;
   inherited;
 end;
@@ -210,7 +214,7 @@ end;
 procedure TCEStaticExplorerWidget.actRefreshExecute(Sender: TObject);
 begin
   if Updating then exit;
-  Rescan;
+  produceJsonInfo;
 end;
 
 procedure TCEStaticExplorerWidget.actAutoRefreshExecute(Sender: TObject);
@@ -247,7 +251,7 @@ procedure TCEStaticExplorerWidget.docFocused(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
   if fAutoRefresh then beginUpdateByDelay
-  else if fRefreshOnFocus then Rescan;
+  else if fRefreshOnFocus then produceJsonInfo;
 end;
 
 procedure TCEStaticExplorerWidget.docChanged(aDoc: TCESynMemo);
@@ -256,7 +260,7 @@ begin
   if fAutoRefresh then
     beginUpdateByDelay
   else if fRefreshOnChange then
-    Rescan;
+    produceJsonInfo;
 end;
 {$ENDREGION}
 
@@ -286,7 +290,7 @@ end;
 procedure TCEStaticExplorerWidget.UpdateByDelay;
 begin
   if not fAutoRefresh then exit;
-  Rescan;
+  produceJsonInfo;
 end;
 
 procedure TCEStaticExplorerWidget.TreeDeletion(Sender: TObject; Node: TTreeNode);
@@ -338,15 +342,72 @@ begin
   fDoc.SelectLine;
 end;
 
-procedure TCEStaticExplorerWidget.Rescan;
+procedure TCEStaticExplorerWidget.produceJsonInfo;
 var
-  dmdproc: TProcess;
-  lines: TStringList;
+  srcFname, itm: string;
+  tempSrc: TStringList;
+  i: Integer;
+begin
+  if fDoc = nil then exit;
+  if fDoc.Lines.Count = 0 then exit;
+
+  // standard process options
+  killProcess(fDmdProc);
+  fDmdProc := TAsyncProcess.Create(nil);
+  fDmdProc.ShowWindow := swoHIDE;
+  fDmdProc.Options := [];
+  fDmdProc.Executable := 'dmd';
+  fDmdProc.OnTerminate := @jsonInfoProduced;
+
+  // focused source
+  fJsonFname := fDoc.tempFilename + '.json';
+  srcFname := fDoc.fileName;
+  if not fileExists(srcFname) then begin
+    tempSrc := TStringList.Create;
+    try
+      srcFname := fDoc.tempFilename;
+      tempSrc.Assign(fDoc.Lines);
+      tempSrc.SaveToFile(srcFname);
+    finally
+      tempSrc.Free;
+    end;
+  end;
+  fDmdProc.Parameters.Add(srcFname);
+
+  // other project sources, -I, -J
+  if fProj <> nil then begin
+    fDmdProc.CurrentDirectory := extractFilePath(fProj.fileName);
+    for i := 0 to fProj.Sources.Count-1 do begin
+      itm := fProj.getAbsoluteSourceName(i);
+      if srcFname <> itm then fDmdProc.Parameters.Add(itm);
+    end;
+    for itm in fProj.currentConfiguration.pathsOptions.Includes do
+      fDmdProc.Parameters.Add('-I' + CEMainForm.expandSymbolicString(itm));
+    for itm in fProj.currentConfiguration.pathsOptions.Imports do
+      fDmdProc.Parameters.Add('-J' + CEMainForm.expandSymbolicString(itm));
+  end;
+
+  //adds the libman entries
+  with CEMainForm do begin
+    Librarymanager.getLibFiles(nil, fDmdProc.Parameters);
+    Librarymanager.getLibSources(nil, fDmdProc.Parameters);
+  end;
+
+  // option to produce the Json file.
+  fDmdProc.Parameters.Add('-c');
+  fDmdProc.Parameters.Add('-o-');
+  fDmdProc.Parameters.Add('-X');
+  fDmdProc.Parameters.Add('-Xf' + fJsonFname);
+
+  fDmdProc.Execute;
+end;
+
+procedure TCEStaticExplorerWidget.jsonInfoProduced(sender: TObject);
+var
   str: TMemoryStream;
   prs: TJsonParser;
   dat: TJsonData;
   memb: TJsonData;
-  jsf, scf: string;
   ndCat: TTreeNode;
   ln: PInt64;
   nme, knd: string;
@@ -373,8 +434,10 @@ var
   end;
 
 begin
+  killProcess(fDmdProc);
   if ndAlias = nil then exit;
 
+  // clear the tree
   ndAlias.DeleteChildren;
   ndClass.DeleteChildren;
   ndEnum.DeleteChildren;
@@ -385,71 +448,14 @@ begin
   ndStruct.DeleteChildren;
   ndTmp.DeleteChildren;
   ndVar.DeleteChildren;
-
   updateVisibleCat;
 
-  if fDoc = nil then exit;
-  if fDoc.Lines.Count = 0 then exit;
-  memb := nil;
-
-  // generate json
-  // note: only if
-  //  - the imports can be found (either using the project infos or sc.conf)
-  //  - the source is error-less
-  dmdproc := TProcess.Create(nil);
-  lines := TStringList.Create;
-  try
-    // json file
-    jsf := fDoc.tempFilename + '.json';
-    // main source file
-    scf := fDoc.fileName;
-    if not fileExists(scf) then
-    begin
-      scf := fDoc.tempFilename;
-      lines.Assign(fDoc.Lines);
-      lines.SaveToFile(scf);
-    end;
-    // option to gen. the Json file.
-    dmdProc.ShowWindow := swoHIDE;
-    dmdproc.Options := [];
-    dmdproc.Executable := 'dmd';
-    dmdproc.Parameters.Add(scf);
-    dmdproc.Parameters.Add('-c');
-    dmdproc.Parameters.Add('-o-');
-    dmdproc.Parameters.Add('-X');
-    dmdproc.Parameters.Add('-Xf' + jsf);
-    // projects sources folders ,-I, -J
-    if fProj <> nil then
-    begin
-      dmdProc.CurrentDirectory := extractFilePath(fProj.fileName);
-      if fProj <> nil then for i := 0 to fProj.Sources.Count-1 do
-        dmdproc.Parameters.Add('-I' + extractFilePath(fProj.getAbsoluteSourceName(i)));
-      for nme in fProj.currentConfiguration.pathsOptions.Includes do
-        dmdproc.Parameters.Add('-I' + nme);
-      for nme in fProj.currentConfiguration.pathsOptions.Imports do
-        dmdproc.Parameters.Add('-J' + nme);
-    end;
-    //adds the libman entries
-    with CEMainForm do begin
-      Librarymanager.getLibFiles(nil, dmdproc.Parameters);
-      Librarymanager.getLibSources(nil, dmdproc.Parameters);
-    end;
-    //
-    dmdproc.Execute;
-    while dmdproc.Running do (**);
-  finally
-    i := dmdproc.ExitStatus;
-    dmdproc.Free;
-    lines.Free;
-  end;
-
-  if i <> 0 then
-    exit;
+  if not FileExists(fJsonFname) then exit;
 
   // load json
   str := TMemoryStream.Create;
   try
-    str.LoadFromFile(jsf);
+    str.LoadFromFile(fJsonFname);
     str.Position := 0;
     prs := TJsonParser.Create(str);
     try
@@ -459,7 +465,7 @@ begin
     end;
   finally
     str.Free;
-    DeleteFile(jsf);
+    DeleteFile(fJsonFname);
   end;
 
   // update tree
@@ -512,5 +518,4 @@ begin
     end;
   end;
 end;
-
 end.
