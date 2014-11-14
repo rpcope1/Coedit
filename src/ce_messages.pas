@@ -6,8 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, process, asyncprocess,
-  ce_common, ce_project, ce_synmemo, ce_dlangutils, ce_interfaces, ce_observer;
+  lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, process,
+  asyncprocess, Buttons, ce_common, ce_project, ce_synmemo, ce_dlangutils,
+  ce_interfaces, ce_observer;
 
 type
 
@@ -22,10 +23,12 @@ type
 
   { TCEMessagesWidget }
   TCEMessagesWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver, ICELogMessageObserver)
+    btnClearCat: TBitBtn;
     imgList: TImageList;
     List: TTreeView;
     selCtxt: TToolBar;
     btnSelAll: TToolButton;
+    ToolButton1: TToolButton;
     ToolButton10: TToolButton;
     btnSelMisc: TToolButton;
     ToolButton2: TToolButton;
@@ -38,7 +41,7 @@ type
     procedure ListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     fActClearAll: TAction;
-    fActClearEdi: TAction;
+    fActClearCurCat: TAction;
     fActSaveMsg: TAction;
     fActCopyMsg: TAction;
     fActSelAll: TAction;
@@ -48,7 +51,7 @@ type
     fCtxt: TCEAppMessageCtxt;
     procedure filterMessages(aCtxt: TCEAppMessageCtxt);
     procedure clearOutOfRangeMessg;
-    procedure actClearEdiExecute(Sender: TObject);
+    procedure actClearCurCatExecute(Sender: TObject);
     procedure actClearAllExecute(Sender: TObject);
     procedure actSaveMsgExecute(Sender: TObject);
     procedure actCopyMsgExecute(Sender: TObject);
@@ -108,9 +111,9 @@ begin
   fActClearAll := TAction.Create(self);
   fActClearAll.OnExecute := @actClearAllExecute;
   fActClearAll.caption := 'Clear all messages';
-  fActClearEdi := TAction.Create(self);
-  fActClearEdi.OnExecute := @actClearEdiExecute;
-  fActClearEdi.caption := 'Clear editor messages';
+  fActClearCurCat := TAction.Create(self);
+  fActClearCurCat.OnExecute := @actClearCurCatExecute;
+  fActClearCurCat.caption := 'Clear filtered messages';
   fActCopyMsg := TAction.Create(self);
   fActCopyMsg.OnExecute := @actCopyMsgExecute;
   fActCopyMsg.Caption := 'Copy message(s)';
@@ -131,6 +134,8 @@ begin
   btnSelEdit.OnClick  := @selCtxtClick;
   btnSelApp.OnClick   := @selCtxtClick;
   btnSelAll.OnClick   := @selCtxtClick;
+  //
+  btnClearCat.OnClick := @actClearCurCatExecute;
   //
   EntitiesConnector.addObserver(self);
   EntitiesConnector.endUpdate;
@@ -237,7 +242,7 @@ function TCEMessagesWidget.contextAction(index: integer): TAction;
 begin
   case index of
     0: result := fActClearAll;
-    1: result := fActClearEdi;
+    1: result := fActClearCurCat;
     2: result := fActCopyMsg;
     3: result := fActSelAll;
     4: result := fActSaveMsg;
@@ -250,9 +255,9 @@ begin
   lmClearbyContext(amcAll);
 end;
 
-procedure TCEMessagesWidget.actClearEdiExecute(Sender: TObject);
+procedure TCEMessagesWidget.actClearCurCatExecute(Sender: TObject);
 begin
-  lmClearbyData(@fDoc);
+  lmClearbyContext(fCtxt);
 end;
 
 procedure TCEMessagesWidget.actCopyMsgExecute(Sender: TObject);
