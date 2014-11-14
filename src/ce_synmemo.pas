@@ -112,7 +112,7 @@ begin
   if not Visible then exit;
   checkFileDate;
   identifierToD2Syn;
-  //subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
+  subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
 
 procedure TCESynMemo.UpdateShowing;
