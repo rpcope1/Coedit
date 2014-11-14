@@ -5,7 +5,7 @@ unit ce_dmdwrap;
 interface
 
 uses
-  classes, sysutils, process;
+  classes, sysutils, process, asyncprocess;
 
 (*
 
@@ -271,7 +271,11 @@ type
     destructor destroy; override;
     procedure assign(source: TPersistent); override;
     procedure getOpts(const aList: TStrings); override;
-    procedure setProcess(aProcess: TProcess);
+    { TAsyncProcess "Parameters" inherits from UTF8 process,
+      and the property reader is not anymore "fParameters" but "fUTF8Parameters"
+      without the overload aProcess does not get the Parameters if aProcess is TAsynProcess...}
+    procedure setProcess(var aProcess: TProcess);
+    procedure setProcess(var aProcess: TAsyncProcess);
   end;
 
   (*****************************************************************************
@@ -986,7 +990,7 @@ begin
   if source is TCustomProcOptions then
   begin
     src := TCustomProcOptions(source);
-    fParameters := src.fParameters;
+    Parameters.Assign(src.Parameters);
     fOptions := src.fOptions;
     fExecutable := src.fExecutable;
     fShowWin := src.fShowWin;
@@ -998,11 +1002,19 @@ procedure TCustomProcOptions.getOpts(const aList: TStrings);
 begin
 end;
 
-procedure TCustomProcOptions.setProcess(aProcess: TProcess);
-var
-  i: Integer;
+procedure TCustomProcOptions.setProcess(var aProcess: TProcess);
 begin
-  aProcess.Parameters := fParameters;
+  aProcess.Parameters.Assign(Parameters);
+  aProcess.Executable := fExecutable;
+  aProcess.ShowWindow := fShowWin;
+  aProcess.Options    := fOptions;
+  aProcess.CurrentDirectory := fWorkDir;
+  aProcess.StartupOptions := aProcess.StartupOptions + [suoUseShowWindow];
+end;
+
+procedure TCustomProcOptions.setProcess(var aProcess: TAsyncProcess);
+begin
+  aProcess.Parameters.Assign(Parameters);
   aProcess.Executable := fExecutable;
   aProcess.ShowWindow := fShowWin;
   aProcess.Options    := fOptions;

@@ -559,14 +559,7 @@ begin
   killProcess(fRunner);
   //
   fRunner := TAsyncProcess.Create(nil); // fRunner can use the input process widget.
-
-  // TODO-cbugfix: parameters are not copied from src to target.
   currentConfiguration.runOptions.setProcess(fRunner);
-
-  //fRunner.Parameters.SaveToFile('C:\dst.txt');
-  //currentConfiguration.runOptions.parameters.SaveToFile('C:\src.txt');
-
-
   if runArgs <> '' then
   begin
     prm := '';
