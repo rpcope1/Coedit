@@ -1,7 +1,7 @@
 inherited CEMessagesWidget: TCEMessagesWidget
-  Left = 1135
+  Left = 694
   Height = 172
-  Top = 183
+  Top = 198
   Width = 739
   Caption = 'Messages'
   ClientHeight = 172
@@ -49,7 +49,6 @@ inherited CEMessagesWidget: TCEMessagesWidget
         Width = 735
         AutoSize = True
         BorderSpacing.Around = 2
-        BorderWidth = 150
         ButtonHeight = 24
         ButtonWidth = 100
         Flat = False

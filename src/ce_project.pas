@@ -310,6 +310,7 @@ end;
 function TCEProject.outputFilename: string;
 begin
   result := currentConfiguration.pathsOptions.outputFilename;
+  result := CEMainForm.expandSymbolicString(result);
   if result <> '' then
   begin
     if not fileExists(result) then
