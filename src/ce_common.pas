@@ -698,8 +698,7 @@ var
   str: TMemoryStream;
   sum: Integer;
   cnt: Integer;
-const
-  buffSz = 1024;
+  buffSz: Integer;
 begin
   if not (poUsePipes in aProcess.Options) then
     exit;
@@ -707,10 +706,21 @@ begin
   sum := 0;
   str := TMemoryStream.Create;
   try
-    while aProcess.Output.NumBytesAvailable <> 0 do begin
-      str.Size := str.Size + buffSz;
-      cnt := aProcess.Output.Read((str.Memory + sum)^, buffSz);
-      sum += cnt;
+    buffSz := aProcess.PipeBufferSize;
+    // temp fix: messages are cut if the TAsyncProcess version is used on simple TProcess.
+    if aProcess is TAsyncProcess then begin
+      while aProcess.Output.NumBytesAvailable <> 0 do begin
+        str.Size := sum + buffSz;
+        cnt := aProcess.Output.Read((str.Memory + sum)^, buffSz);
+        sum += cnt;
+      end;
+    end else begin
+      repeat
+        str.Size := sum + buffSz;
+        cnt := aProcess.Output.Read((str.Memory + sum)^, buffSz);
+        sum += cnt;
+      until
+        cnt = 0;
     end;
     str.Size := sum;
     aList.LoadFromStream(str);
