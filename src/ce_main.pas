@@ -768,9 +768,9 @@ begin
     hasEd := fDoc <> nil;
     if hasEd then
     begin
-      actEdCopy.Enabled := fDoc.SelAvail and fEditWidg.Focused;
-      actEdCut.Enabled := fDoc.SelAvail and fEditWidg.Focused;
-      actEdPaste.Enabled := fDoc.CanPaste and fEditWidg.Focused;
+      actEdCopy.Enabled := fDoc.SelAvail and fDoc.Focused;
+      actEdCut.Enabled := fDoc.SelAvail and fDoc.Focused;
+      actEdPaste.Enabled := fDoc.CanPaste and fDoc.Focused;
       {$IFDEF MSWINDOWS}
       // close file : raises a segfault on linux UndoStuff.>>fList<<.Count...
       actEdUndo.Enabled := fDoc.CanUndo;
