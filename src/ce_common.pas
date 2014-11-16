@@ -452,7 +452,7 @@ begin
   result := patchProc(result, '/');
   result := patchProc(result, ':');
   {$ENDIF}
-  {$IFDEF POSIX}
+  {$IFDEF LINUX}
   result := patchProc(result, '\');
   result := patchProc(result, ':');
   {$ENDIF}
