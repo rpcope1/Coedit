@@ -5,7 +5,7 @@ unit ce_common;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, ExtCtrls,
   {$IFDEF WINDOWS}
   Windows,
   {$ENDIF}
@@ -22,6 +22,21 @@ var
   DCompiler: string = 'dmd';
 
 type
+
+  (**
+   * Workaround for a TAsyncProcess Linux issue: OnTerminate event not called.
+   * An idle timer is started when executing and trigs the event if necessary.
+   *)
+  TCheckedAsyncProcess = class(TAsyncProcess)
+  {$IFDEF LINUX}
+  private
+    fTimer: TIdleTimer;
+    procedure checkTerminated(sender: TObject);
+  public
+    constructor Create(aOwner: TComponent); override;
+    procedure Execute; override;
+  {$ENDIF}
+  end;
 
   (**
    * MRU list for strings
@@ -189,12 +204,40 @@ type
    *)
   procedure killProcess(var aProcess: TAsyncProcess);
 
+  procedure killProcess(var aProcess: TCheckedAsyncProcess);
+
   (**
    * Ensures that the in/out process pipes are not redirected, that it has a console, if it waits on exit.
    *)
   procedure ensureNoPipeIfWait(aProcess: TProcess);
 
 implementation
+
+{$IFDEF LINUX}
+constructor TCheckedAsyncProcess.Create(aOwner: TComponent);
+begin
+  inherited;
+  fTimer := TIdleTimer.Create(self);
+  fTimer.Interval:=50;
+  fTimer.Enabled:=false;
+  fTimer.OnTimer:=@checkTerminated;
+end;
+
+procedure TCheckedAsyncProcess.Execute;
+begin
+  inherited;
+  if OnTerminate <> nil then
+    fTimer.Enabled:=true;
+end;
+
+procedure TCheckedAsyncProcess.checkTerminated(sender: TObject);
+begin
+  if OnTerminate = nil then exit;
+  fTimer.Enabled:=false;
+  OnTerminate(Self);
+end;
+{$ENDIF}
+
 
 // https://stackoverflow.com/questions/25438091/objectbinarytotext-error-with-a-treader-twriter-helper-class
 // http://forum.lazarus.freepascal.org/index.php/topic,25557.0.html
@@ -730,6 +773,16 @@ begin
 end;
 
 procedure killProcess(var aProcess: TAsyncProcess);
+begin
+  if aProcess = nil then
+    exit;
+  if aProcess.Running then
+    aProcess.Terminate(0);
+  aProcess.Free;
+  aProcess := nil;
+end;
+
+procedure killProcess(var aProcess: TCheckedAsyncProcess);
 begin
   if aProcess = nil then
     exit;

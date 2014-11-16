@@ -12,7 +12,7 @@ type
 
   TCEToolItem = class(TCollectionItem)
   private
-    fProcess: TAsyncProcess;
+    fProcess: TCheckedAsyncProcess;
     fExecutable: string;
     fWorkingDir: string;
     fShowWin: TShowWindowOptions;
@@ -85,7 +85,7 @@ var
 begin
   killProcess(fProcess);
   //
-  fProcess := TAsyncProcess.Create(nil);
+  fProcess := TCheckedAsyncProcess.Create(nil);
   fProcess.OnReadData:= @processOutput;
   fProcess.OnTerminate:= @processOutput;
   fProcess.Options := fOpts;

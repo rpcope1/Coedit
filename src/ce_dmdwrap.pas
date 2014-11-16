@@ -5,7 +5,7 @@ unit ce_dmdwrap;
 interface
 
 uses
-  classes, sysutils, process, asyncprocess;
+  classes, sysutils, process, asyncprocess, ce_common;
 
 (*
 
@@ -276,6 +276,7 @@ type
       without the overload aProcess does not get the Parameters if aProcess is TAsynProcess...}
     procedure setProcess(var aProcess: TProcess);
     procedure setProcess(var aProcess: TAsyncProcess);
+    procedure setProcess(var aProcess: TCheckedAsyncProcess);
   end;
 
   (*****************************************************************************
@@ -354,7 +355,7 @@ type
 implementation
 
 uses
-  ce_common, ce_main;
+  ce_main;
 
 procedure TOptsGroup.doChanged;
 begin
@@ -1013,6 +1014,16 @@ begin
 end;
 
 procedure TCustomProcOptions.setProcess(var aProcess: TAsyncProcess);
+begin
+  aProcess.Parameters.Assign(Parameters);
+  aProcess.Executable := fExecutable;
+  aProcess.ShowWindow := fShowWin;
+  aProcess.Options    := fOptions;
+  aProcess.CurrentDirectory := fWorkDir;
+  aProcess.StartupOptions := aProcess.StartupOptions + [suoUseShowWindow];
+end;
+
+procedure TCustomProcOptions.setProcess(var aProcess: TCheckedAsyncProcess);
 begin
   aProcess.Parameters.Assign(Parameters);
   aProcess.Executable := fExecutable;

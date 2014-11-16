@@ -434,7 +434,6 @@ var
   end;
 
 begin
-  killProcess(fDmdProc);
   if ndAlias = nil then exit;
 
   // clear the tree

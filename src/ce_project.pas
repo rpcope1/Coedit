@@ -34,7 +34,7 @@ type
     fLibMan: TLibraryManager;
     fChangedCount: NativeInt;
     fProjectSubject: TCECustomSubject;
-    fRunner: TAsyncProcess;
+    fRunner: TCheckedAsyncProcess;
     fLogMessager: TCECustomSubject;
     procedure doChanged;
     procedure setLibAliases(const aValue: TStringList);
@@ -559,7 +559,7 @@ begin
   result := false;
   killProcess(fRunner);
   //
-  fRunner := TAsyncProcess.Create(nil); // fRunner can use the input process widget.
+  fRunner := TCheckedAsyncProcess.Create(nil); // fRunner can use the input process widget.
   currentConfiguration.runOptions.setProcess(fRunner);
   if runArgs <> '' then
   begin

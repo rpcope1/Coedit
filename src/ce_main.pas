@@ -196,7 +196,7 @@ type
     {$ENDIF}
     fTools: TCETools;
 
-    fRunProc: TAsyncProcess;
+    fRunProc: TCheckedAsyncProcess;
 
     fLogMessager: TCELogMessageSubject;
 
@@ -1251,8 +1251,6 @@ begin
     begin
       for str in lst do
         subjLmFromString(fLogMessager, str, fDoc, amcEdit, amkBub);
-      FreeRunnableProc;
-    // runnable compiler
     end;
   finally
     lst.Free;
@@ -1269,7 +1267,7 @@ var
 begin
 
   FreeRunnableProc;
-  fRunProc := TAsyncProcess.Create(nil);
+  fRunProc := TCheckedAsyncProcess.Create(nil);
   fRunProc.Options := [poStderrToOutPut, poUsePipes];
   fRunProc.ShowWindow := swoHIDE;
   fRunProc.OnReadData := @asyncprocOutput;

@@ -24,12 +24,11 @@ inherited CEMessagesWidget: TCEMessagesWidget
         Width = 735
         Align = alClient
         BorderSpacing.Around = 2
-        DefaultItemHeight = 16
-        Font.CharSet = ANSI_CHARSET
+        DefaultItemHeight = 18
         Font.Height = -12
-        Font.Name = 'Lucida Console'
-        Font.Pitch = fpFixed
-        Font.Quality = fqDraft
+        Font.Name = 'Courier New'
+        Font.Quality = fqProof
+        Font.Style = [fsBold]
         HideSelection = False
         Images = imgList
         MultiSelect = True
