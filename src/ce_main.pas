@@ -1306,7 +1306,8 @@ begin
         + ' successfully compiled', editor, amcEdit, amkInf);
 
       fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
-      fRunProc.Parameters.DelimitedText := expandSymbolicString(runArgs);
+      if runArgs <> '' then
+        fRunProc.Parameters.DelimitedText := expandSymbolicString(runArgs);
       fRunProc.Executable := fname + exeExt;
       fPrInpWidg.process := fRunProc;
       fRunProc.Execute;
