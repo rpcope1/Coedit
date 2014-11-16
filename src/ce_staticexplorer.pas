@@ -23,7 +23,7 @@ type
     procedure TreeFilterEdit1AfterFilter(Sender: TObject);
     procedure TreeKeyPress(Sender: TObject; var Key: char);
   private
-    fDmdProc: TAsyncProcess;
+    fDmdProc: TCheckedAsyncProcess;
     fLogMessager: TCELogMessageSubject;
     fActRefresh: TAction;
     fActRefreshOnChange: TAction;
@@ -353,7 +353,7 @@ begin
 
   // standard process options
   killProcess(fDmdProc);
-  fDmdProc := TAsyncProcess.Create(nil);
+  fDmdProc := TCheckedAsyncProcess.Create(nil);
   fDmdProc.ShowWindow := swoHIDE;
   fDmdProc.Options := [];
   fDmdProc.Executable := 'dmd';

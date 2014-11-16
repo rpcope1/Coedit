@@ -218,20 +218,21 @@ constructor TCheckedAsyncProcess.Create(aOwner: TComponent);
 begin
   inherited;
   fTimer := TIdleTimer.Create(self);
-  fTimer.Interval:=50;
-  fTimer.Enabled:=false;
-  fTimer.OnTimer:=@checkTerminated;
+  fTimer.Enabled := false;
+  fTimer.Interval :=50;
+  fTimer.AutoEnabled := false;
 end;
 
 procedure TCheckedAsyncProcess.Execute;
 begin
+  if OnTerminate <> nil then fTimer.Enabled :=true;
+  fTimer.OnTimer := @checkTerminated;
   inherited;
-  if OnTerminate <> nil then
-    fTimer.Enabled:=true;
 end;
 
 procedure TCheckedAsyncProcess.checkTerminated(sender: TObject);
 begin
+  if Running then exit;
   if OnTerminate = nil then exit;
   fTimer.Enabled:=false;
   OnTerminate(Self);
