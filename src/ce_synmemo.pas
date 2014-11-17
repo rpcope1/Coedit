@@ -68,10 +68,10 @@ begin
   TabWidth := 4;
   BlockIndent := 4;
   Options :=
-    [ eoAutoIndent, eoBracketHighlight, eoGroupUndo, eoTabsToSpaces,
-      eoTrimTrailingSpaces, eoDragDropEditing, eoShowCtrlMouseLinks,
-      eoEnhanceHomeKey, eoTabIndent];
-  Options2 := [eoEnhanceEndKey, eoFoldedCopyPaste, eoOverwriteBlock];
+    [eoAutoIndent, eoBracketHighlight, eoGroupUndo, eoTabsToSpaces,
+    eoDragDropEditing, eoShowCtrlMouseLinks, eoEnhanceHomeKey, eoTabIndent];
+  Options2 :=
+    [eoEnhanceEndKey, eoFoldedCopyPaste, eoOverwriteBlock];
   fStoredFontSize := Font.Size;
 
   MouseOptions := MouseOptions +
