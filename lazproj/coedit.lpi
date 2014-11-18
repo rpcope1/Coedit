@@ -93,7 +93,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="30">
+    <Units Count="31">
       <Unit0>
         <Filename Value="coedit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -283,6 +283,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_writableComponent"/>
       </Unit29>
+      <Unit30>
+        <Filename Value="..\src\ce_symstring.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_symstring"/>
+      </Unit30>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
