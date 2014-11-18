@@ -474,6 +474,8 @@ function patchPlateformExt(const aFilename: string): string;
 var
   ext, newext: string;
 begin
+  if aFilename = '' then exit(aFilename);
+  //
   ext := extractFileExt(aFilename);
   newext := '';
   result := aFilename[1..length(aFilename)-length(ext)];
@@ -754,13 +756,13 @@ begin
     // temp fix: messages are cut if the TAsyncProcess version is used on simple TProcess.
     if aProcess is TAsyncProcess then begin
       while aProcess.Output.NumBytesAvailable <> 0 do begin
-        str.Size := sum + buffSz;
+        str.SetSize(sum + buffSz);
         cnt := aProcess.Output.Read((str.Memory + sum)^, buffSz);
         sum += cnt;
       end;
     end else begin
       repeat
-        str.Size := sum + buffSz;
+        str.SetSize(sum + buffSz);
         cnt := aProcess.Output.Read((str.Memory + sum)^, buffSz);
         sum += cnt;
       until
