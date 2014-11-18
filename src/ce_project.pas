@@ -36,6 +36,9 @@ type
     fProjectSubject: TCECustomSubject;
     fRunner: TCheckedAsyncProcess;
     fLogMessager: TCECustomSubject;
+    fOutputFilename: string;
+    fCanBeRun: boolean;
+    procedure updateOutFilename;
     procedure doChanged;
     procedure setLibAliases(const aValue: TStringList);
     procedure subMemberChanged(sender : TObject);
@@ -46,7 +49,6 @@ type
     function getConfig(const ix: integer): TCompilerConfiguration;
     function getCurrConf: TCompilerConfiguration;
     function runPrePostProcess(const processInfo: TCompileProcOptions): Boolean;
-    function getCanBeRun: boolean;
     // passes pre/post/executed project/ outputs as bubles.
     procedure runProcOutput(sender: TObject);
     // passes compilation message as "to be guessed"
@@ -75,7 +77,6 @@ type
     procedure addSource(const aFilename: string);
     function addConfiguration: TCompilerConfiguration;
     procedure getOpts(const aList: TStrings);
-    function outputFilename: string;
     function runProject(const runArgs: string = ''): Boolean;
     function compileProject: Boolean;
     //
@@ -84,7 +85,8 @@ type
     property currentConfiguration: TCompilerConfiguration read getCurrConf;
     property onChange: TNotifyEvent read fOnChange write fOnChange;
     property modified: Boolean read fModified;
-    property canBeRun: Boolean read getCanBeRun;
+    property canBeRun: Boolean read fCanBeRun;
+    property outputFilename: string read fOutputFilename;
   end;
 
 implementation
@@ -243,6 +245,7 @@ var
 {$ENDIF}
 begin
   fModified := true;
+  updateOutFilename;
   subjProjChanged(TCEProjectSubject(fProjectSubject), self);
   if assigned(fOnChange) then fOnChange(Self);
   {$IFDEF DEBUG}
@@ -307,23 +310,6 @@ begin
   fModified := false;
 end;
 
-function TCEProject.outputFilename: string;
-begin
-  result := currentConfiguration.pathsOptions.outputFilename;
-  result := symbolExpander.get(result);
-  if result <> '' then
-  begin
-    if not fileExists(result) then
-      result := getAbsoluteFilename(result);
-    exit;
-  end;
-  if Sources.Count = 0 then
-    exit;
-  result := extractFilename(Sources.Strings[0]);
-  result := result[1..length(result) - length(extractFileExt(result))];
-  result := extractFilePath(fileName) + DirectorySeparator + result + exeExt;
-end;
-
 procedure TCEProject.getOpts(const aList: TStrings);
 var
   rel, abs: string;
@@ -359,6 +345,7 @@ end;
 procedure TCEProject.afterSave;
 begin
   fModified := false;
+  updateOutFilename;
 end;
 
 procedure TCEProject.afterLoad;
@@ -413,6 +400,7 @@ begin
       ce_common.dlgOkInfo('the main sources paths has been patched, some others invalid ' +
       'paths may still exists (-of, -od, etc.) but cannot be automatically handled');
   end;
+  updateOutFilename;
 end;
 
 procedure TCEProject.readerPropNoFound(Reader: TReader; Instance: TPersistent;
@@ -448,12 +436,22 @@ begin
   end;
 end;
 
-function TCEProject.getCanBeRun: boolean;
+procedure TCEProject.updateOutFilename;
 begin
-  if currentConfiguration = nil then
-    exit(false)
-  else
-    exit(fileExists(outputFilename) and (currentConfiguration.outputOptions.binaryKind = executable));
+  fOutputFilename := currentConfiguration.pathsOptions.outputFilename;
+  fOutputFilename := symbolExpander.get(fOutputFilename);
+  fOutputFilename := getAbsoluteFilename(fOutputFilename);
+  if not fileExists(fOutputFilename) then if Sources.Count > 0 then
+  begin
+    fOutputFilename := getAbsoluteFilename(fOutputFilename);
+    fOutputFilename := extractFilename(Sources.Strings[0]);
+    fOutputFilename := fOutputFilename[1..length(fOutputFilename) - length(extractFileExt(fOutputFilename))];
+    fOutputFilename := extractFilePath(fileName) + DirectorySeparator + fOutputFilename + exeExt;
+  end;
+  //
+  fCanBeRun := false;
+  if currentConfiguration.outputOptions.binaryKind = executable then
+    fCanBeRun := fileExists(fOutputFilename);
 end;
 
 function TCEProject.runPrePostProcess(const processInfo: TCompileProcOptions): Boolean;
@@ -546,6 +544,7 @@ begin
         'project warning: the post-compilation process has not been properly executed', Self, amcProj, amkWarn);
 
   finally
+    updateOutFilename;
     compilproc.Free;
     chDir(olddir);
   end;
