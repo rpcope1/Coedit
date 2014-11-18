@@ -842,18 +842,15 @@ procedure TPathsOpts.getOpts(const aList: TStrings);
 var
   str: string;
 begin
-  for str in fSrcs do if str <> '' then
+  for str in fSrcs do
   begin
-    str := (CEMainForm.expandSymbolicString(str));
-    if not
-      // files are directly put in aList
-      listAsteriskPath(str, aList, dExtList)
-    then
+    str := CEMainForm.expandSymbolicString(str);
+    if not listAsteriskPath(str, aList, dExtList) then
       aList.Add(str);
   end;
-  for str in fIncl do if str <> '' then
+  for str in fIncl do
     aList.Add('-I'+ CEMainForm.expandSymbolicString(str));
-  for str in fImpt do if str <> '' then
+  for str in fImpt do
     aList.Add('-J'+ CEMainForm.expandSymbolicString(str));
   if fFname <> '' then
     aList.Add('-of' + CEMainForm.expandSymbolicString(fFname));

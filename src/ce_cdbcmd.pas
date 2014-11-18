@@ -159,15 +159,17 @@ end;
 procedure TCECdbWidget.txtCdbCmdKeyPress(Sender: TObject; var Key: char);
 var
   inp: string;
+  cmd: string;
 begin
   if (fCdbProc = nil) or (key <> #13) then
     exit;
   //
-  inp := CEMainForm.expandSymbolicString(txtCdbCmd.Text) + LineEnding;
+  cmd := CEMainForm.expandSymbolicString(txtCdbCmd.Text);
+  inp := cmd + LineEnding;
   fCdbProc.Input.Write(inp[1], length(inp));
   //
   inp := lstCdbOut.Items.Item[lstCdbOut.Items.Count-1].Caption;
-  inp += CEMainForm.expandSymbolicString(txtCdbCmd.Text);
+  inp += cmd;
   lstCdbOut.Items.Item[lstCdbOut.Items.Count-1].Caption := inp;
   //
   txtCdbCmd.Text := '';

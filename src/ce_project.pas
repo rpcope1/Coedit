@@ -311,7 +311,7 @@ function TCEProject.outputFilename: string;
 begin
   result := currentConfiguration.pathsOptions.outputFilename;
   result := CEMainForm.expandSymbolicString(result);
-  if result <> '``' then
+  if result <> '' then
   begin
     if not fileExists(result) then
       result := getAbsoluteFilename(result);
@@ -463,9 +463,9 @@ var
   i, j: integer;
 begin
   pname := CEMainForm.expandSymbolicString(processInfo.executable);
-  if (not exeInSysPath(pname)) and (pname <> '``') then
+  if (not exeInSysPath(pname)) and (pname <> '') then
     exit(false)
-  else if (pname = '``') then
+  else if (pname = '') then
     exit(true);
   //
   process := TProcess.Create(nil);
@@ -568,10 +568,10 @@ begin
     repeat
       prm := ExtractDelimited(i, runArgs, [' ']);
       prm := CEMainForm.expandSymbolicString(prm);
-      if prm <> '``' then
+      if prm <> '' then
         fRunner.Parameters.AddText(prm);
       Inc(i);
-    until prm = '``';
+    until prm = '';
   end;
   //
   if not fileExists(outputFilename) then

@@ -89,14 +89,11 @@ begin
   fProcess.OnReadData:= @processOutput;
   fProcess.OnTerminate:= @processOutput;
   fProcess.Options := fOpts;
-  if fExecutable <> '' then
-    fProcess.Executable := CEMainForm.expandSymbolicString(fExecutable);
+  fProcess.Executable := CEMainForm.expandSymbolicString(fExecutable);
   fProcess.ShowWindow := fShowWin;
-  if fWorkingDir <> '' then
-    fProcess.CurrentDirectory := CEMainForm.expandSymbolicString(fWorkingDir);
+  fProcess.CurrentDirectory := CEMainForm.expandSymbolicString(fWorkingDir);
   fProcess.Parameters.Clear;
   for i:= 0 to fParameters.Count-1 do
-    if fParameters.Strings[i] <> '' then
       fProcess.Parameters.AddText(CEMainForm.expandSymbolicString(fParameters.Strings[i]));
   fProcess.Execute;
 end;

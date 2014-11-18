@@ -1727,10 +1727,9 @@ var
   begs, ends: boolean;
   i, j, extLen: integer;
 begin
-  if symString = '' then
-    exit('``');
-
   result := '';
+  if symString = '' then exit;
+  //
   elems := TStringList.Create;
   try
     i := 0;
@@ -1766,13 +1765,16 @@ begin
           continue;
         'CPF', 'CurrentProjectFile':
           begin
-            if fProject <> nil then
+            if fProject <> nil then begin
               if fileExists(fProject.fileName) then
-                result += fProject.fileName;
+                result += fProject.fileName
+              else
+                result += '``';
+            end else result += '``';
           end;
         'CPFS', 'CurrentProjectFiles':
           begin
-            if fProject <> nil then
+            if fProject <> nil then begin
               for j := 0 to fProject.Sources.Count-1 do
               begin
                 result += fProject.getAbsoluteSourceName(j);
@@ -1780,47 +1782,61 @@ begin
                   if j <> fProject.Sources.Count-1 then
                     result += LineEnding;
               end;
+              if fProject.Sources.Count = 0 then
+                result += '``';
+            end else result += '``';
           end;
         'CPN', 'CurrentProjectName':
           begin
-            if fProject <> nil then
+            if fProject <> nil then begin
               if fileExists(fProject.fileName) then
               begin
                 result += extractFileName(fProject.fileName);
                 extLen := length(ExtractFileExt(result));
                 result := result[1..length(result)-extLen];
-              end;
+              end else result += '``';
+            end else result += '``';
           end;
         'CPP', 'CurrentProjectPath':
           begin
-            if fProject <> nil then
+            if fProject <> nil then begin
               if fileExists(fProject.fileName) then
-                result += extractFilePath(fProject.fileName);
+                result += extractFilePath(fProject.fileName)
+              else result += '``';
+            end else result += '``';
           end;
         'CPR', 'CurrentProjectRoot':
           begin
-            if fProject <> nil then
+            if fProject <> nil then begin
               if directoryExists(fProject.getAbsoluteFilename(fProject.RootFolder)) then
                 result += fProject.getAbsoluteFilename(fProject.RootFolder)
               else if directoryExists(fProject.RootFolder) then
                 result += fProject.RootFolder;
+            end else result += '``';
           end;
         'CFF', 'CurrentFileFile':
           begin
-            if fDoc <> nil then
+            if fDoc <> nil then begin
               if fileExists(fDoc.fileName) then
-                result += fDoc.fileName;
+                result += fDoc.fileName
+              else result += '``';
+            end else result += '``';
           end;
         'CFP', 'CurrentFilePath':
           begin
-            if fDoc <> nil then
+            if fDoc <> nil then begin
               if fileExists(fDoc.fileName) then
-                result += extractFilePath(fDoc.fileName);
+                result += extractFilePath(fDoc.fileName)
+              else result += '``'
+            end else result += '``';
           end;
         'CI', 'CurrentIdentifier':
           begin
-            if fDoc <> nil then
-              result += fDoc.Identifier;
+            if fDoc <> nil then begin
+              if fDoc.Identifier <> '' then
+                result += fDoc.Identifier
+              else result += '``'
+            end else result += '``';
           end;
         'CAF', 'CoeditApplicationFile':
           result += application.ExeName;
@@ -1831,11 +1847,6 @@ begin
   finally
     elems.Free;
   end;
-  // as the result may be used in TProcess.Parameter, it has not to be empty
-  // otherwise next parameter switch can be considered as the parameter value,
-  // eg --a=<CI> --b --c, the program will think that --b is --a value if <CI> is empty.
-  if result = '' then
-    result += '``';
 end;
 
 procedure PlugDispatchToHost(aPlugin: TCEPlugin; opCode: LongWord; data0: Integer; data1, data2: Pointer); cdecl;
