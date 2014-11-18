@@ -5,7 +5,7 @@ unit ce_interfaces;
 interface
 
 uses
-  Classes, SysUtils, actnList, process, menus,
+  Classes, SysUtils, actnList, menus,
   ce_synmemo, ce_project, ce_observer;
 
 type

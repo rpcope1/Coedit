@@ -65,6 +65,8 @@ constructor TCESynMemo.Create(aOwner: TComponent);
 begin
   inherited;
   Font.Quality := fqProof;
+  //Font.CharSet := OEM_CHARSET;
+  Font.Pitch := fpFixed;
   TabWidth := 4;
   BlockIndent := 4;
   Options :=

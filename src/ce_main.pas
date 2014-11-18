@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, SynEditKeyCmds, SynHighlighterLFM, Forms, asyncprocess,
   AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls, Graphics,
-  Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, ComCtrls, dynlibs,
+  Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, dynlibs,
   ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_plugin, ce_synmemo, ce_widget,
   ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf, ce_search,
   ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_customtools,
@@ -292,7 +292,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynMacroRecorder, strutils, ce_options, ce_symstring;
+  SynMacroRecorder, ce_options, ce_symstring;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEMainForm.create(aOwner: TComponent);
@@ -809,7 +809,6 @@ begin
       actFileSaveAll.Enabled := false;
       actFileOpenContFold.Enabled := false;
     end;
-
     hasProj := fProject <> nil;
     actProjSave.Enabled := hasProj;
     actProjSaveAs.Enabled := hasProj;
@@ -826,11 +825,10 @@ begin
       actProjRun.Enabled := fProject.canBeRun;
       actProjRunWithArgs.Enabled := fProject.canBeRun;
     end;
-
     actFileAddToProj.Enabled := hasEd and hasProj;
-
   finally
     Dec(fUpdateCount);
+    Handled := true;
   end;
 end;
 
@@ -1720,19 +1718,19 @@ end;
 {$ENDREGION}
 
 procedure PlugDispatchToHost(aPlugin: TCEPlugin; opCode: LongWord; data0: Integer; data1, data2: Pointer); cdecl;
-var
-  ctxt: NativeUint;
-  oper: NativeUint;
+//var
+  //ctxt: NativeUint;
+  //oper: NativeUint;
 begin
 
   if opCode = HELLO_PLUGIN then begin
       dlgOkInfo('Hello plugin');
       exit;
   end;
-
+{
   ctxt := opCode and $0F000000;
   oper := opCode and $000FFFFF;
-{
+
   case ctxt of
     CTXT_MSGS:
       case oper of

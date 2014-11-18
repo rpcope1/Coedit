@@ -9,7 +9,6 @@ uses
 
 type
 
-
   (**
    * Enumerates the symbol kinds, used to index an associative array.
    *)

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, TreeFilterEdit, Forms, Controls, Graphics, ExtCtrls, Menus,
-  ComCtrls, ce_widget, jsonparser, fpjson, asyncprocess, process, actnlist, Buttons,
+  ComCtrls, ce_widget, jsonparser, fpjson, process, actnlist, Buttons,
   ce_common, ce_project, ce_observer, ce_synmemo, ce_interfaces;
 
 type

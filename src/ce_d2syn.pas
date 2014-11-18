@@ -727,7 +727,7 @@ begin
     exit;
   end;
 
-  // symbChars 1: ponctuation
+  // symbChars 1: punctuation
   if isSymbol(reader^) then
   begin
     fTokKind := tkSymbl;

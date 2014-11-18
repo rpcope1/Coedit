@@ -6,9 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, process,
-  asyncprocess, Buttons, ce_common, ce_project, ce_synmemo, ce_dlangutils,
-  ce_interfaces, ce_observer;
+  lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, Buttons,
+  ce_common, ce_project, ce_synmemo, ce_dlangutils, ce_interfaces, ce_observer;
 
 type
 

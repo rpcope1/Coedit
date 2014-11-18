@@ -19,7 +19,7 @@ type
     fOpts: TProcessOptions;
     fParameters: TStringList;
     fToolAlias: string;
-    fShortcut: string;
+    //fShortcut: string;
     fLogMessager: TCELogMessageSubject;
     procedure setParameters(const aValue: TStringList);
     procedure processOUtput(sender: TObject);
