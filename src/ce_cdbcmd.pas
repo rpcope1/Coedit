@@ -47,7 +47,7 @@ implementation
 {$R *.lfm}
 
 uses
-  ce_main;
+  ce_symstring;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCECdbWidget.create(aOwner: TComponent);
@@ -164,7 +164,7 @@ begin
   if (fCdbProc = nil) or (key <> #13) then
     exit;
   //
-  cmd := CEMainForm.expandSymbolicString(txtCdbCmd.Text);
+  cmd := symbolExpander.get(txtCdbCmd.Text);
   inp := cmd + LineEnding;
   fCdbProc.Input.Write(inp[1], length(inp));
   //

@@ -84,7 +84,7 @@ type
 implementation
 {$R *.lfm}
 
-uses ce_main, ce_libman;
+uses ce_libman, ce_symstring, ce_main;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEStaticExplorerWidget.create(aOwner: TComponent);
@@ -382,9 +382,9 @@ begin
       if srcFname <> itm then fDmdProc.Parameters.Add(itm);
     end;
     for itm in fProj.currentConfiguration.pathsOptions.Includes do
-      fDmdProc.Parameters.Add('-I' + CEMainForm.expandSymbolicString(itm));
+      fDmdProc.Parameters.Add('-I' + symbolExpander.get(itm));
     for itm in fProj.currentConfiguration.pathsOptions.Imports do
-      fDmdProc.Parameters.Add('-J' + CEMainForm.expandSymbolicString(itm));
+      fDmdProc.Parameters.Add('-J' + symbolExpander.get(itm));
   end;
 
   //adds the libman entries

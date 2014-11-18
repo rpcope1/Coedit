@@ -27,7 +27,7 @@ type
     procedure updateSymbols;
   public
     constructor create;
-    destructor destroy;
+    destructor destroy; override;
     //
     procedure projNew(aProject: TCEProject);
     procedure projClosing(aProject: TCEProject);
@@ -59,6 +59,7 @@ end;
 destructor TCESymbolExpander.destroy;
 begin
   EntitiesConnector.removeObserver(self);
+  inherited;
 end;
 {$ENDREGION}
 
@@ -66,14 +67,12 @@ end;
 procedure TCESymbolExpander.projNew(aProject: TCEProject);
 begin
   fProj := aProject;
-  updateSymbols;
 end;
 
 procedure TCESymbolExpander.projClosing(aProject: TCEProject);
 begin
   if fProj <> aProject then exit;
   fProj := nil;
-  updateSymbols;
 end;
 
 procedure TCESymbolExpander.projFocused(aProject: TCEProject);
@@ -84,7 +83,6 @@ end;
 procedure TCESymbolExpander.projChanged(aProject: TCEProject);
 begin
   if fProj <> aProject then exit;
-  updateSymbols;
 end;
 {$ENDREGION}
 
@@ -92,26 +90,22 @@ end;
 procedure TCESymbolExpander.docNew(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
-  updateSymbols;
 end;
 
 procedure TCESymbolExpander.docClosing(aDoc: TCESynMemo);
 begin
   if aDoc <> fDoc then exit;
   fDoc := nil;
-  updateSymbols;
 end;
 
 procedure TCESymbolExpander.docFocused(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
-  updateSymbols;
 end;
 
 procedure TCESymbolExpander.docChanged(aDoc: TCESynMemo);
 begin
   if aDoc <> fDoc then exit;
-  updateSymbols;
 end;
 {$ENDREGION}
 
@@ -141,7 +135,9 @@ begin
       fSymbols[CFF] := na;
       fSymbols[CFP] := na;
     end;
-    fSymbols[CI] := fDoc.Identifier;
+    if fDoc.Identifier <> '' then
+      fSymbols[CI] := fDoc.Identifier
+    else fSymbols[CI] := na;
   end else begin
     fSymbols[CFF] := na;
     fSymbols[CFP] := na;
@@ -191,6 +187,7 @@ var
 begin
   result := '';
   if symString = '' then exit;
+  updateSymbols;
   //
   elems := TStringList.Create;
   try

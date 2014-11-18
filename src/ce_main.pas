@@ -277,7 +277,6 @@ type
     procedure UpdateDockCaption(Exclude: TControl = nil); override;
     //
     procedure openFile(const aFilename: string);
-    function expandSymbolicString(const symString: string): string;
     //
     property WidgetList: TCEWidgetList read fWidgList;
     property LibraryManager: TLibraryManager read fLibMan;
@@ -293,7 +292,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynMacroRecorder, strutils, ce_options;
+  SynMacroRecorder, strutils, ce_options, ce_symstring;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEMainForm.create(aOwner: TComponent);
@@ -1307,7 +1306,7 @@ begin
 
       fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
       if runArgs <> '' then
-        fRunProc.Parameters.DelimitedText := expandSymbolicString(runArgs);
+        fRunProc.Parameters.DelimitedText := symbolExpander.get(runArgs);
       fRunProc.Executable := fname + exeExt;
       fPrInpWidg.process := fRunProc;
       fRunProc.Execute;
@@ -1719,135 +1718,6 @@ begin
   fProjMru.maxCount := aReader.ReadInteger;
 end;
 {$ENDREGION}
-
-function TCEMainForm.expandSymbolicString(const symString: string): string;
-var
-  elems: TStringList;
-  elem: string;
-  begs, ends: boolean;
-  i, j, extLen: integer;
-begin
-  result := '';
-  if symString = '' then exit;
-  //
-  elems := TStringList.Create;
-  try
-    i := 0;
-    elem := '';
-    repeat
-      inc(i);
-      if not (symString[i] in ['<', '>']) then
-        elem += symString[i]
-      else
-      begin
-        if symString[i] = '<' then
-          begs := true;
-        ends := symString[i] = '>';
-        elems.Add(elem);
-        elem := '';
-        if begs and ends then
-        begin
-          begs := false;
-          ends := false;
-          elems.Objects[elems.Count-1] := Self;
-        end;
-      end;
-    until
-      i = length(symString);
-    elems.Add(elem);
-    elem := '';
-    for i:= 0 to elems.Count-1 do
-    begin
-      if elems.Objects[i] = nil then
-        result += elems.Strings[i]
-      else case elems.Strings[i] of
-        '<','>' :
-          continue;
-        'CPF', 'CurrentProjectFile':
-          begin
-            if fProject <> nil then begin
-              if fileExists(fProject.fileName) then
-                result += fProject.fileName
-              else
-                result += '``';
-            end else result += '``';
-          end;
-        'CPFS', 'CurrentProjectFiles':
-          begin
-            if fProject <> nil then begin
-              for j := 0 to fProject.Sources.Count-1 do
-              begin
-                result += fProject.getAbsoluteSourceName(j);
-                if fProject.Sources.Count > 1 then
-                  if j <> fProject.Sources.Count-1 then
-                    result += LineEnding;
-              end;
-              if fProject.Sources.Count = 0 then
-                result += '``';
-            end else result += '``';
-          end;
-        'CPN', 'CurrentProjectName':
-          begin
-            if fProject <> nil then begin
-              if fileExists(fProject.fileName) then
-              begin
-                result += extractFileName(fProject.fileName);
-                extLen := length(ExtractFileExt(result));
-                result := result[1..length(result)-extLen];
-              end else result += '``';
-            end else result += '``';
-          end;
-        'CPP', 'CurrentProjectPath':
-          begin
-            if fProject <> nil then begin
-              if fileExists(fProject.fileName) then
-                result += extractFilePath(fProject.fileName)
-              else result += '``';
-            end else result += '``';
-          end;
-        'CPR', 'CurrentProjectRoot':
-          begin
-            if fProject <> nil then begin
-              if directoryExists(fProject.getAbsoluteFilename(fProject.RootFolder)) then
-                result += fProject.getAbsoluteFilename(fProject.RootFolder)
-              else if directoryExists(fProject.RootFolder) then
-                result += fProject.RootFolder;
-            end else result += '``';
-          end;
-        'CFF', 'CurrentFileFile':
-          begin
-            if fDoc <> nil then begin
-              if fileExists(fDoc.fileName) then
-                result += fDoc.fileName
-              else result += '``';
-            end else result += '``';
-          end;
-        'CFP', 'CurrentFilePath':
-          begin
-            if fDoc <> nil then begin
-              if fileExists(fDoc.fileName) then
-                result += extractFilePath(fDoc.fileName)
-              else result += '``'
-            end else result += '``';
-          end;
-        'CI', 'CurrentIdentifier':
-          begin
-            if fDoc <> nil then begin
-              if fDoc.Identifier <> '' then
-                result += fDoc.Identifier
-              else result += '``'
-            end else result += '``';
-          end;
-        'CAF', 'CoeditApplicationFile':
-          result += application.ExeName;
-        'CAP', 'CoeditApplicationPath':
-          result += extractFilePath(Application.ExeName);
-      end;
-    end;
-  finally
-    elems.Free;
-  end;
-end;
 
 procedure PlugDispatchToHost(aPlugin: TCEPlugin; opCode: LongWord; data0: Integer; data1, data2: Pointer); cdecl;
 var

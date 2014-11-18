@@ -56,7 +56,7 @@ type
 implementation
 
 uses
-  ce_main;
+  ce_symstring;
 
 constructor TCEToolItem.create(ACollection: TCollection);
 begin
@@ -89,12 +89,12 @@ begin
   fProcess.OnReadData:= @processOutput;
   fProcess.OnTerminate:= @processOutput;
   fProcess.Options := fOpts;
-  fProcess.Executable := CEMainForm.expandSymbolicString(fExecutable);
+  fProcess.Executable := symbolExpander.get(fExecutable);
   fProcess.ShowWindow := fShowWin;
-  fProcess.CurrentDirectory := CEMainForm.expandSymbolicString(fWorkingDir);
+  fProcess.CurrentDirectory := symbolExpander.get(fWorkingDir);
   fProcess.Parameters.Clear;
   for i:= 0 to fParameters.Count-1 do
-      fProcess.Parameters.AddText(CEMainForm.expandSymbolicString(fParameters.Strings[i]));
+      fProcess.Parameters.AddText(symbolExpander.get(fParameters.Strings[i]));
   fProcess.Execute;
 end;
 

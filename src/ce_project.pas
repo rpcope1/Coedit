@@ -90,7 +90,7 @@ type
 implementation
 
 uses
-  ce_interfaces, controls, dialogs, ce_main;
+  ce_interfaces, controls, dialogs, ce_symstring;
 
 constructor TCEProject.create(aOwner: TComponent);
 begin
@@ -310,7 +310,7 @@ end;
 function TCEProject.outputFilename: string;
 begin
   result := currentConfiguration.pathsOptions.outputFilename;
-  result := CEMainForm.expandSymbolicString(result);
+  result := symbolExpander.get(result);
   if result <> '' then
   begin
     if not fileExists(result) then
@@ -462,7 +462,7 @@ var
   pname: string;
   i, j: integer;
 begin
-  pname := CEMainForm.expandSymbolicString(processInfo.executable);
+  pname := symbolExpander.get(processInfo.executable);
   if (not exeInSysPath(pname)) and (pname <> '') then
     exit(false)
   else if (pname = '') then
@@ -474,7 +474,7 @@ begin
     process.Executable := pname;
     j := process.Parameters.Count-1;
     for i:= 0 to j do
-      process.Parameters.AddText(CEMainForm.expandSymbolicString(process.Parameters.Strings[i]));
+      process.Parameters.AddText(symbolExpander.get(process.Parameters.Strings[i]));
     for i:= 0 to j do
       process.Parameters.Delete(0);
     if process.CurrentDirectory = '' then
@@ -567,7 +567,7 @@ begin
     i := 1;
     repeat
       prm := ExtractDelimited(i, runArgs, [' ']);
-      prm := CEMainForm.expandSymbolicString(prm);
+      prm := symbolExpander.get(prm);
       if prm <> '' then
         fRunner.Parameters.AddText(prm);
       Inc(i);

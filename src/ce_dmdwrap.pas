@@ -355,7 +355,7 @@ type
 implementation
 
 uses
-  ce_main;
+  ce_symstring;
 
 procedure TOptsGroup.doChanged;
 begin
@@ -370,9 +370,9 @@ begin
   if fGenJson then
     aList.Add('-X');
   if fDocDir <> '' then
-    aList.Add('-Dd' + CEMainForm.expandSymbolicString(fDocDir));
+    aList.Add('-Dd' + symbolExpander.get(fDocDir));
   if fJsonFname <> '' then
-    aList.Add('-Xf' + CEMainForm.expandSymbolicString(fJsonFname));
+    aList.Add('-Xf' + symbolExpander.get(fJsonFname));
 end;
 
 procedure TDocOpts.assign(aValue: TPersistent);
@@ -844,18 +844,18 @@ var
 begin
   for str in fSrcs do
   begin
-    str := CEMainForm.expandSymbolicString(str);
+    str := symbolExpander.get(str);
     if not listAsteriskPath(str, aList, dExtList) then
       aList.Add(str);
   end;
   for str in fIncl do
-    aList.Add('-I'+ CEMainForm.expandSymbolicString(str));
+    aList.Add('-I'+ symbolExpander.get(str));
   for str in fImpt do
-    aList.Add('-J'+ CEMainForm.expandSymbolicString(str));
+    aList.Add('-J'+ symbolExpander.get(str));
   if fFname <> '' then
-    aList.Add('-of' + CEMainForm.expandSymbolicString(fFname));
+    aList.Add('-of' + symbolExpander.get(fFname));
   if fObjDir <> '' then
-    aList.Add('-od' + CEMainForm.expandSymbolicString(fObjDir));
+    aList.Add('-od' + symbolExpander.get(fObjDir));
 end;
 
 procedure TPathsOpts.assign(aValue: TPersistent);
@@ -958,7 +958,7 @@ begin
       str2 := '-' + str1
     else
       str2 := str1;
-    aList.AddText(CEMainForm.expandSymbolicString(str2));
+    aList.AddText(symbolExpander.get(str2));
   end;
 end;
 

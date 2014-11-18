@@ -59,7 +59,7 @@ implementation
 {$R *.lfm}
 
 uses
-  ce_main;
+  ce_main, ce_symstring;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEProjectInspectWidget.create(aOwner: TComponent);
@@ -321,7 +321,7 @@ begin
   begin
     if fold = '' then
       continue;
-    itm := Tree.Items.AddChild(fImpsNode, shortenPath(CEMainForm.expandSymbolicString(fold)));
+    itm := Tree.Items.AddChild(fImpsNode, shortenPath(symbolExpander.get(fold)));
     itm.ImageIndex := 5;
     itm.SelectedIndex := 5;
   end;
@@ -331,7 +331,7 @@ begin
   begin
     if fold = '' then
       continue;
-    itm := Tree.Items.AddChild(fInclNode, shortenPath(CEMainForm.expandSymbolicString(fold)));
+    itm := Tree.Items.AddChild(fInclNode, shortenPath(symbolExpander.get(fold)));
     itm.ImageIndex := 5;
     itm.SelectedIndex := 5;
   end;
@@ -344,11 +344,11 @@ begin
     lst := TStringList.Create;
     try
       if listAsteriskPath(src, lst) then for src in lst do begin
-        itm := Tree.Items.AddChild(fXtraNode, shortenPath(CEMainForm.expandSymbolicString(src)));
+        itm := Tree.Items.AddChild(fXtraNode, shortenPath(symbolExpander.get(src)));
         itm.ImageIndex := 2;
         itm.SelectedIndex := 2;
       end else begin
-        itm := Tree.Items.AddChild(fXtraNode, shortenPath(CEMainForm.expandSymbolicString(src)));
+        itm := Tree.Items.AddChild(fXtraNode, shortenPath(symbolExpander.get(src)));
         itm.ImageIndex := 2;
         itm.SelectedIndex := 2;
       end;
