@@ -69,7 +69,7 @@ begin
   Font.Pitch := fpFixed;
   TabWidth := 4;
   BlockIndent := 4;
-  Font.Size:= 9;
+  Font.Size:= 10;
   Options :=
     [eoAutoIndent, eoBracketHighlight, eoGroupUndo, eoTabsToSpaces,
     eoDragDropEditing, eoShowCtrlMouseLinks, eoEnhanceHomeKey, eoTabIndent];
