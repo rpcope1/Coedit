@@ -24,7 +24,7 @@ Missing features before the first beta
 
 Project information
 -------------------
-- status: alpha 7.
+- status: alpha 8.
 - license: MIT.
 - programmed in Object Pascal with [Lazarus & FPC](http://www.lazarus.freepascal.org) as IDE & compiler.
 - based on *DMD* (the alternative backends, LDC or GDC, are not supported).
