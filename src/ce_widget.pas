@@ -138,14 +138,14 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION ICESessionOptionsObserver ----------------------------------------------------}
+{$REGION ICESessionOptionsObserver ---------------------------------------------}
 procedure TCEWidget.sesoptBeforeSave;
 begin
 end;
 
 procedure TCEWidget.sesoptDeclareProperties(aFiler: TFiler);
 begin
-  // override rules: inhertied must be called. No dots in the property name, property name prefixed with the widget Name
+  // override rules: inherited must be called. No dots in the property name, property name prefixed with the widget Name
   aFiler.DefineProperty(Name + '_updaterByLoopInterval', @optset_LoopInterval, @optget_LoopInterval, true);
   aFiler.DefineProperty(Name + '_updaterByDelayDuration', @optset_UpdaterDelay, @optget_UpdaterDelay, true);
 end;
@@ -277,7 +277,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION TCEWidgetList---------------------------------------------------------------}
+{$REGION TCEWidgetList----------------------------------------------------------}
 function TCEWidgetList.getWidget(index: integer): TCEWidget;
 begin
   result := PTCEWidget(Items[index])^;
