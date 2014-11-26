@@ -12,7 +12,7 @@ type
   (**
    * Enumerates the symbol kinds, used to index an associative array.
    *)
-  TCESymbol = (CAF, CAP, CFF, CFP, CI, CPF, CPP, CPR, CPN, CPFS);
+  TCESymbol = (CAF, CAP, CFF, CFP, CI, CPF, CPP, CPO, CPR, CPN, CPFS);
 
   (**
    * TCESymbolExpander is designed to expand Coedit symbolic strings,
@@ -150,6 +150,7 @@ begin
       fSymbols[CPP] := ExtractFilePath(fProj.fileName);
       fSymbols[CPR] := fProj.RootFolder;
       fSymbols[CPN] := extractFileName(fProj.fileName);
+      fSymbols[CPO] := fProj.outputFilename;
       extLen := length(ExtractFileExt(fSymbols[CPN]));
       fSymbols[CPN] := fSymbols[CPN][1..length(fSymbols[CPN])-extLen];
     end else begin
@@ -157,6 +158,7 @@ begin
       fSymbols[CPP] := na;
       fSymbols[CPR] := na;
       fSymbols[CPN] := na;
+      fSymbols[CPO] := na;
     end;
     fSymbols[CPFS] := '';
     for i := 0 to fProj.Sources.Count-1 do
@@ -173,6 +175,7 @@ begin
     fSymbols[CPR] := na;
     fSymbols[CPN] := na;
     fSymbols[CPN] := na;
+    fSymbols[CPO] := na;
     fSymbols[CPFS]:= na;
   end;
 end;
@@ -231,6 +234,7 @@ begin
         'CPF',  'CurrentProjectFile':   result += fSymbols[CPF];
         'CPFS', 'CurrentProjectFiles':  result += fSymbols[CPFS];
         'CPN',  'CurrentProjectName':   result += fSymbols[CPN];
+        'CPO',  'CurrentProjectOutput': result += fSymbols[CPO];
         'CPP',  'CurrentProjectPath':   result += fSymbols[CPP];
         'CPR',  'CurrentProjectRoot':   result += fSymbols[CPR];
       end;
