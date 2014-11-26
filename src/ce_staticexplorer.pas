@@ -145,7 +145,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION ICESessionOptionsObserver ------------------------------------------------------}
+{$REGION ICESessionOptionsObserver ---------------------------------------------}
 procedure TCEStaticExplorerWidget.optget_AutoRefresh(aWriter: TWriter);
 begin
   aWriter.WriteBoolean(fAutoRefresh);
@@ -287,6 +287,7 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION Symbol-tree things ----------------------------------------------------}
 procedure TCEStaticExplorerWidget.UpdateByDelay;
 begin
   if not fAutoRefresh then exit;
@@ -492,7 +493,8 @@ begin
         'struct'    :ndCat := Tree.Items.AddChildObject(ndStruct, nme, ln);
         'template'  :ndCat := Tree.Items.AddChildObject(ndTmp, nme, ln);
         'variable'  :ndCat := Tree.Items.AddChildObject(ndVar, nme, ln);
-        else subjLmFromString(fLogMessager, 'static explorer does not handle this kind: ' + knd, nil, amcApp, amkWarn);
+        else subjLmFromString(fLogMessager, 'static explorer does not handle this kind: '
+          + knd, nil, amcApp, amkWarn);
       end;
 
       if ndCat = nil then
@@ -517,4 +519,6 @@ begin
     end;
   end;
 end;
+{$ENDREGION --------------------------------------------------------------------}
+
 end.

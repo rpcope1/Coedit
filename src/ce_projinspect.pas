@@ -149,6 +149,7 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION Insêctor things -------------------------------------------------------}
 procedure TCEProjectInspectWidget.TreeKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Key = VK_RETURN then
@@ -358,5 +359,6 @@ begin
   end;
   fXtraNode.Collapse(false);
 end;
+{$ENDREGION --------------------------------------------------------------------}
 
 end.

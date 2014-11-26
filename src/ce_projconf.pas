@@ -45,6 +45,7 @@ type
 implementation
 {$R *.lfm}
 
+{$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEProjectConfigurationWidget.create(aOwner: TComponent);
 begin
   inherited;
@@ -60,7 +61,9 @@ begin
   EntitiesConnector.removeObserver(self);
   inherited;
 end;
+{$ENDREGION --------------------------------------------------------------------}
 
+{$REGION ICEProjectObserver ----------------------------------------------------}
 procedure TCEProjectConfigurationWidget.projNew(aProject: TCEProject);
 begin
   beginUpdateByEvent;
@@ -93,7 +96,9 @@ begin
   fProj := aProject;
   endUpdateByEvent;
 end;
+{$ENDREGION --------------------------------------------------------------------}
 
+{$REGION config. things --------------------------------------------------------}
 procedure TCEProjectConfigurationWidget.selConfChange(Sender: TObject);
 begin
   if fProj = nil then exit;
@@ -209,5 +214,6 @@ begin
 
   Grid.TIObject := getGridTarget;
 end;
+{$ENDREGION --------------------------------------------------------------------}
 
 end.

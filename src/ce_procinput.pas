@@ -65,7 +65,4 @@ begin
   sendInput;
 end;
 
-
-
 end.
-

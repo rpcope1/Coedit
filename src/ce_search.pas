@@ -104,7 +104,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION ICESessionOptionsObserver ------------------------------------------------------}
+{$REGION ICESessionOptionsObserver ---------------------------------------------}
 procedure TCESearchWidget.sesoptDeclareProperties(aFiler: TFiler);
 begin
   inherited;

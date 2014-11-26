@@ -77,6 +77,7 @@ implementation
 uses
   graphics, ce_interfaces;
 
+{$REGION TCESynMemoPositions ---------------------------------------------------}
 constructor TCESynMemoPositions.create(aMemo: TSynMemo);
 begin
   fList := TFPList.Create;
@@ -123,7 +124,9 @@ begin
   while fList.Count > fMax do
     fList.Delete(fList.Count-1);
 end;
+{$ENDREGION --------------------------------------------------------------------}
 
+{$REGION TCESynMemo ------------------------------------------------------------}
 constructor TCESynMemo.Create(aOwner: TComponent);
 begin
   inherited;
@@ -320,6 +323,7 @@ begin
   else if Button = mbLeft then
     fPositions.store;
 end;
+{$ENDREGION --------------------------------------------------------------------}
 
 initialization
   D2Syn := TSynD2Syn.create(nil);

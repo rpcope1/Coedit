@@ -143,7 +143,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION TCECustomSubject --------------------------------------------------}
+{$REGION TCECustomSubject ------------------------------------------------------}
 constructor TCECustomSubject.create;
 begin
   fObservers := TObjectList.create(false);
