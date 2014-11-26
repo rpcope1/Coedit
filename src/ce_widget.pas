@@ -80,7 +80,7 @@ type
   (**
    * TCEWidget list.
    *)
-  TCEWidgetList = class(TList)
+  TCEWidgetList = class(TFPList)
   private
     function getWidget(index: integer): TCEWidget;
   public

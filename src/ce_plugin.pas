@@ -145,7 +145,7 @@ type
     HostDispatchToPlug: THostDispatchToPlug;
   end;
 
-  TCEPlugDescriptorList = class(TList)
+  TCEPlugDescriptorList = class(TFPList)
   private
     function getPlugin(index: integer): TPlugDescriptor;
   public

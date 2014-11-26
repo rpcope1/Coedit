@@ -110,11 +110,11 @@ type
   (*****************************************************************************
    * List of lexer tokens
    *)
-  TLexTokenList = class(TList)
+  TLexTokenList = class(TFPList)
   private
     function getToken(index: integer): TLexToken;
   public
-    procedure clear; override;
+    procedure clear;
     procedure addToken(aValue: PLexToken);
     property token[index: integer]: TLexToken read getToken;
   end;
@@ -139,11 +139,11 @@ type
   (*****************************************************************************
    * Error list
    *)
-  TLexErrorList = class(TList)
+  TLexErrorList = class(TFPList)
   private
     function getError(index: integer): TLexError;
   public
-    procedure clear; override;
+    procedure clear;
     procedure addError(aValue: PLexError);
     property error[index: integer]: TLexError read getError;
   end;
@@ -296,8 +296,7 @@ end;
 
 procedure TLexTokenList.clear;
 begin
-  while Count > 0 do
-  begin
+  while Count > 0 do begin
     Dispose( PLexToken(Items[Count-1]) );
     Delete(Count-1);
   end;
@@ -705,8 +704,7 @@ end;
 
 procedure TLexErrorList.clear;
 begin
-  while Count > 0 do
-  begin
+  while Count > 0 do begin
     Dispose( PLexError(Items[Count-1]) );
     Delete(Count-1);
   end;
