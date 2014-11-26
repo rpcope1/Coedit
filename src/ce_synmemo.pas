@@ -94,29 +94,32 @@ end;
 procedure TCESynMemoPositions.back;
 begin
   Inc(fPos);
+  {$WARNINGS OFF}
   if fPos < fList.Count then
-    fMemo.CaretY := Integer(fList.Items[fPos])
+    fMemo.CaretY := NativeInt(fList.Items[fPos])
+  {$WARNINGS ON}
   else Dec(fPos);
 end;
 
 procedure TCESynMemoPositions.next;
 begin
   Dec(fPos);
+  {$WARNINGS OFF}
   if fPos > -1 then
-    fMemo.CaretY := Integer(fList.Items[fPos])
+    fMemo.CaretY := NativeInt(fList.Items[fPos])
+  {$WARNINGS ON}
   else Inc(fPos);
 end;
 
 procedure TCESynMemoPositions.store;
 begin
   fPos := 0;
+  {$WARNINGS OFF}
   if fList.Count > 0 then
-    {$WARNINGS OFF}
-    if Integer(fList.Items[fPos]) = fMemo.CaretY then
+    if NativeInt(fList.Items[fPos]) = fMemo.CaretY then
       exit;
-    {$WARNINGS ON}
-  //
-  fList.Insert(0, Pointer(fMemo.CaretY));
+  fList.Insert(0, Pointer(NativeInt(fMemo.CaretY)));
+  {$WARNINGS ON}
   while fList.Count > fMax do
     fList.Delete(fList.Count-1);
 end;
