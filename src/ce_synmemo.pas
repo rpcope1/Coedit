@@ -10,6 +10,21 @@ uses
   ce_common, ce_observer;
 
 type
+
+  TCESynMemoPositions = class
+  private
+    fPos: Integer;
+    fMax: Integer;
+    fList: TFPList;
+    fMemo: TSynMemo;
+  public
+    constructor create(aMemo: TSynMemo);
+    destructor destroy; override;
+    procedure store;
+    procedure back;
+    procedure next;
+  end;
+
   TCESynMemo = class(TSynMemo)
   private
     fFilename: string;
@@ -22,6 +37,7 @@ type
     fTempFileName: string;
     fMultiDocSubject: TCECustomSubject;
     fStoredFontSize: Integer;
+    fPositions: TCESynMemoPositions;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
   protected
@@ -61,6 +77,50 @@ implementation
 uses
   graphics, ce_interfaces;
 
+constructor TCESynMemoPositions.create(aMemo: TSynMemo);
+begin
+  fList := TFPList.Create;
+  fMax  := 20;
+  fMemo := aMemo;
+  fPos  := -1;
+end;
+
+destructor TCESynMemoPositions.destroy;
+begin
+  fList.Free;
+  inherited;
+end;
+
+procedure TCESynMemoPositions.back;
+begin
+  Inc(fPos);
+  if fPos < fList.Count then
+    fMemo.CaretY := Integer(fList.Items[fPos])
+  else Dec(fPos);
+end;
+
+procedure TCESynMemoPositions.next;
+begin
+  Dec(fPos);
+  if fPos > -1 then
+    fMemo.CaretY := Integer(fList.Items[fPos])
+  else Inc(fPos);
+end;
+
+procedure TCESynMemoPositions.store;
+begin
+  fPos := 0;
+  if fList.Count > 0 then
+    {$WARNINGS OFF}
+    if Integer(fList.Items[fPos]) = fMemo.CaretY then
+      exit;
+    {$WARNINGS ON}
+  //
+  fList.Insert(0, Pointer(fMemo.CaretY));
+  while fList.Count > fMax do
+    fList.Delete(fList.Count-1);
+end;
+
 constructor TCESynMemo.Create(aOwner: TComponent);
 begin
   inherited;
@@ -95,6 +155,7 @@ begin
   ShowHint := true;
   TextBuffer.AddNotifyHandler(senrUndoRedoAdded, @changeNotify);
   //
+  fPositions := TCESynMemoPositions.create(self);
   fMultiDocSubject := TCEMultiDocSubject.create;
   subjDocNew(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
@@ -103,6 +164,7 @@ destructor TCESynMemo.destroy;
 begin
   subjDocClosing(TCEMultiDocSubject(fMultiDocSubject), self);
   fMultiDocSubject.Free;
+  fPositions.Free;
   //
   if fileExists(fTempFileName) then
     sysutils.DeleteFile(fTempFileName);
@@ -154,6 +216,7 @@ procedure TCESynMemo.changeNotify(Sender: TObject);
 begin
   identifierToD2Syn;
   fModified := true;
+  fPositions.store;
   subjDocChanged(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
 
@@ -216,6 +279,9 @@ end;
 
 procedure TCESynMemo.KeyDown(var Key: Word; Shift: TShiftState);
 begin
+  if Key in [VK_PRIOR, VK_NEXT] then
+    fPositions.store;
+  //
   inherited;
   identifierToD2Syn;
   //
@@ -243,7 +309,13 @@ procedure TCESynMemo.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:Inte
 begin
   inherited;
   if (Button = mbMiddle) and (Shift = [ssCtrl]) then
-    Font.Size := fStoredFontSize;
+    Font.Size := fStoredFontSize
+  else if Button = mbExtra1 then
+    fPositions.back
+  else if Button = mbExtra2 then
+    fPositions.next
+  else if Button = mbLeft then
+    fPositions.store;
 end;
 
 initialization
