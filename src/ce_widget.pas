@@ -117,7 +117,7 @@ begin
   fUpdaterDelay := TTimer.Create(self);
 
   updaterByLoopInterval := 70;
-  updaterByDelayDuration := 1250;
+  updaterByDelayDuration := 500;
 
   for i := 0 to contextActionCount-1 do
   begin
