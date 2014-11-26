@@ -84,7 +84,7 @@ type
 implementation
 {$R *.lfm}
 
-uses ce_libman, ce_symstring, ce_main;
+uses ce_libman, ce_symstring;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEStaticExplorerWidget.create(aOwner: TComponent);
@@ -389,10 +389,8 @@ begin
   end;
 
   //adds the libman entries
-  with CEMainForm do begin
-    Librarymanager.getLibFiles(nil, fDmdProc.Parameters);
-    Librarymanager.getLibSources(nil, fDmdProc.Parameters);
-  end;
+  LibMan.getLibFiles(nil, fDmdProc.Parameters);
+  LibMan.getLibSources(nil, fDmdProc.Parameters);
 
   // option to produce the Json file.
   fDmdProc.Parameters.Add('-c');

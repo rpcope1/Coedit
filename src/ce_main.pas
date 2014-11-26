@@ -188,7 +188,6 @@ type
     fTlsEdWidg: TCEToolsEditorWidget;
     fProjMru: TMruFileList;
     fFileMru: TMruFileList;
-    fLibMan: TLibraryManager;
     fPrInpWidg: TCEProcInputWidget;
     fInitialized: boolean;
     {$IFDEF WIN32}
@@ -279,7 +278,6 @@ type
     procedure openFile(const aFilename: string);
     //
     property WidgetList: TCEWidgetList read fWidgList;
-    property LibraryManager: TLibraryManager read fLibMan;
     property CustomTools: TCETools read fTools;
   end;
 
@@ -380,10 +378,9 @@ procedure TCEMainForm.InitLibMan;
 var
   fname: string;
 begin
-  fLibMan := TLibraryManager.create(self);
   fname := getDocPath + 'libraryManager.txt';
   if fileExists(fname) then
-    fLibMan.loadFromFile(fname);
+    LibMan.loadFromFile(fname);
 end;
 
 procedure TCEMainForm.InitTools;
@@ -579,7 +576,7 @@ begin
   opts := TCEOptions.create(nil);
   try
     forceDirectory(getDocPath);
-    fLibMan.saveToFile(getDocPath + 'libraryManager.txt');
+    LibMan.saveToFile(getDocPath + 'libraryManager.txt');
     fTools.saveToFile(getDocPath + 'tools.txt');
     opts.saveToFile(getDocPath + 'options2.txt');
   finally
@@ -1292,8 +1289,8 @@ begin
     dmdproc.Parameters.Add('-w');
     dmdproc.Parameters.Add('-wi');
     dmdproc.Parameters.Add('-of' + fname + exeExt);
-    LibraryManager.getLibFiles(nil, dmdproc.Parameters);
-    LibraryManager.getLibSources(nil, dmdproc.Parameters);
+    LibMan.getLibFiles(nil, dmdproc.Parameters);
+    LibMan.getLibSources(nil, dmdproc.Parameters);
     dmdproc.Execute;
     while dmdproc.Running do asyncprocOutput(dmdProc);
 
@@ -1541,7 +1538,7 @@ procedure TCEMainForm.newProj;
 begin
   fProject := TCEProject.Create(nil);
   fProject.Name := 'CurrentProject';
-  fProject.libraryManager := fLibMan;
+  fProject.libraryManager := LibMan;
 end;
 
 procedure TCEMainForm.saveProj;

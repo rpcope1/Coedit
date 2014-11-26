@@ -35,7 +35,7 @@ implementation
 {$R *.lfm}
 
 uses
-  ce_main, ce_libman;
+  ce_libman;
 
 procedure TCELibManEditorWidget.ListEdited(Sender: TObject; Item: TListItem;
   var AValue: string);
@@ -132,17 +132,14 @@ var
   i: NativeInt;
 begin
   List.Clear;
-  with CEMainForm do
+  if LibMan = nil then exit;
+  for i:= 0 to LibMan.libraries.Count-1 do
   begin
-    if LibraryManager = nil then exit;
-    for i:= 0 to LibraryManager.libraries.Count-1 do
-    begin
-      itm := TLibraryItem(LibraryManager.libraries.Items[i]);
-      row := List.Items.Add;
-      row.Caption := itm.libAlias;
-      row.SubItems.Add(itm.libFile);
-      row.SubItems.Add(itm.libSourcePath);
-    end;
+    itm := TLibraryItem(LibMan.libraries.Items[i]);
+    row := List.Items.Add;
+    row.Caption := itm.libAlias;
+    row.SubItems.Add(itm.libFile);
+    row.SubItems.Add(itm.libSourcePath);
   end;
 end;
 
@@ -151,19 +148,16 @@ var
   itm: TLibraryItem;
   row: TListItem;
 begin
-  with CEMainForm do
+  if LibMan = nil then exit;
+  LibMan.libraries.Clear;
+  for row in List.Items do
   begin
-    if LibraryManager = nil then exit;
-    LibraryManager.libraries.Clear;
-    for row in List.Items do
-    begin
-      itm := TLibraryItem(LibraryManager.libraries.Add);
-      itm.libAlias := row.Caption;
-      itm.libFile := row.SubItems.Strings[0];
-      itm.libSourcePath := row.SubItems.Strings[1];
-    end;
-    LibraryManager.updateDCD;
+    itm := TLibraryItem(LibMan.libraries.Add);
+    itm.libAlias := row.Caption;
+    itm.libFile := row.SubItems.Strings[0];
+    itm.libSourcePath := row.SubItems.Strings[1];
   end;
+  LibMan.updateDCD;
 end;
 
 end.

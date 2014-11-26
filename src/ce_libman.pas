@@ -45,6 +45,9 @@ type
     procedure updateDCD;
   end;
 
+var
+  LibMan: TLibraryManager;
+
 implementation
 
 constructor TLibraryManager.create(aOwner: TComponent);
@@ -155,4 +158,7 @@ end;
 
 initialization
   registerClasses([TLibraryManager, TLibraryItem]);
+  LibMan := TLibraryManager.create(nil);
+finalization
+  LibMan.Free;
 end.
