@@ -148,7 +148,7 @@ begin
 
   // text
   fToken := tkTxt;
-  while not (isSymbol(fLineBuf[fTokStop]) or isWhite(fLineBuf[fTokStop])) do
+  while not ((fLineBuf[fTokStop] in txtSym) or isWhite(fLineBuf[fTokStop])) do
   begin
     Inc(fTokStop);
     if fLineBuf[fTokStop] = #10 then exit;
