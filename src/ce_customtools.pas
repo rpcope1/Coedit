@@ -5,8 +5,8 @@ unit ce_customtools;
 interface
 
 uses
-  Classes, SysUtils, process, asyncprocess, ce_common, ce_writableComponent,
-  ce_interfaces, ce_observer;
+  Classes, SysUtils, FileUtil, process, asyncprocess,
+  ce_common, ce_writableComponent, ce_interfaces, ce_observer;
 
 type
 
@@ -52,6 +52,12 @@ type
     function addTool: TCEToolItem;
     property tool[index: integer]: TCEToolItem read getTool;
   end;
+
+const
+  toolsFname = 'tools.txt';
+
+Var
+  CustomTools: TCETools;
 
 implementation
 
@@ -114,13 +120,19 @@ begin
 end;
 
 constructor TCETools.create(aOwner: TComponent);
+var
+  fname: string;
 begin
   inherited;
   fTools := TCollection.Create(TCEToolItem);
+  fname := getDocPath + toolsFname;
+  if fileExists(fname) then loadFromFile(fname)
 end;
 
 destructor TCETools.destroy;
 begin
+  forceDirectory(getDocPath);
+  saveToFile(getDocPath + toolsFname);
   fTools.Free;
   inherited;
 end;
@@ -142,4 +154,7 @@ end;
 
 initialization
   RegisterClasses([TCEToolItem, TCETools]);
+  CustomTools := TCETools.create(nil);
+finalization
+  CustomTools.Free;
 end.

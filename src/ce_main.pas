@@ -10,7 +10,7 @@ uses
   Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, dynlibs,
   ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_plugin, ce_synmemo, ce_widget,
   ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf, ce_search,
-  ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_customtools,
+  ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor,
   ce_observer, ce_writableComponent, ce_toolseditor, ce_procinput, ce_cdbcmd;
 
 type
@@ -193,7 +193,6 @@ type
     {$IFDEF WIN32}
     fCdbWidg: TCECdbWidget;
     {$ENDIF}
-    fTools: TCETools;
 
     fRunProc: TCheckedAsyncProcess;
 
@@ -221,8 +220,6 @@ type
     //Init - Fina
     procedure getCMdParams;
     procedure checkCompilo;
-    procedure InitLibMan;
-    procedure InitTools;
     procedure InitMRUs;
     procedure InitWidgets;
     procedure InitPlugins;
@@ -278,7 +275,6 @@ type
     procedure openFile(const aFilename: string);
     //
     property WidgetList: TCEWidgetList read fWidgList;
-    property CustomTools: TCETools read fTools;
   end;
 
   procedure PlugDispatchToHost(aPlugin: TCEPlugin; opCode: LongWord; data0: Integer; data1, data2: Pointer); cdecl;
@@ -301,9 +297,6 @@ begin
   EntitiesConnector.addObserver(self);
   //
   InitMRUs;
-  InitLibMan;
-  InitTools;
-  //
   InitWidgets;
   InitDocking;
   InitSettings;
@@ -372,25 +365,6 @@ begin
       str.Free;
     end;
   end;
-end;
-
-procedure TCEMainForm.InitLibMan;
-var
-  fname: string;
-begin
-  fname := getDocPath + 'libraryManager.txt';
-  if fileExists(fname) then
-    LibMan.loadFromFile(fname);
-end;
-
-procedure TCEMainForm.InitTools;
-var
-  fname: string;
-begin
-  fTools := TCETools.create(self);
-  fname := getDocPath + 'tools.txt';
-  if fileExists(fname) then
-    fTools.loadFromFile(fname);
 end;
 
 procedure TCEMainForm.InitMRUs;
@@ -576,8 +550,6 @@ begin
   opts := TCEOptions.create(nil);
   try
     forceDirectory(getDocPath);
-    LibMan.saveToFile(getDocPath + 'libraryManager.txt');
-    fTools.saveToFile(getDocPath + 'tools.txt');
     opts.saveToFile(getDocPath + 'options2.txt');
   finally
     opts.Free;
@@ -1538,7 +1510,6 @@ procedure TCEMainForm.newProj;
 begin
   fProject := TCEProject.Create(nil);
   fProject.Name := 'CurrentProject';
-  fProject.libraryManager := LibMan;
 end;
 
 procedure TCEMainForm.saveProj;

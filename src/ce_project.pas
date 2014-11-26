@@ -9,7 +9,7 @@ uses
   LclProc,
   {$ENDIF}
   Classes, SysUtils, process, asyncprocess, strUtils, ce_common, ce_writableComponent,
-  ce_dmdwrap, ce_libman, ce_observer;
+  ce_dmdwrap, ce_observer;
 
 type
 
@@ -31,7 +31,6 @@ type
     fOptsColl: TCollection;
     fSrcs, fSrcsCop: TStringList;
     fConfIx: Integer;
-    fLibMan: TLibraryManager;
     fChangedCount: NativeInt;
     fProjectSubject: TCECustomSubject;
     fRunner: TCheckedAsyncProcess;
@@ -80,7 +79,6 @@ type
     function runProject(const runArgs: string = ''): Boolean;
     function compileProject: Boolean;
     //
-    property libraryManager: TLibraryManager read fLibMan write fLibMan;
     property configuration[ix: integer]: TCompilerConfiguration read getConfig;
     property currentConfiguration: TCompilerConfiguration read getCurrConf;
     property onChange: TNotifyEvent read fOnChange write fOnChange;
@@ -92,7 +90,7 @@ type
 implementation
 
 uses
-  ce_interfaces, controls, dialogs, ce_symstring;
+  ce_interfaces, controls, dialogs, ce_symstring, ce_libman;
 
 constructor TCEProject.create(aOwner: TComponent);
 begin
@@ -321,11 +319,8 @@ begin
     aList.Add(abs); // process.inc ln 249. double quotes are added if there's a space.
   end;
   //
-  if fLibMan <> nil then
-  begin
-    fLibMan.getLibFiles(fLibAliases, aList);
-    fLibMan.getLibSources(fLibAliases, aList);
-  end;
+  LibMan.getLibFiles(fLibAliases, aList);
+  LibMan.getLibSources(fLibAliases, aList);
   //
   TCompilerConfiguration(fOptsColl.Items[fConfIx]).getOpts(aList);
 end;

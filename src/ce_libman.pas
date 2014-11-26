@@ -5,7 +5,7 @@ unit ce_libman;
 interface
 
 uses
-  Classes, SysUtils, ce_common, ce_writableComponent, ce_dcd;
+  Classes, SysUtils, FileUtil, ce_common, ce_writableComponent, ce_dcd;
 
 type
 
@@ -45,19 +45,30 @@ type
     procedure updateDCD;
   end;
 
+const
+  libFname = 'libraryManager.txt';
+
 var
   LibMan: TLibraryManager;
 
 implementation
 
 constructor TLibraryManager.create(aOwner: TComponent);
+var
+  fName: string;
 begin
   inherited;
   fCol := TCollection.Create(TLibraryItem);
+  fname := getDocPath + libFname;
+  if fileExists(fname) then loadFromFile(fname);
 end;
 
 destructor TLibraryManager.destroy;
+var
+  fName: string;
 begin
+  forceDirectory(getDocPath);
+  LibMan.saveToFile(getDocPath + libFname);
   fCol.Free;
   inherited;
 end;

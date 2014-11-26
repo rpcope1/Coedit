@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, RTTIGrids, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, Menus, Buttons, StdCtrls, ce_widget;
+  ExtCtrls, Menus, Buttons, StdCtrls, ce_widget, ce_customtools;
 
 type
 
@@ -34,9 +34,6 @@ type
 implementation
 {$R *.lfm}
 
-uses
-  ce_main;
-
 constructor TCEToolsEditorWidget.create(aOwner: TComponent);
 begin
   inherited;
@@ -47,7 +44,7 @@ procedure TCEToolsEditorWidget.updateNames;
 var
   i: Integer;
 begin
-  with CEMainForm do for i := 0 to CustomTools.tools.Count-1 do
+  for i := 0 to CustomTools.tools.Count-1 do
     lstTools.Items.Strings[i] := CustomTools.tool[i].toolAlias;
 end;
 
@@ -59,7 +56,7 @@ begin
   propsEd.ItemIndex := -1;
   lstTools.Clear;
   //
-  with CEMainForm do for i := 0 to CustomTools.tools.Count-1 do
+  for i := 0 to CustomTools.tools.Count-1 do
     lstTools.AddItem(CustomTools.tool[i].toolAlias, nil);
   if lstTools.Count > 0 then
     lstTools.ItemIndex := 0;
@@ -70,22 +67,20 @@ procedure TCEToolsEditorWidget.lstToolsSelectionChange(Sender: TObject;
 begin
   if lstTools.ItemIndex = -1 then
     exit;
-
-  propsEd.TIObject := CEMainForm.CustomTools.tool[lstTools.ItemIndex];
+  propsEd.TIObject := CustomTools.tool[lstTools.ItemIndex];
 end;
 
 procedure TCEToolsEditorWidget.propsEdModified(Sender: TObject);
 begin
   if propsEd.ItemIndex = -1 then
     exit;
-  //
   if propsEd.Rows[propsEd.ItemIndex].Name = 'toolAlias' then
     updateNames;
 end;
 
 procedure TCEToolsEditorWidget.BtnAddToolClick(Sender: TObject);
 begin
-  CEMainForm.CustomTools.addTool;
+  CustomTools.addTool;
   DataToGui;
 end;
 
@@ -93,8 +88,7 @@ procedure TCEToolsEditorWidget.btnRemToolClick(Sender: TObject);
 begin
   if lstTools.ItemIndex = -1 then
       exit;
-  //
-  CEMainForm.CustomTools.tools.Delete(lstTools.ItemIndex);
+  CustomTools.tools.Delete(lstTools.ItemIndex);
   DataToGui;
 end;
 
@@ -102,8 +96,7 @@ procedure TCEToolsEditorWidget.btnRunClick(Sender: TObject);
 begin
   if lstTools.ItemIndex = -1 then
     exit;
-  //
-  CEMainForm.CustomTools.tool[lstTools.ItemIndex].execute;
+  CustomTools.tool[lstTools.ItemIndex].execute;
 end;
 
 end.
