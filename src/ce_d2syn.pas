@@ -419,9 +419,7 @@ begin
   next;
 end;
 
-//TODO-cstring literals: delimited strings.
 //TODO-ccomments: nested comments with multiple nesting on the same line.
-//TODO-cfeature: something like pascal {$region} : /*folder blabla*/  /*endfolder*/
 
 {$BOOLEVAL ON}
 procedure TSynD2Syn.next;
@@ -564,7 +562,7 @@ begin
   // string 1
   if fCurrRange.rangeKinds = [] then if readDelim(reader, fTokStop, stringPrefixes) then
   begin
-    if readerPrev^ in ['r','x'] then
+    if readerPrev^ in ['r','x','q'] then
     begin
       if not (readerNext^ = '"') then
       begin

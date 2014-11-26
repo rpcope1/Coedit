@@ -12,7 +12,7 @@ type
 
 const
   stringPostfixes: TCharSet = ['c', 'w', 'd'];
-  stringPrefixes: TCharSet = ['r', 'x', '"'];
+  stringPrefixes: TCharSet = ['r', 'x', 'q', '"'];
   stringStopChecks: TCharSet = ['\', '"'];
   charStopChecks: TCharSet = ['\', #39];
   symbChars: TCharSet = [';', '{', '}', '(', ')', '[', ']', ',', '.', ':', '?', '$', '"', #39];
