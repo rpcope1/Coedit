@@ -16,8 +16,8 @@ void main(string args[])
     //
     version(Windows)
         string prgname = "cmd";
-    else
-        version(linux) string prgname = "xterm";
+    /*else
+        version(linux) string prgname = "xterm";*/
     else
         assert(0, "unsupported target");
     //

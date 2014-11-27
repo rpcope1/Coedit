@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, StdCtrls, ce_widget, process, ce_common;
+  Menus, StdCtrls, ce_widget, process;
 
 type
 
@@ -28,6 +28,9 @@ type
 implementation
 {$R *.lfm}
 
+uses
+  ce_common, ce_symstring;
+
 procedure TCEProcInputWidget.setProc(const aValue: TProcess);
 begin
   txtExeName.Caption := 'no process';
@@ -44,7 +47,10 @@ procedure TCEProcInputWidget.sendInput;
 var
   inp: string;
 begin
-  inp := txtInp.Text + lineEnding;
+  if txtInp.Text <> '' then
+    inp := symbolExpander.get(txtInp.Text) + lineEnding
+  else
+    inp := txtInp.Text + lineEnding;
   fProc.Input.Write(inp[1], length(inp));
   txtInp.Text := '';
 end;
