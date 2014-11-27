@@ -305,6 +305,7 @@ begin
     aValue := 0;
   if fMaxCount = aValue then
     exit;
+  fMaxCount := aValue;
   clearOutOfRange;
 end;
 
