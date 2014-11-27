@@ -474,18 +474,16 @@ begin
     if readDelim(reader, fTokStop, '/') then
       fTokKind := tkDDocs;
     readLine(reader, fTokStop);
-
-    if fTokStop - fTokStart > 4 then
-    begin
-      Dec(reader,4);
-      Dec(fTokStop,4);
-      if reader = '---+'#10 then
-        StartCodeFoldBlock(nil)
-      else if reader = '----'#10 then
-        EndCodeFoldBlock();
-      readLine(reader, fTokStop);
-    end;
-
+    //if fTokStop - fTokStart > 4 then
+    //begin
+    //  Dec(reader,4);
+    //  Dec(fTokStop,4);
+    //  if reader = '---+'#10 then
+    //    StartCodeFoldBlock(nil)
+    //  else if reader = '----'#10 then
+    //    EndCodeFoldBlock();
+    //  readLine(reader, fTokStop);
+    //end;
     exit;
   end else readerReset;
 
