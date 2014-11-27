@@ -1,4 +1,4 @@
-unit ce_customtools;
+unit ce_tools;
 
 {$I ce_defines.inc}
 

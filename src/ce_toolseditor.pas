@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, RTTIGrids, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, Menus, Buttons, StdCtrls, ce_widget, ce_customtools;
+  ExtCtrls, Menus, Buttons, StdCtrls, ce_widget, ce_tools;
 
 type
 
