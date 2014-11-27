@@ -57,7 +57,7 @@ end;
 procedure TCEProcInputWidget.sesoptDeclareProperties(aFiler: TFiler);
 begin
   inherited;
-  aFiler.DefineProperty(Name + 'InputMru', @optset_InputMru, @optget_InputMru, true);
+  aFiler.DefineProperty(Name + '_inputMru', @optset_InputMru, @optget_InputMru, true);
 end;
 
 procedure TCEProcInputWidget.optset_InputMru(aReader: TReader);
