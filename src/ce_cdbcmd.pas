@@ -1,6 +1,6 @@
 unit ce_cdbcmd;
 
-{$mode objfpc}{$H+}
+{$I ce_defines.inc}
 
 interface
 

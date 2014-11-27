@@ -1,6 +1,6 @@
 unit ce_procinput;
 
-{$mode objfpc}{$H+}
+{$I ce_defines.inc}
 
 interface
 
