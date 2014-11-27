@@ -6,11 +6,9 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, StdCtrls, ce_widget, process, ce_common;
+  Menus, StdCtrls, ce_widget, process, ce_common, ce_interfaces;
 
 type
-
-  { TCEProcInputWidget }
   TCEProcInputWidget = class(TCEWidget)
     btnSend: TButton;
     txtInp: TEdit;
@@ -23,9 +21,14 @@ type
     fProc: TProcess;
     procedure sendInput;
     procedure setProc(const aValue: TProcess);
+    //
+    procedure optset_InputMru(aReader: TReader);
+    procedure optget_InputMru(aWriter: TWriter);
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
+    //
+    procedure sesoptDeclareProperties(aFiler: TFiler); override;
     property process: TProcess read fProc write setProc;
   end;
 
@@ -35,6 +38,7 @@ implementation
 uses
   ce_symstring, LCLType;
 
+{$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCEProcInputWidget.create(aOwner: TComponent);
 begin
   inherited;
@@ -47,7 +51,27 @@ begin
   fMru.Free;
   inherited;
 end;
+{$ENDREGION --------------------------------------------------------------------}
 
+{$REGION ICESessionOptionsObserver ---------------------------------------------}
+procedure TCEProcInputWidget.sesoptDeclareProperties(aFiler: TFiler);
+begin
+  inherited;
+  aFiler.DefineProperty(Name + 'InputMru', @optset_InputMru, @optget_InputMru, true);
+end;
+
+procedure TCEProcInputWidget.optset_InputMru(aReader: TReader);
+begin
+  fMru.DelimitedText := aReader.ReadString;
+end;
+
+procedure TCEProcInputWidget.optget_InputMru(aWriter: TWriter);
+begin
+  aWriter.WriteString(fMru.DelimitedText);
+end;
+{$ENDREGION --------------------------------------------------------------------}
+
+{$REGION Process input things --------------------------------------------------}
 procedure TCEProcInputWidget.setProc(const aValue: TProcess);
 begin
   txtExeName.Caption := 'no process';
@@ -99,5 +123,6 @@ begin
     end;
   end;
 end;
+{$ENDREGION --------------------------------------------------------------------}
 
 end.
