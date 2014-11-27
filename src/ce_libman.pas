@@ -64,8 +64,6 @@ begin
 end;
 
 destructor TLibraryManager.destroy;
-var
-  fName: string;
 begin
   forceDirectory(getDocPath);
   LibMan.saveToFile(getDocPath + libFname);
