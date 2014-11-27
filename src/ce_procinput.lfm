@@ -26,7 +26,7 @@ inherited CEProcInputWidget: TCEProcInputWidget
         BorderSpacing.Top = 2
         BorderSpacing.Right = 4
         BorderSpacing.Bottom = 4
-        OnKeyPress = txtInpKeyPress
+        OnKeyDown = txtInpKeyDown
         TabOrder = 0
       end
       object btnSend: TButton[1]
