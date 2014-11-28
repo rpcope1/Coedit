@@ -1,26 +1,26 @@
 inherited CEProcInputWidget: TCEProcInputWidget
-  Left = 1427
+  Left = 868
   Height = 61
   Top = 335
-  Width = 481
+  Width = 608
   Caption = 'Process input'
   ClientHeight = 61
-  ClientWidth = 481
+  ClientWidth = 608
   inherited Back: TPanel
     Height = 61
-    Width = 481
+    Width = 608
     ClientHeight = 61
-    ClientWidth = 481
+    ClientWidth = 608
     inherited Content: TPanel
       Height = 61
-      Width = 481
+      Width = 608
       ClientHeight = 61
-      ClientWidth = 481
+      ClientWidth = 608
       object txtInp: TEdit[0]
         Left = 4
         Height = 27
         Top = 30
-        Width = 394
+        Width = 521
         Align = alClient
         BorderSpacing.Left = 4
         BorderSpacing.Top = 2
@@ -30,7 +30,7 @@ inherited CEProcInputWidget: TCEProcInputWidget
         TabOrder = 0
       end
       object btnSend: TButton[1]
-        Left = 402
+        Left = 529
         Height = 27
         Top = 30
         Width = 75
@@ -46,7 +46,7 @@ inherited CEProcInputWidget: TCEProcInputWidget
         Left = 4
         Height = 22
         Top = 4
-        Width = 473
+        Width = 600
         Align = alTop
         BorderSpacing.Around = 4
         BorderStyle = sbsSunken

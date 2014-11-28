@@ -22,7 +22,7 @@ type
     //fShortcut: string;
     fLogMessager: TCELogMessageSubject;
     procedure setParameters(const aValue: TStringList);
-    procedure processOUtput(sender: TObject);
+    procedure processOutput(sender: TObject);
   published
     property toolAlias: string read fToolAlias write fToolAlias;
     property options: TProcessOptions read fOpts write fOpts;

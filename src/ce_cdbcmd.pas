@@ -178,7 +178,7 @@ end;
 procedure TCECdbWidget.cdbOutputToGui;
 var
   lst: TStringList;
-  cnt: Integer;
+  str: string;
 begin
   if fCdbProc = nil then
     exit;
@@ -186,8 +186,8 @@ begin
   lst := TStringList.Create;
   try
     processOutputToStrings(fCdbProc, lst);
-    for cnt := 0 to lst.Count-1 do
-      lstCdbOut.AddItem(lst.Strings[cnt], nil);
+    for str in lst do
+      lstCdbOut.AddItem(str, nil);
     lstCdbOut.Items[lstCdbOut.Items.Count-1].MakeVisible(true);
   finally
     lst.Free;

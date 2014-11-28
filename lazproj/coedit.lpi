@@ -296,7 +296,7 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ce_staticexplorer"/>
       </Unit23>
-	  <Unit24>
+      <Unit24>
         <Filename Value="..\src\ce_symstring.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_symstring"/>
@@ -306,7 +306,7 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_synmemo"/>
       </Unit25>
-	  <Unit26>
+      <Unit26>
         <Filename Value="..\src\ce_tools.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_tools"/>

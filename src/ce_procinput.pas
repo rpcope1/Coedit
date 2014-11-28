@@ -74,6 +74,12 @@ end;
 {$REGION Process input things --------------------------------------------------}
 procedure TCEProcInputWidget.setProc(const aValue: TProcess);
 begin
+  // TODO: process list
+  // TODO: each TCESynMemo must have its own runnable TProcess
+  // currently they share the CEMainForm.fRunProc variable.
+  if fProc <> nil then
+    fProc.Terminate(1);
+
   txtExeName.Caption := 'no process';
   fProc := nil;
   if aValue = nil then

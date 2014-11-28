@@ -90,7 +90,7 @@ type
 implementation
 
 uses
-  ce_interfaces, controls, dialogs, ce_symstring, ce_libman;
+  ce_interfaces, controls, dialogs, ce_symstring, ce_libman, ce_main;
 
 constructor TCEProject.create(aOwner: TComponent);
 begin
@@ -581,6 +581,7 @@ begin
   if poUsePipes in fRunner.Options then begin
     fRunner.OnReadData := @runProcOutput;
     fRunner.OnTerminate := @runProcOutput;
+    CEMainForm.processInput.process := fRunner;
   end;
   fRunner.Execute;
   //
@@ -603,6 +604,10 @@ begin
   finally
     lst.Free;
   end;
+  //
+  if not proc.Active then
+    if CEMainForm.processInput.process = proc then
+      CEMainForm.processInput.process := nil;
 end;
 
 procedure TCEProject.compProcOutput(proc: TProcess);

@@ -274,6 +274,7 @@ type
     //
     procedure openFile(const aFilename: string);
     //
+    property processInput: TCEProcInputWidget read fPrInpWidg;
     property WidgetList: TCEWidgetList read fWidgList;
   end;
 
