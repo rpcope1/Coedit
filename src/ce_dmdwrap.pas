@@ -204,7 +204,7 @@ type
    *)
   TPathsOpts = class(TOptsGroup)
   private
-    fSrcs: TStringList;
+    fExtraSrcs: TStringList;
     fIncl: TStringList;
     fImpt: TStringList;
     fFname: string;
@@ -218,9 +218,10 @@ type
   published
     property outputFilename: string read fFname write setFname;
     property objectDirectory: string read fObjDir write setObjDir;
-    property Sources: TStringList read fSrcs write setSrcs; // not common srcs, made for static libs
-    property Includes: TStringList read fIncl write setIncl;
-    property Imports: TStringList read fImpt write setImpt;
+    property Sources: TStringList read fExtraSrcs write setSrcs stored false; deprecated;// will be reloaded but saved as extraSources
+    property extraSources: TStringList read fExtraSrcs write setSrcs; // not common srcs, made for static libs
+    property includes: TStringList read fIncl write setIncl;
+    property imports: TStringList read fImpt write setImpt;
   public
     constructor create;
     destructor destroy; override;
@@ -821,14 +822,14 @@ end;
 {$REGION TPathsOpts ------------------------------------------------------------}
 constructor TPathsOpts.create;
 begin
-  fSrcs := TStringList.Create;
+  fExtraSrcs := TStringList.Create;
   fIncl := TStringList.Create;
   fImpt := TStringList.Create;
-  // setSrcs(), setIncl(), setImpt() are not called when reloading from
+  // setSrcs(), setIncl(), etc are not called when reloading from
   // a stream but rather the TSgringList.Assign()
-  fSrcs.OnChange:= @strLstChange;
-  fIncl.OnChange:= @strLstChange;
-  fImpt.OnChange:= @strLstChange;
+  fExtraSrcs.OnChange := @strLstChange;
+  fIncl.OnChange := @strLstChange;
+  fImpt.OnChange := @strLstChange;
 end;
 
 procedure TPathsOpts.strLstChange(sender: TObject);
@@ -842,7 +843,7 @@ procedure TPathsOpts.getOpts(const aList: TStrings);
 var
   str: string;
 begin
-  for str in fSrcs do
+  for str in fExtraSrcs do
   begin
     str := symbolExpander.get(str);
     if not listAsteriskPath(str, aList, dExtList) then
@@ -865,7 +866,7 @@ begin
   if (aValue is TPathsOpts) then
   begin
     src := TPathsOpts(aValue);
-    fSrcs.Assign(src.fSrcs);
+    fExtraSrcs.Assign(src.fExtraSrcs);
     fIncl.Assign(src.fIncl);
     fImpt.Assign(src.fImpt);
     fFName := patchPlateformPath(src.fFname);
@@ -876,7 +877,7 @@ end;
 
 destructor TPathsOpts.destroy;
 begin
-  fSrcs.free;
+  fExtraSrcs.free;
   fIncl.free;
   fImpt.free;
   inherited;
@@ -899,8 +900,8 @@ end;
 
 procedure TPathsOpts.setSrcs(const aValue: TStringList);
 begin
-  fSrcs.Assign(aValue);
-  patchPlateformPaths(fSrcs);
+  fExtraSrcs.Assign(aValue);
+  patchPlateformPaths(fExtraSrcs);
   doChanged;
 end;
 

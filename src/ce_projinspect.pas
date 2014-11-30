@@ -338,7 +338,7 @@ begin
   end;
   fInclNode.Collapse(false);
   // display extra sources (external .lib, *.a, *.d)
-  for src in FProject.currentConfiguration.pathsOptions.Sources do
+  for src in FProject.currentConfiguration.pathsOptions.extraSources do
   begin
     if src = '' then
       continue;

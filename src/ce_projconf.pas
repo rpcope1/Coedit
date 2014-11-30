@@ -169,8 +169,11 @@ begin
   endUpdateByEvent;
 end;
 
-procedure TCEProjectConfigurationWidget.GridFilter(Sender: TObject; aEditor: TPropertyEditor;var aShow: boolean);
+procedure TCEProjectConfigurationWidget.GridFilter(Sender: TObject; aEditor: TPropertyEditor;
+  var aShow: boolean);
 begin
+  if fProj = nil then exit;
+  // filter TComponent things.
   if getGridTarget = fProj then
   begin
     if aEditor.GetName = 'Name' then
@@ -178,6 +181,10 @@ begin
     if aEditor.GetName = 'Tag' then
       aShow := false;
   end;
+  // deprecated field
+  if getGridTarget = fProj.currentConfiguration.pathsOptions  then
+    if aEditor.GetName = 'Sources' then
+      aShow := false;
 end;
 
 function TCEProjectConfigurationWidget.getGridTarget: TPersistent;
