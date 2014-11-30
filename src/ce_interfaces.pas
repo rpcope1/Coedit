@@ -100,10 +100,10 @@ type
    *)
   ICEMainMenuProvider = interface
   ['ICEMainMenuProvider']
-    // item must contain the full items tree to be added
-    procedure menuDeclare(out item: TMenuItem);
-    // the implementer can update the actions used in the menu declared previously.
-    procedure menuActionsUpdate;
+    // item is a new mainMenu entry. item must be filled with the sub-items to be added.
+    procedure menuDeclare(item: TMenuItem);
+    // item is the mainMenu entry declared previously. the sub items can be updated, deleted.
+    procedure menuUpdate(item: TMenuItem);
   end;
   (**
    * An implementer agregates its observers menus.

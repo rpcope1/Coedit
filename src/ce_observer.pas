@@ -52,6 +52,8 @@ type
     fObservers: TObjectList;
     // test for a specific interface when adding an observer.
     function acceptObserver(aObject: TObject): boolean; virtual;
+    function getObserversCount: Integer;
+    function getObserver(index: Integer): TObject;
   public
     constructor create; virtual;
     destructor destroy; override;
@@ -59,6 +61,9 @@ type
     procedure addObserver(anObserver: TObject);
     procedure removeObserver(anObserver: TObject);
     procedure updateObservers; virtual;
+    //
+    property observersCount: Integer read getObserversCount;
+    property observers[index: Integer]: TObject read getObserver;
   end;
 
 var
@@ -162,6 +167,16 @@ end;
 function TCECustomSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(false);
+end;
+
+function TCECustomSubject.getObserversCount: Integer;
+begin
+  exit(fObservers.Count);
+end;
+
+function TCECustomSubject.getObserver(index: Integer): TObject;
+begin
+  exit(fObservers.Items[index]);
 end;
 
 procedure TCECustomSubject.addObserver(anObserver: TObject);
