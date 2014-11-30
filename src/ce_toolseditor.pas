@@ -13,6 +13,8 @@ type
   { TCEToolsEditorWidget }
   TCEToolsEditorWidget = class(TCEWidget)
     BtnAddTool: TBitBtn;
+    btnMoveDown: TBitBtn;
+    btnMoveUp: TBitBtn;
     btnRemTool: TBitBtn;
     btnRun: TBitBtn;
     lstTools: TListBox;
@@ -21,6 +23,8 @@ type
     propsEd: TTIPropertyGrid;
     procedure BtnAddToolClick(Sender: TObject);
     procedure btnRemToolClick(Sender: TObject);
+    procedure btnMoveUpClick(Sender: TObject);
+    procedure btnMoveDownClick(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
     procedure lstToolsSelectionChange(Sender: TObject; User: boolean);
     procedure propsEdModified(Sender: TObject);
@@ -87,11 +91,29 @@ end;
 procedure TCEToolsEditorWidget.btnRemToolClick(Sender: TObject);
 begin
   if lstTools.ItemIndex = -1 then
-      exit;
+    exit;
   propsEd.TIObject := nil;
   propsEd.ItemIndex := -1;
   CustomTools.tools.Delete(lstTools.ItemIndex);
   DataToGui;
+end;
+
+procedure TCEToolsEditorWidget.btnMoveUpClick(Sender: TObject);
+begin
+  if lstTools.ItemIndex = -1 then exit;
+  if lstTools.ItemIndex = 0 then exit;
+  //
+  CustomTools.tools.Exchange(lstTools.ItemIndex, lstTools.ItemIndex - 1);
+  updateNames;
+end;
+
+procedure TCEToolsEditorWidget.btnMoveDownClick(Sender: TObject);
+begin
+  if lstTools.ItemIndex = -1 then exit;
+  if lstTools.ItemIndex = lstTools.Items.Count-1 then exit;
+  //
+  CustomTools.tools.Exchange(lstTools.ItemIndex, lstTools.ItemIndex + 1);
+  updateNames;
 end;
 
 procedure TCEToolsEditorWidget.btnRunClick(Sender: TObject);
