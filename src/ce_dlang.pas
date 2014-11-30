@@ -107,6 +107,8 @@ type
     data: string;
   end;
 
+  TLexFoundEvent = procedure(const aToken: PLexToken; out doStop: boolean) of Object;
+
   (*****************************************************************************
    * List of lexer tokens
    *)
@@ -162,7 +164,7 @@ type
   (*****************************************************************************
    * Lexes aText and fills aList with the TLexToken found.
    *)
-  procedure lex(const aText: string; const aList: TLexTokenList);
+  procedure lex(const aText: string; aList: TLexTokenList; aCallBack: TLexFoundEvent = nil);
 
   (*****************************************************************************
    * Detects various syntactic errors in a TLexTokenList
@@ -326,7 +328,7 @@ begin
 end;
 
 {$BOOLEVAL ON}
-procedure lex(const aText: string; const aList: TLexTokenList);
+procedure lex(const aText: string; aList: TLexTokenList; aCallBack: TLexFoundEvent = nil);
 var
   reader: TReaderHead;
   identifier: string;
@@ -345,6 +347,13 @@ var
     ptk^.position := reader.LineAnColumn;
     ptk^.data := identifier;
     aList.Add(ptk);
+  end;
+
+  function callBackDoStop: boolean;
+  begin
+    result := false;
+    if aCallBack <> nil then
+      aCallBack(PLexToken(aList.Items[aList.Count-1]), result);
   end;
 
 begin
@@ -379,6 +388,7 @@ begin
         end;
         reader.next;
         addToken(ltkComment);
+        if callBackDoStop then exit;
         continue;
       end
       else
@@ -395,6 +405,7 @@ begin
           if isOutOfBound then exit;
         reader.next;
         addToken(ltkComment);
+        if callBackDoStop then exit;
         continue;
       end
       else
@@ -411,6 +422,7 @@ begin
           if isOutOfBound then exit;
         reader.next;
         addToken(ltkComment);
+        if callBackDoStop then exit;
         continue;
       end
       else
@@ -431,6 +443,7 @@ begin
       begin
         reader.next;
         addToken(ltkString);
+        if callBackDoStop then exit;
         continue;
       end;
       while (true) do
@@ -453,6 +466,7 @@ begin
       if isStringPostfix(reader.next^) then
         reader.next;
       addToken(ltkString);
+      if callBackDoStop then exit;
       continue;
     end;
 
@@ -471,6 +485,7 @@ begin
         reader.next;
       if isOutOfBound then exit;
       addToken(ltkString);
+      if callBackDoStop then exit;
       continue;
     end;
 
@@ -487,6 +502,7 @@ begin
       end;
       reader.next;
       addToken(ltkString);
+      if callBackDoStop then exit;
       continue;
     end else reader.previous;
 
@@ -499,6 +515,7 @@ begin
       begin
         reader.next;
         addToken(ltkString);
+        if callBackDoStop then exit;
         continue;
       end;
       while (true) do
@@ -520,6 +537,7 @@ begin
       end;
       reader.next;
       addToken(ltkChar);
+      if callBackDoStop then exit;
       continue;
     end;
 
@@ -562,6 +580,7 @@ begin
           identifier += reader.head^;
         end;
         addToken(ltkNumber);
+        if callBackDoStop then exit;
         continue;
       end
       else reader.previous;
@@ -574,6 +593,7 @@ begin
           identifier += reader.head^;
         end;
         addToken(ltkNumber);
+        if callBackDoStop then exit;
         continue;
       end
       else reader.previous;
@@ -586,6 +606,7 @@ begin
           identifier += reader.head^;
         end;
         addToken(ltkNumber);
+        if callBackDoStop then exit;
         continue;
       end
       else reader.previous;
@@ -613,6 +634,7 @@ begin
         identifier += reader.head^;
       end;
       addToken(ltkNumber);
+      if callBackDoStop then exit;
       continue;
     end;
 
@@ -622,6 +644,7 @@ begin
       identifier += reader.head^;
       reader.next;
       addToken(ltkSymbol);
+      if callBackDoStop then exit;
       if isOutOfBound then exit;
       continue;
     end;
@@ -641,6 +664,7 @@ begin
               isOperator4(identifier) then
             begin
               addToken(ltkOperator);
+              if callBackDoStop then exit;
               continue;
             end;
           end;
@@ -649,6 +673,7 @@ begin
               isOperator3(identifier) then
             begin
               addToken(ltkOperator);
+              if callBackDoStop then exit;
               continue;
             end;
           end;
@@ -657,6 +682,7 @@ begin
               isOperator2(identifier) then
             begin
               addToken(ltkOperator);
+              if callBackDoStop then exit;
               continue;
             end;
           end;
@@ -665,6 +691,7 @@ begin
             then
               begin
                 addToken(ltkOperator);
+                if callBackDoStop then exit;
                 continue;
               end;
           end;
@@ -684,6 +711,7 @@ begin
         addToken(ltkKeyword)
       else
         addToken(ltkIdentifier);
+      if callBackDoStop then exit;
       continue;
     end;
 
