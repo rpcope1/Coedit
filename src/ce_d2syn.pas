@@ -589,6 +589,7 @@ begin
       begin
         readerNext;
         readDelim(reader, fTokStop, stringPostfixes);
+        fCurrRange.rString := false;
         exit;
       end;
     end;
@@ -618,6 +619,7 @@ begin
         readerNext;
         fCurrRange.rangeKinds -= [rkString1];
         readDelim(reader, fTokStop, stringPostfixes);
+        fCurrRange.rString := false;
         if fkStrings in fFoldKinds then
           EndCodeFoldBlock();
         exit;
