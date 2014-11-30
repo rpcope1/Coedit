@@ -82,6 +82,7 @@ type
     rangeKinds: TRangeKinds;
     primaryRange: TPrimaryRange;
     secondaryRange: TSecondaryRange;
+    rString: boolean;
   public
     procedure Assign(Src: TSynCustomHighlighterRange); override;
     function Compare(Range: TSynCustomHighlighterRange): integer; override;
@@ -562,6 +563,7 @@ begin
   begin
     if readerPrev^ in ['r','x','q'] then
     begin
+      fCurrRange.rString := reader^ = 'r';
       if not (readerNext^ = '"') then
       begin
         readerPrev;
@@ -574,12 +576,12 @@ begin
     begin
       if not readUntilAmong(reader, fTokStop, stringStopChecks) then
         break;
-      if reader^ = '\' then
+      if (reader^ = '\') then
       begin
         readerNext;
         if readWhile(reader, fTokStop, '\') then
           continue;
-        if reader^ = '"' then
+        if reader^ = '"' then if not fCurrRange.rString then
           readerNext;
         continue;
       end
@@ -607,7 +609,7 @@ begin
         readerNext;
         if readWhile(reader, fTokStop, '\') then
           continue;
-        if reader^ = '"' then
+        if reader^ = '"' then if not fCurrRange.rString then
           readerNext;
         continue;
       end
