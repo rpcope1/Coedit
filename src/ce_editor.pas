@@ -128,6 +128,7 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION PageControl/Editor things ---------------------------------------------}
 function TCEEditorWidget.getEditorCount: NativeInt;
 begin
   result := pageControl.PageCount;
@@ -333,7 +334,8 @@ const
 begin
   if fDoc = nil then exit;
   //
-  editorStatus.Panels[0].Text := format('%d : %d', [fDoc.CaretY, fDoc.CaretX]);
+  editorStatus.Panels[0].Text := format('%d : %d | %d', [fDoc.CaretY, fDoc.CaretX,
+    fDoc.SelEnd - fDoc.SelStart]);
   editorStatus.Panels[1].Text := modstr[fDoc.modified];
   editorStatus.Panels[2].Text := fDoc.fileName;
 end;
@@ -372,5 +374,6 @@ begin
   tokLst.Clear;
   errLst.Clear;
 end;
+{$ENDREGION}
 
 end.

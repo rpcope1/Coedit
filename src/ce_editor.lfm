@@ -39,7 +39,7 @@ inherited CEEditorWidget: TCEEditorWidget
         BorderSpacing.Around = 2
         Panels = <        
           item
-            Width = 100
+            Width = 110
           end        
           item
             Width = 150
