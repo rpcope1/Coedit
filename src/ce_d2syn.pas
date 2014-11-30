@@ -703,13 +703,18 @@ begin
   if fCurrRange.rangeKinds = [] then if readDelim(reader, fTokStop, #39) then
   begin
     fTokKind := tkStrng;
-    while reader^ <> #39 do
+    while true do
     begin
-      readerNext;
+      if reader[0..1] = '\'#39 then
+      begin
+        readerNext;
+        readerNext;
+      end;
       if reader^ = #10 then
         exit;
-      if reader^ = '\' then
-        readerNext;
+      if reader^ = #39 then
+        break;
+      readerNext;
     end;
     readerNext;
     exit;
