@@ -10,7 +10,11 @@ uses
 
 type
 
+  { TCELibManEditorWidget }
+
   TCELibManEditorWidget = class(TCEWidget)
+    btnMoveDown: TBitBtn;
+    btnMoveUp: TBitBtn;
     btnSelFile: TBitBtn;
     btnAddLib: TBitBtn;
     btnRemLib: TBitBtn;
@@ -23,6 +27,8 @@ type
     procedure btnRemLibClick(Sender: TObject);
     procedure btnSelFileClick(Sender: TObject);
     procedure btnSelRootClick(Sender: TObject);
+    procedure btnMoveUpClick(Sender: TObject);
+    procedure btnMoveDownClick(Sender: TObject);
     procedure ListEdited(Sender: TObject; Item: TListItem; var AValue: string);
   private
     procedure dataToGrid;
@@ -116,6 +122,24 @@ begin
   end;
   if selectDirectory('sources root', dir, outdir, true, 0) then
     List.Selected.SubItems[1] := outdir;
+  gridToData;
+end;
+
+procedure TCELibManEditorWidget.btnMoveUpClick(Sender: TObject);
+begin
+  if list.Selected = nil then exit;
+  if list.Selected.Index = 0 then exit;
+  //
+  list.Items.Exchange(list.Selected.Index, list.Selected.Index - 1);
+  gridToData;
+end;
+
+procedure TCELibManEditorWidget.btnMoveDownClick(Sender: TObject);
+begin
+  if list.Selected = nil then exit;
+  if list.Selected.Index = list.Items.Count-1 then exit;
+  //
+  list.Items.Exchange(list.Selected.Index, list.Selected.Index + 1);
   gridToData;
 end;
 
