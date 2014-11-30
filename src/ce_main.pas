@@ -190,6 +190,7 @@ type
     fFileMru: TMruFileList;
     fPrInpWidg: TCEProcInputWidget;
     fInitialized: boolean;
+    fRunnableSw: string;
     {$IFDEF WIN32}
     fCdbWidg: TCECdbWidget;
     {$ENDIF}
@@ -218,6 +219,8 @@ type
     procedure optset_ProjMRUItems(aReader: TReader);
     procedure optget_ProjMRULimit(aWriter: TWriter);
     procedure optset_ProjMRULimit(aReader: TReader);
+    procedure optset_RunnableSw(aReader: TReader);
+    procedure optget_RunnableSw(aWriter: Twriter);
 
     //Init - Fina
     procedure getCMdParams;
@@ -1289,15 +1292,15 @@ begin
     else editor.saveToFile(editor.tempFilename);
     fname := editor.fileName[1..length(editor.fileName) - length(extractFileExt(editor.fileName))];
 
+    if fRunnableSw = '' then
+      fRunnableSw := '-vcolumns'#13'-w'#13'-wi';
     {$IFDEF RELEASE}
     dmdProc.ShowWindow := swoHIDE;
     {$ENDIF}
     dmdproc.Options := [poStdErrToOutput, poUsePipes];
     dmdproc.Executable := DCompiler;
     dmdproc.Parameters.Add(editor.fileName);
-    dmdproc.Parameters.Add('-vcolumns');
-    dmdproc.Parameters.Add('-w');
-    dmdproc.Parameters.Add('-wi');
+    dmdproc.Parameters.AddText(fRunnableSw);
     dmdproc.Parameters.Add('-of' + fname + exeExt);
     LibMan.getLibFiles(nil, dmdproc.Parameters);
     LibMan.getLibSources(nil, dmdproc.Parameters);
@@ -1676,6 +1679,8 @@ begin
   aFiler.DefineProperty('Menu_FileMRU_Limit', @optset_FileMRULimit, @optget_FileMRULimit, true);
   aFiler.DefineProperty('Menu_ProjMRU_Items', @optset_ProjMRUItems, @optget_ProjMRUItems, true);
   aFiler.DefineProperty('Menu_ProjMRU_Limit', @optset_ProjMRULimit, @optget_ProjMRULimit, true);
+  //
+  aFiler.DefineProperty('Runnable_Switches', @optset_RunnableSw, @optget_RunnableSw, true);
 end;
 
 procedure TCEMainForm.sesoptAfterLoad;
@@ -1720,6 +1725,16 @@ end;
 procedure TCEMainForm.optset_ProjMRULimit(aReader: TReader);
 begin
   fProjMru.maxCount := aReader.ReadInteger;
+end;
+
+procedure TCEMainForm.optset_RunnableSw(aReader: TReader);
+begin
+  fRunnableSw := aReader.ReadString;
+end;
+
+procedure TCEMainForm.optget_RunnableSw(aWriter: Twriter);
+begin
+  aWriter.WriteString(fRunnableSw);
 end;
 {$ENDREGION}
 
