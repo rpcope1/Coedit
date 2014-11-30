@@ -33,6 +33,8 @@ type
     fSyncEdit: TSynPluginSyncroEdit;
     tokLst: TLexTokenList;
     errLst: TLexErrorList;
+    fModStart: boolean;
+    procedure lexFindToken(const aToken: PLexToken; out doStop: boolean);
     procedure memoKeyPress(Sender: TObject; var Key: char);
     procedure memoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure memoMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -336,6 +338,18 @@ begin
   editorStatus.Panels[2].Text := fDoc.fileName;
 end;
 
+procedure TCEEditorWidget.lexFindToken(const aToken: PLexToken; out doStop: boolean);
+begin
+  if aToken^.kind = ltkKeyword then
+    if aToken^.data = 'module' then
+      fModStart := true;
+  if fModStart then if aToken^.kind = ltkSymbol then
+    if aToken^.data = ';' then begin
+      doStop := true;
+      fModStart := false;
+    end;
+end;
+
 procedure TCEEditorWidget.UpdateByDelay;
 var
   //dt: PMessageItemData;
@@ -348,31 +362,13 @@ begin
   fKeyChanged := false;
   if fDoc.Lines.Count = 0 then exit;
   //
-
-  lex(fDoc.Lines.Text, tokLst);
-
-  {
-  if fDoc.isDSource then
-  begin
-    checkSyntacticErrors(tokLst, errLst);
-    for err in errLst do begin
-      dt := newMessageData;
-      dt^.editor := fDoc;
-      dt^.position := point(err.position.x, err.position.y);
-      dt^.ctxt := mcEditor;
-      CEMainForm.MessageWidget.addMessage(format( '%s  (@line:%.4d @char:%.4d)',
-      [err.msg, err.position.y, err.position.x]), dt);
-    end;
-  end;
-  }
-
+  lex(fDoc.Lines.Text, tokLst, @lexFindToken);
   md := '';
   if fDoc.isDSource then
     md := getModuleName(tokLst);
   if md = '' then md := extractFileName(fDoc.fileName);
   pageControl.ActivePage.Caption := md;
-
-  //CEMainForm.MessageWidget.scrollToBack;
+  //
   tokLst.Clear;
   errLst.Clear;
 end;
