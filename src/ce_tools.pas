@@ -5,7 +5,7 @@ unit ce_tools;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, process, asyncprocess,
+  Classes, SysUtils, FileUtil, process, asyncprocess, menus,
   ce_common, ce_writableComponent, ce_interfaces, ce_observer;
 
 type
@@ -38,11 +38,15 @@ type
     procedure execute;
   end;
 
-  TCETools = class(TWritableComponent)
+  TCETools = class(TWritableComponent, ICEMainMenuProvider)
   private
     fTools: TCollection;
     function getTool(index: Integer): TCEToolItem;
     procedure setTools(const aValue: TCollection);
+    //
+    procedure menuDeclare(item: TMenuItem);
+    procedure menuUpdate(item: TMenuItem);
+    procedure executeToolFromMenu(sender: TObject);
   published
     property tools: TCollection read fTools write setTools;
   public
@@ -126,15 +130,61 @@ begin
   inherited;
   fTools := TCollection.Create(TCEToolItem);
   fname := getDocPath + toolsFname;
-  if fileExists(fname) then loadFromFile(fname)
+  if fileExists(fname) then loadFromFile(fname);
+  //
+  EntitiesConnector.addObserver(self);
 end;
 
 destructor TCETools.destroy;
 begin
+  EntitiesConnector.removeObserver(self);
+  //
   forceDirectory(getDocPath);
   saveToFile(getDocPath + toolsFname);
   fTools.Free;
   inherited;
+end;
+
+procedure TCETools.executeToolFromMenu(sender: TObject);
+begin
+  TCEToolItem(TMenuItem(sender).tag).execute;
+end;
+
+procedure TCETools.menuDeclare(item: TMenuItem);
+var
+  i: Integer;
+  itm: TMenuItem;
+begin
+  if tools.Count = 0 then exit;
+  //
+  item.Caption := 'Custom tools';
+  item.Clear;
+  for i := 0 to tools.Count-1 do begin
+    itm := TMenuItem.Create(item);
+    itm.Caption := tool[i].toolAlias;
+    itm.tag := ptrInt(tool[i]);
+    itm.onClick := @executeToolFromMenu;
+    item.add(itm);
+  end;
+end;
+
+procedure TCETools.menuUpdate(item: TMenuItem);
+var
+  i: Integer;
+begin
+  if item = nil then exit;
+  if item.Count <> tools.Count then
+  begin
+    menuDeclare(item);
+    exit;
+  end;
+  for i:= 0 to tools.Count-1 do
+  begin
+    if ptrInt(tool[i]) <> item.Items[i].Tag then
+      item.Items[i].Tag := ptrInt(tool[i]);
+    if item.Items[i].Caption <> tool[i].toolAlias then
+      item.Items[i].Caption := tool[i].toolAlias;
+  end;
 end;
 
 procedure TCETools.setTools(const aValue: TCollection);
