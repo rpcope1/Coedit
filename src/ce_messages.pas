@@ -39,6 +39,7 @@ type
     procedure ListDblClick(Sender: TObject);
     procedure ListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
+    fActAutoSel: TAction;
     fActClearAll: TAction;
     fActClearCurCat: TAction;
     fActSaveMsg: TAction;
@@ -48,8 +49,11 @@ type
     fProj: TCEProject;
     fDoc: TCESynMemo;
     fCtxt: TCEAppMessageCtxt;
+    fAutoSelect: boolean;
+    fBtns: array[TCEAppMessageCtxt] of TToolButton;
     procedure filterMessages(aCtxt: TCEAppMessageCtxt);
     procedure clearOutOfRangeMessg;
+    procedure actAutoSelExecute(Sender: TObject);
     procedure actClearCurCatExecute(Sender: TObject);
     procedure actClearAllExecute(Sender: TObject);
     procedure actSaveMsgExecute(Sender: TObject);
@@ -62,6 +66,8 @@ type
     //
     procedure optset_MaxMessageCount(aReader: TReader);
     procedure optget_MaxMessageCount(awriter: TWriter);
+    procedure optset_AutoSelect(aReader: TReader);
+    procedure optget_AutoSelect(awriter: TWriter);
   published
     property maxMessageCount: Integer read fMaxMessCnt write setMaxMessageCount default 125;
   public
@@ -107,6 +113,10 @@ begin
   fMaxMessCnt := 125;
   fCtxt := amcAll;
   //
+  fActAutoSel := TAction.Create(self);
+  fActAutoSel.Caption := 'Auto select message category';
+  fActAutoSel.AutoCheck := true;
+  fActAutoSel.OnExecute := @actAutoSelExecute;
   fActClearAll := TAction.Create(self);
   fActClearAll.OnExecute := @actClearAllExecute;
   fActClearAll.caption := 'Clear all messages';
@@ -133,6 +143,11 @@ begin
   btnSelEdit.OnClick  := @selCtxtClick;
   btnSelApp.OnClick   := @selCtxtClick;
   btnSelAll.OnClick   := @selCtxtClick;
+  fBtns[amcAll] := btnSelAll;
+  fBtns[amcApp] := btnSelApp;
+  fBtns[amcEdit]:= btnSelEdit;
+  fBtns[amcMisc]:= btnSelMisc;
+  fBtns[amcProj]:= btnSelProj;
   //
   btnClearCat.OnClick := @actClearCurCatExecute;
   //
@@ -218,11 +233,24 @@ begin
   aWriter.WriteInteger(fMaxMessCnt);
 end;
 
+procedure TCEMessagesWidget.optset_AutoSelect(aReader: TReader);
+begin
+  fAutoSelect := aReader.ReadBoolean;
+  fActAutoSel.Checked := fAutoSelect;
+end;
+
+procedure TCEMessagesWidget.optget_AutoSelect(awriter: TWriter);
+begin
+  awriter.WriteBoolean(fAutoSelect);
+end;
+
 procedure TCEMessagesWidget.sesoptDeclareProperties(aFiler: TFiler);
 begin
   inherited;
   aFiler.DefineProperty(Name + '_MaxMessageCount', @optset_MaxMessageCount,
     @optget_MaxMessageCount, true);
+  aFiler.DefineProperty(Name + '_AutoSelectCategory', @optset_AutoSelect,
+    @optget_AutoSelect, true);
 end;
 {$ENDREGION}
 
@@ -234,19 +262,25 @@ end;
 
 function TCEMessagesWidget.contextActionCount: integer;
 begin
-  result := 5;
+  result := 6;
 end;
 
 function TCEMessagesWidget.contextAction(index: integer): TAction;
 begin
   case index of
-    0: result := fActClearAll;
-    1: result := fActClearCurCat;
-    2: result := fActCopyMsg;
-    3: result := fActSelAll;
-    4: result := fActSaveMsg;
+    0: result := fActAutoSel;
+    1: result := fActClearAll;
+    2: result := fActClearCurCat;
+    3: result := fActCopyMsg;
+    4: result := fActSelAll;
+    5: result := fActSaveMsg;
     else result := nil;
   end;
+end;
+
+procedure TCEMessagesWidget.actAutoSelExecute(Sender: TObject);
+begin
+  fAutoSelect := fActAutoSel.Checked;
 end;
 
 procedure TCEMessagesWidget.actClearAllExecute(Sender: TObject);
@@ -378,6 +412,8 @@ begin
   clearOutOfRangeMessg;
   scrollToBack;
   Application.ProcessMessages;
+  if fAutoSelect then if fCtxt <> aCtxt then
+    fBtns[aCtxt].Click;
   filterMessages(fCtxt);
 end;
 
