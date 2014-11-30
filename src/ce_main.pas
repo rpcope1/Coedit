@@ -197,6 +197,8 @@ type
     fRunProc: TCheckedAsyncProcess;
 
     fLogMessager: TCELogMessageSubject;
+    fMainMenuSubj: TCEMainMenuSubject;
+    procedure updateMainMenuProviders;
 
     // ICEMultiDocObserver
     procedure docNew(aDoc: TCESynMemo);
@@ -294,6 +296,7 @@ constructor TCEMainForm.create(aOwner: TComponent);
 begin
   inherited create(aOwner);
   fLogMessager := TCELogMessageSubject.create;
+  fMainMenuSubj:= TCEMainMenuSubject.create;
   //
   EntitiesConnector.addObserver(self);
   //
@@ -308,6 +311,7 @@ begin
   getCMdParams;
   //
   EntitiesConnector.endUpdate;
+  updateMainMenuProviders;
   fInitialized := true;
 end;
 
@@ -686,6 +690,7 @@ begin
   FreeRunnableProc;
   //
   fLogMessager.Free;
+  fMainMenuSubj.Free;
   EntitiesConnector.removeObserver(self);
   inherited;
 end;
@@ -730,6 +735,7 @@ var
   hasEd: boolean;
   hasProj: boolean;
 begin
+  Handled := true;
   if fEditWidg = nil then exit;
   if fUpdateCount > 0 then exit;
   Inc(fUpdateCount);
@@ -796,9 +802,40 @@ begin
       actProjRunWithArgs.Enabled := fProject.canBeRun;
     end;
     actFileAddToProj.Enabled := hasEd and hasProj;
+    //
+    updateMainMenuProviders;
   finally
     Dec(fUpdateCount);
-    Handled := true;
+  end;
+end;
+
+procedure TCEMainForm.updateMainMenuProviders;
+var
+  i, j: Integer;
+  itm: TMenuItem;
+  doneUpdate: boolean;
+begin
+  doneUpdate := false;
+  for j := 0 to fMainMenuSubj.observersCount-1 do
+  begin
+    // try to update existing entry.
+    for i := 0 to mainMenu.Items.Count-1 do
+      if PtrInt(fMainMenuSubj.observers[j]) = mainMenu.Items[i].Tag then
+      begin
+        (fMainMenuSubj.observers[j] as ICEMainMenuProvider).menuUpdate(mainMenu.Items[i]);
+        doneUpdate := true;
+        break;
+      end;
+    if doneUpdate then
+      continue;
+    // otherwise propose to create a new entry
+    itm := TMenuItem.Create(Self);
+    (fMainMenuSubj.observers[j] as ICEMainMenuProvider).menuDeclare(itm);
+    itm.Tag:= PtrInt(fMainMenuSubj.observers[j]);
+    case itm.Count > 0 of
+      true: mainMenu.Items.Add(itm);
+      false: itm.Free;
+    end;
   end;
 end;
 
