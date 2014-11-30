@@ -88,6 +88,8 @@ procedure TCEToolsEditorWidget.btnRemToolClick(Sender: TObject);
 begin
   if lstTools.ItemIndex = -1 then
       exit;
+  propsEd.TIObject := nil;
+  propsEd.ItemIndex := -1;
   CustomTools.tools.Delete(lstTools.ItemIndex);
   DataToGui;
 end;
