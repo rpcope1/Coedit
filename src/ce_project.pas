@@ -506,6 +506,8 @@ begin
     subjLmFromString(TCELogMessageSubject(fLogMessager),
       'project warning: the pre-compilation process has not been properly executed', Self, amcProj, amkWarn);
   //
+  if Sources.Count = 0 then exit;
+  //
   prjname := shortenPath(filename, 25);
   compilproc := TProcess.Create(nil);
   olddir := '';
@@ -523,7 +525,7 @@ begin
     compilproc.Options := compilproc.Options + [poStderrToOutPut, poUsePipes];
     compilproc.ShowWindow := swoHIDE;
     getOpts(compilproc.Parameters);
-    compilproc.Execute;
+      compilproc.Execute;
     while compilProc.Running do
       compProcOutput(compilproc);
     if compilproc.ExitStatus = 0 then begin
