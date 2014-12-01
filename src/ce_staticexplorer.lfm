@@ -86,7 +86,7 @@ inherited CEStaticExplorerWidget: TCEStaticExplorerWidget
           Height = 22
           Hint = 'refresh the list'
           Top = 2
-          Width = 30
+          Width = 28
           Align = alLeft
           BorderSpacing.Around = 2
           Glyph.Data = {
@@ -125,7 +125,9 @@ inherited CEStaticExplorerWidget: TCEStaticExplorerWidget
             000000000000000000000000000000000000000000000000000000000000BA85
             44FFBB8849FFB88241BBB9854433000000000000000000000000
           }
+          Layout = blGlyphBottom
           OnClick = btnRefreshClick
+          Spacing = 0
           TabOrder = 1
         end
       end
