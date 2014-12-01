@@ -12,8 +12,8 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
       ClientHeight = 651
       object lstFiles: TListView[0]
         Left = 4
-        Height = 275
-        Top = 372
+        Height = 277
+        Top = 370
         Width = 324
         Align = alClient
         AutoWidthLastColumn = True
@@ -34,7 +34,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
       object Tree: TTreeView[1]
         Left = 4
         Height = 195
-        Top = 171
+        Top = 169
         Width = 324
         Align = alTop
         BorderSpacing.Left = 4
@@ -69,22 +69,22 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
       end
       object Panel1: TPanel[3]
         Left = 4
-        Height = 26
+        Height = 24
         Top = 141
         Width = 324
         Align = alTop
         BorderSpacing.Left = 4
         BorderSpacing.Right = 4
         BevelOuter = bvNone
-        ClientHeight = 26
+        ClientHeight = 24
         ClientWidth = 324
         TabOrder = 3
         object btnAddFav: TBitBtn
           Left = 0
-          Height = 26
+          Height = 24
           Hint = 'add selected folder to favorites'
           Top = 0
-          Width = 32
+          Width = 28
           Align = alLeft
           Glyph.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
@@ -126,11 +126,11 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           TabOrder = 0
         end
         object btnEdit: TBitBtn
-          Left = 292
-          Height = 26
+          Left = 296
+          Height = 24
           Hint = 'open selected file in a Coedit-or'
           Top = 0
-          Width = 32
+          Width = 28
           Align = alRight
           Glyph.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
@@ -172,11 +172,11 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           TabOrder = 1
         end
         object btnShellOpen: TBitBtn
-          Left = 260
-          Height = 26
+          Left = 268
+          Height = 24
           Hint = 'open the selected file with the shell'
           Top = 0
-          Width = 32
+          Width = 28
           Align = alRight
           Glyph.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
@@ -218,11 +218,11 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           TabOrder = 2
         end
         object btnRemFav: TBitBtn
-          Left = 32
-          Height = 26
+          Left = 28
+          Height = 24
           Hint = 'remove selected folder from the favorites'
           Top = 0
-          Width = 32
+          Width = 28
           Align = alLeft
           Glyph.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
@@ -264,16 +264,16 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           TabOrder = 3
         end
         object Bevel1: TBevel
-          Left = 196
-          Height = 26
+          Left = 204
+          Height = 24
           Top = 0
           Width = 64
           Align = alRight
           Shape = bsTopLine
         end
         object Bevel2: TBevel
-          Left = 64
-          Height = 26
+          Left = 56
+          Height = 24
           Top = 0
           Width = 72
           Align = alLeft
@@ -293,7 +293,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
         Cursor = crVSplit
         Left = 0
         Height = 6
-        Top = 366
+        Top = 364
         Width = 332
         Align = alTop
         ResizeAnchor = akTop

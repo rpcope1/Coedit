@@ -29,21 +29,21 @@ inherited CECdbWidget: TCECdbWidget
       end
       object Panel1: TPanel[1]
         Left = 4
-        Height = 26
+        Height = 24
         Top = 4
         Width = 488
         Align = alTop
         BorderSpacing.Around = 4
         BevelOuter = bvNone
-        ClientHeight = 26
+        ClientHeight = 24
         ClientWidth = 488
         TabOrder = 1
         object btnGo: TSpeedButton
-          Left = 60
-          Height = 26
+          Left = 56
+          Height = 24
           Hint = 'resume execution'
           Top = 0
-          Width = 30
+          Width = 28
           Align = alLeft
           Glyph.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
@@ -85,11 +85,11 @@ inherited CECdbWidget: TCECdbWidget
           ShowCaption = False
         end
         object btnStop: TSpeedButton
-          Left = 30
-          Height = 26
+          Left = 28
+          Height = 24
           Hint = 'stop debugging'
           Top = 0
-          Width = 30
+          Width = 28
           Align = alLeft
           Glyph.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
@@ -132,10 +132,10 @@ inherited CECdbWidget: TCECdbWidget
         end
         object btnStart: TSpeedButton
           Left = 0
-          Height = 26
+          Height = 24
           Hint = 'start debuggin'
           Top = 0
-          Width = 30
+          Width = 28
           Align = alLeft
           Glyph.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
@@ -177,11 +177,11 @@ inherited CECdbWidget: TCECdbWidget
           ShowCaption = False
         end
         object btnStep: TSpeedButton
-          Left = 90
-          Height = 26
+          Left = 84
+          Height = 24
           Hint = 'next instruction'
           Top = 0
-          Width = 30
+          Width = 28
           Align = alLeft
           Glyph.Data = {
             42020000424D4202000000000000420000002800000010000000100000000100
@@ -208,11 +208,11 @@ inherited CECdbWidget: TCECdbWidget
           ShowCaption = False
         end
         object btnDisasm: TSpeedButton
-          Left = 120
-          Height = 26
+          Left = 112
+          Height = 24
           Hint = 'disasm'
           Top = 0
-          Width = 30
+          Width = 28
           Align = alLeft
           Glyph.Data = {
             42020000424D4202000000000000420000002800000010000000100000000100
@@ -241,9 +241,9 @@ inherited CECdbWidget: TCECdbWidget
       end
       object lstCdbOut: TListView[2]
         Left = 4
-        Height = 524
+        Height = 526
         Hint = 'CDB output'
-        Top = 34
+        Top = 32
         Width = 488
         Align = alClient
         AutoWidthLastColumn = True
