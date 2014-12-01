@@ -40,12 +40,14 @@ procedure getHint(const aFilename: string; aPosition: Integer; const list: TStri
 procedure getSymbolLoc(var aFilename: string; var aPosition: Integer);
 
 var
-  DCD_server: TProcess = nil;
-  DCD_client: TProcess = nil;
-  lines: TStringList;
   dcdOn: boolean;
 
 implementation
+
+var
+  DCD_server: TProcess = nil;
+  DCD_client: TProcess = nil;
+  lines: TStringList;
 
 procedure lazyServerStart;
 begin
