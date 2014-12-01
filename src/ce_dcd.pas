@@ -40,12 +40,14 @@ procedure getHint(const aFilename: string; aPosition: Integer; const list: TStri
 procedure getSymbolLoc(var aFilename: string; var aPosition: Integer);
 
 var
+  dcdOn: boolean = true;
+
+implementation
+
+var
   DCD_server: TProcess = nil;
   DCD_client: TProcess = nil;
   lines: TStringList;
-  dcdOn: boolean;
-
-implementation
 
 procedure lazyServerStart;
 begin
@@ -148,13 +150,12 @@ begin
   if not dcdOn then
     exit;
   lazyServerStart;
-  if DCD_client.Running then
-    exit;
+  if DCD_client.Running then DCD_client.Terminate(0);
   //
   DCD_client.Parameters.Clear;
+  DCD_client.Parameters.Add('-d');
   DCD_client.Parameters.Add('-c');
   DCD_client.Parameters.Add(intToStr(aPosition));
-  DCD_client.Parameters.Add('-d');
   DCD_client.Parameters.Add(aFilename);
   DCD_client.Execute;
   //
@@ -205,8 +206,10 @@ initialization
   createServer;
   DCD_client := TProcess.Create(nil);
   DCD_client.Executable := 'dcd-client' + exeExt;
-  DCD_client.Options := [poUsePipes{$IFDEF WINDOWS}, poNewConsole{$ENDIF}];
+  DCD_client.Options := [poUsePipes, poStderrToOutPut {$IFDEF WINDOWS}, poNewConsole{$ENDIF}];
+  {$IFNDEF DEBUG}
   DCD_client.ShowWindow := swoHIDE;
+  {$ENDIF}
   dcdOn := exeInSysPath(DCD_server.Executable) and exeInSysPath(DCD_client.Executable);
   lines := TStringList.Create;
 finalization
