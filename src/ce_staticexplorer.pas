@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, TreeFilterEdit, Forms, Controls, Graphics, ExtCtrls, Menus,
-  ComCtrls, ce_widget, jsonparser, fpjson, process, actnlist, Buttons,
+  ComCtrls, ce_widget, jsonparser, fpjson, process, actnlist, Buttons, Clipbrd,
   ce_common, ce_project, ce_observer, ce_synmemo, ce_interfaces;
 
 type
@@ -25,6 +25,7 @@ type
   private
     fDmdProc: TCheckedAsyncProcess;
     fLogMessager: TCELogMessageSubject;
+    fActCopyIdent: TAction;
     fActRefresh: TAction;
     fActRefreshOnChange: TAction;
     fActRefreshOnFocus: TAction;
@@ -43,6 +44,7 @@ type
     procedure actAutoRefreshExecute(Sender: TObject);
     procedure actRefreshOnChangeExecute(Sender: TObject);
     procedure actRefreshOnFocusExecute(Sender: TObject);
+    procedure actCopyIdentExecute(Sender: TObject);
     procedure updateVisibleCat;
     //
     procedure produceJsonInfo;
@@ -93,6 +95,10 @@ begin
   fAutoRefresh := false;
   fRefreshOnFocus := true;
   fRefreshOnChange := false;
+
+  fActCopyIdent := TAction.Create(self);
+  fActCopyIdent.OnExecute:=@actCopyIdentExecute;
+  fActCopyIdent.Caption := 'Copy identifer';
   fActRefresh := TAction.Create(self);
   fActRefresh.OnExecute := @actRefreshExecute;
   fActRefresh.Caption := 'Refresh';
@@ -196,17 +202,18 @@ end;
 
 function TCEStaticExplorerWidget.contextActionCount: integer;
 begin
-  result := 5;
+  result := 6;
 end;
 
 function TCEStaticExplorerWidget.contextAction(index: integer): TAction;
 begin
   case index of
     0: exit(fActSelectInSource);
-    1: exit(fActRefresh);
-    2: exit(fActAutoRefresh);
-    3: exit(fActRefreshOnChange);
-    4: exit(fActRefreshOnFocus);
+    1: exit(fActCopyIdent);
+    2: exit(fActRefresh);
+    3: exit(fActAutoRefresh);
+    4: exit(fActRefreshOnChange);
+    5: exit(fActRefreshOnFocus);
     else result := nil;
   end;
 end;
@@ -231,6 +238,13 @@ procedure TCEStaticExplorerWidget.actRefreshOnFocusExecute(Sender: TObject);
 begin
   refreshOnFocus := not refreshOnFocus;
 end;
+
+procedure TCEStaticExplorerWidget.actCopyIdentExecute(Sender: TObject);
+begin
+  if Tree.Selected = nil then exit;
+  Clipboard.AsText:= Tree.Selected.Text;
+end;
+
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
