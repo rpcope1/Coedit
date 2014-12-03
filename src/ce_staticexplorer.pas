@@ -387,6 +387,7 @@ begin
       tempSrc.Free;
     end;
   end;
+  //else fDoc.save; refreshonChange/autorefresh don't work until existing doc is saved
   fDmdProc.Parameters.Add(srcFname);
 
   // other project sources, -I, -J
@@ -409,7 +410,6 @@ begin
   // option to produce the Json file.
   fDmdProc.Parameters.Add('-c');
   fDmdProc.Parameters.Add('-o-');
-  fDmdProc.Parameters.Add('-X');
   fDmdProc.Parameters.Add('-Xf' + fJsonFname);
 
   fDmdProc.Execute;
