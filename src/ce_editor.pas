@@ -266,6 +266,7 @@ begin
     str.SaveToFile(ftempname);
     fname := ftempname;
     srcpos := fDoc.SelStart;
+    if srcpos > 0 then srcpos += -1;
     if fDoc.GetWordAtRowCol(fDoc.LogicalCaretXY) <> '' then
       ce_dcd.getSymbolLoc(fname, srcpos);
     if fname <> ftempname then if fileExists(fname) then
@@ -293,7 +294,7 @@ begin
     fDoc.Lines.SaveToStream(str);
     str.SaveToFile(fname);
     srcpos := fDoc.SelStart;
-    if srcpos > 0 then srcpos -= -1;
+    if srcpos > 0 then srcpos += -1;
     completion.ItemList.Clear;
     ce_dcd.getCompletion(fname, srcpos, completion.ItemList);
   finally
@@ -319,6 +320,7 @@ begin
     fDoc.Lines.SaveToStream(str);
     str.SaveToFile(fname);
     srcpos := fDoc.SelStart;
+    if srcpos > 0 then srcpos += -1;
     if fDoc.GetWordAtRowCol(fDoc.LogicalCaretXY) <> '' then
       ce_dcd.getHint(fname, srcpos, lst);
     result := lst.Text;
