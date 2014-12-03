@@ -234,6 +234,7 @@ begin
     if src_t.rangeKinds <> rangeKinds then exit(1);
     if src_t.nestedCommentsCount <> nestedCommentsCount then exit(1);
     if src_t.tokenStringBracketsCount <> tokenStringBracketsCount then exit(1);
+    if src_t.rString <> rString then exit(1);
     exit(0);
   end;
 end;
@@ -244,6 +245,7 @@ begin
   nestedCommentsCount := 0;
   tokenStringBracketsCount := 0;
   rangeKinds := [];
+  rString := false;
 end;
 
 procedure TSynD2SynRange.copyFrom(aSource: TSynD2SynRange);
@@ -253,6 +255,7 @@ begin
   rangeKinds := aSource.rangeKinds;
   primaryRange := aSource.primaryRange;
   secondaryRange := aSource.secondaryRange;
+  rString := aSource.rString;
 end;
 
 constructor TSynD2Syn.create(aOwner: TComponent);
@@ -566,6 +569,7 @@ begin
       fCurrRange.rString := reader^ = 'r';
       if not (readerNext^ = '"') then
       begin
+        fCurrRange.rString := false;
         readerPrev;
         goto _postString1;
       end;
