@@ -578,16 +578,12 @@ begin
     fTokKind := tkStrng;
     while(true) do
     begin
-      if not readUntilAmong(reader, fTokStop, stringStopChecks) then
-        break;
+      if not readUntilAmong(reader, fTokStop, stringStopChecks) then break;
       if (reader^ = '\') then
       begin
         readerNext;
-        if readWhile(reader, fTokStop, '\') then
-          continue;
-        if reader^ = '"' then if not fCurrRange.rString then
-          readerNext;
-        continue;
+        if fCurrRange.rString then continue;
+        readerNext;
       end
       else if reader^ = '"' then
       begin
@@ -607,16 +603,12 @@ begin
     fTokKind := tkStrng;
     while(true) do
     begin
-      if not readUntilAmong(reader, fTokStop, stringStopChecks) then
-        break;
+      if not readUntilAmong(reader, fTokStop, stringStopChecks) then break;
       if reader^ = '\' then
       begin
         readerNext;
-        if readWhile(reader, fTokStop, '\') then
-          continue;
-        if reader^ = '"' then if not fCurrRange.rString then
-          readerNext;
-        continue;
+        if fCurrRange.rString then continue;
+        readerNext;
       end
       else if reader^ = '"' then
       begin
@@ -723,7 +715,6 @@ begin
     readerNext;
     exit;
   end else readerReset;
-
 
   // hex litterals
   {if readDelim(reader, fTokStop, '0x') then
