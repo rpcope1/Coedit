@@ -709,7 +709,7 @@ begin
     fTokKind := tkStrng;
     while true do
     begin
-      if reader[0..1] = '\'#39 then
+      if reader^ = '\' then
       begin
         readerNext;
         readerNext;
