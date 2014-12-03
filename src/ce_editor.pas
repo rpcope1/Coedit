@@ -200,7 +200,6 @@ end;
 
 procedure TCEEditorWidget.removeEditor(const aIndex: NativeInt);
 begin
-  //CEMainForm.MessageWidget.ClearMessages(mcEditor);
   editor[aIndex].OnChange:= nil;
   pageControl.Pages[aIndex].Free;
 end;
