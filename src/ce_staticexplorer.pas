@@ -496,10 +496,11 @@ begin
       case knd of
         'alias'     :ndCat := Tree.Items.AddChildObject(ndAlias, nme, ln);
         'class'     :ndCat := Tree.Items.AddChildObject(ndClass, nme, ln);
-        'enum'      :ndCat := Tree.Items.AddChildObject(ndEnum, nme, ln);
+        'enum', 'enum member'
+                    :ndCat := Tree.Items.AddChildObject(ndEnum, nme, ln);
         'function'  :ndCat := Tree.Items.AddChildObject(ndFunc, nme, ln);
-        'import', 'static import':
-                     ndCat := Tree.Items.AddChildObject(ndImp, nme, ln);
+        'import', 'static import'
+                    :ndCat := Tree.Items.AddChildObject(ndImp, nme, ln);
         'interface' :ndCat := Tree.Items.AddChildObject(ndIntf, nme, ln);
         'mixin'     :ndCat := Tree.Items.AddChildObject(ndMix, nme, ln);
         'struct'    :ndCat := Tree.Items.AddChildObject(ndStruct, nme, ln);
