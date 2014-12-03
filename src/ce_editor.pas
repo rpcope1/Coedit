@@ -219,16 +219,8 @@ begin
 end;
 
 procedure TCEEditorWidget.memoKeyPress(Sender: TObject; var Key: char);
-//var
-  //pt: Tpoint;
 begin
   fKeyChanged := true;
-  if Key = '.' then
-  begin
-    //curr := TCESynMemo(Sender);
-    //pt := ClientToScreen(point(curr.CaretXPix, curr.CaretYPix));
-    //completion.Execute(curr.LineText[1..curr.CaretX] + '.', pt);
-  end;
   beginUpdateByDelay;
 end;
 
