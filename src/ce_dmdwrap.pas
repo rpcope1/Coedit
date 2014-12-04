@@ -150,7 +150,7 @@ type
     property binaryKind: TBinaryKind read fBinKind write setBinKind default executable;
     property inlining: boolean read fInline write setInline default false;
     property noBoundsCheck: boolean read fNoBounds write setNoBounds;
-    property boundsCheck: TBoundCheckKind read fBoundsCheck write setBoundsCheck;
+    property boundsCheck: TBoundCheckKind read fBoundsCheck write setBoundsCheck default safeOnly;
     property optimizations: boolean read fOptimz write setOptims default false;
     property generateStackFrame: boolean read fGenStack write setGenStack default false;
     property addMain: boolean read fMain write setMain default false;
@@ -544,6 +544,7 @@ end;
 constructor TOutputOpts.create;
 begin
   fVerIds := TStringList.Create;
+  fBoundsCheck := safeOnly;
 end;
 
 destructor TOutputOpts.destroy;

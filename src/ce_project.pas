@@ -90,7 +90,7 @@ type
 implementation
 
 uses
-  ce_interfaces, controls, dialogs, ce_symstring, ce_libman, ce_main;
+  ce_interfaces, controls, dialogs, ce_symstring, ce_libman, ce_main, ce_dcd;
 
 constructor TCEProject.create(aOwner: TComponent);
 begin
@@ -277,11 +277,13 @@ begin
     Name := 'debug';
     debugingOptions.debug := true;
     debugingOptions.addCInformations := true;
+    outputOptions.boundsCheck := onAlways;
   end;
   with TCompilerConfiguration(fOptsColl.Add) do
   begin
     Name := 'unittest';
     outputOptions.unittest := true;
+    outputOptions.boundsCheck := onAlways;
   end;
   with TCompilerConfiguration(fOptsColl.Add) do
   begin
