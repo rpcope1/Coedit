@@ -39,6 +39,7 @@ type
     fCanBeRun: boolean;
     procedure updateOutFilename;
     procedure doChanged;
+    procedure updateDcd;
     procedure setLibAliases(const aValue: TStringList);
     procedure subMemberChanged(sender : TObject);
     procedure setOptsColl(const aValue: TCollection);
@@ -143,6 +144,14 @@ begin
     Configuration[i].onChanged := @subMemberChanged;
 end;
 
+procedure TCEProject.updateDcd;
+var
+  fname: string;
+begin
+  for fname in fSrcs do
+    ce_dcd.addDcdImport(extractfilePath(getAbsoluteFilename(fname)));
+end;
+
 procedure TCEProject.addSource(const aFilename: string);
 var
   relSrc, absSrc: string;
@@ -153,6 +162,7 @@ begin
     if aFilename = absSrc then exit;
   end;
   fSrcs.Add(ExtractRelativepath(fBasePath,aFilename));
+  updateDcd;
 end;
 
 procedure TCEProject.setRoot(const aValue: string);
@@ -198,6 +208,7 @@ begin
   beforeChanged;
   fSrcs.Assign(aValue);
   patchPlateformPaths(fSrcs);
+  updateDcd;
   afterChanged;
 end;
 
@@ -352,6 +363,7 @@ var
   hasPatched: Boolean;
 begin
   patchPlateformPaths(fSrcs);
+  updateDcd;
   doChanged;
   fModified := false;
   hasPatched := false;
