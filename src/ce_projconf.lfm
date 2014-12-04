@@ -242,7 +242,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
         OnEditorFilter = GridEditorFilter
         PreferredSplitterX = 145
         SplitterX = 145
-        ValueFont.Color = clMaroon
+        ValueFont.Color = clGreen
       end
     end
   end
