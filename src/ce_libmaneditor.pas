@@ -43,6 +43,9 @@ implementation
 uses
   ce_libman;
 
+const
+  notav: string = '< n/a >';
+
 procedure TCELibManEditorWidget.ListEdited(Sender: TObject; Item: TListItem;
   var AValue: string);
 begin
@@ -52,8 +55,6 @@ end;
 procedure TCELibManEditorWidget.btnAddLibClick(Sender: TObject);
 var
   itm: TListItem;
-const
-  notav: string = '< n/a >';
 begin
   itm := List.Items.Add;
   itm.Caption := notav;
@@ -98,8 +99,11 @@ begin
     begin
       if not fileExists(filename) then
         List.Selected.SubItems[0] := extractFilePath(filename)
-      else
+      else begin
         List.Selected.SubItems[0] := filename;
+        if (List.Selected.Caption = '') or (List.Selected.Caption = notav) then
+          List.Selected.Caption := ChangeFileExt(extractFileName(filename), '');
+      end;
     end;
   finally
     Free;
