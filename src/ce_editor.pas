@@ -39,6 +39,7 @@ type
     procedure memoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure memoMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure memoChange(Sender: TObject);
+    procedure memoCtrlClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure memoMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     function getEditor(index: NativeInt): TCESynMemo;
     function getEditorCount: NativeInt;
@@ -194,6 +195,7 @@ begin
   memo.OnKeyPress := @memoKeyPress;
   memo.OnMouseDown := @memoMouseDown;
   memo.OnMouseMove := @memoMouseMove;
+  memo.OnClickLink := @memoCtrlClick;
   //
   pageControl.ActivePage := sheet;
 end;
@@ -241,6 +243,11 @@ procedure TCEEditorWidget.memoChange(Sender: TObject);
 begin
 end;
 
+procedure TCEEditorWidget.memoCtrlClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  getSymbolLoc;
+end;
+
 procedure TCEEditorWidget.getSymbolLoc;
 var
   str: TMemoryStream;
@@ -263,7 +270,10 @@ begin
     if fname <> ftempname then if fileExists(fname) then
       CEMainForm.openFile(fname);
     if srcpos <> -1 then
-      fDoc.SelStart := srcpos; // fDoc probably not be updated
+    begin
+      fDoc.SelStart := srcpos;
+      fDoc.SelectWord;
+    end;
   finally
     str.Free;
   end;

@@ -5,9 +5,9 @@ unit ce_synmemo;
 interface
 
 uses
-  Classes, SysUtils, SynEdit, SynMemo, ce_d2syn, ce_txtsyn ,SynEditHighlighter,
+  Classes, SysUtils, SynEdit, ce_d2syn, ce_txtsyn ,SynEditHighlighter,
   controls, lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
-  ce_common, ce_observer;
+  ce_common, ce_observer, ce_dcd;
 
 type
 
@@ -16,16 +16,16 @@ type
     fPos: Integer;
     fMax: Integer;
     fList: TFPList;
-    fMemo: TSynMemo;
+    fMemo: TCustomSynEdit;
   public
-    constructor create(aMemo: TSynMemo);
+    constructor create(aMemo: TCustomSynEdit);
     destructor destroy; override;
     procedure store;
     procedure back;
     procedure next;
   end;
 
-  TCESynMemo = class(TSynMemo)
+  TCESynMemo = class(TSynEdit)
   private
     fFilename: string;
     fModified: boolean;
@@ -78,7 +78,7 @@ uses
   graphics, ce_interfaces;
 
 {$REGION TCESynMemoPositions ---------------------------------------------------}
-constructor TCESynMemoPositions.create(aMemo: TSynMemo);
+constructor TCESynMemoPositions.create(aMemo: TCustomSynEdit);
 begin
   fList := TFPList.Create;
   fMax  := 20;
@@ -95,32 +95,38 @@ end;
 procedure TCESynMemoPositions.back;
 begin
   Inc(fPos);
-  {$WARNINGS OFF}
+  {$HINTS OFF}
   if fPos < fList.Count then
     fMemo.CaretY := NativeInt(fList.Items[fPos])
-  {$WARNINGS ON}
+  {$HINTS ON}
   else Dec(fPos);
 end;
 
 procedure TCESynMemoPositions.next;
 begin
   Dec(fPos);
-  {$WARNINGS OFF}
+  {$HINTS OFF}
   if fPos > -1 then
     fMemo.CaretY := NativeInt(fList.Items[fPos])
-  {$WARNINGS ON}
+  {$HINTS ON}
   else Inc(fPos);
 end;
 
 procedure TCESynMemoPositions.store;
+var
+  delta: NativeInt;
+const
+  thresh = 6;
 begin
   fPos := 0;
-  {$WARNINGS OFF}
+  {$HINTS OFF}{$WARNINGS OFF}
   if fList.Count > 0 then
-    if NativeInt(fList.Items[fPos]) = fMemo.CaretY then
-      exit;
+  begin
+    delta := fMemo.CaretY - NativeInt(fList.Items[fPos]);
+    if (delta > -thresh) and (delta < thresh) then exit;
+  end;
   fList.Insert(0, Pointer(NativeInt(fMemo.CaretY)));
-  {$WARNINGS ON}
+  {$HINTS ON}{$WARNINGS ON}
   while fList.Count > fMax do
     fList.Delete(fList.Count-1);
 end;
@@ -144,13 +150,20 @@ begin
   fStoredFontSize := Font.Size;
 
   MouseOptions := MouseOptions +
-    [emAltSetsColumnMode, emDragDropEditing, emCtrlWheelZoom];
+    [emAltSetsColumnMode, emDragDropEditing, emCtrlWheelZoom, emShowCtrlMouseLinks];
   Gutter.LineNumberPart.ShowOnlyLineNumbersMultiplesOf := 5;
   Gutter.LineNumberPart.MarkupInfo.Foreground := clGray;
   Gutter.SeparatorPart.LineOffset := 1;
   Gutter.SeparatorPart.LineWidth := 1;
   Gutter.SeparatorPart.MarkupInfo.Foreground := clGray;
   Gutter.CodeFoldPart.MarkupInfo.Foreground := clGray;
+  //
+  MouseLinkColor.Style:= [fsUnderline];
+  with MouseActions.Add do begin
+    Command := emcMouseLink;
+    shift := [ssCtrl];
+    ShiftMask := [ssCtrl];
+  end;
   //
   Highlighter := D2Syn;
   D2Syn.FoldKinds := [fkBrackets, fkComments1, fkComments2, fkStrings];
