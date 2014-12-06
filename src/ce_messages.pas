@@ -532,7 +532,7 @@ begin
     'exception', 'Exception', 'illegal', 'Illegal',
     'fatal', 'Fatal', 'Critical', 'critical':
       exit(amkErr);
-    'Warning', 'warning', 'caution', 'Caution':
+    'Warning', 'warning', 'caution', 'Caution', 'warn', 'Warn':
       exit(amkWarn);
     'Hint', 'hint', 'Tip', 'tip', 'advice', 'Advice',
     'suggestion', 'Suggestion':
