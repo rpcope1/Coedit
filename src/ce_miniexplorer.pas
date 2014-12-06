@@ -40,6 +40,10 @@ type
     procedure optget_LastFold(aWriter: TWriter);
     procedure optset_Favs(aReader: TReader);
     procedure optget_Favs(aWriter: TWriter);
+    procedure optset_SplitFavTree(aReader: TReader);
+    procedure optget_SplitFavTree(aWriter: TWriter);
+    procedure optset_SplitTreeFiles(aReader: TReader);
+    procedure optget_SplitTreeFiles(aWriter: TWriter);
     procedure updateFavorites;
     procedure treeSetRoots;
     procedure lstFilesFromTree;
@@ -88,7 +92,7 @@ begin
   Tree.OnSelectionChanged := @treeSelectionChanged;
   Tree.OnExpanding := @treeExpanding;
 
-  // the filter is just use a GUI element and reveals:
+  // the filter is just used as a GUI element and reveals:
   // http://bugs.freepascal.org/view.php?id=27137
   lstFilter.FilteredListbox := nil;
   lstFilter.onChange := @lstFilterChange;
@@ -116,6 +120,8 @@ begin
   inherited;
   aFiler.DefineProperty(Name + '_LastFolder', @optset_LastFold, @optget_LastFold, true);
   aFiler.DefineProperty(Name + '_FavoritesFolders', @optset_Favs, @optget_Favs, true);
+  aFiler.DefineProperty(Name + '_SplitterFavTree', @optset_SplitFavTree, @optget_SplitFavTree, true);
+  aFiler.DefineProperty(Name + '_SplitterTreeFiles', @optset_SplitTreeFiles, @optget_SplitTreeFiles, true);
 end;
 
 procedure TCEMiniExplorerWidget.optset_LastFold(aReader: TReader);
@@ -151,6 +157,34 @@ end;
 procedure TCEMiniExplorerWidget.optget_Favs(aWriter: TWriter);
 begin
   aWriter.WriteString(fFavorites.DelimitedText);
+end;
+
+procedure TCEMiniExplorerWidget.optset_SplitFavTree(aReader: TReader);
+var
+  pos: Integer;
+begin
+  pos := aReader.ReadInteger;
+  if pos > 0 then
+    Splitter1.SetSplitterPosition(pos);
+end;
+
+procedure TCEMiniExplorerWidget.optget_SplitFavTree(aWriter: TWriter);
+begin
+  aWriter.WriteInteger(Splitter1.GetSplitterPosition);
+end;
+
+procedure TCEMiniExplorerWidget.optset_SplitTreeFiles(aReader: TReader);
+var
+  pos: Integer;
+begin
+  pos := aReader.ReadInteger;
+  if pos > 0 then
+    Splitter2.SetSplitterPosition(pos);
+end;
+
+procedure TCEMiniExplorerWidget.optget_SplitTreeFiles(aWriter: TWriter);
+begin
+  aWriter.WriteInteger(Splitter2.GetSplitterPosition);
 end;
 {$ENDREGION}
 
