@@ -19,6 +19,7 @@ type
     fOpts: TProcessOptions;
     fParameters: TStringList;
     fToolAlias: string;
+    fQueryParams: boolean;
     //fShortcut: string;
     fLogMessager: TCELogMessageSubject;
     procedure setParameters(const aValue: TStringList);
@@ -30,6 +31,7 @@ type
     property workingDirectory: string read fWorkingDir write fWorkingDir;
     property parameters: TStringList read fParameters write setParameters;
     property showWindows: TShowWindowOptions read fShowWin write fShowWin;
+    property queryParameters: boolean read fQueryParams write fQueryParams;
     //property shortcut: string read fShortcut write fShortcut;
   public
     constructor create(ACollection: TCollection); override;
@@ -66,7 +68,7 @@ Var
 implementation
 
 uses
-  ce_symstring;
+  ce_symstring, dialogs;
 
 constructor TCEToolItem.create(ACollection: TCollection);
 begin
@@ -92,6 +94,7 @@ end;
 procedure TCEToolItem.execute;
 var
   i: Integer;
+  prms: string;
 begin
   killProcess(fProcess);
   //
@@ -102,7 +105,12 @@ begin
   fProcess.Executable := symbolExpander.get(fExecutable);
   fProcess.ShowWindow := fShowWin;
   fProcess.CurrentDirectory := symbolExpander.get(fWorkingDir);
-  fProcess.Parameters.Clear;
+  if fQueryParams then
+  begin
+    prms := '';
+    if InputQuery('Parameters', '', prms) then
+      if prms <> '' then fProcess.Parameters.DelimitedText := symbolExpander.get(prms);
+  end;
   for i:= 0 to fParameters.Count-1 do
       fProcess.Parameters.AddText(symbolExpander.get(fParameters.Strings[i]));
   fProcess.Execute;
