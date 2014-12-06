@@ -1,28 +1,35 @@
 inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
-  Left = 1493
+  Left = 1093
   Height = 651
-  Top = 45
+  Top = 185
+  Width = 329
   Caption = 'Mini explorer'
   ClientHeight = 651
+  ClientWidth = 329
   inherited Back: TPanel
     Height = 651
+    Width = 329
     ClientHeight = 651
+    ClientWidth = 329
     inherited Content: TPanel
       Height = 651
+      Width = 329
       ClientHeight = 651
+      ClientWidth = 329
       object lstFiles: TListView[0]
         Left = 4
         Height = 277
         Top = 370
-        Width = 324
+        Width = 321
         Align = alClient
+        AutoSort = False
         AutoWidthLastColumn = True
         BorderSpacing.Left = 4
         BorderSpacing.Right = 4
         BorderSpacing.Bottom = 4
         Columns = <        
           item
-            Width = 320
+            Width = 317
           end>
         ReadOnly = True
         ShowColumnHeaders = False
@@ -35,7 +42,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
         Left = 4
         Height = 195
         Top = 169
-        Width = 324
+        Width = 321
         Align = alTop
         BorderSpacing.Left = 4
         BorderSpacing.Top = 4
@@ -51,7 +58,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
         Left = 4
         Height = 131
         Top = 4
-        Width = 324
+        Width = 321
         Align = alTop
         AutoWidthLastColumn = True
         BorderSpacing.Left = 4
@@ -59,7 +66,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
         BorderSpacing.Right = 4
         Columns = <        
           item
-            Width = 320
+            Width = 317
           end>
         ReadOnly = True
         ShowColumnHeaders = False
@@ -71,13 +78,13 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
         Left = 4
         Height = 24
         Top = 141
-        Width = 324
+        Width = 321
         Align = alTop
         BorderSpacing.Left = 4
         BorderSpacing.Right = 4
         BevelOuter = bvNone
         ClientHeight = 24
-        ClientWidth = 324
+        ClientWidth = 321
         TabOrder = 3
         object btnAddFav: TBitBtn
           Left = 0
@@ -126,12 +133,12 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           TabOrder = 0
         end
         object btnEdit: TBitBtn
-          Left = 296
+          Left = 84
           Height = 24
           Hint = 'open selected file in a Coedit-or'
           Top = 0
           Width = 28
-          Align = alRight
+          Align = alLeft
           Glyph.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
             2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -172,12 +179,12 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           TabOrder = 1
         end
         object btnShellOpen: TBitBtn
-          Left = 268
+          Left = 56
           Height = 24
           Hint = 'open the selected file with the shell'
           Top = 0
           Width = 28
-          Align = alRight
+          Align = alLeft
           Glyph.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
             2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -263,21 +270,17 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           OnClick = btnRemFavClick
           TabOrder = 3
         end
-        object Bevel1: TBevel
-          Left = 204
-          Height = 24
+        object lstFilter: TListFilterEdit
+          Left = 112
+          Height = 23
           Top = 0
-          Width = 64
-          Align = alRight
-          Shape = bsTopLine
-        end
-        object Bevel2: TBevel
-          Left = 56
-          Height = 24
-          Top = 0
-          Width = 72
-          Align = alLeft
-          Shape = bsBottomLine
+          Width = 184
+          ButtonWidth = 23
+          NumGlyphs = 1
+          Align = alCustom
+          Anchors = [akTop, akLeft, akRight]
+          MaxLength = 0
+          TabOrder = 4
         end
       end
       object Splitter1: TSplitter[4]
@@ -285,7 +288,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
         Left = 0
         Height = 6
         Top = 135
-        Width = 332
+        Width = 329
         Align = alTop
         ResizeAnchor = akTop
       end
@@ -294,7 +297,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
         Left = 0
         Height = 6
         Top = 364
-        Width = 332
+        Width = 329
         Align = alTop
         ResizeAnchor = akTop
       end

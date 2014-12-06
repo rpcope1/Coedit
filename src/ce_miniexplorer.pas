@@ -5,18 +5,21 @@ unit ce_miniexplorer;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, ExtCtrls, Menus, ComCtrls,
-  Buttons, lcltype, strutils, ce_widget, ce_common, ce_interfaces, ce_observer;
+  Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls, Graphics,
+  ExtCtrls, Menus, ComCtrls, Buttons, lcltype, StdCtrls, strutils, ce_widget,
+  ce_common, ce_interfaces, ce_observer;
 
 type
+
+  { TCEMiniExplorerWidget }
+
   TCEMiniExplorerWidget = class(TCEWidget)
-    Bevel1: TBevel;
-    Bevel2: TBevel;
     btnAddFav: TBitBtn;
     btnEdit: TBitBtn;
     btnShellOpen: TBitBtn;
     btnRemFav: TBitBtn;
     imgList: TImageList;
+    lstFilter: TListFilterEdit;
     lstFiles: TListView;
     lstFav: TListView;
     Panel1: TPanel;
@@ -51,6 +54,7 @@ type
     procedure lstDeletion(Sender: TObject; Item: TListItem);
     procedure lstFavSelect(Sender: TObject; Item: TListItem; Selected: Boolean);
     procedure shellOpenSelected;
+    procedure lstFilterChange(sender: TObject);
   public
     constructor create(aIwner: TComponent); override;
     destructor destroy; override;
@@ -83,6 +87,11 @@ begin
   Tree.OnDeletion := @treeDeletion;
   Tree.OnSelectionChanged := @treeSelectionChanged;
   Tree.OnExpanding := @treeExpanding;
+
+  // the filter is just use a GUI element and reveals:
+  // http://bugs.freepascal.org/view.php?id=27137
+  lstFilter.FilteredListbox := nil;
+  lstFilter.onChange := @lstFilterChange;
   //
   treeSetRoots;
 end;
@@ -213,18 +222,26 @@ end;
 procedure TCEMiniExplorerWidget.fillLstFiles(const aList: TStrings);
 var
   itm: TListItem;
-  fname: string;
+  fname, itemText: string;
   dat: PString;
+  noFilter: boolean;
 begin
+  noFilter := lstFilter.Filter = '';
   lstFiles.Clear;
+  lstFiles.BeginUpdate;
   for fname in aList do
   begin
-    itm := lstFiles.Items.Add;
-    itm.Caption := extractFileName(fname);
-    dat := NewStr(fname);
-    itm.Data := dat;
-    itm.ImageIndex := 0;
+    itemText := extractFileName(fname);
+    if noFilter or AnsiContainsText(itemText,lstFilter.Filter) then
+    begin
+      itm := lstFiles.Items.Add;
+      itm.Caption := itemText;
+      dat := NewStr(fname);
+      itm.Data := dat;
+      itm.ImageIndex := 0;
+    end;
   end;
+  lstFiles.EndUpdate;
 end;
 
 procedure TCEMiniExplorerWidget.btnShellOpenClick(Sender: TObject);
@@ -261,6 +278,10 @@ begin
     nil, amcMisc, amkErr);
 end;
 
+procedure TCEMiniExplorerWidget.lstFilterChange(sender: TObject);
+begin
+  lstFilesFromTree;
+end;
 {$ENDREGION}
 
 {$REGION Tree ------------------------------------------------------------------}
