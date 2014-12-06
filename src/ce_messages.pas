@@ -98,7 +98,7 @@ type
   end;
 
   function guessMessageKind(const aMessg: string): TCEAppMessageKind;
-  function getLineFromDmdMessage(const aMessage: string): TPoint;
+  function getLineFromMessage(const aMessage: string): TPoint;
   function openFileFromDmdMessage(const aMessage: string): boolean;
 
 implementation
@@ -489,7 +489,7 @@ begin
   if not openFileFromDmdMessage(msg) then
     exit;
   // from here, since a doc has the focus, List.Selected is nil
-  pos := getLineFromDmdMessage(msg);
+  pos := getLineFromMessage(msg);
   if fDoc = nil then
     exit;
   fDoc.CaretXY := pos;
@@ -573,7 +573,7 @@ begin
   end;
 end;
 
-function getLineFromDmdMessage(const aMessage: string): TPoint;
+function getLineFromMessage(const aMessage: string): TPoint;
 var
   i, j: NativeInt;
   ident: string;
@@ -597,7 +597,7 @@ begin
         begin
           inc(i);
           if i > length(aMessage) then exit;
-          while( isNumber(aMessage[i]) or (aMessage[i] = ',')) do
+          while( isNumber(aMessage[i]) or (aMessage[i] = ',') or (aMessage[i] = ':')) do
           begin
             ident += aMessage[i];
             inc(i);
@@ -606,6 +606,7 @@ begin
           if aMessage[i] = ')' then
           begin
             j := Pos(',', ident);
+            if j = 0 then j := Pos(':', ident);
             if j = 0 then
               result.y := strToIntDef(ident, -1)
             else
