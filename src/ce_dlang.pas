@@ -886,14 +886,15 @@ begin
   mtok := false;
   for ltk in aTokenList do
   begin
-    if mtok then
-    begin
-      if ltk.kind = ltkIdentifier then
+    if mtok then begin
+      case ltk.kind of
+      ltkIdentifier, ltkKeyword:
         result += ltk.data;
-      if ltk.kind = ltkSymbol then
-      case ltk.data of
-        '.': result += ltk.data;
-        ';': exit;
+      ltkSymbol:
+        case ltk.data of
+          '.': result += ltk.data;
+          ';': exit;
+        end;
       end;
     end
     else
