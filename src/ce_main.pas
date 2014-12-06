@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, SynEditKeyCmds, SynHighlighterLFM, Forms, asyncprocess,
   AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls, Graphics,
-  Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, dynlibs,
+  Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, dynlibs, SynExportHTML,
   ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_plugin, ce_synmemo, ce_widget,
   ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf, ce_search,
   ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor,
@@ -34,6 +34,7 @@ type
     actEdFind: TAction;
     actEdFindNext: TAction;
     actFileOpenContFold: TAction;
+    actFileHtmlExport: TAction;
     actLayoutSave: TAction;
     actProjOpenContFold: TAction;
     actProjOptView: TAction;
@@ -117,6 +118,7 @@ type
     MenuItem59: TMenuItem;
     MenuItem60: TMenuItem;
     MenuItem61: TMenuItem;
+    MenuItem62: TMenuItem;
     mnuLayout: TMenuItem;
     mnuItemMruFile: TMenuItem;
     mnuItemMruProj: TMenuItem;
@@ -133,6 +135,7 @@ type
     procedure actFileCloseExecute(Sender: TObject);
     procedure actFileCompAndRunExecute(Sender: TObject);
     procedure actFileCompAndRunWithArgsExecute(Sender: TObject);
+    procedure actFileHtmlExportExecute(Sender: TObject);
     procedure actFileOpenContFoldExecute(Sender: TObject);
     procedure actFileSaveAllExecute(Sender: TObject);
     procedure actEdIndentExecute(Sender: TObject);
@@ -165,6 +168,7 @@ type
     procedure actEdUndoExecute(Sender: TObject);
     procedure actProjSourceExecute(Sender: TObject);
     procedure actEdUnIndentExecute(Sender: TObject);
+    procedure ApplicationProperties1Activate(Sender: TObject);
     procedure ApplicationProperties1Exception(Sender: TObject; E: Exception);
     procedure ApplicationProperties1ShowHint(var HintStr: string;
       var CanShow: Boolean; var HintInfo: THintInfo);
@@ -766,6 +770,7 @@ begin
       actFileClose.Enabled := true;
       actFileSaveAll.Enabled := true;
       actFileOpenContFold.Enabled := true;
+      actFileHtmlExport.Enabled := true;
     end
     else begin
       actEdCopy.Enabled := false;
@@ -787,6 +792,7 @@ begin
       actFileClose.Enabled := false;
       actFileSaveAll.Enabled := false;
       actFileOpenContFold.Enabled := false;
+      actFileHtmlExport.Enabled := false;
     end;
     hasProj := fProject <> nil;
     actProjSave.Enabled := hasProj;
@@ -957,6 +963,31 @@ end;
 {$ENDREGION}
 
 {$REGION file ------------------------------------------------------------------}
+procedure TCEMainForm.actFileHtmlExportExecute(Sender: TObject);
+var
+  exp: TSynExporterHTML;
+begin
+  if fDoc = nil then
+    exit;
+  exp := TSynExporterHTML.Create(nil);
+  try
+    with TOpenDialog.Create(nil) do
+    try
+      if Execute then begin
+        exp.Highlighter := fDoc.Highlighter;
+        exp.Title := fDoc.fileName;
+        exp.ExportAsText:=true;
+        exp.ExportAll(fDoc.Lines);
+        exp.SaveToFile(filename);
+      end;
+    finally
+      Free;
+    end;
+  finally
+    exp.Free;
+  end;
+end;
+
 procedure TCEMainForm.newFile;
 begin
   if fEditWidg = nil then exit;
@@ -1196,6 +1227,11 @@ procedure TCEMainForm.actEdUnIndentExecute(Sender: TObject);
 begin
   if assigned(fDoc) then
     fDoc.ExecuteCommand(ecBlockUnIndent, '', nil);
+end;
+
+procedure TCEMainForm.ApplicationProperties1Activate(Sender: TObject);
+begin
+
 end;
 
 procedure TCEMainForm.actEdFindExecute(Sender: TObject);
