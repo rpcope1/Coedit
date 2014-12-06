@@ -8,7 +8,7 @@ uses
   {$IFDEF DEBUG}
   LclProc,
   {$ENDIF}
-  Classes, SysUtils, process, asyncprocess, strUtils, ce_common, ce_writableComponent,
+  Classes, SysUtils, process, strUtils, ce_common, ce_writableComponent,
   ce_dmdwrap, ce_observer;
 
 type

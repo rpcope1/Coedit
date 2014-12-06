@@ -5,7 +5,7 @@ unit ce_tools;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, process, asyncprocess, menus,
+  Classes, SysUtils, FileUtil, process, menus,
   ce_common, ce_writableComponent, ce_interfaces, ce_observer;
 
 type

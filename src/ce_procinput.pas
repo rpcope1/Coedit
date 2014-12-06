@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, StdCtrls, ce_widget, process, ce_common, ce_interfaces;
+  Menus, StdCtrls, ce_widget, process, ce_common;
 
 type
   TCEProcInputWidget = class(TCEWidget)

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls, Graphics,
-  ExtCtrls, Menus, ComCtrls, Buttons, lcltype, StdCtrls, strutils, ce_widget,
+  ExtCtrls, Menus, ComCtrls, Buttons, lcltype, strutils, ce_widget,
   ce_common, ce_interfaces, ce_observer;
 
 type

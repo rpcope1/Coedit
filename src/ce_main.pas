@@ -5,7 +5,7 @@ unit ce_main;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, SynEditKeyCmds, SynHighlighterLFM, Forms, asyncprocess,
+  Classes, SysUtils, FileUtil, SynEditKeyCmds, SynHighlighterLFM, Forms,
   AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls, Graphics,
   Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, dynlibs, SynExportHTML,
   ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_plugin, ce_synmemo, ce_widget,
@@ -17,7 +17,6 @@ type
 
   // TODO-cfeature: options
   // TODO-cwidget: options editor
-  // TODO-cfeature: tools menu
 
   { TCEMainForm }
   TCEMainForm = class(TForm, ICEMultiDocObserver, ICESessionOptionsObserver)
@@ -1556,6 +1555,7 @@ procedure TCEMainForm.actLayoutSaveExecute(Sender: TObject);
 var
   fname: string;
 begin
+  fname := '';
   if not InputQuery('New layout name', '', fname) then
     exit;
   //
