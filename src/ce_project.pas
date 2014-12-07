@@ -464,12 +464,12 @@ begin
       fOutputFilename := GetTempDir(false) + fOutputFilename;
   end;
   // force extension
-  case currentConfiguration.outputOptions.binaryKind of
-    executable: fOutputFilename := ChangeFileExt(fOutputFilename, exeExt);
-    staticlib:  fOutputFilename := ChangeFileExt(fOutputFilename, libExt);
-    sharedlib:  fOutputFilename := ChangeFileExt(fOutputFilename, dynExt);
-    obj:        fOutputFilename := ChangeFileExt(fOutputFilename, objExt);
-  end;
+  //case currentConfiguration.outputOptions.binaryKind of
+  //  executable: fOutputFilename := ChangeFileExt(fOutputFilename, exeExt);
+  //  staticlib:  fOutputFilename := ChangeFileExt(fOutputFilename, libExt);
+  //  sharedlib:  fOutputFilename := ChangeFileExt(fOutputFilename, dynExt);
+  //  obj:        fOutputFilename := ChangeFileExt(fOutputFilename, objExt);
+  //end;
   //
   fCanBeRun := false;
   if currentConfiguration.outputOptions.binaryKind = executable then
