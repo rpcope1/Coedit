@@ -43,6 +43,7 @@ type
   protected
     procedure SetHighlighter(const Value: TSynCustomHighlighter); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure KeyUp(var Key: Word; Shift: TShiftState); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:Integer); override;
@@ -298,9 +299,6 @@ end;
 
 procedure TCESynMemo.KeyDown(var Key: Word; Shift: TShiftState);
 begin
-  if Key in [VK_PRIOR, VK_NEXT] then
-    fPositions.store;
-  //
   inherited;
   identifierToD2Syn;
   //
@@ -309,6 +307,13 @@ begin
     VK_SUBTRACT: if Font.Size > 3 then Font.Size := Font.Size - 1;
     VK_DECIMAL: Font.Size := fStoredFontSize;
   end;
+end;
+
+procedure TCESynMemo.KeyUp(var Key: Word; Shift: TShiftState);
+begin
+  if Key in [VK_PRIOR, VK_NEXT, Vk_UP] then
+    fPositions.store;
+  inherited;
 end;
 
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
