@@ -14,10 +14,11 @@ void main(string args[])
 {
     import std.process;
     //
+    string prgname;
     version(Windows)
-        string prgname = "cmd";
+        prgname  = "cmd";
     /*else
-        version(linux) string prgname = "xterm";*/
+        version(linux) prgname = "xterm";*/
     else
         assert(0, "unsupported target");
     //
