@@ -113,7 +113,6 @@ procedure TCESymbolExpander.updateSymbols;
 var
   hasProj: boolean;
   hasDoc: boolean;
-  extLen: Integer;
   i: Integer;
 const
   na = '``';
@@ -148,11 +147,10 @@ begin
     if fileExists(fProj.fileName) then begin
       fSymbols[CPF] := fProj.fileName;
       fSymbols[CPP] := ExtractFilePath(fProj.fileName);
-      fSymbols[CPR] := fProj.RootFolder;
-      fSymbols[CPN] := extractFileName(fProj.fileName);
+      fSymbols[CPR] := fProj.getAbsoluteFilename(fProj.RootFolder);
+      fSymbols[CPN] := stripFileExt(extractFileName(fProj.fileName));
       fSymbols[CPO] := fProj.outputFilename;
-      extLen := length(ExtractFileExt(fSymbols[CPN]));
-      fSymbols[CPN] := fSymbols[CPN][1..length(fSymbols[CPN])-extLen];
+      if fSymbols[CPR] = '' then fSymbols[CPR] := fSymbols[CPP];
     end else begin
       fSymbols[CPF] := na;
       fSymbols[CPP] := na;
@@ -173,7 +171,6 @@ begin
     fSymbols[CPF] := na;
     fSymbols[CPP] := na;
     fSymbols[CPR] := na;
-    fSymbols[CPN] := na;
     fSymbols[CPN] := na;
     fSymbols[CPO] := na;
     fSymbols[CPFS]:= na;

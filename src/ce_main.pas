@@ -1325,7 +1325,7 @@ begin
 
     if fileExists(editor.fileName) then editor.save
     else editor.saveToFile(editor.tempFilename);
-    fname := editor.fileName[1..length(editor.fileName) - length(extractFileExt(editor.fileName))];
+    fname := stripFileExt(editor.fileName);
 
     if fRunnableSw = '' then
       fRunnableSw := '-vcolumns'#13'-w'#13'-wi';
@@ -1344,7 +1344,7 @@ begin
 
     if (dmdProc.ExitStatus = 0) then
     begin
-      subjLmFromString(fLogMessager, shortenPath(editor.fileName,25)
+      subjLmFromString(fLogMessager, shortenPath(editor.fileName, 25)
         + ' successfully compiled', editor, amcEdit, amkInf);
 
       fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
@@ -1535,7 +1535,7 @@ begin
     begin
       itm := TMenuItem.Create(self);
       itm.Caption := extractFileName(lst.Strings[i]);
-      itm.Caption := itm.Caption[1..length(itm.Caption) - length(extractFileExt(itm.Caption))];
+      itm.Caption := stripFileExt(itm.Caption);
       itm.OnClick := @layoutMnuItemClick;
       itm.ImageIndex := 32;
       mnuLayout.Add(itm);

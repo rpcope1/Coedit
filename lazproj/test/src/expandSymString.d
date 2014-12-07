@@ -6,10 +6,9 @@ import std.getopt;
 /*
 pass:
 
---a=<CAF> --b=<CAP> --c=<CFF> --d=<CFP> --e=<CI> --f=<CFP> --g=<CPP> --h=<CPR> --i=<CPN> --j=<CPFS>
+"--a=<CAF>" "--b=<CAP>" "--c=<CFF>" "--d=<CFP>" "--e=<CI>" "--f=<CPF>" "--g=<CPP>" "--h=<CPR>" "--i=<CPN>" "--j=<CPO>" "--k=<CPFS>"
 
 as parameters in "Run, Compile and Run file..."
-<CPFS>: only the first item is displayed but the symbol is expanded as expected.
 */
 
 void main(string args[])
@@ -27,7 +26,8 @@ void main(string args[])
     'g' : "CurrentProjectPath.....: ",
     'h' : "CurrentProjectRoot.....: ",
     'i' : "CurrentProjectName.....: ",
-    'j' : "CurrentProjectFiles....: "
+    'j' : "CurrentProjectOutput...: ",
+    'k' : "CurrentProjectFiles....: "
     ];
 
     string expanded;

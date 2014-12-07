@@ -16,6 +16,7 @@ const
   exeExt = {$IFDEF WINDOWS} '.exe' {$ELSE} ''   {$ENDIF};
   objExt = {$IFDEF WINDOWS} '.obj' {$ELSE} '.o' {$ENDIF};
   libExt = {$IFDEF WINDOWS} '.lib' {$ELSE} '.a' {$ENDIF};
+  dynExt = {$IFDEF WINDOWS} '.dll' {$ENDIF} {$IFDEF LINUX}'.so'{$ENDIF} {$IFDEF DARWIN}'.dylib'{$ENDIF};
 
 var
   dExtList: TStringList;
@@ -126,6 +127,11 @@ type
    * on another one. Note that the ext which are handled are specific to coedit projects.
    *)
   function patchPlateformExt(const aFilename: string): string;
+
+  (**
+   * Returns aFilename without its extension.
+   *)
+  function stripFileExt(const aFilename: string): string;
 
   (**
    * Ok/Cancel modal dialog
@@ -451,11 +457,9 @@ begin
   result := aPath;
   {$IFDEF MSWINDOWS}
   result := patchProc(result, '/');
-  result := patchProc(result, ':');
   {$ENDIF}
-  {$IFDEF LINUX}
+  {$IFDEF UNIX}
   result := patchProc(result, '\');
-  result := patchProc(result, ':');
   {$ENDIF}
 end;
 
@@ -471,45 +475,50 @@ begin
   end;
 end;
 
+function stripFileExt(const aFilename: string): string;
+begin
+  if Pos('.', aFilename) > 1 then
+    exit(ChangeFileExt(aFilename, ''))
+  else
+    exit(aFilename);
+end;
+
 function patchPlateformExt(const aFilename: string): string;
 var
   ext, newext: string;
 begin
-  if aFilename = '' then exit(aFilename);
-  //
   ext := extractFileExt(aFilename);
   newext := '';
-  result := aFilename[1..length(aFilename)-length(ext)];
   {$IFDEF MSWINDOWS}
   case ext of
-    '.so': newext := '.dll';
+    '.so':    newext := '.dll';
     '.dylib': newext := '.dll';
-    '.a':  newext := '.lib';
-    '.o':  newext := '.obj';
-    else  newext := ext;
+    '.a':     newext := '.lib';
+    '.o':     newext := '.obj';
+    else      newext := ext;
   end;
   {$ENDIF}
   {$IFDEF LINUX}
   case ext of
-    '.dll': newext := '.so';
+    '.dll':   newext := '.so';
     '.dylib': newext := '.so';
-    '.lib': newext := '.a';
-    '.obj': newext := '.o';
-    '.exe': newext := '';
-    else  newext  := ext;
+    '.lib':   newext := '.a';
+    '.obj':   newext := '.o';
+    '.exe':   newext := '';
+    else      newext := ext;
   end;
   {$ENDIF}
-  {$IFDEF MACOS}
+  {$IFDEF DARWIN}
   case ext of
     '.dll': newext := '.dylib';
     '.so':  newext := '.dylib';
     '.lib': newext := '.a';
     '.obj': newext := '.o';
     '.exe': newext := '';
-    else  newext  := ext;
+    else    newext := ext;
   end;
   {$ENDIF}
-  result += newext;
+  result := ChangeFileExt(aFilename, newext);
 end;
 
 function dlgOkCancel(const aMsg: string): TModalResult;
