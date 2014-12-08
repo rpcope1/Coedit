@@ -3,6 +3,9 @@ Coedit
 
 Coedit is a simple IDE for the [D2](http://dlang.org) lang. (**Co** mpile & **Edit**).
 
+![](lazproj/coedit.win7.33.png)
+![](lazproj/coedit.linux.kde.33.png)
+
 Current features
 ----------------
 - multi platform (Win/Linux).
@@ -24,7 +27,7 @@ Missing features before the first beta
 
 Project information
 -------------------
-- status: alpha 8.
+- status: alpha 9.
 - license: MIT.
 - programmed in Object Pascal with [Lazarus & FPC](http://www.lazarus.freepascal.org) as IDE & compiler.
 - based on *DMD* (the alternative backends, LDC or GDC, are not supported).
@@ -39,7 +42,7 @@ The complete procedure is described in the [**first section of the wiki**](https
 GUI preview
 -----------
 Windows version (Windows 7, x86):
-![Win screen-cap](lazproj/Gui.tease.png "Coedit GUI preview")
+![Win screen-cap](lazproj/coedit.win7.png "Coedit GUI preview")
 
-Linux version (OpenSuse 13.1, Kde, x86_64):
-![Nux screen-cap](lazproj/Gui.tease.kde.png "Coedit GUI preview")
+Linux version (OpenSuse 13.2, Kde, x86_64):
+![Nux screen-cap](lazproj/coedit.linux.kde.png "Coedit GUI preview")
