@@ -55,10 +55,7 @@ begin
   inherited;
   Enabled := exeInSysPath('cdb');
   if Enabled then
-  begin
     EntitiesConnector.addObserver(self);
-    EntitiesConnector.endUpdate;
-  end;
 end;
 
 destructor TCECdbWidget.destroy;

@@ -128,7 +128,6 @@ begin
   PopupMenu := contextMenu;
 
   EntitiesConnector.addObserver(self);
-  EntitiesConnector.endUpdate;
 end;
 
 destructor TCEWidget.destroy;

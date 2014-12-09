@@ -53,7 +53,6 @@ begin
   Grid.OnEditorFilter := @GridFilter;
   //
   EntitiesConnector.addObserver(self);
-  EntitiesConnector.endUpdate;
 end;
 
 destructor TCEProjectConfigurationWidget.destroy;

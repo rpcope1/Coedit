@@ -152,7 +152,6 @@ begin
   btnClearCat.OnClick := @actClearCurCatExecute;
   //
   EntitiesConnector.addObserver(self);
-  EntitiesConnector.endUpdate;
 end;
 
 destructor TCEMessagesWidget.destroy;

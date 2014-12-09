@@ -296,7 +296,7 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ce_staticexplorer"/>
       </Unit23>
-	  <Unit24>
+      <Unit24>
         <Filename Value="..\src\ce_staticmacro.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_staticmacro"/>

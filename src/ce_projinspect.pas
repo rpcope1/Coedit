@@ -83,7 +83,6 @@ begin
   Tree.PopupMenu := contextMenu;
   //
   EntitiesConnector.addObserver(self);
-  EntitiesConnector.endUpdate;
 end;
 
 destructor TCEProjectInspectWidget.destroy;

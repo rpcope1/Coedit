@@ -16,18 +16,26 @@ type
   private
     fObservers: TObjectList;
     fSubjects: TObjectList;
-    fUpdating: boolean;
+    fUpdatesCount: Integer;
+    procedure tryUpdate;
     procedure updateEntities;
+    function getIsUpdating: boolean;
   public
     constructor create;
     destructor destroy; override;
-    //
+    // forces the update, fixes begin/add pair error or if immediate update is needed.
+    procedure forceUpdate;
+    // entities will be added in bulk, must be followed by an enUpdate().
     procedure beginUpdate;
+    // entities has ben added in bulk
     procedure endUpdate;
+    // add/remove entities, update is automatic
     procedure addObserver(anObserver: TObject);
     procedure addSubject(aSubject: TObject);
     procedure removeObserver(anObserver: TObject);
     procedure removeSubject(aSubject: TObject);
+    // should be tested before forceUpdate()
+    property isUpdating: boolean read getIsUpdating;
   end;
 
   (**
@@ -71,6 +79,9 @@ var
 
 implementation
 
+uses
+  LCLProc;
+
 {$REGION TCEEntitiesConnector --------------------------------------------------}
 constructor TCEEntitiesConnector.create;
 begin
@@ -85,11 +96,33 @@ begin
   inherited;
 end;
 
+function TCEEntitiesConnector.getIsUpdating: boolean;
+begin
+  exit(fUpdatesCount > 0);
+end;
+
+procedure TCEEntitiesConnector.tryUpdate;
+begin
+  {$IFDEF DEBUG}
+  if fUpdatesCount > 0 then
+    DebugLn('saved uselless update in TCEEntitiesConnector')
+  else
+    DebugLn('efficient update in TCEEntitiesConnector');
+  {$ENDIF}
+  if fUpdatesCount <= 0 then
+    updateEntities;
+end;
+
+procedure TCEEntitiesConnector.forceUpdate;
+begin
+  updateEntities;
+end;
+
 procedure TCEEntitiesConnector.updateEntities;
 var
   i,j: Integer;
 begin
-  fUpdating := false;
+  fUpdatesCount := 0;
   for i := 0 to fSubjects.Count-1 do
   begin
     if not (fSubjects[i] is ICESubject) then
@@ -104,20 +137,21 @@ end;
 
 procedure TCEEntitiesConnector.beginUpdate;
 begin
-  fUpdating := true;
+  fUpdatesCount += 1;
 end;
 
 procedure TCEEntitiesConnector.endUpdate;
 begin
-  updateEntities;
+  fUpdatesCount -= 1;
+  tryUpdate;
 end;
 
 procedure TCEEntitiesConnector.addObserver(anObserver: TObject);
 begin
   if fObservers.IndexOf(anObserver) <> -1 then
     exit;
-  fUpdating := true;
   fObservers.Add(anObserver);
+  tryUpdate;
 end;
 
 procedure TCEEntitiesConnector.addSubject(aSubject: TObject);
@@ -126,25 +160,25 @@ begin
     exit;
   if fSubjects.IndexOf(aSubject) <> -1 then
     exit;
-  fUpdating := true;
   fSubjects.Add(aSubject);
+  tryUpdate;
 end;
 
 procedure TCEEntitiesConnector.removeObserver(anObserver: TObject);
 var
   i: Integer;
 begin
-  fUpdating := true;
   fObservers.Remove(anObserver);
   for i := 0 to fSubjects.Count-1 do
     if fSubjects[i] <> nil then
       (fSubjects[i] as ICESubject).removeObserver(anObserver);
+  tryUpdate;
 end;
 
 procedure TCEEntitiesConnector.removeSubject(aSubject: TObject);
 begin
-  fUpdating := true;
   fSubjects.Remove(aSubject);
+  tryUpdate;
 end;
 {$ENDREGION}
 
@@ -153,13 +187,11 @@ constructor TCECustomSubject.create;
 begin
   fObservers := TObjectList.create(false);
   EntitiesConnector.addSubject(Self);
-  EntitiesConnector.endUpdate;
 end;
 
 destructor TCECustomSubject.destroy;
 begin
   EntitiesConnector.removeSubject(Self);
-  EntitiesConnector.endUpdate;
   fObservers.Free;
   Inherited;
 end;
@@ -200,6 +232,7 @@ end;
 
 initialization
   EntitiesConnector := TCEEntitiesConnector.create;
+  EntitiesConnector.beginUpdate;
 finalization
   EntitiesConnector.Free;
   EntitiesConnector := nil;

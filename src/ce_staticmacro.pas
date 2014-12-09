@@ -89,7 +89,6 @@ begin
   updateCompletor;
   //
   EntitiesConnector.addObserver(Self);
-  EntitiesConnector.endUpdate;
 end;
 
 destructor TCEStaticEditorMacro.destroy;

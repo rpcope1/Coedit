@@ -86,7 +86,7 @@ type
 implementation
 {$R *.lfm}
 
-uses ce_libman, ce_symstring;
+uses LCLProc, ce_libman, ce_symstring;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEStaticExplorerWidget.create(aOwner: TComponent);
@@ -138,7 +138,6 @@ begin
   Tree.PopupMenu := contextMenu;
   //
   EntitiesConnector.addObserver(self);
-  EntitiesConnector.endUpdate;
 end;
 
 destructor TCEStaticExplorerWidget.destroy;
@@ -513,7 +512,7 @@ begin
       if ndCat = nil then
       begin
         {$IFDEF DEBUG}
-        writeln(memb.Items[i].GetPath('kind').AsString);
+        DebugLn(memb.Items[i].GetPath('kind').AsString);
         {$ENDIF}
         continue;
       end;
