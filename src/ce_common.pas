@@ -379,6 +379,7 @@ begin
     str1.WriteComponent(aComp);
     str1.Position := 0;
     ObjectBinaryToText(str1,str2);
+    ForceDirectories(ExtractFilePath(aFilename));
     str2.SaveToFile(aFilename);
   finally
     str1.Free;
