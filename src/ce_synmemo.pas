@@ -76,7 +76,7 @@ var
 implementation
 
 uses
-  graphics, ce_interfaces;
+  graphics, ce_interfaces, ce_staticmacro;
 
 {$REGION TCESynMemoPositions ---------------------------------------------------}
 constructor TCESynMemoPositions.create(aMemo: TCustomSynEdit);
@@ -314,6 +314,9 @@ begin
   if Key in [VK_PRIOR, VK_NEXT, Vk_UP] then
     fPositions.store;
   inherited;
+  //
+  if StaticEditorMacro.automatic then
+    StaticEditorMacro.Execute;
 end;
 
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);

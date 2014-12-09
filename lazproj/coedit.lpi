@@ -142,7 +142,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="31">
+    <Units Count="32">
       <Unit0>
         <Filename Value="coedit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -296,47 +296,52 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ce_staticexplorer"/>
       </Unit23>
-      <Unit24>
+	  <Unit24>
+        <Filename Value="..\src\ce_staticmacro.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_staticmacro"/>
+      </Unit24>
+      <Unit25>
         <Filename Value="..\src\ce_symstring.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_symstring"/>
-      </Unit24>
-      <Unit25>
+      </Unit25>
+      <Unit26>
         <Filename Value="..\src\ce_synmemo.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_synmemo"/>
-      </Unit25>
-      <Unit26>
+      </Unit26>
+      <Unit27>
         <Filename Value="..\src\ce_tools.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_tools"/>
-      </Unit26>
-      <Unit27>
+      </Unit27>
+      <Unit28>
         <Filename Value="..\src\ce_toolseditor.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="CEToolsEditorWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ce_toolseditor"/>
-      </Unit27>
-      <Unit28>
+      </Unit28>
+      <Unit29>
         <Filename Value="..\src\ce_txtsyn.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_txtsyn"/>
-      </Unit28>
-      <Unit29>
+      </Unit29>
+      <Unit30>
         <Filename Value="..\src\ce_widget.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="CEWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ce_widget"/>
-      </Unit29>
-      <Unit30>
+      </Unit30>
+      <Unit31>
         <Filename Value="..\src\ce_writablecomponent.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_writableComponent"/>
-      </Unit30>
+      </Unit31>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

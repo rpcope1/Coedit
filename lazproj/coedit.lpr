@@ -7,7 +7,8 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, Forms, lazcontrols, runtimetypeinfocontrols, ce_libman, ce_tools,
-  ce_dcd, ce_observer, ce_main, ce_writableComponent, ce_options, ce_symstring;
+  ce_dcd, ce_observer, ce_main, ce_writableComponent, ce_options, ce_symstring,
+  ce_staticmacro;
 
 {$R *.res}
 
