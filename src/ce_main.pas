@@ -316,8 +316,8 @@ begin
   checkCompilo;
   getCMdParams;
   //
-  EntitiesConnector.endUpdate;
   updateMainMenuProviders;
+  EntitiesConnector.forceUpdate;
   fInitialized := true;
 end;
 

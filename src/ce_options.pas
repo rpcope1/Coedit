@@ -14,6 +14,7 @@ type
     fSubjPersObservers: TCECustomSubject;
   protected
     procedure defineProperties(Filer: TFiler); override;
+    procedure beforeLoad; override;
     procedure beforeSave; override;
     procedure afterLoad; override;
   public
@@ -32,7 +33,6 @@ begin
   fSubjPersObservers := TCESessionOptionsSubject.create;
   //
   EntitiesConnector.addSubject(fSubjPersObservers);
-  EntitiesConnector.endUpdate;
 end;
 
 destructor TCEOptions.destroy;
@@ -47,6 +47,16 @@ end;
 procedure TCEOptions.defineProperties(Filer: TFiler);
 begin
   subjSesOptsDeclareProperties(TCESessionOptionsSubject(fSubjPersObservers), Filer);
+end;
+
+procedure TCEOptions.beforeLoad;
+begin
+  // ensure that the observers will be know:
+  // during the app init a bulk update operation is happening,
+  // cf. ce_observer.pas, initialization section.
+  if EntitiesConnector.isUpdating then
+    EntitiesConnector.forceUpdate;
+  inherited;
 end;
 
 procedure TCEOptions.beforeSave;
