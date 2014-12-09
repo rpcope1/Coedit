@@ -5,7 +5,7 @@ unit ce_staticmacro;
 interface
 
 uses
-  Classes, Sysutils, SynEdit, SynEditAutoComplete,
+  Classes, Sysutils, SynEdit, SynEditAutoComplete, SynCompletion,
   ce_interfaces, ce_writableComponent, ce_synmemo;
 
 type
@@ -24,7 +24,7 @@ type
    *)
   TCEStaticEditorMacro = class(TWritableComponent, ICEMultiDocObserver)
   private
-    fCompletor: TSynEditAutoComplete;
+    fCompletor: TSynAutoComplete;
     fMacros: TStringList;
     fDoc: TCESynMemo;
     fAutomatic: boolean;
@@ -40,7 +40,7 @@ type
   published
     // list of string with the format $<..>alnum=<..>
     property macros: TStringList read fMacros write setMacros;
-    property automatic: boolean read fAutomatic write fAutomatic default true;
+    property automatic: boolean read fAutomatic write fAutomatic;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -77,9 +77,10 @@ var
 begin
   inherited;
   fAutomatic := true;
-  fCompletor := TSynEditAutoComplete.Create(self);
+  fCompletor := TSynAutoComplete.Create(self);
   fMacros := TStringList.Create;
   fMacros.Delimiter := '=';
+  assert(fCompletor.ShortCut <> 0);
   //
   fname := getDocPath + macFname;
   if fileExists(fname) then loadFromFile(fname);
@@ -113,11 +114,13 @@ end;
 procedure TCEStaticEditorMacro.docNew(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
+  fCompletor.Editor := fDoc;
 end;
 
 procedure TCEStaticEditorMacro.docFocused(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
+  fCompletor.Editor := fDoc;
 end;
 
 procedure TCEStaticEditorMacro.docChanged(aDoc: TCESynMemo);
@@ -183,13 +186,13 @@ end;
 procedure TCEStaticEditorMacro.Execute;
 begin
   if fDoc <> nil then
-    fCompletor.ExecuteCompletion(fDoc.Identifier, fDoc);
+    fCompletor.Execute(fDoc.Identifier, fDoc);
 end;
 
 procedure TCEStaticEditorMacro.Execute(aEditor: TCustomSynEdit; const aToken: string);
 begin
   if aEditor <> nil then
-    fCompletor.ExecuteCompletion(aToken, aEditor);
+    fCompletor.Execute(aToken, aEditor);
 end;
 {$ENDREGION}
 
