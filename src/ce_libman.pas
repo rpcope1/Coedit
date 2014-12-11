@@ -81,14 +81,12 @@ var
   itm: TLibraryItem;
   i: NativeInt;
 begin
-  if not dcdOn then exit;
-  //
-  ce_dcd.freeServer;
-  ce_dcd.createServer;
+  if not DcdWrapper.available then exit;
+  // note: new items are directly handled but removed ones still in cache until next cession.
   for i := 0 to fCol.Count-1 do
   begin
     itm := TLibraryItem(fCol.Items[i]);
-    ce_dcd.addDcdImport(itm.libSourcePath);
+    DcdWrapper.addImportFolder(itm.libSourcePath);
   end;
 end;
 

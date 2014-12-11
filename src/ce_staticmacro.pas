@@ -54,12 +54,12 @@ const
   macFname = 'staticMacros.txt';
 
   defMacros: array[0..5] of string = (
-  '$a=auto',
-  '$c=class {}',
-  '$s=struct {}',
-  '$ut=unittest{}',
-  '$fo=for(auto i = 0; ; )',
-  '$fe=foreach(elem; )'
+    '$a=auto',
+    '$c=class {}',
+    '$s=struct {}',
+    '$ut=unittest{}',
+    '$fo=for(auto i = 0; ; )',
+    '$fe=foreach(elem; )'
   );
 
 var

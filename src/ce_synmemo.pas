@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, SynEdit, ce_d2syn, ce_txtsyn ,SynEditHighlighter,
   controls, lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
-  ce_common, ce_observer, ce_dcd;
+  ce_common, ce_observer;
 
 type
 
@@ -76,7 +76,7 @@ var
 implementation
 
 uses
-  graphics, ce_interfaces, ce_staticmacro;
+  graphics, ce_interfaces, ce_staticmacro, ce_dcd;
 
 {$REGION TCESynMemoPositions ---------------------------------------------------}
 constructor TCESynMemoPositions.create(aMemo: TCustomSynEdit);

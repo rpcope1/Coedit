@@ -52,7 +52,6 @@ type
     procedure addEditor;
     procedure removeEditor(const aIndex: NativeInt);
     procedure focusedEditorChanged;
-    function getEditorHint: string;
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
@@ -249,85 +248,27 @@ end;
 
 procedure TCEEditorWidget.getSymbolLoc;
 var
-  str: TMemoryStream;
   srcpos: Integer;
-  ftempname, fname: string;
+  fname: string;
 begin
-  if not dcdOn then exit;
-  if fDoc = nil then exit;
+  if not DcdWrapper.available then exit;
   //
-  str := TMemoryStream.Create;
-  try
-    ftempname := fDoc.tempFilename;
-    fDoc.Lines.SaveToStream(str);
-    str.SaveToFile(ftempname);
-    fname := ftempname;
-    srcpos := fDoc.SelStart;
-    if srcpos > 0 then srcpos += -1;
-    if fDoc.GetWordAtRowCol(fDoc.LogicalCaretXY) <> '' then
-      ce_dcd.getSymbolLoc(fname, srcpos);
-    if fname <> ftempname then if fileExists(fname) then
-      CEMainForm.openFile(fname);
-    if srcpos <> -1 then
-    begin
-      fDoc.SelStart := srcpos;
-      fDoc.SelectWord;
-    end;
-  finally
-    str.Free;
+  DcdWrapper.getDeclFromCursor(fname, srcpos);
+  if fname <> fDoc.fileName then if fileExists(fname) then
+    CEMainForm.openFile(fname);
+  if srcpos <> -1 then begin
+    fDoc.SelStart := srcpos;
+    fDoc.SelectWord;
   end;
 end;
 
 procedure TCEEditorWidget.getCompletionList;
-var
-  str: TMemoryStream;
-  srcpos: NativeInt;
-  fname: string;
 begin
-  if not dcdOn then exit;
-  if fDoc = nil then exit;
+  if not DcdWrapper.available then exit;
   //
-  str := TMemoryStream.Create;
-  try
-    completion.Position := 0; // previous index could cause an error here.
-    fname := fDoc.tempFilename;
-    fDoc.Lines.SaveToStream(str);
-    str.SaveToFile(fname);
-    srcpos := fDoc.SelStart;
-    if srcpos > 0 then srcpos += -1;
-    completion.ItemList.Clear;
-    ce_dcd.getCompletion(fname, srcpos, completion.ItemList);
-  finally
-    str.Free;
-  end;
-end;
-
-function TCEEditorWidget.getEditorHint: string;
-var
-  str: TMemoryStream;
-  lst: TStringList;
-  srcpos: NativeInt;
-  fname: string;
-begin
-  result := '';
-  if not dcdOn then exit;
-  if fDoc = nil then exit;
-  //
-  str := TMemoryStream.Create;
-  lst := TStringList.Create;
-  try
-    fname := fDoc.tempFilename;
-    fDoc.Lines.SaveToStream(str);
-    str.SaveToFile(fname);
-    srcpos := fDoc.SelStart;
-    if srcpos > 0 then srcpos += -1;
-    if fDoc.GetWordAtRowCol(fDoc.LogicalCaretXY) <> '' then
-      ce_dcd.getHint(fname, srcpos, lst);
-    result := lst.Text;
-  finally
-    str.Free;
-    lst.Free;
-  end;
+  completion.Position := 0;
+  completion.ItemList.Clear;
+  DcdWrapper.getComplAtCursor(completion.ItemList);
 end;
 
 procedure TCEEditorWidget.UpdateByEvent;
