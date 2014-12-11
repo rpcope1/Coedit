@@ -7,9 +7,44 @@ interface
 uses
   Classes, SysUtils, SynEdit, ce_d2syn, ce_txtsyn ,SynEditHighlighter,
   controls, lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
-  ce_common, ce_observer;
+  ce_common, ce_observer, ce_writableComponent, crc, SynEditFoldedView;
 
 type
+
+  TCESynMemo = class;
+
+  // TextView, TSynEditFoldedView
+  TCEFoldCache = class(TCollectionItem)
+  private
+    fCollapsed: boolean;
+    fLineIndex: Integer;
+    fNestedIndex: Integer;
+  published
+    property isCollapsed: boolean read fCollapsed write fCollapsed;
+    property lineIndex: Integer read fLineIndex write fLineIndex;
+    property nestedIndex: Integer read fNestedIndex write fNestedIndex;
+  end;
+
+  TCESynMemoCache = class(TWritableComponent)
+  private
+    fMemo: TCESynMemo;
+    fFolds: TCollection;
+    fCaretPosition: Integer;
+    fSelectionEnd: Integer;
+    procedure setFolds(someFolds: TCollection);
+  published
+    property caretPosition: Integer read fCaretPosition write fCaretPosition;
+    property selectionEnd: Integer read fSelectionEnd write fSelectionEnd;
+    //property folds: TCollection read fFolds write setFolds;
+  public
+    constructor create(aComponent: TComponent); override;
+    destructor destroy; override;
+    //
+    procedure beforeSave; override;
+    procedure afterLoad; override;
+    procedure save;
+    procedure load;
+  end;
 
   TCESynMemoPositions = class
   private
@@ -40,6 +75,8 @@ type
     fPositions: TCESynMemoPositions;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
+    procedure saveCache;
+    procedure loadCache;
   protected
     procedure SetHighlighter(const Value: TSynCustomHighlighter); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
@@ -66,6 +103,7 @@ type
     //
     property isDSource: boolean read fIsDSource;
     property isProjectSource: boolean read fIsConfig;
+    property TextView;
   end;
 
 var
@@ -76,7 +114,77 @@ var
 implementation
 
 uses
-  graphics, ce_interfaces, ce_staticmacro, ce_dcd;
+  graphics, ce_interfaces, ce_staticmacro, ce_dcd, SynEditHighlighterFoldBase;
+
+{$REGION TCESynMemoCache -------------------------------------------------------}
+constructor TCESynMemoCache.create(aComponent: TComponent);
+begin
+  inherited create(nil);
+  if (aComponent is TCESynMemo) then
+  fMemo := TCESynMemo(aComponent);
+  fFolds := TCollection.Create(TCEFoldCache);
+end;
+
+destructor TCESynMemoCache.destroy;
+begin
+  fFolds.Free;
+end;
+
+procedure TCESynMemoCache.setFolds(someFolds: TCollection);
+begin
+  fFolds.Assign(someFolds);
+end;
+
+procedure TCESynMemoCache.beforeSave;
+//var
+//  i: Integer;
+//  itm : TCEFoldCache;
+begin
+  if fMemo = nil then exit;
+  //
+  fCaretPosition := fMemo.SelStart;
+  fSelectionEnd := fMemo.SelEnd;
+  //
+  //TODO-cEditor Cache: folding persistence
+end;
+
+procedure TCESynMemoCache.afterLoad;
+begin
+  if fMemo = nil then exit;
+  //
+  fMemo.SelStart := fCaretPosition;
+  fMemo.SelEnd := fSelectionEnd;
+end;
+
+procedure TCESynMemoCache.save;
+var
+  fname: string;
+  tempn: string;
+begin
+  tempn := fMemo.fileName;
+  if not fileExists(tempn) then exit;
+  //
+  fname := getDocPath + 'editorcache' + DirectorySeparator;
+  ForceDirectories(fname);
+  fname := fname + format('%.8X.txt', [crc32(0, @tempn[1], length(tempn))]);
+  saveToFile(fname);
+end;
+
+procedure TCESynMemoCache.load;
+var
+  fname: string;
+  tempn: string;
+begin
+  tempn := fMemo.fileName;
+  if not fileExists(tempn) then exit;
+  //
+  fname := getDocPath + 'editorcache' + DirectorySeparator;
+  fname := fname + format('%.8X.txt', [crc32(0, @tempn[1], length(tempn))]);
+  //
+  if not fileExists(fname) then exit;
+  loadFromFile(fname);
+end;
+{$ENDREGION}
 
 {$REGION TCESynMemoPositions ---------------------------------------------------}
 constructor TCESynMemoPositions.create(aMemo: TCustomSynEdit);
@@ -158,6 +266,7 @@ begin
   Gutter.SeparatorPart.LineWidth := 1;
   Gutter.SeparatorPart.MarkupInfo.Foreground := clGray;
   Gutter.CodeFoldPart.MarkupInfo.Foreground := clGray;
+  BracketMatchColor.Foreground:=clRed;
   //
   MouseLinkColor.Style:= [fsUnderline];
   with MouseActions.Add do begin
@@ -182,6 +291,8 @@ end;
 
 destructor TCESynMemo.destroy;
 begin
+  saveCache;
+  //
   subjDocClosing(TCEMultiDocSubject(fMultiDocSubject), self);
   fMultiDocSubject.Free;
   fPositions.Free;
@@ -250,6 +361,9 @@ begin
   Lines.LoadFromFile(aFilename);
   fFilename := aFilename;
   FileAge(fFilename, fFileDate);
+  //
+  loadCache;
+  //
   fModified := false;
   subjDocChanged(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
@@ -270,12 +384,37 @@ begin
 end;
 
 procedure TCESynMemo.save;
+
 begin
   Lines.SaveToFile(fFilename);
   FileAge(fFilename, fFileDate);
   fModified := false;
   if fFilename <> fTempFileName then
     subjDocChanged(TCEMultiDocSubject(fMultiDocSubject), self);
+end;
+
+procedure TCESynMemo.saveCache;
+var
+  cache: TCESynMemoCache;
+begin
+  cache := TCESynMemoCache.create(self);
+  try
+    cache.save;
+  finally
+    cache.free;
+  end;
+end;
+
+procedure TCESynMemo.loadCache;
+var
+  cache: TCESynMemoCache;
+begin
+  cache := TCESynMemoCache.create(self);
+  try
+    cache.load;
+  finally
+    cache.free;
+  end;
 end;
 
 procedure TCESynMemo.checkFileDate;
