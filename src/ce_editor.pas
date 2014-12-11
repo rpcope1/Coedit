@@ -34,6 +34,7 @@ type
     tokLst: TLexTokenList;
     errLst: TLexErrorList;
     fModStart: boolean;
+    function completionItemPaint(const AKey: string; ACanvas: TCanvas;X, Y: integer; Selected: boolean; Index: integer): boolean;
     procedure lexFindToken(const aToken: PLexToken; out doStop: boolean);
     procedure memoKeyPress(Sender: TObject; var Key: char);
     procedure memoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -79,10 +80,11 @@ begin
   tokLst := TLexTokenList.Create;
   errLst := TLexErrorList.Create;
   //
+  completion.OnPaintItem := @completionItemPaint;
   fSyncEdit := TSynPluginSyncroEdit.Create(self);
   bmp := TBitmap.Create;
   try
-    imgList.GetBitmap(0,bmp);
+    imgList.GetBitmap(0, bmp);
     fSyncEdit.GutterGlyph.Assign(bmp);
   finally
     bmp.Free;
@@ -97,6 +99,22 @@ begin
   tokLst.Free;
   errLst.Free;
   inherited;
+end;
+
+function TCEEditorWidget.completionItemPaint(const AKey: string; ACanvas: TCanvas;X, Y: integer; Selected: boolean; Index: integer): boolean;
+var
+  lft, rgt: string;
+  len: Integer;
+begin
+  // warning: '20' depends on ce_dcd, case knd of, string literals length
+  result := true;
+  lft := AKey[1 .. length(AKey)-20];
+  rgt := AKey[length(AKey)-19 .. length(AKey)];
+  ACanvas.Font.Style := [fsBold];
+  len := ACanvas.TextExtent(lft).cx;
+  ACanvas.TextOut(2 + X , Y, lft);
+  ACanvas.Font.Style := [fsItalic];
+  ACanvas.TextOut(2 + X + len + 2, Y, rgt);
 end;
 {$ENDREGION}
 
