@@ -57,8 +57,7 @@
             <CompilerMessages>
               <MsgFileName Value=""/>
             </CompilerMessages>
-            <CustomOptions Value="-dDEBUG
-//-dUSE_DICT_LINKEDCHARMAP"/>
+            <CustomOptions Value="-dDEBUG"/>
             <CompilerPath Value="$(CompPath)"/>
           </Other>
         </CompilerOptions>
@@ -106,8 +105,7 @@
             <CompilerMessages>
               <MsgFileName Value=""/>
             </CompilerMessages>
-            <CustomOptions Value="-dDEBUG
-//-dUSE_DICT_LINKEDCHARMAP"/>
+            <CustomOptions Value="-dDEBUG"/>
             <CompilerPath Value="$(CompPath)"/>
           </Other>
         </CompilerOptions>
@@ -379,8 +377,7 @@
       <CompilerMessages>
         <MsgFileName Value=""/>
       </CompilerMessages>
-      <CustomOptions Value="-dRELEASE
-//-dUSE_DICT_LINKEDCHARMAP"/>
+      <CustomOptions Value="-dRELEASE"/>
       <CompilerPath Value="$(CompPath)"/>
     </Other>
   </CompilerOptions>
