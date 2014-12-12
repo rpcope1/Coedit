@@ -268,7 +268,7 @@ begin
 
   fFoldKinds := [fkBrackets];
 
-  WordBreakChars := WordBreakChars + ['&', '~', '`', '$'];
+  WordBreakChars := WordBreakChars + ['&', '~', '`'];
 
   fWhiteAttrib := TSynHighlighterAttributes.Create('White','White');
 	fNumbrAttrib := TSynHighlighterAttributes.Create('Number','Number');
