@@ -749,21 +749,31 @@ begin
     hasEd := fDoc <> nil;
     if hasEd then
     begin
+      {$IFDEF MSWINDOWS}
+      // Under Linux, AV if doc is being closed
       actEdCopy.Enabled := fDoc.SelAvail and fDoc.Focused;
       actEdCut.Enabled := fDoc.SelAvail and fDoc.Focused;
       actEdPaste.Enabled := fDoc.CanPaste and fDoc.Focused;
-      {$IFDEF MSWINDOWS}
-      // close file : raises a segfault on linux UndoStuff.>>fList<<.Count...
       actEdUndo.Enabled := fDoc.CanUndo;
       actEdRedo.Enabled := fDoc.CanRedo;
+      //
+      actFileCompAndRun.Enabled := fDoc.isDSource;
+      actFileCompAndRunWithArgs.Enabled := fDoc.isDSource;
+      {$ELSE}
+      actEdCopy.Enabled := true;
+      actEdCut.Enabled := true;
+      actEdPaste.Enabled := true;
+      actEdUndo.Enabled := true;
+      actEdRedo.Enabled := true;
+      //
+      actFileCompAndRun.Enabled := fDoc.isDSource;
+      actFileCompAndRunWithArgs.Enabled := fDoc.isDSource;
       {$ENDIF}
       actEdMacPlay.Enabled := true;
       actEdMacStartStop.Enabled := true;
       actEdIndent.Enabled := true;
       actEdUnIndent.Enabled := true;
       //
-      actFileCompAndRun.Enabled := fDoc.isDSource;
-      actFileCompAndRunWithArgs.Enabled := fDoc.isDSource;
       actFileSave.Enabled := true;
       actFileSaveAs.Enabled := true;
       actFileClose.Enabled := true;
@@ -775,10 +785,8 @@ begin
       actEdCopy.Enabled := false;
       actEdCut.Enabled := false ;
       actEdPaste.Enabled := false;
-      {$IFDEF MSWINDOWS}
       actEdUndo.Enabled := false;
       actEdRedo.Enabled := false;
-      {$ENDIF}
       actEdMacPlay.Enabled := false;
       actEdMacStartStop.Enabled := false;
       actEdIndent.Enabled := false;
