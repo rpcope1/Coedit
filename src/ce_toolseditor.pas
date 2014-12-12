@@ -19,6 +19,7 @@ type
     btnRun: TBitBtn;
     lstTools: TListBox;
     Panel1: TPanel;
+    Panel2: TPanel;
     Splitter1: TSplitter;
     propsEd: TTIPropertyGrid;
     procedure BtnAddToolClick(Sender: TObject);
@@ -27,6 +28,7 @@ type
     procedure btnMoveDownClick(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
     procedure lstToolsSelectionChange(Sender: TObject; User: boolean);
+    procedure Panel2Click(Sender: TObject);
     procedure propsEdModified(Sender: TObject);
   private
     procedure DataToGui;
@@ -72,6 +74,11 @@ begin
   if lstTools.ItemIndex = -1 then
     exit;
   propsEd.TIObject := CustomTools.tool[lstTools.ItemIndex];
+end;
+
+procedure TCEToolsEditorWidget.Panel2Click(Sender: TObject);
+begin
+
 end;
 
 procedure TCEToolsEditorWidget.propsEdModified(Sender: TObject);

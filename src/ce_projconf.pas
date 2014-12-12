@@ -10,8 +10,12 @@ uses
   ce_dmdwrap, ce_project, ce_widget, ce_interfaces, ce_observer;
 
 type
+
+  { TCEProjectConfigurationWidget }
+
   TCEProjectConfigurationWidget = class(TCEWidget, ICEProjectObserver)
     imgList: TImageList;
+    Panel2: TPanel;
     selConf: TComboBox;
     Panel1: TPanel;
     btnAddConf: TSpeedButton;

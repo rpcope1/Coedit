@@ -1,31 +1,31 @@
 inherited CEToolsEditorWidget: TCEToolsEditorWidget
-  Left = 842
-  Height = 398
-  Top = 274
-  Width = 415
+  Left = 1428
+  Height = 280
+  Top = 345
+  Width = 441
   Caption = 'Tools editor'
-  ClientHeight = 398
-  ClientWidth = 415
+  ClientHeight = 280
+  ClientWidth = 441
   inherited Back: TPanel
-    Height = 398
-    Width = 415
-    ClientHeight = 398
-    ClientWidth = 415
+    Height = 280
+    Width = 441
+    ClientHeight = 280
+    ClientWidth = 441
     inherited Content: TPanel
-      Height = 398
-      Width = 415
-      ClientHeight = 398
-      ClientWidth = 415
+      Height = 280
+      Width = 441
+      ClientHeight = 280
+      ClientWidth = 441
       object Panel1: TPanel[0]
         Left = 4
         Height = 24
         Top = 4
-        Width = 407
+        Width = 433
         Align = alTop
         BorderSpacing.Around = 4
         BevelOuter = bvNone
         ClientHeight = 24
-        ClientWidth = 407
+        ClientWidth = 433
         TabOrder = 0
         object BtnAddTool: TBitBtn
           Left = 0
@@ -124,7 +124,7 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
           TabOrder = 1
         end
         object btnRun: TBitBtn
-          Left = 379
+          Left = 405
           Height = 24
           Hint = 'execute selected tool'
           Top = 0
@@ -266,43 +266,52 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
           TabOrder = 4
         end
       end
-      object propsEd: TTIPropertyGrid[1]
-        Left = 169
-        Height = 362
-        Top = 32
-        Width = 242
-        Align = alClient
-        BorderSpacing.Right = 4
-        BorderSpacing.Bottom = 4
-        DefaultValueFont.Color = clWindowText
-        Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkObject, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
-        Indent = 16
-        NameFont.Color = clWindowText
-        OnModified = propsEdModified
-        ValueFont.Color = clMaroon
-      end
-      object Splitter1: TSplitter[2]
-        Left = 164
-        Height = 366
-        Top = 32
-        Width = 5
-      end
-      object lstTools: TListBox[3]
+      object Panel2: TPanel[1]
         Left = 4
-        Height = 362
+        Height = 244
         Top = 32
-        Width = 160
-        Align = alLeft
-        BorderSpacing.Left = 4
-        BorderSpacing.Bottom = 4
-        ItemHeight = 0
-        OnSelectionChange = lstToolsSelectionChange
-        TabOrder = 3
+        Width = 433
+        Align = alClient
+        BorderSpacing.Around = 4
+        BevelOuter = bvNone
+        ClientHeight = 244
+        ClientWidth = 433
+        TabOrder = 1
+        OnClick = Panel2Click
+        object lstTools: TListBox
+          Left = 0
+          Height = 244
+          Top = 0
+          Width = 160
+          Align = alLeft
+          ItemHeight = 0
+          OnSelectionChange = lstToolsSelectionChange
+          TabOrder = 0
+        end
+        object Splitter1: TSplitter
+          Left = 160
+          Height = 244
+          Top = 0
+          Width = 5
+        end
+        object propsEd: TTIPropertyGrid
+          Left = 165
+          Height = 244
+          Top = 0
+          Width = 268
+          Align = alClient
+          DefaultValueFont.Color = clWindowText
+          Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkObject, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
+          Indent = 16
+          NameFont.Color = clWindowText
+          OnModified = propsEdModified
+          ValueFont.Color = clMaroon
+        end
       end
     end
   end
   inherited contextMenu: TPopupMenu
-    left = 40
-    top = 56
+    left = 16
+    top = 40
   end
 end

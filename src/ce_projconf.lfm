@@ -1,60 +1,22 @@
 inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
-  Left = 1394
-  Height = 383
-  Top = 480
+  Left = 1429
+  Height = 273
+  Top = 30
   Width = 445
   Caption = 'Project configuration'
-  ClientHeight = 383
+  ClientHeight = 273
   ClientWidth = 445
   inherited Back: TPanel
-    Height = 383
+    Height = 273
     Width = 445
-    ClientHeight = 383
+    ClientHeight = 273
     ClientWidth = 445
     inherited Content: TPanel
-      Height = 383
+      Height = 273
       Width = 445
-      ClientHeight = 383
+      ClientHeight = 273
       ClientWidth = 445
-      object Tree: TTreeView[0]
-        Left = 4
-        Height = 349
-        Hint = 'filter configuration elements'
-        Top = 30
-        Width = 125
-        Align = alLeft
-        AutoExpand = True
-        BorderSpacing.Left = 4
-        BorderSpacing.Top = 4
-        BorderSpacing.Bottom = 4
-        DefaultItemHeight = 18
-        HideSelection = False
-        ReadOnly = True
-        ScrollBars = ssAutoBoth
-        ShowRoot = False
-        TabOrder = 0
-        OnChange = TreeChange
-        Options = [tvoAutoExpand, tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoToolTips, tvoThemedDraw]
-        Items.Data = {
-          F9FFFFFF020003000000FFFFFFFFFFFFFFFF01000000FFFFFFFF000000000000
-          0000000700000047656E6572616CFFFFFFFFFFFFFFFF02000000FFFFFFFF0900
-          000000000000010A00000043617465676F72696573FFFFFFFFFFFFFFFF020000
-          00FFFFFFFF000000000000000000080000004D65737361676573FFFFFFFFFFFF
-          FFFF03000000FFFFFFFF00000000000000000009000000446562756767696E67
-          FFFFFFFFFFFFFFFF04000000FFFFFFFF0000000000000000000D000000446F63
-          756D656E746174696F6EFFFFFFFFFFFFFFFF05000000FFFFFFFF000000000000
-          000000060000004F7574707574FFFFFFFFFFFFFFFF06000000FFFFFFFF000000
-          000000000000060000004F7468657273FFFFFFFFFFFFFFFF07000000FFFFFFFF
-          000000000000000000050000005061746873FFFFFFFFFFFFFFFF08000000FFFF
-          FFFF000000000000000000110000005072652D6275696C642070726F63657373
-          FFFFFFFFFFFFFFFF09000000FFFFFFFF00000000000000000012000000506F73
-          742D6275696C642070726F63657373FFFFFFFFFFFFFFFF0A000000FFFFFFFF00
-          00000000000000000B00000052756E206F7074696F6E73FFFFFFFFFFFFFFFF0B
-          000000FFFFFFFF0000000000000000000E000000416C6C2063617465676F7269
-          6573
-        }
-      end
-      object Panel1: TPanel[1]
+      object Panel1: TPanel[0]
         Left = 4
         Height = 24
         Top = 2
@@ -66,7 +28,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
         BevelOuter = bvNone
         ClientHeight = 24
         ClientWidth = 437
-        TabOrder = 1
+        TabOrder = 0
         object selConf: TComboBox
           Left = 0
           Height = 23
@@ -220,39 +182,84 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
           ShowCaption = False
         end
       end
-      object Splitter1: TSplitter[2]
-        Left = 129
-        Height = 355
-        Top = 28
-        Width = 5
-      end
-      object Grid: TTIPropertyGrid[3]
-        Left = 134
-        Height = 349
+      object Panel2: TPanel[1]
+        Left = 4
+        Height = 239
         Top = 30
-        Width = 307
+        Width = 437
         Align = alClient
-        BorderSpacing.Top = 4
-        BorderSpacing.Right = 4
-        BorderSpacing.Bottom = 4
-        DefaultValueFont.Color = clWindowText
-        Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
-        Indent = 16
-        NameFont.Color = clWindowText
-        OnEditorFilter = GridEditorFilter
-        PreferredSplitterX = 145
-        SplitterX = 145
-        ValueFont.Color = clGreen
+        BorderSpacing.Around = 4
+        BevelOuter = bvNone
+        ClientHeight = 239
+        ClientWidth = 437
+        TabOrder = 1
+        object Tree: TTreeView
+          Left = 0
+          Height = 239
+          Hint = 'filter configuration elements'
+          Top = 0
+          Width = 160
+          Align = alLeft
+          AutoExpand = True
+          DefaultItemHeight = 18
+          HideSelection = False
+          ReadOnly = True
+          ScrollBars = ssAutoBoth
+          ShowRoot = False
+          TabOrder = 0
+          OnChange = TreeChange
+          Options = [tvoAutoExpand, tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoToolTips, tvoThemedDraw]
+          Items.Data = {
+            F9FFFFFF020003000000FFFFFFFFFFFFFFFF01000000FFFFFFFF000000000000
+            0000000700000047656E6572616CFFFFFFFFFFFFFFFF02000000FFFFFFFF0900
+            000000000000010A00000043617465676F72696573FFFFFFFFFFFFFFFF020000
+            00FFFFFFFF000000000000000000080000004D65737361676573FFFFFFFFFFFF
+            FFFF03000000FFFFFFFF00000000000000000009000000446562756767696E67
+            FFFFFFFFFFFFFFFF04000000FFFFFFFF0000000000000000000D000000446F63
+            756D656E746174696F6EFFFFFFFFFFFFFFFF05000000FFFFFFFF000000000000
+            000000060000004F7574707574FFFFFFFFFFFFFFFF06000000FFFFFFFF000000
+            000000000000060000004F7468657273FFFFFFFFFFFFFFFF07000000FFFFFFFF
+            000000000000000000050000005061746873FFFFFFFFFFFFFFFF08000000FFFF
+            FFFF000000000000000000110000005072652D6275696C642070726F63657373
+            FFFFFFFFFFFFFFFF09000000FFFFFFFF00000000000000000012000000506F73
+            742D6275696C642070726F63657373FFFFFFFFFFFFFFFF0A000000FFFFFFFF00
+            00000000000000000B00000052756E206F7074696F6E73FFFFFFFFFFFFFFFF0B
+            000000FFFFFFFF0000000000000000000E000000416C6C2063617465676F7269
+            6573
+          }
+        end
+        object Splitter1: TSplitter
+          Left = 160
+          Height = 239
+          Top = 0
+          Width = 5
+          AutoSnap = False
+        end
+        object Grid: TTIPropertyGrid
+          Left = 165
+          Height = 239
+          Top = 0
+          Width = 272
+          Align = alClient
+          DefaultValueFont.Color = clWindowText
+          Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
+          Indent = 16
+          NameFont.Color = clWindowText
+          OnEditorFilter = GridEditorFilter
+          PreferredSplitterX = 145
+          SplitterX = 145
+          ValueFont.Color = clGreen
+        end
       end
     end
   end
   inherited contextMenu: TPopupMenu
     left = 8
-    top = 240
+    top = 8
   end
   object imgList: TImageList[2]
     left = 40
-    top = 240
+    top = 8
     Bitmap = {
       4C690200000010000000100000008D8B89008D8B89008F8D8B008F8D8B008C8A
       880092908E00908E8CFF8F8D8BFF908E8CFF92908E008F8D8B008F8D8B008F8D
