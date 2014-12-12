@@ -766,8 +766,8 @@ begin
       actEdUndo.Enabled := true;
       actEdRedo.Enabled := true;
       //
-      actFileCompAndRun.Enabled := fDoc.isDSource;
-      actFileCompAndRunWithArgs.Enabled := fDoc.isDSource;
+      actFileCompAndRun.Enabled := true;
+      actFileCompAndRunWithArgs.Enabled := true;
       {$ENDIF}
       actEdMacPlay.Enabled := true;
       actEdMacStartStop.Enabled := true;
