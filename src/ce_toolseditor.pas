@@ -104,6 +104,7 @@ begin
   if lstTools.ItemIndex = 0 then exit;
   //
   CustomTools.tools.Exchange(lstTools.ItemIndex, lstTools.ItemIndex - 1);
+  lstTools.ItemIndex := lstTools.ItemIndex - 1;
   updateNames;
 end;
 
@@ -113,6 +114,7 @@ begin
   if lstTools.ItemIndex = lstTools.Items.Count-1 then exit;
   //
   CustomTools.tools.Exchange(lstTools.ItemIndex, lstTools.ItemIndex + 1);
+  lstTools.ItemIndex := lstTools.ItemIndex + 1;
   updateNames;
 end;
 
