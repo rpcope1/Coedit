@@ -293,6 +293,7 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
           Height = 244
           Top = 0
           Width = 5
+          AutoSnap = False
         end
         object propsEd: TTIPropertyGrid
           Left = 165

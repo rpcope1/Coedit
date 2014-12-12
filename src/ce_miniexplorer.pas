@@ -23,6 +23,7 @@ type
     lstFiles: TListView;
     lstFav: TListView;
     Panel1: TPanel;
+    Panel2: TPanel;
     Splitter1: TSplitter;
     Splitter2: TSplitter;
     Tree: TTreeView;
@@ -31,6 +32,7 @@ type
     procedure btnAddFavClick(Sender: TObject);
     procedure btnRemFavClick(Sender: TObject);
     procedure lstFilesDblClick(Sender: TObject);
+    procedure Panel1Click(Sender: TObject);
   private
     fFavorites: TStringList;
     fLastFold: string;
@@ -297,6 +299,11 @@ end;
 procedure TCEMiniExplorerWidget.lstFilesDblClick(Sender: TObject);
 begin
   shellOpenSelected;
+end;
+
+procedure TCEMiniExplorerWidget.Panel1Click(Sender: TObject);
+begin
+
 end;
 
 procedure TCEMiniExplorerWidget.shellOpenSelected;
