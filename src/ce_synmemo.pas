@@ -5,15 +5,14 @@ unit ce_synmemo;
 interface
 
 uses
-  Classes, SysUtils, SynEdit, ce_d2syn, ce_txtsyn ,SynEditHighlighter,
-  controls, lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
-  ce_common, ce_observer, ce_writableComponent, crc, SynEditFoldedView;
+  Classes, SysUtils, SynEdit, ce_d2syn, ce_txtsyn ,SynEditHighlighter, controls,
+  lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
+  SynEditFoldedView, crc, ce_common, ce_observer, ce_writableComponent;
 
 type
 
   TCESynMemo = class;
 
-  // TextView, TSynEditFoldedView
   TCEFoldCache = class(TCollectionItem)
   private
     fCollapsed: boolean;
@@ -31,11 +30,13 @@ type
     fFolds: TCollection;
     fCaretPosition: Integer;
     fSelectionEnd: Integer;
+    fSourceFilename: string;
     procedure setFolds(someFolds: TCollection);
   published
     property caretPosition: Integer read fCaretPosition write fCaretPosition;
+    property sourceFilename: string read fSourceFilename write fSourceFilename;
+    property folds: TCollection read fFolds write setFolds;
     property selectionEnd: Integer read fSelectionEnd write fSelectionEnd;
-    //property folds: TCollection read fFolds write setFolds;
   public
     constructor create(aComponent: TComponent); override;
     destructor destroy; override;
@@ -136,21 +137,51 @@ begin
 end;
 
 procedure TCESynMemoCache.beforeSave;
-//var
-//  i: Integer;
-//  itm : TCEFoldCache;
+var
+  i, start, prev: Integer;
+  itm : TCEFoldCache;
 begin
   if fMemo = nil then exit;
   //
   fCaretPosition := fMemo.SelStart;
+  fSourceFilename := fMemo.fileName;
   fSelectionEnd := fMemo.SelEnd;
   //
-  //TODO-cEditor Cache: folding persistence
+  // TODO-cEditor Cache: >nested< folding persistence
+  // cf. other ways: http://forum.lazarus.freepascal.org/index.php?topic=26748.msg164722#msg164722
+  prev := fMemo.Lines.Count-1;
+  for i := fMemo.Lines.Count-1 downto 0 do
+  begin
+    // - CollapsedLineForFoldAtLine() does not handle the sub-folding.
+    // - TextView visibility is increased so this is not the standard way of getting the infos.
+    start := fMemo.TextView.CollapsedLineForFoldAtLine(i);
+    if start = -1 then
+      continue;
+    if start = prev then
+      continue;
+    prev := start;
+    itm := TCEFoldCache(fFolds.Add);
+    itm.isCollapsed := true;
+    itm.fLineIndex := start;
+  end;
 end;
 
 procedure TCESynMemoCache.afterLoad;
+var
+  i: integer;
+  itm : TCEFoldCache;
 begin
   if fMemo = nil then exit;
+  // Currently collisions are not handled.
+  if fMemo.fileName <> fSourceFilename then exit;
+  //
+  for i := 0 to fFolds.Count-1 do
+  begin
+    itm := TCEFoldCache(fFolds.Items[i]);
+    if not itm.isCollapsed then
+      continue;
+    fMemo.TextView.FoldAtLine(itm.lineIndex-1);
+  end;
   //
   fMemo.SelStart := fCaretPosition;
   fMemo.SelEnd := fSelectionEnd;
