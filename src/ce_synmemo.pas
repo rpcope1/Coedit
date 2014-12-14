@@ -187,17 +187,21 @@ begin
   fMemo.SelEnd := fSelectionEnd;
 end;
 
+{$IFDEF DEBUG}{$R-}{$ENDIF}
 procedure TCESynMemoCache.save;
 var
   fname: string;
   tempn: string;
+  chksm: Cardinal;
 begin
   tempn := fMemo.fileName;
   if not fileExists(tempn) then exit;
   //
   fname := getDocPath + 'editorcache' + DirectorySeparator;
   ForceDirectories(fname);
-  fname := fname + format('%.8X.txt', [crc32(0, @tempn[1], length(tempn))]);
+  chksm := crc32(0, nil, 0);
+  chksm := crc32(chksm, @tempn[1], length(tempn));
+  fname := fname + format('%.8X.txt', [chksm]);
   saveToFile(fname);
 end;
 
@@ -205,16 +209,20 @@ procedure TCESynMemoCache.load;
 var
   fname: string;
   tempn: string;
+  chksm: Cardinal;
 begin
   tempn := fMemo.fileName;
   if not fileExists(tempn) then exit;
   //
   fname := getDocPath + 'editorcache' + DirectorySeparator;
-  fname := fname + format('%.8X.txt', [crc32(0, @tempn[1], length(tempn))]);
+  chksm := crc32(0, nil, 0);
+  chksm := crc32(chksm, @tempn[1], length(tempn));
+  fname := fname + format('%.8X.txt', [chksm]);
   //
   if not fileExists(fname) then exit;
   loadFromFile(fname);
 end;
+{$IFDEF DEBUG}{$R+}{$ENDIF}
 {$ENDREGION}
 
 {$REGION TCESynMemoPositions ---------------------------------------------------}
