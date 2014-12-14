@@ -422,6 +422,7 @@ begin
   treeScanSubFolders(Tree.Selected);
 end;
 
+// TODO-cbugfix: fails with "View in mini explorer", src files of the project resource.d
 procedure TCEMiniExplorerWidget.expandPath(const aPath: string);
 var
   i: NativeInt;
