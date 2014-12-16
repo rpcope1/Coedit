@@ -740,15 +740,17 @@ var
   hasProj: boolean;
 begin
   Handled := true;
-  if fEditWidg = nil then exit;
+  {$IFDEF LINUX}
+  // fixes the error raised when the update is called after docClosing ()
+  // looks like a syncro error, needs more investigation.
+  Application.DisableIdleHandler;
+  {$ENDIF}
   if fUpdateCount > 0 then exit;
   Inc(fUpdateCount);
   try
-    hasEd := fDoc <> nil;
+    HasEd := fDoc <> nil;
     if hasEd then
     begin
-      {$IFDEF MSWINDOWS}
-      // Under Linux, AV if doc is being closed
       actEdCopy.Enabled := fDoc.SelAvail and fDoc.Focused;
       actEdCut.Enabled := fDoc.SelAvail and fDoc.Focused;
       actEdPaste.Enabled := fDoc.CanPaste and fDoc.Focused;
@@ -757,16 +759,7 @@ begin
       //
       actFileCompAndRun.Enabled := fDoc.isDSource;
       actFileCompAndRunWithArgs.Enabled := fDoc.isDSource;
-      {$ELSE}
-      actEdCopy.Enabled := true;
-      actEdCut.Enabled := true;
-      actEdPaste.Enabled := true;
-      actEdUndo.Enabled := true;
-      actEdRedo.Enabled := true;
       //
-      actFileCompAndRun.Enabled := true;
-      actFileCompAndRunWithArgs.Enabled := true;
-      {$ENDIF}
       actEdMacPlay.Enabled := true;
       actEdMacStartStop.Enabled := true;
       actEdIndent.Enabled := true;
