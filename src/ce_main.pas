@@ -167,7 +167,6 @@ type
     procedure actEdUndoExecute(Sender: TObject);
     procedure actProjSourceExecute(Sender: TObject);
     procedure actEdUnIndentExecute(Sender: TObject);
-    procedure ApplicationProperties1Activate(Sender: TObject);
     procedure ApplicationProperties1Exception(Sender: TObject; E: Exception);
     procedure ApplicationProperties1ShowHint(var HintStr: string;
       var CanShow: Boolean; var HintInfo: THintInfo);
@@ -283,7 +282,6 @@ type
     procedure openFile(const aFilename: string);
     //
     property processInput: TCEProcInputWidget read fPrInpWidg;
-    property WidgetList: TCEWidgetList read fWidgList;
   end;
 
   procedure PlugDispatchToHost(aPlugin: TCEPlugin; opCode: LongWord; data0: Integer; data1, data2: Pointer); cdecl;
@@ -1233,11 +1231,6 @@ procedure TCEMainForm.actEdUnIndentExecute(Sender: TObject);
 begin
   if assigned(fDoc) then
     fDoc.ExecuteCommand(ecBlockUnIndent, '', nil);
-end;
-
-procedure TCEMainForm.ApplicationProperties1Activate(Sender: TObject);
-begin
-
 end;
 
 procedure TCEMainForm.actEdFindExecute(Sender: TObject);
