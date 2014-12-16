@@ -94,8 +94,8 @@ begin
   Tree.OnSelectionChanged := @treeSelectionChanged;
   Tree.OnExpanding := @treeExpanding;
 
-  // the filter is just used as a GUI element and reveals:
   // http://bugs.freepascal.org/view.php?id=27137
+  // TODO-cCleanup: remove comment after next Laz release
   lstFilter.FilteredListbox := nil;
   lstFilter.onChange := @lstFilterChange;
   //
@@ -422,7 +422,6 @@ begin
   treeScanSubFolders(Tree.Selected);
 end;
 
-// TODO-cbugfix: fails with "View in mini explorer", src files of the project resource.d
 procedure TCEMiniExplorerWidget.expandPath(const aPath: string);
 var
   i: NativeInt;
@@ -436,7 +435,7 @@ begin
   for i := 0 to aRoot.Count-1 do
   begin
     str := PString(aRoot.Items[i].Data)^;
-    if LeftStr(aPath, length(str)) = str then
+    if SameText(LeftStr(aPath, length(str)), str) then
     begin
       result := true;
       Tree.Selected := aRoot.Items[i];
