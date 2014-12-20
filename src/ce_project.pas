@@ -444,20 +444,21 @@ begin
   // try to guess
   else if Sources.Count > 0 then
   begin
+    // ideally, main() should be searched for, when project type is executable
     fOutputFilename := extractFilename(Sources.Strings[0]);
     fOutputFilename := stripFileExt(fOutputFilename);
     if FileExists(fileName) then
       fOutputFilename := extractFilePath(fileName) + fOutputFilename
     else
       fOutputFilename := GetTempDir(false) + fOutputFilename;
+    // force extension
+    case currentConfiguration.outputOptions.binaryKind of
+      executable: fOutputFilename := ChangeFileExt(fOutputFilename, exeExt);
+      staticlib:  fOutputFilename := ChangeFileExt(fOutputFilename, libExt);
+      sharedlib:  fOutputFilename := ChangeFileExt(fOutputFilename, dynExt);
+      obj:        fOutputFilename := ChangeFileExt(fOutputFilename, objExt);
+    end;
   end;
-  // force extension
-  //case currentConfiguration.outputOptions.binaryKind of
-  //  executable: fOutputFilename := ChangeFileExt(fOutputFilename, exeExt);
-  //  staticlib:  fOutputFilename := ChangeFileExt(fOutputFilename, libExt);
-  //  sharedlib:  fOutputFilename := ChangeFileExt(fOutputFilename, dynExt);
-  //  obj:        fOutputFilename := ChangeFileExt(fOutputFilename, objExt);
-  //end;
   //
   fCanBeRun := false;
   if currentConfiguration.outputOptions.binaryKind = executable then
