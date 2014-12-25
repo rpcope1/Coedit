@@ -360,7 +360,7 @@ procedure TCEStaticExplorerWidget.produceJsonInfo;
 var
   srcFname, itm: string;
   tempSrc: TStringList;
-  i: Integer;
+  i, j: Integer;
 begin
   if fDoc = nil then exit;
   if fDoc.Lines.Count = 0 then exit;
@@ -390,7 +390,9 @@ begin
   fDmdProc.Parameters.Add(srcFname);
 
   // other project sources, -I, -J
-  if fProj <> nil then begin
+  if fProj <> nil then for j := 0 to fProj.Sources.Count-1 do if
+    fProj.getAbsoluteSourceName(j) = fDoc.fileName then
+  begin
     fDmdProc.CurrentDirectory := extractFilePath(fProj.fileName);
     for i := 0 to fProj.Sources.Count-1 do begin
       itm := fProj.getAbsoluteSourceName(i);
@@ -400,6 +402,7 @@ begin
       fDmdProc.Parameters.Add('-I' + symbolExpander.get(itm));
     for itm in fProj.currentConfiguration.pathsOptions.Imports do
       fDmdProc.Parameters.Add('-J' + symbolExpander.get(itm));
+    break;
   end;
 
   //adds the libman entries
