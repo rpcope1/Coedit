@@ -410,6 +410,7 @@ begin
   loadCache;
   //
   fModified := false;
+  subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
   subjDocChanged(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
 
