@@ -30,6 +30,7 @@ type
     fFolds: TCollection;
     fCaretPosition: Integer;
     fSelectionEnd: Integer;
+    fFontSize: Integer;
     fSourceFilename: string;
     procedure setFolds(someFolds: TCollection);
   published
@@ -37,6 +38,7 @@ type
     property sourceFilename: string read fSourceFilename write fSourceFilename;
     property folds: TCollection read fFolds write setFolds;
     property selectionEnd: Integer read fSelectionEnd write fSelectionEnd;
+    property fontSize: Integer read fFontSize write fFontSize;
   public
     constructor create(aComponent: TComponent); override;
     destructor destroy; override;
@@ -146,6 +148,7 @@ begin
   fCaretPosition := fMemo.SelStart;
   fSourceFilename := fMemo.fileName;
   fSelectionEnd := fMemo.SelEnd;
+  fFontSize := fMemo.Font.Size;
   //
   // TODO-cEditor Cache: >nested< folding persistence
   // cf. other ways: http://forum.lazarus.freepascal.org/index.php?topic=26748.msg164722#msg164722
@@ -172,6 +175,9 @@ var
   itm : TCEFoldCache;
 begin
   if fMemo = nil then exit;
+  //
+  if fFontSize > 0 then
+    fMemo.Font.Size := fFontSize;
   // Currently collisions are not handled.
   if fMemo.fileName <> fSourceFilename then exit;
   //
