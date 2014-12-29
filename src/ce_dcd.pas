@@ -110,7 +110,7 @@ begin
     exit;
   //
   for i:= 0 to fProj.Sources.Count-1 do
-    addImportFolder(extractFilePath(fProj.Sources.Strings[i]));
+    addImportFolder(extractFilePath(fProj.getAbsoluteSourceName(i)));
 end;
 
 procedure TCEDcdWrapper.projClosing(aProject: TCEProject);
