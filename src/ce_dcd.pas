@@ -10,9 +10,9 @@ uses
 
 type
   (**
-   * Wrap the dcd-server and dcd-clients processes.
+   * Wrap the dcd-server and dcd-client processes.
    *
-   * Projects folder are automatically imported: ICEProjectObserver.
+   * Projects folders are automatically imported: ICEProjectObserver.
    * Completion, hints and declaration finder automatically work on the current
    *   document: ICEMultiDocObserver.
    *)

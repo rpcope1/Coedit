@@ -160,9 +160,14 @@ type
   function shortenPath(const aPath: string; charThresh: Word = 60): string;
 
   (**
+   * Returns the user data dir.
+   *)
+  function getUserDocPath: string;
+
+  (**
    * Returns the folder Coedit documents and settings.
    *)
-  function getDocPath: string;
+  function getCoeditDocPath: string;
 
   (**
    * Fills aList with the names of the files located in aPath.
@@ -574,7 +579,7 @@ begin
   exit( format('%s%s...%s',[drv,directorySeparator,pth1]) );
 end;
 
-function getDocPath: string;
+function getUserDocPath: string;
 {$IFDEF WINDOWS}
 var
   PIDL : PItemIDList;
@@ -592,7 +597,12 @@ begin
   {$IFDEF UNIX}
   result := ExpandFileName('~/');
   {$ENDIF}
-  result += directorySeparator + 'Coedit' + directorySeparator;
+  result += directorySeparator;
+end;
+
+function getCoeditDocPath: string;
+begin
+  result := getUserDocPath + 'Coedit' + directorySeparator;
 end;
 
 function isFolder(sr: TSearchRec): boolean;

@@ -530,8 +530,8 @@ var
   fname2: string;
   opts: TCEOptions;
 begin
-  fname1 := getDocPath + 'options2.txt';
-  fname2 := getDocPath + 'options2.bak';
+  fname1 := getCoeditDocPath + 'options2.txt';
+  fname2 := getCoeditDocPath + 'options2.bak';
   opts := TCEOptions.create(nil);
   try
     if fileExists(fname1) then
@@ -558,8 +558,8 @@ begin
     exit;
   opts := TCEOptions.create(nil);
   try
-    forceDirectory(getDocPath);
-    opts.saveToFile(getDocPath + 'options2.txt');
+    forceDirectory(getCoeditDocPath);
+    opts.saveToFile(getCoeditDocPath + 'options2.txt');
   finally
     opts.Free;
   end;
@@ -581,8 +581,8 @@ begin
   end;
   if not Visible then exit;
   //
-  forceDirectory(getDocPath);
-  xcfg := TXMLConfigStorage.Create(getDocPath + 'docking.xml',false);
+  forceDirectory(getCoeditDocPath);
+  xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'docking.xml',false);
   try
     DockMaster.SaveLayoutToConfig(xcfg);
     xcfg.WriteToDisk;
@@ -590,7 +590,7 @@ begin
     xcfg.Free;
   end;
   //
-  xcfg := TXMLConfigStorage.Create(getDocPath + 'dockingopts.xml',false);
+  xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'dockingopts.xml',false);
   try
     DockMaster.SaveSettingsToConfig(xcfg);
     xcfg.WriteToDisk;
@@ -604,9 +604,9 @@ var
   xcfg: TXMLConfigStorage;
   str: TMemoryStream;
 begin
-  if fileExists(getDocPath + 'docking.xml') then
+  if fileExists(getCoeditDocPath + 'docking.xml') then
   begin
-    xcfg := TXMLConfigStorage.Create(getDocPath + 'docking.xml', true);
+    xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'docking.xml', true);
     try
       try
         DockMaster.LoadLayoutFromConfig(xcfg, false);
@@ -616,7 +616,7 @@ begin
       str := TMemoryStream.Create;
       try
         xcfg.SaveToStream(str);
-        str.saveToFile(getDocPath + 'docking.bak')
+        str.saveToFile(getCoeditDocPath + 'docking.bak')
       finally
         str.Free;
       end;
@@ -624,9 +624,9 @@ begin
       xcfg.Free;
     end;
   end;
-  if fileExists(getDocPath + 'dockingopts.xml') then
+  if fileExists(getCoeditDocPath + 'dockingopts.xml') then
   begin
-    xcfg := TXMLConfigStorage.Create(getDocPath + 'dockingopts.xml', true);
+    xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'dockingopts.xml', true);
     try
       try
         DockMaster.LoadSettingsFromConfig(xcfg);
@@ -636,7 +636,7 @@ begin
       str := TMemoryStream.Create;
       try
         xcfg.SaveToStream(str);
-        str.saveToFile(getDocPath + 'dockingopts.bak')
+        str.saveToFile(getCoeditDocPath + 'dockingopts.bak')
       finally
         str.Free;
       end;
@@ -1523,7 +1523,7 @@ begin
   //
   lst := TStringList.Create;
   try
-    listFiles(lst, getDocPath + 'layouts' + DirectorySeparator);
+    listFiles(lst, getCoeditDocPath + 'layouts' + DirectorySeparator);
     for i := 0 to lst.Count-1 do
     begin
       itm := TMenuItem.Create(self);
@@ -1540,7 +1540,7 @@ end;
 
 procedure TCEMainForm.layoutMnuItemClick(sender: TObject);
 begin
-  layoutLoadFromFile(getDocPath + 'layouts' + DirectorySeparator +
+  layoutLoadFromFile(getCoeditDocPath + 'layouts' + DirectorySeparator +
     TMenuItem(sender).Caption + '.xml');
 end;
 
@@ -1555,7 +1555,7 @@ begin
   fname := extractFileName(fname);
   if extractFileExt(fname) <> '.xml' then
     fname += '.xml';
-  layoutSaveToFile(getDocPath + 'layouts' + DirectorySeparator + fname);
+  layoutSaveToFile(getCoeditDocPath + 'layouts' + DirectorySeparator + fname);
   layoutUpdateMenu;
 end;
 {$ENDREGION}

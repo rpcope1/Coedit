@@ -82,7 +82,7 @@ begin
   fMacros.Delimiter := '=';
   assert(fCompletor.ShortCut <> 0);
   //
-  fname := getDocPath + macFname;
+  fname := getCoeditDocPath + macFname;
   if fileExists(fname) then loadFromFile(fname);
   addDefaults;
   //
@@ -94,7 +94,7 @@ end;
 
 destructor TCEStaticEditorMacro.destroy;
 begin
-  saveToFile(getDocPath + macFname);
+  saveToFile(getCoeditDocPath + macFname);
   EntitiesConnector.removeObserver(Self);
   //
   fMacros.Free;

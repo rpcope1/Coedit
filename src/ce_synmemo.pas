@@ -203,7 +203,7 @@ begin
   tempn := fMemo.fileName;
   if not fileExists(tempn) then exit;
   //
-  fname := getDocPath + 'editorcache' + DirectorySeparator;
+  fname := getCoeditDocPath + 'editorcache' + DirectorySeparator;
   ForceDirectories(fname);
   chksm := crc32(0, nil, 0);
   chksm := crc32(chksm, @tempn[1], length(tempn));
@@ -220,7 +220,7 @@ begin
   tempn := fMemo.fileName;
   if not fileExists(tempn) then exit;
   //
-  fname := getDocPath + 'editorcache' + DirectorySeparator;
+  fname := getCoeditDocPath + 'editorcache' + DirectorySeparator;
   chksm := crc32(0, nil, 0);
   chksm := crc32(chksm, @tempn[1], length(tempn));
   fname := fname + format('%.8X.txt', [chksm]);

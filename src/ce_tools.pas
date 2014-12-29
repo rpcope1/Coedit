@@ -137,7 +137,7 @@ var
 begin
   inherited;
   fTools := TCollection.Create(TCEToolItem);
-  fname := getDocPath + toolsFname;
+  fname := getCoeditDocPath + toolsFname;
   if fileExists(fname) then loadFromFile(fname);
   //
   EntitiesConnector.addObserver(self);
@@ -147,8 +147,8 @@ destructor TCETools.destroy;
 begin
   EntitiesConnector.removeObserver(self);
   //
-  forceDirectory(getDocPath);
-  saveToFile(getDocPath + toolsFname);
+  forceDirectory(getCoeditDocPath);
+  saveToFile(getCoeditDocPath + toolsFname);
   fTools.Free;
   inherited;
 end;
