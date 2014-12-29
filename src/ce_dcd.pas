@@ -74,7 +74,7 @@ begin
   //
   fServer := TProcess.Create(self);
   fServer.Executable := serverName;
-  fServer.Options := [poUsePipes{$IFDEF WINDOWS}, poNewConsole{$ENDIF}];
+  fServer.Options := [{$IFDEF WINDOWS} poNewConsole{$ENDIF}];
   {$IFNDEF DEBUG}
   fServer.ShowWindow := swoHIDE;
   {$ENDIF}
