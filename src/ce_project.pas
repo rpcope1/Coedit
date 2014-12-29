@@ -71,7 +71,8 @@ type
     procedure afterChanged;
     procedure reset;
     procedure addDefaults;
-    function getAbsoluteSourceName(const aIndex: integer): string;
+    function isProjectSource(const aFilename: string): boolean;
+    function getAbsoluteSourceName(aIndex: integer): string;
     function getAbsoluteFilename(const aFilename: string): string;
     procedure addSource(const aFilename: string);
     function addConfiguration: TCompilerConfiguration;
@@ -327,7 +328,17 @@ begin
   TCompilerConfiguration(fOptsColl.Items[fConfIx]).getOpts(aList);
 end;
 
-function TCEProject.getAbsoluteSourceName(const aIndex: integer): string;
+function TCEProject.isProjectSource(const aFilename: string): boolean;
+var
+  i: Integer;
+begin
+  for i := 0 to fSrcs.Count-1 do
+    if getAbsoluteSourceName(i) = aFilename then
+      exit(true);
+  exit(false);
+end;
+
+function TCEProject.getAbsoluteSourceName(aIndex: integer): string;
 begin
   if aIndex < 0 then exit('');
   if aIndex > fSrcs.Count-1 then exit('');
