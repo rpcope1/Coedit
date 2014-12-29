@@ -31,7 +31,7 @@ type
     fOptsColl: TCollection;
     fSrcs, fSrcsCop: TStringList;
     fConfIx: Integer;
-    fChangedCount: NativeInt;
+    fUpdateCount: NativeInt;
     fProjectSubject: TCECustomSubject;
     fRunner: TCheckedAsyncProcess;
     fLogMessager: TCECustomSubject;
@@ -53,6 +53,7 @@ type
     // passes compilation message as "to be guessed"
     procedure compProcOutput(proc: TProcess);
   protected
+    procedure beforeLoad; override;
     procedure afterSave; override;
     procedure afterLoad; override;
     procedure setFilename(const aValue: string); override;
@@ -67,8 +68,8 @@ type
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
-    procedure beforeChanged;
-    procedure afterChanged;
+    procedure beginUpdate;
+    procedure endUpdate;
     procedure reset;
     procedure addDefaults;
     function isProjectSource(const aFilename: string): boolean;
@@ -159,9 +160,9 @@ end;
 procedure TCEProject.setRoot(const aValue: string);
 begin
   if fRootFolder = aValue then exit;
-  beforeChanged;
+  beginUpdate;
   fRootFolder := aValue;
-  afterChanged;
+  endUpdate;
 end;
 
 procedure TCEProject.setFilename(const aValue: string);
@@ -171,7 +172,7 @@ var
 begin
   if fFilename = aValue then exit;
   //
-  beforeChanged;
+  beginUpdate;
 
   fFilename := aValue;
   oldBase := fBasePath;
@@ -184,56 +185,56 @@ begin
     fSrcs[i] := newRel;
   end;
   //
-  afterChanged;
+  endUpdate;
 end;
 
 procedure TCEProject.setLibAliases(const aValue: TStringList);
 begin
-  beforeChanged;
+  beginUpdate;
   fLibAliases.Assign(aValue);
-  afterChanged;
+  endUpdate;
 end;
 
 procedure TCEProject.setSrcs(const aValue: TStringList);
 begin
-  beforeChanged;
+  beginUpdate;
   fSrcs.Assign(aValue);
   patchPlateformPaths(fSrcs);
-  afterChanged;
+  endUpdate;
 end;
 
 procedure TCEProject.setConfIx(aValue: Integer);
 begin
-  beforeChanged;
+  beginUpdate;
   if aValue < 0 then aValue := 0;
   if aValue > fOptsColl.Count-1 then aValue := fOptsColl.Count-1;
   fConfIx := aValue;
-  afterChanged;
+  endUpdate;
 end;
 
 procedure TCEProject.subMemberChanged(sender : TObject);
 begin
-  beforeChanged;
+  beginUpdate;
   fModified := true;
-  afterChanged;
+  endUpdate;
 end;
 
-procedure TCEProject.beforeChanged;
+procedure TCEProject.beginUpdate;
 begin
-  Inc(fChangedCount);
+  Inc(fUpdateCount);
 end;
 
-procedure TCEProject.afterChanged;
+procedure TCEProject.endUpdate;
 begin
-  Dec(fChangedCount);
-  if fChangedCount > 0 then
+  Dec(fUpdateCount);
+  if fUpdateCount > 0 then
   begin
     {$IFDEF DEBUG}
     DebugLn('project update count > 0');
     {$ENDIF}
     exit;
   end;
-  fChangedCount := 0;
+  fUpdateCount := 0;
   doChanged;
 end;
 
@@ -300,14 +301,14 @@ procedure TCEProject.reset;
 var
   defConf: TCompilerConfiguration;
 begin
-  beforeChanged;
+  beginUpdate;
   fConfIx := 0;
   fOptsColl.Clear;
   defConf := addConfiguration;
   defConf.name := 'default';
   fSrcs.Clear;
   fFilename := '';
-  afterChanged;
+  endUpdate;
   fModified := false;
 end;
 
@@ -354,6 +355,12 @@ procedure TCEProject.afterSave;
 begin
   fModified := false;
   updateOutFilename;
+end;
+
+procedure TCEProject.beforeLoad;
+begin
+  beginUpdate;
+  Inherited;
 end;
 
 procedure TCEProject.afterLoad;
@@ -409,6 +416,8 @@ begin
       'paths may still exists (-of, -od, etc.) but cannot be automatically handled');
   end;
   updateOutFilename;
+  endUpdate;
+  fModified := false;
 end;
 
 procedure TCEProject.readerPropNoFound(Reader: TReader; Instance: TPersistent;
