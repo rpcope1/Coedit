@@ -46,6 +46,7 @@ type
     procedure actRefreshOnFocusExecute(Sender: TObject);
     procedure actCopyIdentExecute(Sender: TObject);
     procedure updateVisibleCat;
+    procedure clearTree;
     //
     procedure produceJsonInfo;
     procedure jsonInfoProduced(sender: TObject);
@@ -257,6 +258,8 @@ procedure TCEStaticExplorerWidget.docClosing(aDoc: TCESynMemo);
 begin
   if fDoc <> aDoc then exit;
   fDoc := nil;
+  clearTree;
+  updateVisibleCat;
   beginUpdateByDelay;
 end;
 
@@ -320,16 +323,45 @@ end;
 
 procedure TCEStaticExplorerWidget.updateVisibleCat;
 begin
-  ndAlias.Visible := ndAlias.Count > 0;
-  ndClass.Visible := ndClass.Count > 0;
-  ndEnum.Visible := ndEnum.Count > 0;
-  ndFunc.Visible := ndFunc.Count > 0;
-  ndImp.Visible := ndImp.Count > 0;
-  ndIntf.Visible := ndIntf.Count > 0;
-  ndMix.Visible := ndMix.Count > 0;
-  ndStruct.Visible := ndStruct.Count > 0;
-  ndTmp.Visible := ndTmp.Count > 0;
-  ndVar.Visible := ndVar.Count > 0;
+  if (fDoc <> nil) then
+  begin
+    ndAlias.Visible := ndAlias.Count > 0;
+    ndClass.Visible := ndClass.Count > 0;
+    ndEnum.Visible  := ndEnum.Count > 0;
+    ndFunc.Visible  := ndFunc.Count > 0;
+    ndImp.Visible   := ndImp.Count > 0;
+    ndIntf.Visible  := ndIntf.Count > 0;
+    ndMix.Visible   := ndMix.Count > 0;
+    ndStruct.Visible:= ndStruct.Count > 0;
+    ndTmp.Visible   := ndTmp.Count > 0;
+    ndVar.Visible   := ndVar.Count > 0;
+  end else
+  begin
+    ndAlias.Visible := true;
+    ndClass.Visible := true;
+    ndEnum.Visible  := true;
+    ndFunc.Visible  := true;
+    ndImp.Visible   := true;
+    ndIntf.Visible  := true;
+    ndMix.Visible   := true;
+    ndStruct.Visible:= true;
+    ndTmp.Visible   := true;
+    ndVar.Visible   := true;
+  end;
+end;
+
+procedure TCEStaticExplorerWidget.clearTree;
+begin
+  ndAlias.DeleteChildren;
+  ndClass.DeleteChildren;
+  ndEnum.DeleteChildren;
+  ndFunc.DeleteChildren;
+  ndImp.DeleteChildren;
+  ndIntf.DeleteChildren;
+  ndMix.DeleteChildren;
+  ndStruct.DeleteChildren;
+  ndTmp.DeleteChildren;
+  ndVar.DeleteChildren;
 end;
 
 procedure TCEStaticExplorerWidget.TreeFilterEdit1AfterFilter(Sender: TObject);
@@ -449,17 +481,7 @@ var
 begin
   if ndAlias = nil then exit;
 
-  // clear the tree
-  ndAlias.DeleteChildren;
-  ndClass.DeleteChildren;
-  ndEnum.DeleteChildren;
-  ndFunc.DeleteChildren;
-  ndImp.DeleteChildren;
-  ndIntf.DeleteChildren;
-  ndMix.DeleteChildren;
-  ndStruct.DeleteChildren;
-  ndTmp.DeleteChildren;
-  ndVar.DeleteChildren;
+  clearTree;
   updateVisibleCat;
 
   if not FileExists(fJsonFname) then exit;
