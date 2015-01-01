@@ -1088,10 +1088,10 @@ begin
   newFile;
   fDoc.Text :=
   'module runnable;' + LineEnding +
-  '' + LineEnding +
+  LineEnding +
   'import std.stdio;' + LineEnding +
-  '' + LineEnding +
-  'void main(string args[])' + LineEnding +
+  LineEnding +
+  'void main(string[] args)' + LineEnding +
   '{' + LineEnding +
   '    // this file can be directly executed using menu file/compile & run' + LineEnding +
   '    // phobos and libman imports are allowed' + LineEnding +
