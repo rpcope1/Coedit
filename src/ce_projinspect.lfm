@@ -196,10 +196,10 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
           ShowCaption = False
         end
         object TreeFilterEdit1: TTreeFilterEdit
-          Left = 112
+          Left = 144
           Height = 23
           Top = 0
-          Width = 191
+          Width = 159
           ButtonWidth = 28
           NumGlyphs = 1
           Align = alCustom
