@@ -103,6 +103,7 @@ end;
 procedure TCEDcdWrapper.projChanged(aProject: TCEProject);
 var
   i: Integer;
+  fold: string;
 begin
   if fProj <> aProject then
     exit;
@@ -111,6 +112,12 @@ begin
   //
   for i:= 0 to fProj.Sources.Count-1 do
     addImportFolder(extractFilePath(fProj.getAbsoluteSourceName(i)));
+  for i := 0 to fProj.currentConfiguration.pathsOptions.includes.Count-1 do
+  begin
+    fold := fProj.currentConfiguration.pathsOptions.includes.Strings[i];
+    if DirectoryExists(fold) then
+      addImportFolder(fold);
+  end;
 end;
 
 procedure TCEDcdWrapper.projClosing(aProject: TCEProject);
