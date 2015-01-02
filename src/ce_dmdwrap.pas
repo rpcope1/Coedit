@@ -149,7 +149,7 @@ type
     property targetKind: TTargetSystem read fTrgKind write setTrgKind default auto;
     property binaryKind: TBinaryKind read fBinKind write setBinKind default executable;
     property inlining: boolean read fInline write setInline default false;
-    property noBoundsCheck: boolean read fNoBounds write setNoBounds;
+    property noBoundsCheck: boolean read fNoBounds write setNoBounds stored false default false;
     property boundsCheck: TBoundCheckKind read fBoundsCheck write setBoundsCheck default safeOnly;
     property optimizations: boolean read fOptimz write setOptims default false;
     property generateStackFrame: boolean read fGenStack write setGenStack default false;
@@ -556,11 +556,9 @@ end;
 procedure TOutputOpts.depPatch;
 begin
   // patch deprecated fields
-  if fNoBounds then
-  begin
-    fNoBounds := false;
-    fBoundsCheck := offAlways;
-  end;
+  if fNoBounds then setBoundsCheck(offAlways)
+  else setBoundsCheck(onAlways);
+  fNoBounds := false;
 end;
 
 procedure TOutputOpts.getOpts(const aList: TStrings);
@@ -675,13 +673,14 @@ procedure TOutputOpts.setBoundsCheck(const aValue: TBoundCheckKind);
 begin
   if fBoundsCheck = aValue then exit;
   fBoundsCheck := aValue;
-  depPatch;
+  doChanged;
 end;
 
 procedure TOutputOpts.setNoBounds(const aValue: boolean);
 begin
   if fNoBounds = aValue then exit;
   fNoBounds := aValue;
+  depPatch;
   doChanged;
 end;
 
