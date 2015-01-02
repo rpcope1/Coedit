@@ -99,7 +99,7 @@ begin
 
   fActCopyIdent := TAction.Create(self);
   fActCopyIdent.OnExecute:=@actCopyIdentExecute;
-  fActCopyIdent.Caption := 'Copy identifer';
+  fActCopyIdent.Caption := 'Copy identifier';
   fActRefresh := TAction.Create(self);
   fActRefresh.OnExecute := @actRefreshExecute;
   fActRefresh.Caption := 'Refresh';
