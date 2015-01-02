@@ -98,6 +98,7 @@ type
     procedure loadFromFile(const aFilename: string);
     procedure saveToFile(const aFilename: string);
     procedure save;
+    procedure saveTempFile;
     //
     property Identifier: string read fIdentifier;
     property fileName: string read fFilename;
@@ -430,13 +431,18 @@ begin
 end;
 
 procedure TCESynMemo.save;
-
 begin
   Lines.SaveToFile(fFilename);
   FileAge(fFilename, fFileDate);
   fModified := false;
   if fFilename <> fTempFileName then
     subjDocChanged(TCEMultiDocSubject(fMultiDocSubject), self);
+end;
+
+procedure TCESynMemo.saveTempFile;
+begin
+  Lines.SaveToFile(fTempFileName);
+  fModified := false;
 end;
 
 procedure TCESynMemo.saveCache;

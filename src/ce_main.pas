@@ -1298,7 +1298,7 @@ procedure TCEMainForm.compileAndRunFile(const edIndex: NativeInt; const runArgs:
 var
   editor: TCESynMemo;
   dmdproc: TProcess;
-  fname: string;
+  fname, fBasename: string;
 begin
 
   FreeRunnableProc;
@@ -1316,9 +1316,14 @@ begin
     subjLmFromString(fLogMessager, 'compiling ' + shortenPath(editor.fileName, 25),
       editor, amcEdit, amkInf);
 
-    if fileExists(editor.fileName) then editor.save
-    else editor.saveToFile(editor.tempFilename);
-    fname := stripFileExt(editor.fileName);
+    if fileExists(editor.fileName) then begin
+      editor.save;
+      fname := editor.fileName;
+    end else begin
+      editor.saveTempFile;
+      fname := editor.tempFilename;
+    end;
+    fBasename := stripFileExt(fname);
 
     if fRunnableSw = '' then
       fRunnableSw := '-vcolumns'#13'-w'#13'-wi';
@@ -1327,9 +1332,9 @@ begin
     {$ENDIF}
     dmdproc.Options := [poStdErrToOutput, poUsePipes];
     dmdproc.Executable := DCompiler;
-    dmdproc.Parameters.Add(editor.fileName);
+    dmdproc.Parameters.Add(fname);
     dmdproc.Parameters.AddText(fRunnableSw);
-    dmdproc.Parameters.Add('-of' + fname + exeExt);
+    dmdproc.Parameters.Add('-of' + fBasename + exeExt);
     LibMan.getLibFiles(nil, dmdproc.Parameters);
     LibMan.getLibSources(nil, dmdproc.Parameters);
     dmdproc.Execute;
@@ -1343,10 +1348,10 @@ begin
       fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
       if runArgs <> '' then
         fRunProc.Parameters.DelimitedText := symbolExpander.get(runArgs);
-      fRunProc.Executable := fname + exeExt;
+      fRunProc.Executable := fBasename + exeExt;
       fPrInpWidg.process := fRunProc;
       fRunProc.Execute;
-      sysutils.DeleteFile(fname + objExt);
+      sysutils.DeleteFile(fBasename + objExt);
     end
     else begin
       subjLmFromString(fLogMessager, shortenPath(editor.fileName,25)

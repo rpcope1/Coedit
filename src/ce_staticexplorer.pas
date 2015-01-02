@@ -391,7 +391,6 @@ end;
 procedure TCEStaticExplorerWidget.produceJsonInfo;
 var
   srcFname, itm: string;
-  tempSrc: TStringList;
   i: Integer;
 begin
   if fDoc = nil then exit;
@@ -409,14 +408,8 @@ begin
   fJsonFname := fDoc.tempFilename + '.json';
   srcFname := fDoc.fileName;
   if not fileExists(srcFname) then begin
-    tempSrc := TStringList.Create;
-    try
-      srcFname := fDoc.tempFilename;
-      tempSrc.Assign(fDoc.Lines);
-      tempSrc.SaveToFile(srcFname);
-    finally
-      tempSrc.Free;
-    end;
+    srcFname := fDoc.tempFilename;
+    fDoc.saveTempFile;
   end;
   //else fDoc.save; refreshonChange/autorefresh don't work until existing doc is saved
   fDmdProc.Parameters.Add(srcFname);
