@@ -158,9 +158,6 @@ end;
 procedure TCEMiniExplorerWidget.optset_Favs(aReader: TReader);
 begin
   fFavorites.DelimitedText := aReader.ReadString;
-  if fLastFold <> '' then
-    if fFavorites.IndexOf(fLastFold) = -1 then
-      fFavorites.Add(fLastFold);
   updateFavorites;
 end;
 
