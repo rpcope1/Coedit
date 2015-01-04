@@ -91,12 +91,14 @@ uses LCLProc, ce_libman, ce_symstring;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEStaticExplorerWidget.create(aOwner: TComponent);
+var
+  png: TPortableNetworkGraphic;
 begin
   fLogMessager := TCELogMessageSubject.create;
   fAutoRefresh := false;
   fRefreshOnFocus := true;
   fRefreshOnChange := false;
-
+  //
   fActCopyIdent := TAction.Create(self);
   fActCopyIdent.OnExecute:=@actCopyIdentExecute;
   fActCopyIdent.Caption := 'Copy identifier';
@@ -134,6 +136,14 @@ begin
   ndStruct  := Tree.Items[7];
   ndTmp     := Tree.Items[8];
   ndVar     := Tree.Items[9];
+  //
+  png := TPortableNetworkGraphic.Create;
+  try
+    png.LoadFromLazarusResource('arrow_update');
+    btnRefresh.Glyph.Assign(png);
+  finally
+    png.Free;
+  end;
   //
   Tree.OnDblClick := @TreeDblClick;
   Tree.PopupMenu := contextMenu;
