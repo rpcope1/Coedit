@@ -250,7 +250,7 @@ begin
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-d');
   fClient.Parameters.Add('-c');
-  fClient.Parameters.Add(intToStr(fDoc.SelStart-1));
+  fClient.Parameters.Add(intToStr(fDoc.MouseStart -1));
   fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
   //

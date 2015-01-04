@@ -222,6 +222,11 @@ type
    *)
   procedure ensureNoPipeIfWait(aProcess: TProcess);
 
+  (**
+   * Returns the length of the line ending in aFilename;
+   *)
+  function getLineEndingLength(const aFilename: string): byte;
+
 implementation
 
 {$IFDEF LINUX}
@@ -824,6 +829,35 @@ begin
   aProcess.Options := aProcess.Options - [poStderrToOutPut, poUsePipes];
   aProcess.Options := aProcess.Options + [poNewConsole];
 end;
+
+function getLineEndingLength(const aFilename: string): byte;
+var
+  value: char;
+  le: string;
+begin
+  value := #0;
+  le := LineEnding;
+  result := length(le);
+  if not fileExists(aFilename) then
+    exit;
+  with TMemoryStream.Create do
+  try
+    LoadFromFile(aFilename);
+    while true do
+    begin
+      if Position = Size then
+        exit;
+      read(value,1);
+      if value = #10 then
+        exit(1);
+      if value = #13 then
+        exit(2);
+    end;
+  finally
+    Free;
+  end;
+end;
+
 
 initialization
   RegisterClasses([TMRUList, TMRUFileList]);

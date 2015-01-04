@@ -76,6 +76,8 @@ type
     fMultiDocSubject: TCECustomSubject;
     fStoredFontSize: Integer;
     fPositions: TCESynMemoPositions;
+    fMousePos: TPoint;
+    function getMouseStart: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
     procedure saveCache;
@@ -108,6 +110,8 @@ type
     property isDSource: boolean read fIsDSource;
     property isProjectSource: boolean read fIsConfig;
     property TextView;
+    //
+    property MouseStart: Integer read getMouseStart;
   end;
 
 var
@@ -510,11 +514,23 @@ begin
     StaticEditorMacro.Execute;
 end;
 
+function TCESynMemo.getMouseStart: Integer;
+var
+  i, le: Integer;
+begin
+  result := 0;
+  le := getLineEndingLength(fFilename);
+  for i:= 0 to fMousePos.y-2 do
+    result += length(Lines.Strings[i]) + le;
+  result += fMousePos.x;
+end;
+
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
   if ssLeft in Shift then
     identifierToD2Syn;
+  fMousePos := PixelsToRowColumn(Point(X,Y));
 end;
 
 procedure TCESynMemo.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:Integer);
