@@ -105,7 +105,7 @@ LazarusResources.Add('arrow_up','PNG',[
   +#189'u'#248#163'w '#246#235#195#0#216'['#127#231'G'#1#6#0'1'#143#233'n'#192
   +#161#216#187#0#0#0#0'IEND'#174'B`'#130
 ]);
-LazarusResources.Add('uparrow_date','PNG',[
+LazarusResources.Add('arrow_update','PNG',[
   #137'PNG'#13#10#26#10#0#0#0#13'IHDR'#0#0#0#16#0#0#0#16#8#6#0#0#0#31#243#255'a'
   +#0#0#0#25'tEXtSoftware'#0'Adobe ImageReadyq'#201'e<'#0#0#2#208'IDATx'#218'|'
   +#147'mHSQ'#24#199#255#231'nw'#211#205'M3'#211#150#174'r'#3#3#9#205#138#132#8
