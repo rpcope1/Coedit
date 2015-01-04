@@ -134,6 +134,7 @@ procedure TCEEditorWidget.docFocused(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
   focusedEditorChanged;
+  UpdateByEvent;
 end;
 
 procedure TCEEditorWidget.docChanged(aDoc: TCESynMemo);
