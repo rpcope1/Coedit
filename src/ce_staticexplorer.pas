@@ -407,10 +407,10 @@ begin
   // focused source
   fJsonFname := fDoc.tempFilename + '.json';
   srcFname := fDoc.fileName;
-  if not fileExists(srcFname) then begin
-    srcFname := fDoc.tempFilename;
+  if not fileExists(srcFname) or (srcFname = fDoc.tempFilename) then
     fDoc.saveTempFile;
-  end;
+  srcFname := fDoc.fileName;
+
   //else fDoc.save; refreshonChange/autorefresh don't work until existing doc is saved
   fDmdProc.Parameters.Add(srcFname);
 

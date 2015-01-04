@@ -445,7 +445,7 @@ end;
 
 procedure TCESynMemo.saveTempFile;
 begin
-  Lines.SaveToFile(fTempFileName);
+  saveToFile(fTempFileName);
   fModified := false;
 end;
 
