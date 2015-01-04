@@ -51,8 +51,21 @@ implementation
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEProjectConfigurationWidget.create(aOwner: TComponent);
+var
+  png: TPortableNetworkGraphic;
 begin
   inherited;
+  png := TPortableNetworkGraphic.Create;
+  try
+    png.LoadFromLazarusResource('cog_add');
+    btnAddConf.Glyph.Assign(png);
+    png.LoadFromLazarusResource('cog_delete');
+    btnDelConf.Glyph.Assign(png);
+    png.LoadFromLazarusResource('cog_go');
+    btnCloneConf.Glyph.Assign(png);
+  finally
+    png.Free;
+  end;
   Tree.Selected := Tree.Items.GetLastNode;
   Grid.OnEditorFilter := @GridFilter;
   //
