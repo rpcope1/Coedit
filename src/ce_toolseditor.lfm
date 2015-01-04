@@ -104,6 +104,7 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
           Width = 160
           Align = alLeft
           ItemHeight = 0
+          OnDblClick = lstToolsDblClick
           OnSelectionChange = lstToolsSelectionChange
           TabOrder = 0
         end

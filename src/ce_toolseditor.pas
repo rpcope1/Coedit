@@ -27,6 +27,7 @@ type
     procedure btnMoveUpClick(Sender: TObject);
     procedure btnMoveDownClick(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
+    procedure lstToolsDblClick(Sender: TObject);
     procedure lstToolsSelectionChange(Sender: TObject; User: boolean);
     procedure propsEdModified(Sender: TObject);
   private
@@ -137,6 +138,13 @@ begin
 end;
 
 procedure TCEToolsEditorWidget.btnRunClick(Sender: TObject);
+begin
+  if lstTools.ItemIndex = -1 then
+    exit;
+  CustomTools.tool[lstTools.ItemIndex].execute;
+end;
+
+procedure TCEToolsEditorWidget.lstToolsDblClick(Sender: TObject);
 begin
   if lstTools.ItemIndex = -1 then
     exit;
