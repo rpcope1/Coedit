@@ -28,7 +28,6 @@ type
     procedure btnMoveDownClick(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
     procedure lstToolsSelectionChange(Sender: TObject; User: boolean);
-    procedure Panel2Click(Sender: TObject);
     procedure propsEdModified(Sender: TObject);
   private
     procedure DataToGui;
@@ -41,8 +40,25 @@ implementation
 {$R *.lfm}
 
 constructor TCEToolsEditorWidget.create(aOwner: TComponent);
+var
+  png: TPortableNetworkGraphic;
 begin
   inherited;
+  png := TPortableNetworkGraphic.Create;
+  try
+    png.LoadFromLazarusResource('arrow_up');
+    btnMoveUp.Glyph.Assign(png);
+    png.LoadFromLazarusResource('arrow_down');
+    btnMoveDown.Glyph.Assign(png);
+    png.LoadFromLazarusResource('application_add');
+    BtnAddTool.Glyph.Assign(png);
+    png.LoadFromLazarusResource('application_delete');
+    btnRemTool.Glyph.Assign(png);
+    png.LoadFromLazarusResource('application_flash');
+    btnRun.Glyph.Assign(png);
+  finally
+    png.free;
+  end;
   DataToGui;
 end;
 
@@ -74,11 +90,6 @@ begin
   if lstTools.ItemIndex = -1 then
     exit;
   propsEd.TIObject := CustomTools.tool[lstTools.ItemIndex];
-end;
-
-procedure TCEToolsEditorWidget.Panel2Click(Sender: TObject);
-begin
-
 end;
 
 procedure TCEToolsEditorWidget.propsEdModified(Sender: TObject);
