@@ -78,8 +78,25 @@ uses
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEMiniExplorerWidget.create(aIwner: TComponent);
+var
+  png: TPortableNetworkGraphic;
 begin
   inherited;
+  //
+  png := TPortableNetworkGraphic.Create;
+  try
+    png.LoadFromLazarusResource('folder_add');
+    btnAddFav.Glyph.Assign(png);
+    png.LoadFromLazarusResource('folder_delete');
+    btnRemFav.Glyph.Assign(png);
+    png.LoadFromLazarusResource('flash');
+    btnShellOpen.Glyph.Assign(png);
+    png.LoadFromLazarusResource('pencil');
+    btnEdit.Glyph.Assign(png);
+  finally
+    png.Free;
+  end;
+  //
   fLogMessager := TCELogMessageSubject.create;
   fFavorites := TStringList.Create;
   fFavorites.onChange := @favStringsChange;
