@@ -556,7 +556,7 @@ end;
 function uniqueObjStr(const aObject: Tobject): string;
 begin
   {$HINTS OFF}{$WARNINGS OFF}
-  exit( format('%.8X',[NativeUint(@aObject)]));
+  exit( format('%.8X',[NativeUint(aObject)]));
   {$HINTS ON}{$WARNINGS ON}
 end;
 
