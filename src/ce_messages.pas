@@ -289,7 +289,14 @@ end;
 
 procedure TCEMessagesWidget.actClearCurCatExecute(Sender: TObject);
 begin
-  lmClearbyContext(fCtxt);
+  case fCtxt of
+    amcAll, amcApp, amcMisc :
+      lmClearbyContext(fCtxt);
+    amcEdit: if fDoc <> nil then
+      lmClearbyData(fDoc);
+    amcProj: if fProj <> nil then
+      lmClearbyData(fProj);
+  end;
 end;
 
 procedure TCEMessagesWidget.actCopyMsgExecute(Sender: TObject);
