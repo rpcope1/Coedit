@@ -999,8 +999,10 @@ var
 begin
   result := -1;
   if fEditWidg = nil then exit;
-  for i := 0 to fEditWidg.editorCount-1 do
+  for i := 0 to fEditWidg.editorCount-1 do begin
     if fEditWidg.editor[i].fileName = aFilename then exit(i);
+    if fEditWidg.editor[i].tempFilename = aFilename then exit(i);
+  end;
 end;
 
 procedure TCEMainForm.openFile(const aFilename: string);
@@ -1019,7 +1021,7 @@ begin
   fEditWidg.addEditor;
   fEditWidg.editor[i].loadFromFile(aFilename);
   fEditWidg.focusedEditorChanged;
-  fFileMru.Insert(0,aFilename);
+  fFileMru.Insert(0, aFilename);
 end;
 
 procedure TCEMainForm.saveFile(const edIndex: NativeInt);
