@@ -144,19 +144,10 @@ begin
 end;
 
 procedure TCEMiniExplorerWidget.optset_LastFold(aReader: TReader);
-var
-  lst: TstringList;
 begin
   fLastFold := aReader.ReadString;
-  if not directoryExists(fLastFold) then exit;
-  //
-  lst := TStringList.Create;
-  try
-    listFiles(lst, fLastFold);
-    fillLstFiles(lst);
-  finally
-    lst.Free;
-  end;
+  if directoryExists(fLastFold) then
+    expandPath(fLastFold);
 end;
 
 procedure TCEMiniExplorerWidget.optget_LastFold(aWriter: TWriter);
@@ -380,6 +371,7 @@ begin
   lst := TStringList.Create;
   try
     pth := PString(Tree.Selected.Data)^;
+    fLastFold := pth;
     listFiles(lst, pth);
     fillLstFiles(lst);
   finally
