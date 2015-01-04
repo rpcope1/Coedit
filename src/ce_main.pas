@@ -676,6 +676,8 @@ begin
     exit;
   //
   fname := fRunProc.Executable;
+  if ExtractFileDir(fname) <> GetTempDir(false) then
+    exit;
   killProcess(fRunProc);
   if fileExists(fname) then
     sysutils.DeleteFile(fname);
