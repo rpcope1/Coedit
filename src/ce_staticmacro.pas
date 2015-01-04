@@ -5,7 +5,7 @@ unit ce_staticmacro;
 interface
 
 uses
-  Classes, Sysutils, SynEdit, SynEditAutoComplete, SynCompletion,
+  Classes, Sysutils, SynEdit, SynCompletion,
   ce_interfaces, ce_writableComponent, ce_synmemo;
 
 type
@@ -53,13 +53,22 @@ type
 const
   macFname = 'staticMacros.txt';
 
-  defMacros: array[0..5] of string = (
+  defMacros: array[0..14] of string = (
     '$a=auto',
     '$c=class {}',
+    '$e=enum {}',
+    '$it=interface {}',
+    '$im=import ',
+    '$pr=protected {}',
+    '$pu=public {}',
+    '$pv=private {}',
     '$s=struct {}',
+    '$t=template {}',
+    '$un=union{}',
     '$ut=unittest{}',
     '$fo=for(auto i = 0; ; )',
-    '$fe=foreach(elem; )'
+    '$fe=foreach(elem; )',
+    '$v=void (){}'
   );
 
 var
