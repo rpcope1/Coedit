@@ -140,7 +140,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="32">
+    <Units Count="33">
       <Unit0>
         <Filename Value="coedit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -340,6 +340,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_writableComponent"/>
       </Unit31>
+      <Unit32>
+        <Filename Value="..\src\ce_icons.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_icons"/>
+      </Unit32>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
