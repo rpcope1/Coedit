@@ -63,6 +63,8 @@ uses
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEProjectInspectWidget.create(aOwner: TComponent);
+var
+  png: TPortableNetworkGraphic;
 begin
   fActOpenFile := TAction.Create(self);
   fActOpenFile.Caption := 'Open file in editor';
@@ -73,6 +75,23 @@ begin
   fActSelConf.OnUpdate := @actUpdate;
   //
   inherited;
+  //
+  png := TPortableNetworkGraphic.Create;
+  try
+    png.LoadFromLazarusResource('document_add');
+    btnAddFile.Glyph.Assign(png);
+    png.LoadFromLazarusResource('document_delete');
+    btnRemFile.Glyph.Assign(png);
+    png.LoadFromLazarusResource('folder_add');
+    btnAddFold.Glyph.Assign(png);
+    png.LoadFromLazarusResource('folder_delete');
+    btnRemFold.Glyph.Assign(png);
+    png.LoadFromLazarusResource('wrench_orange');
+    btnProjOpts.Glyph.Assign(png);
+  finally
+    png.Free;
+  end;
+  //
   Tree.OnDblClick := @TreeDblClick;
   fFileNode := Tree.Items[0];
   fConfNode := Tree.Items[1];
