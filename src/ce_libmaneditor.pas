@@ -35,6 +35,8 @@ type
     procedure gridToData;
   protected
     procedure DoShow; override;
+  public
+    constructor create(aOwner: TComponent); override;
   end;
 
 implementation
@@ -45,6 +47,32 @@ uses
 
 const
   notav: string = '< n/a >';
+
+constructor TCELibManEditorWidget.create(aOwner: TComponent);
+var
+  png: TPortableNetworkGraphic;
+begin
+  inherited;
+  png := TPortableNetworkGraphic.Create;
+  try
+    png.LoadFromLazarusResource('arrow_down');
+    btnMoveDown.Glyph.Assign(png);
+    png.LoadFromLazarusResource('arrow_up');
+    btnMoveUp.Glyph.Assign(png);
+    png.LoadFromLazarusResource('book_add');
+    btnAddLib.Glyph.Assign(png);
+    png.LoadFromLazarusResource('book_delete');
+    btnRemLib.Glyph.Assign(png);
+    png.LoadFromLazarusResource('book_edit');
+    btnEditAlias.Glyph.Assign(png);
+    png.LoadFromLazarusResource('folder_brick');
+    btnSelFile.Glyph.Assign(png);
+    png.LoadFromLazarusResource('folder_add');
+    btnSelRoot.Glyph.Assign(png);
+  finally
+    png.free;
+  end;
+end;
 
 procedure TCELibManEditorWidget.ListEdited(Sender: TObject; Item: TListItem;
   var AValue: string);
