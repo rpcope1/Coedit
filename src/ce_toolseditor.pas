@@ -31,6 +31,7 @@ type
     procedure lstToolsSelectionChange(Sender: TObject; User: boolean);
     procedure propsEdModified(Sender: TObject);
   private
+    procedure executeSelectedTool;
     procedure DataToGui;
     procedure updateNames;
   public
@@ -137,18 +138,21 @@ begin
   updateNames;
 end;
 
-procedure TCEToolsEditorWidget.btnRunClick(Sender: TObject);
+procedure TCEToolsEditorWidget.executeSelectedTool;
 begin
   if lstTools.ItemIndex = -1 then
     exit;
-  CustomTools.tool[lstTools.ItemIndex].execute;
+  CustomTools.executeTool(lstTools.ItemIndex);
+end;
+
+procedure TCEToolsEditorWidget.btnRunClick(Sender: TObject);
+begin
+  executeSelectedTool;
 end;
 
 procedure TCEToolsEditorWidget.lstToolsDblClick(Sender: TObject);
 begin
-  if lstTools.ItemIndex = -1 then
-    exit;
-  CustomTools.tool[lstTools.ItemIndex].execute;
+  executeSelectedTool;
 end;
 
 end.

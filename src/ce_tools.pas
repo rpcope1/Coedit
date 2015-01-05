@@ -20,10 +20,15 @@ type
     fParameters: TStringList;
     fToolAlias: string;
     fQueryParams: boolean;
+    fChainBefore: TStringList;
+    fChainAfter: TStringList;
     //fShortcut: string;
     fLogMessager: TCELogMessageSubject;
-    procedure setParameters(const aValue: TStringList);
+    procedure setParameters(aValue: TStringList);
+    procedure setChainBefore(aValue: TStringList);
+    procedure setChainAfter(aValue: TStringList);
     procedure processOutput(sender: TObject);
+    procedure execute;
   published
     property toolAlias: string read fToolAlias write fToolAlias;
     property options: TProcessOptions read fOpts write fOpts;
@@ -32,12 +37,12 @@ type
     property parameters: TStringList read fParameters write setParameters;
     property showWindows: TShowWindowOptions read fShowWin write fShowWin;
     property queryParameters: boolean read fQueryParams write fQueryParams;
+    property chainBefore: TStringList read fChainBefore write setchainBefore;
+    property chainAfter: TStringList read fChainAfter write setChainAfter;
     //property shortcut: string read fShortcut write fShortcut;
   public
     constructor create(ACollection: TCollection); override;
     destructor destroy; override;
-    //
-    procedure execute;
   end;
 
   TCETools = class(TWritableComponent, ICEMainMenuProvider)
@@ -56,6 +61,8 @@ type
     destructor destroy; override;
     //
     function addTool: TCEToolItem;
+    procedure executeTool(aTool: TCEToolItem); overload;
+    procedure executeTool(aToolIndex: Integer); overload;
     property tool[index: integer]: TCEToolItem read getTool;
   end;
 
@@ -75,20 +82,34 @@ begin
   inherited;
   fToolAlias := format('<tool %d>', [ID]);
   fParameters := TStringList.create;
+  fChainBefore := TStringList.Create;
+  fChainAfter := TStringList.Create;
   fLogMessager := TCELogMessageSubject.create;
 end;
 
 destructor TCEToolItem.destroy;
 begin
   fParameters.Free;
+  fChainAfter.Free;
+  fChainBefore.Free;
   fLogMessager.Free;
   killProcess(fProcess);
   inherited;
 end;
 
-procedure TCEToolItem.setParameters(const aValue: TStringList);
+procedure TCEToolItem.setParameters(aValue: TStringList);
 begin
   fParameters.Assign(aValue);
+end;
+
+procedure TCEToolItem.setChainBefore(aValue: TStringList);
+begin
+  fChainBefore.Assign(aValue);
+end;
+
+procedure TCEToolItem.setChainAfter(aValue: TStringList);
+begin
+  fChainAfter.Assign(aValue);
 end;
 
 procedure TCEToolItem.execute;
@@ -155,7 +176,8 @@ end;
 
 procedure TCETools.executeToolFromMenu(sender: TObject);
 begin
-  TCEToolItem(TMenuItem(sender).tag).execute;
+  //TCEToolItem(TMenuItem(sender).tag).execute;
+  executeTool(TCEToolItem(TMenuItem(sender).tag));
 end;
 
 procedure TCETools.menuDeclare(item: TMenuItem);
@@ -208,6 +230,36 @@ end;
 function TCETools.addTool: TCEToolItem;
 begin
   result := TCEToolItem(fTools.Add);
+end;
+
+procedure TCETools.executeTool(aTool: TCEToolItem);
+var
+  nme: string;
+  chained: TCollectionItem;
+begin
+  if aTool = nil then exit;
+  if not exeInSysPath(aTool.executable) then
+    if (aTool.chainAfter.Count = 0) and (aTool.chainBefore.Count = 0) then
+      exit;
+  // TODO-cWiki: toolchain, process is async but poWaitOnExit can be set to force syncro.
+  for nme in aTool.chainBefore do
+    for chained in fTools do
+      if TCEToolItem(chained).toolAlias = nme then
+        TCEToolItem(chained).execute;
+  if exeInSysPath(aTool.executable) then
+    aTool.execute;
+  for nme in aTool.chainAfter do
+    for chained in fTools do
+      if TCEToolItem(chained).toolAlias = nme then
+        TCEToolItem(chained).execute;
+end;
+
+procedure TCETools.executeTool(aToolIndex: Integer);
+begin
+  if aToolIndex < 0 then exit;
+  if aToolIndex > fTools.Count-1 then exit;
+  //
+  executeTool(tool[aToolIndex]);
 end;
 
 initialization
