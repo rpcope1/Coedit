@@ -242,6 +242,7 @@ begin
   else dir := '';
   if selectDirectory('sources', dir, dir, true, 0) then
   begin
+    fProject.beginUpdate;
     lst := TStringList.Create;
     try
       listFiles(lst, dir, true);
@@ -254,6 +255,7 @@ begin
       end;
     finally
       lst.Free;
+      fProject.endUpdate;
     end;
   end;
 end;
@@ -274,9 +276,11 @@ begin
   dir := extractFilePath(fname);
   if not DirectoryExists(dir) then exit;
   //
+  fProject.beginUpdate;
   for i:= fProject.Sources.Count-1 downto 0 do
     if extractFilePath(fProject.getAbsoluteSourceName(i)) = dir then
       fProject.Sources.Delete(i);
+  fProject.endUpdate;
   UpdateByEvent;
 end;
 
