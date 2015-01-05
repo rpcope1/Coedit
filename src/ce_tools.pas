@@ -103,13 +103,23 @@ begin
 end;
 
 procedure TCEToolItem.setChainBefore(aValue: TStringList);
+var
+  i: Integer;
 begin
   fChainBefore.Assign(aValue);
+  i := fChainBefore.IndexOf(fToolAlias);
+  if i <> -1 then
+    fChainBefore.Delete(i);
 end;
 
 procedure TCEToolItem.setChainAfter(aValue: TStringList);
+var
+  i: Integer;
 begin
   fChainAfter.Assign(aValue);
+  i := fChainAfter.IndexOf(fToolAlias);
+  if i <> -1 then
+    fChainAfter.Delete(i);
 end;
 
 procedure TCEToolItem.execute;
@@ -245,13 +255,15 @@ begin
   for nme in aTool.chainBefore do
     for chained in fTools do
       if TCEToolItem(chained).toolAlias = nme then
-        TCEToolItem(chained).execute;
+        if TCEToolItem(chained).toolAlias <> aTool.toolAlias then
+          TCEToolItem(chained).execute;
   if exeInSysPath(aTool.executable) then
     aTool.execute;
   for nme in aTool.chainAfter do
     for chained in fTools do
       if TCEToolItem(chained).toolAlias = nme then
-        TCEToolItem(chained).execute;
+        if TCEToolItem(chained).toolAlias <> aTool.toolAlias then
+          TCEToolItem(chained).execute;
 end;
 
 procedure TCETools.executeTool(aToolIndex: Integer);
