@@ -333,23 +333,35 @@ end;
 procedure TCEMainForm.getCMdParams;
 var
   value: string;
-  str: TStringList;
+  lst: TStringList;
+  hdl: THandle;
+  str: string;
 begin
   if application.ParamCount > 0 then
   begin
     value := application.Params[1];
     if value <> '' then
     begin
-      str := TStringList.Create;
+      setLength(str, 6);
+      lst := TStringList.Create;
       try
-        str.DelimitedText := value;
-        for value in str do
+        lst.DelimitedText := value;
+        for value in lst do
         begin
-          if fileExists(value) then
+          if not fileExists(value) then
+            continue;
+          hdl := FileOpen(value, fmOpenRead);
+          if hdl = 0 then
+            continue;
+          FileRead(hdl, str[1], length(str));
+          FileClose(hdl);
+          if str = 'object' then
+            openProj(value)
+          else
             openFile(value);
         end;
       finally
-        str.Free;
+        lst.Free;
       end;
     end;
   end;
@@ -362,16 +374,16 @@ begin
   value := application.GetOptionValue('f', 'files');
   if value <> '' then
   begin
-    str := TStringList.Create;
+    lst := TStringList.Create;
     try
-      str.DelimitedText := value;
-      for value in str do
+      lst.DelimitedText := value;
+      for value in lst do
       begin
         if fileExists(value) then
           openFile(value);
       end;
     finally
-      str.Free;
+      lst.Free;
     end;
   end;
 end;
