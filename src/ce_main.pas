@@ -1012,8 +1012,8 @@ begin
   result := -1;
   if fEditWidg = nil then exit;
   for i := 0 to fEditWidg.editorCount-1 do begin
-    if fEditWidg.editor[i].fileName = aFilename then exit(i);
-    if fEditWidg.editor[i].tempFilename = aFilename then exit(i);
+    if SameText(fEditWidg.editor[i].fileName, aFilename) then exit(i);
+    if SameText(fEditWidg.editor[i].tempFilename, aFilename) then exit(i);
   end;
 end;
 
