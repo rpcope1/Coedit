@@ -616,6 +616,7 @@ begin
     fVerIds.Assign(src.fVerIds);
     fInline := src.fInline;
     fNoBounds := src.fNoBounds;
+    fBoundsCheck:= src.fBoundsCheck;
     fOptimz := src.fOptimz;
     fGenStack := src.fGenStack;
     fMain := src.fMain;
