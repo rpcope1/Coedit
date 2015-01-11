@@ -1,0 +1,103 @@
+inherited CEResmanWidget: TCEResmanWidget
+  Left = 755
+  Height = 331
+  Top = 247
+  Width = 432
+  Caption = 'Resman'
+  ClientHeight = 331
+  ClientWidth = 432
+  inherited Back: TPanel
+    Height = 331
+    Width = 432
+    ClientHeight = 331
+    ClientWidth = 432
+    inherited Content: TPanel
+      Height = 331
+      Width = 432
+      ClientHeight = 331
+      ClientWidth = 432
+      object Panel1: TPanel[0]
+        Left = 4
+        Height = 24
+        Top = 4
+        Width = 424
+        Align = alTop
+        BorderSpacing.Around = 4
+        BevelOuter = bvNone
+        ClientHeight = 24
+        ClientWidth = 424
+        TabOrder = 0
+        object BtnAddItem: TBitBtn
+          Left = 0
+          Height = 24
+          Hint = 'add a resourcel'
+          Top = 0
+          Width = 28
+          Align = alLeft
+          Layout = blGlyphBottom
+          OnClick = BtnAddItemClick
+          Spacing = 0
+          TabOrder = 0
+        end
+        object btnRemItem: TBitBtn
+          Left = 28
+          Height = 24
+          Hint = 'remove selected resource'
+          Top = 0
+          Width = 28
+          Align = alLeft
+          Layout = blGlyphBottom
+          OnClick = btnRemItemClick
+          Spacing = 0
+          TabOrder = 1
+        end
+      end
+      object Panel2: TPanel[1]
+        Left = 4
+        Height = 295
+        Top = 32
+        Width = 424
+        Align = alClient
+        BorderSpacing.Around = 4
+        BevelOuter = bvNone
+        ClientHeight = 295
+        ClientWidth = 424
+        TabOrder = 1
+        object lstItems: TListBox
+          Left = 0
+          Height = 295
+          Top = 0
+          Width = 160
+          Align = alLeft
+          ItemHeight = 0
+          OnSelectionChange = lstItemsSelectionChange
+          TabOrder = 0
+        end
+        object Splitter1: TSplitter
+          Left = 160
+          Height = 295
+          Top = 0
+          Width = 5
+          AutoSnap = False
+        end
+        object propsEd: TTIPropertyGrid
+          Left = 165
+          Height = 295
+          Top = 0
+          Width = 259
+          Align = alClient
+          DefaultValueFont.Color = clWindowText
+          Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkObject, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
+          Indent = 16
+          NameFont.Color = clWindowText
+          OnModified = propsEdModified
+          ValueFont.Color = clMaroon
+        end
+      end
+    end
+  end
+  inherited contextMenu: TPopupMenu
+    left = 16
+    top = 8
+  end
+end

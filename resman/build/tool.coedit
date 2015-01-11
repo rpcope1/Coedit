@@ -1,0 +1,23 @@
+object CurrentProject: TCEProject
+  OptionsCollection = <  
+    item
+      name = 'default'
+      messagesOptions.showColumnsNumber = True
+      outputOptions.boundsCheck = onAlways
+      pathsOptions.outputFilename = 'C:\dev\sharedbin\resman.exe'
+      preBuildProcess.options = []
+      preBuildProcess.showWindow = swoNone
+      postBuildProcess.options = []
+      postBuildProcess.showWindow = swoNone
+      runOptions.options = []
+      runOptions.parameters.Strings = (
+        '-v <CPFS>'
+      )
+      runOptions.showWindow = swoNone
+    end>
+  Sources.Strings = (
+    '..\tool\resman.d'
+    '..\tool\utils.d'
+  )
+  ConfigurationIndex = 0
+end

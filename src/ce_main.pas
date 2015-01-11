@@ -10,7 +10,7 @@ uses
   Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, dynlibs, SynExportHTML,
   ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_plugin, ce_synmemo, ce_widget,
   ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf, ce_search,
-  ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor,
+  ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_resman,
   ce_observer, ce_writableComponent, ce_toolseditor, ce_procinput, ce_cdbcmd;
 
 type
@@ -177,6 +177,8 @@ type
     fDoc: TCESynMemo;
     fUpdateCount: NativeInt;
     fProject: TCEProject;
+    fProjMru: TMruFileList;
+    fFileMru: TMruFileList;
     fPlugList: TCEPlugDescriptorList;
     fWidgList: TCEWidgetList;
     fMesgWidg: TCEMessagesWidget;
@@ -188,17 +190,15 @@ type
     fExplWidg: TCEMiniExplorerWidget;
     fLibMWidg: TCELibManEditorWidget;
     fTlsEdWidg: TCEToolsEditorWidget;
-    fProjMru: TMruFileList;
-    fFileMru: TMruFileList;
     fPrInpWidg: TCEProcInputWidget;
-    fInitialized: boolean;
-    fRunnableSw: string;
+    fResWidg: TCEResmanWidget;
     {$IFDEF WIN32}
     fCdbWidg: TCECdbWidget;
     {$ENDIF}
 
+    fInitialized: boolean;
+    fRunnableSw: string;
     fRunProc: TCheckedAsyncProcess;
-
     fLogMessager: TCELogMessageSubject;
     fMainMenuSubj: TCEMainMenuSubject;
     procedure updateMainMenuProviders;
@@ -239,7 +239,6 @@ type
     procedure FreeRunnableProc;
 
     // widget interfaces subroutines
-    procedure checkWidgetActions(const aWidget: TCEWidget);
     procedure widgetShowFromAction(sender: TObject);
 
     // run & exec sub routines
@@ -462,6 +461,7 @@ begin
   fLibMWidg := TCELibManEditorWidget.create(self);
   fTlsEdWidg:= TCEToolsEditorWidget.create(self);
   fPrInpWidg:= TCEProcInputWidget.create(self);
+  fResWidg  := TCEResmanWidget.create(self);
 
   {$IFDEF WIN32}
   fCdbWidg  := TCECdbWidget.create(self);
@@ -477,6 +477,7 @@ begin
   fWidgList.addWidget(@fLibMWidg);
   fWidgList.addWidget(@fTlsEdWidg);
   fWidgList.addWidget(@fPrInpWidg);
+  fWidgList.addWidget(@fResWidg);
 
   {$IFDEF WIN32}
   fWidgList.addWidget(@fCdbWidg);
@@ -857,28 +858,6 @@ begin
       true: mainMenu.Items.Add(itm);
       false: itm.Free;
     end;
-  end;
-end;
-
-procedure TCEMainForm.checkWidgetActions(const aWidget: TCEWidget);
-var
-  tlt: string;
-  cnt, i: NativeInt;
-  prt, itm: TMenuItem;
-begin
-  tlt := aWidget.contextName;
-  if tlt = '' then exit;
-  cnt := aWidget.contextActionCount;
-  if cnt = 0 then exit;
-  //
-  prt := TMenuItem.Create(self);
-  prt.Caption := tlt;
-  mainMenu.Items.Add(prt);
-  for i := 0 to cnt-1 do
-  begin
-    itm := TMenuItem.Create(prt);
-    itm.Action := aWidget.contextAction(i);
-    prt.Add(itm);
   end;
 end;
 
