@@ -41,6 +41,7 @@ type
     procedure projClosing(aProject: TCEProject);
     procedure projFocused(aProject: TCEProject);
     procedure projChanged(aProject: TCEProject);
+    procedure projCompiling(aProject: TCEProject);
   end;
 
 implementation
@@ -87,6 +88,10 @@ begin
 end;
 
 procedure TCECdbWidget.projChanged(aProject: TCEProject);
+begin
+end;
+
+procedure TCECdbWidget.projCompiling(aProject: TCEProject);
 begin
 end;
 {$ENDREGION --------------------------------------------------------------------}

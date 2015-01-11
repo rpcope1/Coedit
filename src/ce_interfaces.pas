@@ -82,8 +82,10 @@ type
     procedure projChanged(aProject: TCEProject);
     // aProject is about to be closed.
     procedure projClosing(aProject: TCEProject);
-    // not used yet: the active project is now aProject
+    // not called yet: aProject is always the same
     procedure projFocused(aProject: TCEProject);
+    // aProject is about to be compiled
+    procedure projCompiling(aProject: TCEProject);
   end;
   (**
    * An implementer informs some ICEProjectObserver about the current project(s)
@@ -188,7 +190,7 @@ type
   procedure subjProjClosing(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
   procedure subjProjFocused(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
   procedure subjProjChanged(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
-
+  procedure subjProjCompiling(aSubject: TCEProjectSubject; aProj: TCEProject);{$IFDEF RELEASE}inline;{$ENDIF}
   (**
    * TCESessionOptionsSubject primitives.
    *)
@@ -281,6 +283,14 @@ var
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
     (fObservers.Items[i] as ICEProjectObserver).projChanged(aProj);
+end;
+
+procedure subjProjCompiling(aSubject: TCEProjectSubject; aProj: TCEProject);
+var
+  i: Integer;
+begin
+  with aSubject do for i:= 0 to fObservers.Count-1 do
+    (fObservers.Items[i] as ICEProjectObserver).projCompiling(aProj);
 end;
 {$ENDREGION}
 

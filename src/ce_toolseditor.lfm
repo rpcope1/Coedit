@@ -1,7 +1,7 @@
 inherited CEToolsEditorWidget: TCEToolsEditorWidget
-  Left = 1428
+  Left = 1143
   Height = 280
-  Top = 345
+  Top = 343
   Width = 441
   Caption = 'Tools editor'
   ClientHeight = 280

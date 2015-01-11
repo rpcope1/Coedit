@@ -30,6 +30,7 @@ type
     procedure projChanged(aProject: TCEProject);
     procedure projClosing(aProject: TCEProject);
     procedure projFocused(aProject: TCEProject);
+    procedure projCompiling(aProject: TCEProject);
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
@@ -129,6 +130,10 @@ end;
 procedure TCEDcdWrapper.projFocused(aProject: TCEProject);
 begin
   fProj := aProject;
+end;
+
+procedure TCEDcdWrapper.projCompiling(aProject: TCEProject);
+begin
 end;
 {$ENDREGION}
 

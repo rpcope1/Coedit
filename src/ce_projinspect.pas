@@ -41,18 +41,19 @@ type
     procedure actUpdate(sender: TObject);
     procedure TreeDblClick(sender: TObject);
     procedure actOpenFileExecute(sender: TObject);
-  public
-    constructor create(aOwner: TComponent); override;
-    destructor destroy; override;
     //
     procedure projNew(aProject: TCEProject);
     procedure projClosing(aProject: TCEProject);
     procedure projFocused(aProject: TCEProject);
     procedure projChanged(aProject: TCEProject);
-    //
+    procedure projCompiling(aProject: TCEProject);
+  protected
     function contextName: string; override;
     function contextActionCount: integer; override;
     function contextAction(index: integer): TAction; override;
+  public
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
   end;
 
 implementation
@@ -164,6 +165,10 @@ begin
   if fProject <> aProject then
     exit;
   UpdateByEvent;
+end;
+
+procedure TCEProjectInspectWidget.projCompiling(aProject: TCEProject);
+begin
 end;
 {$ENDREGION}
 

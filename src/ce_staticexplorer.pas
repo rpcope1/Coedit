@@ -57,8 +57,25 @@ type
     procedure optset_RefreshOnChange(aReader: TReader);
     procedure optget_RefreshOnFocus(aWriter: TWriter);
     procedure optset_RefreshOnFocus(aReader: TReader);
+    //
+    procedure docNew(aDoc: TCESynMemo);
+    procedure docClosing(aDoc: TCESynMemo);
+    procedure docFocused(aDoc: TCESynMemo);
+    procedure docChanged(aDoc: TCESynMemo);
+    //
+    procedure projNew(aProject: TCEProject);
+    procedure projClosing(aProject: TCEProject);
+    procedure projFocused(aProject: TCEProject);
+    procedure projChanged(aProject: TCEProject);
+    procedure projCompiling(aProject: TCEProject);
   protected
     procedure UpdateByDelay; override;
+    //
+    procedure sesoptDeclareProperties(aFiler: TFiler); override;
+    //
+    function contextName: string; override;
+    function contextActionCount: integer; override;
+    function contextAction(index: integer): TAction; override;
   published
     property autoRefresh: boolean read fAutoRefresh write fAutoRefresh;
     property refreshOnChange: boolean read fRefreshOnChange write fRefreshOnChange;
@@ -66,22 +83,6 @@ type
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
-    //
-    procedure docNew(aDoc: TCESynMemo);
-    procedure docClosing(aDoc: TCESynMemo);
-    procedure docFocused(aDoc: TCESynMemo);
-    procedure docChanged(aDoc: TCESynMemo);
-    //
-    function contextName: string; override;
-    function contextActionCount: integer; override;
-    function contextAction(index: integer): TAction; override;
-    //
-    procedure projNew(aProject: TCEProject);
-    procedure projClosing(aProject: TCEProject);
-    procedure projFocused(aProject: TCEProject);
-    procedure projChanged(aProject: TCEProject);
-    //
-    procedure sesoptDeclareProperties(aFiler: TFiler); override;
   end;
 
 implementation
@@ -309,6 +310,10 @@ begin
 end;
 
 procedure TCEStaticExplorerWidget.projChanged(aProject: TCEProject);
+begin
+end;
+
+procedure TCEStaticExplorerWidget.projCompiling(aProject: TCEProject);
 begin
 end;
 {$ENDREGION}

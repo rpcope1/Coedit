@@ -44,16 +44,17 @@ type
     function syncroSetPropAsString(const ASection, Item, Default: string): string;
     procedure syncroGetPropAsString(const ASection, Item, Value: string);
     property syncroMode: boolean read fSyncroMode write setSyncroMode;
-  protected
-    procedure UpdateByEvent; override;
-  public
-    constructor create(aOwner: TComponent); override;
-    destructor destroy; override;
     //
     procedure projNew(aProject: TCEProject);
     procedure projClosing(aProject: TCEProject);
     procedure projChanged(aProject: TCEProject);
     procedure projFocused(aProject: TCEProject);
+    procedure projCompiling(aProject: TCEProject);
+  protected
+    procedure UpdateByEvent; override;
+  public
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
   end;
 
 implementation
@@ -125,6 +126,10 @@ begin
   beginUpdateByEvent;
   fProj := aProject;
   endUpdateByEvent;
+end;
+
+procedure TCEProjectConfigurationWidget.projCompiling(aProject: TCEProject);
+begin
 end;
 {$ENDREGION --------------------------------------------------------------------}
 

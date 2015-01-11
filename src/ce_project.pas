@@ -537,6 +537,7 @@ begin
   end;
   //
   subjLmClearByData(TCELogMessageSubject(fLogMessager), Self);
+  subjProjCompiling(TCEProjectSubject(fProjectSubject), Self);
   //
   if not runPrePostProcess(config.preBuildProcess) then
     subjLmFromString(TCELogMessageSubject(fLogMessager),

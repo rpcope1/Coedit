@@ -42,7 +42,14 @@ type
     procedure UpdateByEvent; virtual;
     // a descendant overrides to implement a delayed update event.
     procedure UpdateByDelay; virtual;
-  // May be used for appplication options
+    //
+    function contextName: string; virtual;
+    function contextActionCount: integer; virtual;
+    function contextAction(index: integer): TAction; virtual;
+    //
+    procedure sesoptBeforeSave; virtual;
+    procedure sesoptDeclareProperties(aFiler: TFiler); virtual;
+    procedure sesoptAfterLoad; virtual;
   published
     property updaterByLoopInterval: Integer read fLoopInter write setLoopInt;
     property updaterByDelayDuration: Integer read fDelayDur write setDelayDur;
@@ -64,14 +71,6 @@ type
     procedure endUpdateByEvent;
     // immediate call 'UpdateByEvent'
     procedure forceUpdateByEvent;
-    //
-    function contextName: string; virtual;
-    function contextActionCount: integer; virtual;
-    function contextAction(index: integer): TAction; virtual;
-    //
-    procedure sesoptBeforeSave; virtual;
-    procedure sesoptDeclareProperties(aFiler: TFiler); virtual;
-    procedure sesoptAfterLoad; virtual;
     //
     // returns true if one of the three updater is processing.
     property updating: boolean read fUpdating;

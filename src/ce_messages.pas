@@ -68,6 +68,23 @@ type
     procedure optget_MaxMessageCount(awriter: TWriter);
     procedure optset_AutoSelect(aReader: TReader);
     procedure optget_AutoSelect(awriter: TWriter);
+    //
+    procedure projNew(aProject: TCEProject);
+    procedure projClosing(aProject: TCEProject);
+    procedure projFocused(aProject: TCEProject);
+    procedure projChanged(aProject: TCEProject);
+    procedure projCompiling(aProject: TCEProject);
+    //
+    procedure docNew(aDoc: TCESynMemo);
+    procedure docClosing(aDoc: TCESynMemo);
+    procedure docFocused(aDoc: TCESynMemo);
+    procedure docChanged(aDoc: TCESynMemo);
+  protected
+    procedure sesoptDeclareProperties(aFiler: TFiler); override;
+    //
+    function contextName: string; override;
+    function contextActionCount: integer; override;
+    function contextAction(index: integer): TAction; override;
   published
     property maxMessageCount: Integer read fMaxMessCnt write setMaxMessageCount default 125;
   public
@@ -75,22 +92,6 @@ type
     destructor destroy; override;
     //
     procedure scrollToBack;
-    //
-    procedure sesoptDeclareProperties(aFiler: TFiler); override;
-    //
-    function contextName: string; override;
-    function contextActionCount: integer; override;
-    function contextAction(index: integer): TAction; override;
-    //
-    procedure projNew(aProject: TCEProject);
-    procedure projClosing(aProject: TCEProject);
-    procedure projFocused(aProject: TCEProject);
-    procedure projChanged(aProject: TCEProject);
-    //
-    procedure docNew(aDoc: TCESynMemo);
-    procedure docClosing(aDoc: TCESynMemo);
-    procedure docFocused(aDoc: TCESynMemo);
-    procedure docChanged(aDoc: TCESynMemo);
     //
     procedure lmFromString(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
     procedure lmClearbyContext(aCtxt: TCEAppMessageCtxt);
@@ -368,6 +369,10 @@ begin
 end;
 
 procedure TCEMessagesWidget.projChanged(aProject: TCEProject);
+begin
+end;
+
+procedure TCEMessagesWidget.projCompiling(aProject: TCEProject);
 begin
 end;
 {$ENDREGION}

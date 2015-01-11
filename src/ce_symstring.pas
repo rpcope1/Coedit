@@ -24,19 +24,20 @@ type
     fDoc: TCESynMemo;
     fSymbols: array[TCESymbol] of string;
     procedure updateSymbols;
-  public
-    constructor create;
-    destructor destroy; override;
     //
     procedure projNew(aProject: TCEProject);
     procedure projClosing(aProject: TCEProject);
     procedure projFocused(aProject: TCEProject);
     procedure projChanged(aProject: TCEProject);
+    procedure projCompiling(aProject: TCEProject);
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
+  public
+    constructor create;
+    destructor destroy; override;
     // expands the symbols contained in symString
     function get(const symString: string): string;
   end;
@@ -82,6 +83,10 @@ end;
 procedure TCESymbolExpander.projChanged(aProject: TCEProject);
 begin
   if fProj <> aProject then exit;
+end;
+
+procedure TCESymbolExpander.projCompiling(aProject: TCEProject);
+begin
 end;
 {$ENDREGION}
 
