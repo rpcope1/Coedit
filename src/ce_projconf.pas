@@ -5,15 +5,17 @@ unit ce_projconf;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, RTTIGrids, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, ComCtrls, StdCtrls, Menus, Buttons, PropEdits, ObjectInspector,
-  ce_dmdwrap, ce_project, ce_widget, ce_interfaces, ce_observer;
+  Classes, SysUtils, FileUtil, RTTIGrids, RTTICtrls, Forms, Controls, Graphics,
+  Dialogs, ExtCtrls, ComCtrls, StdCtrls, Menus, Buttons, rttiutils, typinfo,
+  PropEdits, ObjectInspector, ce_dmdwrap, ce_project, ce_widget, ce_interfaces,
+  ce_observer;
 
 type
 
   { TCEProjectConfigurationWidget }
 
   TCEProjectConfigurationWidget = class(TCEWidget, ICEProjectObserver)
+    btnSyncEdit: TSpeedButton;
     imgList: TImageList;
     Panel2: TPanel;
     selConf: TComboBox;
@@ -27,13 +29,21 @@ type
     procedure btnAddConfClick(Sender: TObject);
     procedure btnDelConfClick(Sender: TObject);
     procedure btnCloneCurrClick(Sender: TObject);
+    procedure btnSyncEditClick(Sender: TObject);
     procedure GridEditorFilter(Sender: TObject; aEditor: TPropertyEditor;var aShow: boolean);
+    procedure GridModified(Sender: TObject);
     procedure selConfChange(Sender: TObject);
     procedure TreeChange(Sender: TObject; Node: TTreeNode);
     procedure GridFilter(Sender: TObject; aEditor: TPropertyEditor;var aShow: boolean);
   private
     fProj: TCEProject;
+    fSyncroMode: boolean;
+    fSyncroPropValue: string;
     function getGridTarget: TPersistent;
+    procedure setSyncroMode(aValue: boolean);
+    function syncroSetPropAsString(const ASection, Item, Default: string): string;
+    procedure syncroGetPropAsString(const ASection, Item, Value: string);
+    property syncroMode: boolean read fSyncroMode write setSyncroMode;
   protected
     procedure UpdateByEvent; override;
   public
@@ -63,6 +73,8 @@ begin
     btnDelConf.Glyph.Assign(png);
     png.LoadFromLazarusResource('cog_go');
     btnCloneConf.Glyph.Assign(png);
+    png.LoadFromLazarusResource('link_break');
+    btnSyncEdit.Glyph.Assign(png);
   finally
     png.Free;
   end;
@@ -85,6 +97,7 @@ begin
   beginUpdateByEvent;
   fProj := aProject;
   endUpdateByEvent;
+  syncroMode := false;
 end;
 
 procedure TCEProjectConfigurationWidget.projClosing(aProject: TCEProject);
@@ -94,6 +107,7 @@ begin
   Grid.TIObject := nil;
   Grid.ItemIndex := -1;
   self.selConf.Clear;
+  syncroMode := false;
   fProj := nil;
 end;
 
@@ -136,6 +150,106 @@ procedure TCEProjectConfigurationWidget.GridEditorFilter(Sender: TObject;
   aEditor: TPropertyEditor; var aShow: boolean);
 begin
   if aEditor.ClassType = TCollectionPropertyEditor then aShow := false;
+end;
+
+procedure TCEProjectConfigurationWidget.setSyncroMode(aValue: boolean);
+var
+  png: TPortableNetworkGraphic;
+begin
+  if fSyncroMode = aValue then exit;
+  //
+  fSyncroMode := aValue;
+  png := TPortableNetworkGraphic.Create;
+  try
+    if fSyncroMode then png.LoadFromLazarusResource('link')
+    else png.LoadFromLazarusResource('link_break');
+    btnSyncEdit.Glyph.Assign(png);
+  finally
+    png.Free;
+  end;
+end;
+
+function TCEProjectConfigurationWidget.syncroSetPropAsString(const ASection, Item, Default: string): string;
+begin
+  result := fSyncroPropValue;
+end;
+
+procedure TCEProjectConfigurationWidget.syncroGetPropAsString(const ASection, Item, Value: string);
+begin
+ fSyncroPropValue := Value;
+end;
+
+procedure TCEProjectConfigurationWidget.GridModified(Sender: TObject);
+var
+  propstr: string;
+  src_list, trg_list: rttiutils.TPropInfoList;
+  src_prop, trg_prop: PPropInfo;
+  storage: rttiutils.TPropsStorage;
+  trg_obj: TPersistent;
+  i: Integer;
+begin
+  if fProj = nil then exit;
+  if not fSyncroMode then exit;
+  if Grid.TIObject = nil then exit;
+  if Grid.ItemIndex = -1 then exit;
+  //
+  storage := nil;
+  src_prop:= nil;
+  trg_prop:= nil;
+  trg_obj := nil;
+  propstr := Grid.PropertyPath(Grid.ItemIndex);
+  storage := rttiutils.TPropsStorage.Create;
+  storage.OnReadString := @syncroSetPropAsString;
+  storage.OnWriteString := @syncroGetPropAsString;
+  src_list:= rttiutils.TPropInfoList.Create(getGridTarget, tkAny);
+  fProj.beginUpdate;
+  try
+    src_prop := src_list.Find(propstr);
+    if src_prop = nil then exit;
+    storage.AObject := getGridTarget;
+    storage.StoreAnyProperty(src_prop);
+    for i:= 0 to fProj.OptionsCollection.Count-1 do
+    begin
+      // skip current config
+      if i = fProj.ConfigurationIndex then continue;
+      // find target persistent
+      if Grid.TIObject = fProj.currentConfiguration.messagesOptions then
+        trg_obj := fProj.configuration[i].messagesOptions else
+      if Grid.TIObject = fProj.currentConfiguration.debugingOptions then
+        trg_obj := fProj.configuration[i].debugingOptions else
+      if Grid.TIObject = fProj.currentConfiguration.documentationOptions then
+        trg_obj := fProj.configuration[i].documentationOptions else
+      if Grid.TIObject = fProj.currentConfiguration.outputOptions then
+        trg_obj := fProj.configuration[i].outputOptions else
+      if Grid.TIObject = fProj.currentConfiguration.otherOptions then
+        trg_obj := fProj.configuration[i].otherOptions else
+      if Grid.TIObject = fProj.currentConfiguration.pathsOptions then
+         trg_obj := fProj.configuration[i].pathsOptions else
+      if Grid.TIObject = fProj.currentConfiguration.preBuildProcess then
+        trg_obj := fProj.configuration[i].preBuildProcess else
+      if Grid.TIObject = fProj.currentConfiguration.postBuildProcess then
+        trg_obj := fProj.configuration[i].postBuildProcess else
+      if Grid.TIObject = fProj.currentConfiguration.runOptions then
+         trg_obj := fProj.configuration[i].runOptions
+      else continue;
+      // find target property
+      storage.AObject := trg_obj;
+      trg_list := rttiutils.TPropInfoList.Create(trg_obj, tkAny);
+      try
+        trg_prop := trg_list.Find(propstr);
+        if trg_prop <> nil then
+          storage.LoadAnyProperty(trg_prop);
+      finally
+        trg_list.Free;
+        trg_prop := nil;
+      end;
+    end;
+  finally
+    storage.free;
+    src_list.free;
+    fProj.endUpdate;
+    fSyncroPropValue := '';
+  end;
 end;
 
 procedure TCEProjectConfigurationWidget.btnAddConfClick(Sender: TObject);
@@ -183,6 +297,12 @@ begin
   if InputQuery('Configuration name', '', nme) then trg.name := nme;
   fProj.ConfigurationIndex := trg.Index;
   endUpdateByEvent;
+end;
+
+procedure TCEProjectConfigurationWidget.btnSyncEditClick(Sender: TObject);
+begin
+  if fProj = nil then exit;
+  syncroMode := not syncroMode;
 end;
 
 procedure TCEProjectConfigurationWidget.GridFilter(Sender: TObject; aEditor: TPropertyEditor;

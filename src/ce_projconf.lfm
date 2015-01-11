@@ -1,7 +1,7 @@
 inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
-  Left = 1429
+  Left = 632
   Height = 273
-  Top = 30
+  Top = 322
   Width = 445
   Caption = 'Project configuration'
   ClientHeight = 273
@@ -34,7 +34,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
           Height = 23
           Hint = 'select a configuration'
           Top = 1
-          Width = 346
+          Width = 316
           Align = alClient
           BorderSpacing.Top = 1
           BorderSpacing.Right = 1
@@ -44,7 +44,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
           TabOrder = 0
         end
         object btnAddConf: TSpeedButton
-          Left = 347
+          Left = 317
           Height = 24
           Hint = 'add an empty configuration'
           Top = 0
@@ -54,7 +54,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
           ShowCaption = False
         end
         object btnDelConf: TSpeedButton
-          Left = 377
+          Left = 347
           Height = 24
           Hint = 'remove selected configuration'
           Top = 0
@@ -64,13 +64,23 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
           ShowCaption = False
         end
         object btnCloneConf: TSpeedButton
-          Left = 407
+          Left = 377
           Height = 24
           Hint = 'clone selected configuration'
           Top = 0
           Width = 30
           Align = alRight
           OnClick = btnCloneCurrClick
+          ShowCaption = False
+        end
+        object btnSyncEdit: TSpeedButton
+          Left = 407
+          Height = 24
+          Hint = 'syncrhonize each configuration'
+          Top = 0
+          Width = 30
+          Align = alRight
+          OnClick = btnSyncEditClick
           ShowCaption = False
         end
       end
@@ -138,6 +148,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
           Indent = 16
           NameFont.Color = clWindowText
           OnEditorFilter = GridEditorFilter
+          OnModified = GridModified
           PreferredSplitterX = 145
           SplitterX = 145
           ValueFont.Color = clGreen
