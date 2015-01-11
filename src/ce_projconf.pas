@@ -201,6 +201,9 @@ begin
   if getGridTarget = fProj.currentConfiguration.pathsOptions  then
     if aEditor.GetName = 'Sources' then
       aShow := false;
+  if getGridTarget = fProj.currentConfiguration.outputOptions  then
+    if aEditor.GetName = 'noBoundsCheck' then
+      aShow := false;
 end;
 
 function TCEProjectConfigurationWidget.getGridTarget: TPersistent;
@@ -219,8 +222,8 @@ begin
     7: exit( fProj.currentConfiguration.pathsOptions );
     8: exit( fProj.currentConfiguration.preBuildProcess );
     9: exit( fProj.currentConfiguration.postBuildProcess );
-    10: exit( fProj.currentConfiguration.runOptions );
-    11: exit( fProj.currentConfiguration );
+    10:exit( fProj.currentConfiguration.runOptions );
+    11:exit( fProj.currentConfiguration );
     else result := nil;
   end;
 end;
