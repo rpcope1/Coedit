@@ -63,7 +63,7 @@ type
     function addTool: TCEToolItem;
     procedure executeTool(aTool: TCEToolItem); overload;
     procedure executeTool(aToolIndex: Integer); overload;
-    property tool[index: integer]: TCEToolItem read getTool;
+    property tool[index: integer]: TCEToolItem read getTool; default;
   end;
 
 const

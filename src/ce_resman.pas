@@ -13,7 +13,7 @@ type
 
 
   TResourceType = (aFile, aFolder);
-  TResourceFormat = (bytes, utf8, base16, base64);
+  TResourceFormat = (bytes, utf8, base16, base64, z85, e7F);
 
   TResourceItem = class(TCollectionItem)
   private
@@ -34,43 +34,47 @@ type
    * Represents a resource script. The resource script use the
    * JSON format for a better compatibility with the tool.
    *)
-  TResourceItems = class(TWritableComponent)
+  TResources = class(TWritableComponent)
   private
-    fItems: TCollection;
-    procedure setItems(aValue: TCollection);
+    fResources: TCollection;
+    procedure setResources(aValue: TCollection);
+    function getResource(index: Integer): TResourceItem;
   published
-    property items: TCollection read fItems write setItems;
+    property resources: TCollection read fResources write setResources;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     // overides the component streaming methods to use JSON instead of lfm
     procedure saveToFile(const aFilename: string); override;
     procedure loadFromFile(const aFilename: string); override;
+    property resource[index: Integer]: TResourceItem read getResource; default;
   end;
 
   { TCEResmanWidget }
   TCEResmanWidget = class(TCEWidget, ICEProjectObserver, ICEMultiDocObserver)
     BtnAddItem: TBitBtn;
     btnRemItem: TBitBtn;
-    lstItems: TListBox;
+    lstRes: TListBox;
     Panel1: TPanel;
     Panel2: TPanel;
-    propsEd: TTIPropertyGrid;
+    inspector: TTIPropertyGrid;
     Splitter1: TSplitter;
     procedure BtnAddItemClick(Sender: TObject);
     procedure btnRemItemClick(Sender: TObject);
-    procedure lstItemsSelectionChange(Sender: TObject; User: boolean);
-    procedure propsEdModified(Sender: TObject);
+    procedure lstResSelectionChange(Sender: TObject; User: boolean);
+    procedure inspectorModified(Sender: TObject);
   private
     fProj: TCEProject;
     fDoc: TCESynMemo;
-    fResourceItems: TResourceItems;
+    fResourceItems: TResources;
+    fLogMessager: TCELogMessageSubject;
     // try to load the json resource script for the current doc
     procedure loadDocResJson;
     // try to save the json resource script for the current doc
     procedure saveDocResJson;
-    procedure refreshItemList;
-    procedure updateIdentifierList;
+    procedure clearInspector;
+    procedure rebuildResList;
+    procedure updateResList;
     procedure genResources;
     //
     procedure projNew(aProject: TCEProject);
@@ -85,25 +89,31 @@ type
     procedure docClosing(aDoc: TCESynMemo);
   public
     constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
   end;
 
 implementation
 {$R *.lfm}
 
-{$REGION TResourceItems --------------------------------------------------------}
-constructor TResourceItems.Create(aOwner: TCOmponent);
+{$REGION TResources ------------------------------------------------------------}
+constructor TResources.Create(aOwner: TCOmponent);
 begin
   inherited;
-  fItems := TCollection.Create(TResourceItem);
+  fResources := TCollection.Create(TResourceItem);
 end;
 
-destructor TResourceItems.destroy;
+destructor TResources.destroy;
 begin
-  fItems.Free;
+  fResources.Free;
   inherited;
 end;
 
-procedure TResourceItems.saveToFile(const aFilename: string);
+function TResources.getResource(index: Integer): TResourceItem;
+begin
+  result := TResourceItem(fResources.Items[index]);
+end;
+
+procedure TResources.saveToFile(const aFilename: string);
 var
   json_streamer: TJSONStreamer;
   json_string: TJSONStringType;
@@ -129,7 +139,7 @@ begin
   afterSave;
 end;
 
-procedure TResourceItems.loadFromFile(const aFilename: string);
+procedure TResources.loadFromFile(const aFilename: string);
 var
   json_destreamer: TJSONDeStreamer;
   json_string: TJSONStringType;
@@ -152,18 +162,20 @@ begin
   afterLoad;
 end;
 
-procedure TResourceItems.setItems(aValue: TCollection);
+procedure TResources.setResources(aValue: TCollection);
 begin
-  fItems.Assign(aValue);
+  fResources.Assign(aValue);
 end;
 {$ENDREGION}
 
+{$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEResmanWidget.create(aOwner: TComponent);
 var
   png: TPortableNetworkGraphic;
 begin
   inherited;
-  fResourceItems := TResourceItems.create(self);
+  fLogMessager := TCELogMessageSubject.create;
+  fResourceItems := TResources.create(self);
   //
   png := TPortableNetworkGraphic.Create;
   try
@@ -175,6 +187,13 @@ begin
     png.Free;
   end;
 end;
+
+destructor TCEResmanWidget.destroy;
+begin
+  fLogMessager.Free;
+  inherited;
+end;
+{$ENDREGION}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
 procedure TCEResmanWidget.projNew(aProject: TCEProject);
@@ -193,10 +212,10 @@ procedure TCEResmanWidget.projClosing(aProject: TCEProject);
 begin
   if fProj <> aProject then exit;
   fProj := nil;
-  propsEd.TIObject := nil;
-  propsEd.ItemIndex := -1;
-  fResourceItems.Items.Clear;
-  refreshItemList;
+  inspector.TIObject := nil;
+  inspector.ItemIndex := -1;
+  fResourceItems.resources.Clear;
+  rebuildResList;
 end;
 
 procedure TCEResmanWidget.projFocused(aProject: TCEProject);
@@ -229,7 +248,7 @@ begin
   //
   saveDocResJson;
   fDoc := nil;
-  refreshItemList;
+  rebuildResList;
 end;
 
 procedure TCEResmanWidget.docFocused(aDoc: TCESynMemo);
@@ -240,20 +259,20 @@ end;
 {$ENDREGION}
 
 {$REGION Resources things -----------------------------------------------------}
-procedure TCEResmanWidget.lstItemsSelectionChange(Sender: TObject; User: boolean);
+procedure TCEResmanWidget.lstResSelectionChange(Sender: TObject; User: boolean);
 begin
-  if lstItems.Count = 0 then exit;
-  if lstItems.ItemIndex = -1 then exit;
+  if lstRes.Count = 0 then exit;
+  if lstRes.ItemIndex = -1 then exit;
   //
-  propsEd.TIObject := TPersistent(lstItems.Items.Objects[lstItems.ItemIndex]);
+  inspector.TIObject := fResourceItems[lstRes.ItemIndex];
 end;
 
-procedure TCEResmanWidget.propsEdModified(Sender: TObject);
+procedure TCEResmanWidget.inspectorModified(Sender: TObject);
 begin
-  if propsEd.ItemIndex = -1 then
+  if inspector.ItemIndex = -1 then
     exit;
-  if propsEd.Rows[propsEd.ItemIndex].Name = 'identifier' then
-    updateIdentifierList;
+  if inspector.Rows[inspector.ItemIndex].Name = 'identifier' then
+    updateResList;
   saveDocResJson;
 end;
 
@@ -261,20 +280,20 @@ procedure TCEResmanWidget.BtnAddItemClick(Sender: TObject);
 var
   item: TResourceItem;
 begin
-  item := TResourceItem(fResourceItems.items.Add);
+  item := TResourceItem(fResourceItems.resources.Add);
   item.identifier := format('<id_for_item %d>' ,[item.ID]);
-  refreshItemList;
+  rebuildResList;
   saveDocResJson;
 end;
 
 procedure TCEResmanWidget.btnRemItemClick(Sender: TObject);
 begin
-  if lstItems.ItemIndex = -1 then
+  if lstRes.ItemIndex = -1 then
     exit;
-  propsEd.TIObject := nil;
-  propsEd.ItemIndex := -1;
-  fResourceItems.items.Delete(lstItems.ItemIndex);
-  refreshItemList;
+  inspector.TIObject := nil;
+  inspector.ItemIndex := -1;
+  fResourceItems.resources.Delete(lstRes.ItemIndex);
+  rebuildResList;
   saveDocResJson;
 end;
 
@@ -287,12 +306,12 @@ begin
   if not fProj.isProjectSource(fDoc.fileName) then exit;
   //
   fname := stripFileExt(fDoc.fileName) + '.resman';
-  propsEd.TIObject := nil;
-  propsEd.ItemIndex := -1;
-  fResourceItems.Items.Clear;
+  inspector.TIObject := nil;
+  inspector.ItemIndex := -1;
+  fResourceItems.resources.Clear;
   if fileExists(fname) then
     fResourceItems.loadFromFile(fname);
-  refreshItemList;
+  rebuildResList;
 end;
 
 procedure TCEResmanWidget.saveDocResJson;
@@ -304,7 +323,7 @@ begin
   if not fProj.isProjectSource(fDoc.fileName) then exit;
   //
   fname := stripFileExt(fDoc.fileName) + '.resman';
-  if fResourceItems.Items.Count = 0 then exit;
+  if fResourceItems.resources.Count = 0 then exit;
   //
   fResourceItems.saveToFile(fname);
 end;
@@ -312,17 +331,19 @@ end;
 procedure TCEResmanWidget.genResources;
 var
   proc: TProcess;
-  fname: string;
+  str: TStringList;
+  fname, msg: string;
   i: Integer;
 begin
   if fProj = nil then exit;
   if not exeInSysPath('resman' + exeExt) then exit;
   //
-  proc := Tprocess.Create(nil);
+  proc := TProcess.Create(nil);
+  str := TStringList.Create;
   try
     proc.Executable:= 'resman' + exeExt;
-    //proc.Options := [poUsePipes, poStderrToOutPut];
-    //proc.ShowWindow := swoHIDE;
+    proc.Options := [poUsePipes, poStderrToOutPut];
+    proc.ShowWindow := swoHIDE;
     proc.Parameters.Add('-v');
     for i := 0 to fProj.Sources.Count-1 do
     begin
@@ -331,41 +352,45 @@ begin
       if not FileExists(fname) then continue;
       proc.Parameters.Add(fname);
     end;
+      msg := 'generating the resources...';
+      subjLmFromString(fLogMessager, msg, fProj, amcProj, amkInf);
       proc.Execute;
-      while proc.Running do;
-      // output to project message...
+      while proc.Running do begin
+        processOutputToStrings(proc, str);
+        for msg in str do
+          subjLmFromString(fLogMessager, msg, fProj, amcProj, amkAuto);
+      end;
   finally
     proc.Free;
+    str.Free;
   end;
 end;
 
-procedure TCEResmanWidget.refreshItemList;
-var
-  i: Integer;
-  item: TResourceItem;
+procedure TCEResmanWidget.clearInspector;
 begin
-  propsEd.TIObject := nil;
-  propsEd.ItemIndex := -1;
-  lstItems.Items.Clear;
-  for i:= 0 to fResourceItems.items.Count-1 do
-  begin
-    item := TResourceItem(fResourceItems.items.Items[i]);
-    lstItems.Items.AddObject(item.identifier, item);
-  end;
-  if lstItems.Count > 0 then
-    lstItems.ItemIndex := 0;
+  inspector.TIObject := nil;
+  inspector.ItemIndex := -1;
 end;
 
-procedure TCEResmanWidget.updateIdentifierList;
+procedure TCEResmanWidget.rebuildResList;
 var
   i: Integer;
-  item: TResourceItem;
 begin
-  for i:= 0 to fResourceItems.items.Count-1 do
-  begin
-    item := TResourceItem(fResourceItems.items.Items[i]);
-    lstItems.Items.Strings[i] := item.identifier;
-  end;
+  clearInspector;
+  lstRes.Items.Clear;
+  //
+  for i:= 0 to fResourceItems.resources.Count-1 do
+    lstRes.AddItem(fResourceItems[i].identifier, nil);
+  if lstRes.Count > 0 then
+    lstRes.ItemIndex := 0;
+end;
+
+procedure TCEResmanWidget.updateResList;
+var
+  i: Integer;
+begin
+  for i:= 0 to fResourceItems.resources.Count-1 do
+    lstRes.Items.Strings[i] := fResourceItems[i].identifier;
 end;
 {$ENDREGION}
 

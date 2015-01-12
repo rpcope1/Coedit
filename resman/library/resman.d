@@ -3,6 +3,8 @@
  */
 module resman;
 
+import std.path, std.conv, std.base64, std.digest.crc;
+
 /**
  * Activate the resman mechanism. If the resources related to a
  * module have been generated using the Coedit *Resman* widget
@@ -17,7 +19,7 @@ module resman;
 mixin template activateResman()
 {
     mixin("private import resman;");
-    enum f = (__FILE__.stripExtension.stripPath) ~ ".res";
+    enum f = (__FILE__.stripExtension.baseName) ~ ".res";
     mixin(import(f));
 }
 
@@ -32,7 +34,7 @@ public enum ResFormat {
  *
  * Params:
  * identifiers = the array which holds the resource identifiers, 
- * always named *residententifiers*.
+ * always named *TBA*.
  * identifier = the identifier to find.
  *
  * Return:

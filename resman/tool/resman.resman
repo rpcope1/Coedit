@@ -1,1 +1,1 @@
-{ "Name" : "", "Tag" : 0, "items" : [{ "format" : "bytes", "identifier" : "img1", "metadata" : "bla|oops", "name" : "C:\\Dev\\dproj\\Resource.d\\res\\res_img1.png", "resourceType" : "aFile" }, { "format" : "bytes", "identifier" : "<id_for_item1>", "metadata" : "", "name" : "", "resourceType" : "aFile" }] }
+{ "Name" : "", "Tag" : 0, "resources" : [{ "format" : "z85", "identifier" : "image1", "metadata" : "bla|abl", "name" : "C:\\Dev\\dproj\\Resource.d\\res\\res_img1.png", "resourceType" : "aFile" }] }

@@ -1,0 +1,25 @@
+
+
+private static const resource_txt = [
+	"Ibl@q4gj0X0000dnK#lE0000g0000g2Ngne03y?jve{oc8fwqHBw)9&BA.elwDk2bz^)o2nO})GwM08Fwo&gpwJP})0gltCk#-9.v/loaklAiZ1W}dTCKCJ[Vl@Jrk{W*62E1j]sj&ZBXJOZK%nI$(+Nn}2@!g:f!ZYlnRLUWOG$b5Q4exCS4*fxWk5*#:Z.AI&3ZS*$c(K:zXiK818w<qBVlkSiL%uRr0aZM]7z(bZ^a^qFtRa!msyRwmU!dJpBor{^I9IedNAp1FY:9GWFd.?[u&SPYv[pSCzwi6J002OVpdhlKv1FvU0SSi2"
+];
+
+private static const resource_idt = [
+	"image1"
+];
+
+private static const resource_mdt = [
+	"bla|abl"
+];
+
+private static const resource_enc = [
+	ResFormat.z85 
+];
+
+private static const uint[] resource_sumi = [
+	3830768605
+];
+
+private static const uint[] resource_sume = [
+	3301322969
+];

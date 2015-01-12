@@ -32,8 +32,9 @@ type
     procedure propsEdModified(Sender: TObject);
   private
     procedure executeSelectedTool;
-    procedure DataToGui;
-    procedure updateNames;
+    procedure clearInspector;
+    procedure rebuildToolList;
+    procedure updateToolList;
   public
     constructor create(aOwner: TComponent); override;
   end;
@@ -61,29 +62,34 @@ begin
   finally
     png.free;
   end;
-  DataToGui;
+  rebuildToolList;
 end;
 
-procedure TCEToolsEditorWidget.updateNames;
+procedure TCEToolsEditorWidget.clearInspector;
+begin
+  propsEd.TIObject := nil;
+  propsEd.ItemIndex := -1;
+end;
+
+procedure TCEToolsEditorWidget.rebuildToolList;
+var
+  i: integer;
+begin
+  clearInspector;
+  lstTools.Clear;
+  //
+  for i := 0 to CustomTools.tools.Count-1 do
+    lstTools.AddItem(CustomTools[i].toolAlias, nil);
+  if lstTools.Count > 0 then
+    lstTools.ItemIndex := 0;
+end;
+
+procedure TCEToolsEditorWidget.updateToolList;
 var
   i: Integer;
 begin
   for i := 0 to CustomTools.tools.Count-1 do
-    lstTools.Items.Strings[i] := CustomTools.tool[i].toolAlias;
-end;
-
-procedure TCEToolsEditorWidget.DataToGui;
-var
-  i: integer;
-begin
-  propsEd.TIObject := nil;
-  propsEd.ItemIndex := -1;
-  lstTools.Clear;
-  //
-  for i := 0 to CustomTools.tools.Count-1 do
-    lstTools.AddItem(CustomTools.tool[i].toolAlias, nil);
-  if lstTools.Count > 0 then
-    lstTools.ItemIndex := 0;
+    lstTools.Items.Strings[i] := CustomTools[i].toolAlias;
 end;
 
 procedure TCEToolsEditorWidget.lstToolsSelectionChange(Sender: TObject;
@@ -91,7 +97,7 @@ procedure TCEToolsEditorWidget.lstToolsSelectionChange(Sender: TObject;
 begin
   if lstTools.ItemIndex = -1 then
     exit;
-  propsEd.TIObject := CustomTools.tool[lstTools.ItemIndex];
+  propsEd.TIObject := CustomTools[lstTools.ItemIndex];
 end;
 
 procedure TCEToolsEditorWidget.propsEdModified(Sender: TObject);
@@ -99,23 +105,22 @@ begin
   if propsEd.ItemIndex = -1 then
     exit;
   if propsEd.Rows[propsEd.ItemIndex].Name = 'toolAlias' then
-    updateNames;
+    updateToolList;
 end;
 
 procedure TCEToolsEditorWidget.BtnAddToolClick(Sender: TObject);
 begin
   CustomTools.addTool;
-  DataToGui;
+  rebuildToolList;
 end;
 
 procedure TCEToolsEditorWidget.btnRemToolClick(Sender: TObject);
 begin
   if lstTools.ItemIndex = -1 then
     exit;
-  propsEd.TIObject := nil;
-  propsEd.ItemIndex := -1;
+  clearInspector;
   CustomTools.tools.Delete(lstTools.ItemIndex);
-  DataToGui;
+  rebuildToolList;
 end;
 
 procedure TCEToolsEditorWidget.btnMoveUpClick(Sender: TObject);
@@ -125,7 +130,7 @@ begin
   //
   CustomTools.tools.Exchange(lstTools.ItemIndex, lstTools.ItemIndex - 1);
   lstTools.ItemIndex := lstTools.ItemIndex - 1;
-  updateNames;
+  updateToolList;
 end;
 
 procedure TCEToolsEditorWidget.btnMoveDownClick(Sender: TObject);
@@ -135,7 +140,7 @@ begin
   //
   CustomTools.tools.Exchange(lstTools.ItemIndex, lstTools.ItemIndex + 1);
   lstTools.ItemIndex := lstTools.ItemIndex + 1;
-  updateNames;
+  updateToolList;
 end;
 
 procedure TCEToolsEditorWidget.executeSelectedTool;

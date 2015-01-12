@@ -18,6 +18,9 @@ object CurrentProject: TCEProject
   Sources.Strings = (
     '..\tool\resman.d'
     '..\tool\utils.d'
+    '..\tool\e7F.d'
+    '..\tool\z85.d'
+    '..\tool\item.d'
   )
   ConfigurationIndex = 0
 end

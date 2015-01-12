@@ -125,7 +125,6 @@ end;
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
 procedure TCEEditorWidget.docNew(aDoc: TCESynMemo);
 begin
-  fDoc := aDoc;
 end;
 
 procedure TCEEditorWidget.docClosing(aDoc: TCESynMemo);

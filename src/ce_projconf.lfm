@@ -137,7 +137,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
           Width = 5
           AutoSnap = False
         end
-        object Grid: TTIPropertyGrid
+        object inspector: TTIPropertyGrid
           Left = 165
           Height = 239
           Top = 0
@@ -147,8 +147,8 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
           Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
           Indent = 16
           NameFont.Color = clWindowText
-          OnEditorFilter = GridEditorFilter
-          OnModified = GridModified
+          OnEditorFilter = inspectorEditorFilter
+          OnModified = inspectorModified
           PreferredSplitterX = 145
           SplitterX = 145
           ValueFont.Color = clGreen

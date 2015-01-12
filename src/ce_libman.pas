@@ -78,12 +78,12 @@ begin
 end;
 
 procedure TLibraryManager.addDubPackages;
-var
-  path: string;
+//var
+  //path: string;
 begin
   if not exeInSysPath('dub' + exeExt) then exit;
   //
-  path := getUserDocPath + 'dub' + DirectorySeparator + 'packages';
+  //path := getUserDocPath + 'dub' + DirectorySeparator + 'packages';
   {
     get folders
     foreach folder in folders

@@ -24,14 +24,14 @@ type
     btnDelConf: TSpeedButton;
     btnCloneConf: TSpeedButton;
     Splitter1: TSplitter;
-    Grid: TTIPropertyGrid;
+    inspector: TTIPropertyGrid;
     Tree: TTreeView;
     procedure btnAddConfClick(Sender: TObject);
     procedure btnDelConfClick(Sender: TObject);
     procedure btnCloneCurrClick(Sender: TObject);
     procedure btnSyncEditClick(Sender: TObject);
-    procedure GridEditorFilter(Sender: TObject; aEditor: TPropertyEditor;var aShow: boolean);
-    procedure GridModified(Sender: TObject);
+    procedure inspectorEditorFilter(Sender: TObject; aEditor: TPropertyEditor;var aShow: boolean);
+    procedure inspectorModified(Sender: TObject);
     procedure selConfChange(Sender: TObject);
     procedure TreeChange(Sender: TObject; Node: TTreeNode);
     procedure GridFilter(Sender: TObject; aEditor: TPropertyEditor;var aShow: boolean);
@@ -80,7 +80,7 @@ begin
     png.Free;
   end;
   Tree.Selected := Tree.Items.GetLastNode;
-  Grid.OnEditorFilter := @GridFilter;
+  inspector.OnEditorFilter := @GridFilter;
   //
   EntitiesConnector.addObserver(self);
 end;
@@ -105,8 +105,8 @@ procedure TCEProjectConfigurationWidget.projClosing(aProject: TCEProject);
 begin
   if fProj <> aProject then
     exit;
-  Grid.TIObject := nil;
-  Grid.ItemIndex := -1;
+  inspector.TIObject := nil;
+  inspector.ItemIndex := -1;
   self.selConf.Clear;
   syncroMode := false;
   fProj := nil;
@@ -148,10 +148,10 @@ end;
 procedure TCEProjectConfigurationWidget.TreeChange(Sender: TObject;
   Node: TTreeNode);
 begin
-  Grid.TIObject := getGridTarget;
+  inspector.TIObject := getGridTarget;
 end;
 
-procedure TCEProjectConfigurationWidget.GridEditorFilter(Sender: TObject;
+procedure TCEProjectConfigurationWidget.inspectorEditorFilter(Sender: TObject;
   aEditor: TPropertyEditor; var aShow: boolean);
 begin
   if aEditor.ClassType = TCollectionPropertyEditor then aShow := false;
@@ -184,7 +184,7 @@ begin
  fSyncroPropValue := Value;
 end;
 
-procedure TCEProjectConfigurationWidget.GridModified(Sender: TObject);
+procedure TCEProjectConfigurationWidget.inspectorModified(Sender: TObject);
 var
   propstr: string;
   src_list, trg_list: rttiutils.TPropInfoList;
@@ -195,14 +195,14 @@ var
 begin
   if fProj = nil then exit;
   if not fSyncroMode then exit;
-  if Grid.TIObject = nil then exit;
-  if Grid.ItemIndex = -1 then exit;
+  if inspector.TIObject = nil then exit;
+  if inspector.ItemIndex = -1 then exit;
   //
   storage := nil;
   src_prop:= nil;
   trg_prop:= nil;
   trg_obj := nil;
-  propstr := Grid.PropertyPath(Grid.ItemIndex);
+  propstr := inspector.PropertyPath(inspector.ItemIndex);
   storage := rttiutils.TPropsStorage.Create;
   storage.OnReadString := @syncroSetPropAsString;
   storage.OnWriteString := @syncroGetPropAsString;
@@ -218,23 +218,23 @@ begin
       // skip current config
       if i = fProj.ConfigurationIndex then continue;
       // find target persistent
-      if Grid.TIObject = fProj.currentConfiguration.messagesOptions then
+      if inspector.TIObject = fProj.currentConfiguration.messagesOptions then
         trg_obj := fProj.configuration[i].messagesOptions else
-      if Grid.TIObject = fProj.currentConfiguration.debugingOptions then
+      if inspector.TIObject = fProj.currentConfiguration.debugingOptions then
         trg_obj := fProj.configuration[i].debugingOptions else
-      if Grid.TIObject = fProj.currentConfiguration.documentationOptions then
+      if inspector.TIObject = fProj.currentConfiguration.documentationOptions then
         trg_obj := fProj.configuration[i].documentationOptions else
-      if Grid.TIObject = fProj.currentConfiguration.outputOptions then
+      if inspector.TIObject = fProj.currentConfiguration.outputOptions then
         trg_obj := fProj.configuration[i].outputOptions else
-      if Grid.TIObject = fProj.currentConfiguration.otherOptions then
+      if inspector.TIObject = fProj.currentConfiguration.otherOptions then
         trg_obj := fProj.configuration[i].otherOptions else
-      if Grid.TIObject = fProj.currentConfiguration.pathsOptions then
+      if inspector.TIObject = fProj.currentConfiguration.pathsOptions then
          trg_obj := fProj.configuration[i].pathsOptions else
-      if Grid.TIObject = fProj.currentConfiguration.preBuildProcess then
+      if inspector.TIObject = fProj.currentConfiguration.preBuildProcess then
         trg_obj := fProj.configuration[i].preBuildProcess else
-      if Grid.TIObject = fProj.currentConfiguration.postBuildProcess then
+      if inspector.TIObject = fProj.currentConfiguration.postBuildProcess then
         trg_obj := fProj.configuration[i].postBuildProcess else
-      if Grid.TIObject = fProj.currentConfiguration.runOptions then
+      if inspector.TIObject = fProj.currentConfiguration.runOptions then
          trg_obj := fProj.configuration[i].runOptions
       else continue;
       // find target property
@@ -279,8 +279,8 @@ begin
   if fProj.OptionsCollection.Count = 1 then exit;
   //
   beginUpdateByEvent;
-  Grid.TIObject := nil;
-  Grid.Clear;
+  inspector.TIObject := nil;
+  inspector.Clear;
   Invalidate;
   fProj.OptionsCollection.Delete(selConf.ItemIndex);
   fProj.ConfigurationIndex := 0;
@@ -363,7 +363,7 @@ begin
     selConf.Items.Add(fProj.configuration[i].name);
   selConf.ItemIndex := fProj.ConfigurationIndex;
 
-  Grid.TIObject := getGridTarget;
+  inspector.TIObject := getGridTarget;
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
