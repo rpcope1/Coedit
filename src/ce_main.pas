@@ -10,7 +10,7 @@ uses
   Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, dynlibs, SynExportHTML,
   ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_plugin, ce_synmemo, ce_widget,
   ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf, ce_search,
-  ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_resman,
+  ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor,
   ce_observer, ce_writableComponent, ce_toolseditor, ce_procinput, ce_cdbcmd;
 
 type
@@ -191,7 +191,7 @@ type
     fLibMWidg: TCELibManEditorWidget;
     fTlsEdWidg: TCEToolsEditorWidget;
     fPrInpWidg: TCEProcInputWidget;
-    fResWidg: TCEResmanWidget;
+    //fResWidg: TCEResmanWidget;
     {$IFDEF WIN32}
     fCdbWidg: TCECdbWidget;
     {$ENDIF}
@@ -461,7 +461,7 @@ begin
   fLibMWidg := TCELibManEditorWidget.create(self);
   fTlsEdWidg:= TCEToolsEditorWidget.create(self);
   fPrInpWidg:= TCEProcInputWidget.create(self);
-  fResWidg  := TCEResmanWidget.create(self);
+  //fResWidg  := TCEResmanWidget.create(self);
 
   {$IFDEF WIN32}
   fCdbWidg  := TCECdbWidget.create(self);
@@ -477,7 +477,7 @@ begin
   fWidgList.addWidget(@fLibMWidg);
   fWidgList.addWidget(@fTlsEdWidg);
   fWidgList.addWidget(@fPrInpWidg);
-  fWidgList.addWidget(@fResWidg);
+  //fWidgList.addWidget(@fResWidg);
 
   {$IFDEF WIN32}
   fWidgList.addWidget(@fCdbWidg);
