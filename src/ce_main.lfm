@@ -494,6 +494,9 @@ object CEMainForm: TCEMainForm
           AEEAB3B3B100B5B5B300B5B5B300B5B5B300B5B5B300B5B5B300
         }
       end
+      object MenuItem63: TMenuItem
+        Action = actFileUnittest
+      end
       object MenuItem59: TMenuItem
         Caption = '-'
       end
@@ -1662,6 +1665,9 @@ object CEMainForm: TCEMainForm
           AEEAB3B3B100B5B5B300B5B5B300B5B5B300B5B5B300B5B5B300
         }
       end
+      object MenuItem64: TMenuItem
+        Action = actFileUnittest
+      end
       object MenuItem10: TMenuItem
         Caption = '-'
       end
@@ -2161,6 +2167,12 @@ object CEMainForm: TCEMainForm
       Caption = 'Export to html...'
       ImageIndex = 33
       OnExecute = actFileHtmlExportExecute
+    end
+    object actFileUnittest: TAction
+      Category = 'File'
+      Caption = 'Run file unittests'
+      ImageIndex = 22
+      OnExecute = actFileUnittestExecute
     end
   end
   object imgList: TImageList

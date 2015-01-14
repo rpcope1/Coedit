@@ -34,6 +34,7 @@ type
     actEdFindNext: TAction;
     actFileOpenContFold: TAction;
     actFileHtmlExport: TAction;
+    actFileUnittest: TAction;
     actLayoutSave: TAction;
     actProjOpenContFold: TAction;
     actProjOptView: TAction;
@@ -118,6 +119,8 @@ type
     MenuItem60: TMenuItem;
     MenuItem61: TMenuItem;
     MenuItem62: TMenuItem;
+    MenuItem63: TMenuItem;
+    MenuItem64: TMenuItem;
     mnuLayout: TMenuItem;
     mnuItemMruFile: TMenuItem;
     mnuItemMruProj: TMenuItem;
@@ -138,6 +141,7 @@ type
     procedure actFileOpenContFoldExecute(Sender: TObject);
     procedure actFileSaveAllExecute(Sender: TObject);
     procedure actEdIndentExecute(Sender: TObject);
+    procedure actFileUnittestExecute(Sender: TObject);
     procedure actLayoutSaveExecute(Sender: TObject);
     procedure actProjCompAndRunWithArgsExecute(Sender: TObject);
     procedure actProjCompileAndRunExecute(Sender: TObject);
@@ -244,7 +248,7 @@ type
     // run & exec sub routines
     procedure asyncprocOutput(sender: TObject);
     procedure asyncprocTerminate(sender: TObject);
-    procedure compileAndRunFile(const edIndex: NativeInt; const runArgs: string = '');
+    procedure compileAndRunFile(unittest: boolean = false; const runArgs: string = '');
 
     // file sub routines
     procedure newFile;
@@ -1289,14 +1293,15 @@ begin
     fPrInpWidg.process := nil;
 end;
 
-procedure TCEMainForm.compileAndRunFile(const edIndex: NativeInt; const runArgs: string = '');
+procedure TCEMainForm.compileAndRunFile(unittest: boolean; const runArgs: string = '');
 var
-  editor: TCESynMemo;
   dmdproc: TProcess;
   fname: string;
 begin
 
   FreeRunnableProc;
+  if fDoc = nil then exit;
+
   fRunProc := TCheckedAsyncProcess.Create(nil);
   fRunProc.Options := [poStderrToOutPut, poUsePipes];
   fRunProc.ShowWindow := swoHIDE;
@@ -1304,16 +1309,15 @@ begin
   fRunProc.OnTerminate:= @asyncprocTerminate;
 
   dmdproc := TProcess.Create(nil);
-  editor  := fEditWidg.editor[edIndex];
   try
 
-    subjLmClearByData(fLogMessager, editor);
-    subjLmFromString(fLogMessager, 'compiling ' + shortenPath(editor.fileName, 25),
-      editor, amcEdit, amkInf);
+    subjLmClearByData(fLogMessager, fDoc);
+    subjLmFromString(fLogMessager, 'compiling ' + shortenPath(fDoc.fileName, 25),
+      fDoc, amcEdit, amkInf);
 
-    if fileExists(editor.fileName) then editor.save
-    else editor.saveTempFile;
-    fname := stripFileExt(editor.fileName);
+    if fileExists(fDoc.fileName) then fDoc.save
+    else fDoc.saveTempFile;
+    fname := stripFileExt(fDoc.fileName);
 
     if fRunnableSw = '' then
       fRunnableSw := '-vcolumns'#13'-w'#13'-wi';
@@ -1322,9 +1326,14 @@ begin
     {$ENDIF}
     dmdproc.Options := [poStdErrToOutput, poUsePipes];
     dmdproc.Executable := DCompiler;
-    dmdproc.Parameters.Add(editor.fileName);
+    dmdproc.Parameters.Add(fDoc.fileName);
     dmdproc.Parameters.AddText(fRunnableSw);
-    dmdproc.Parameters.Add('-version=runnable_module');
+    if unittest then
+    begin
+      dmdproc.Parameters.Add('-main');
+      dmdproc.Parameters.Add('-unittest');
+    end
+    else dmdproc.Parameters.Add('-version=runnable_module');
     dmdproc.Parameters.Add('-of' + fname + exeExt);
     LibMan.getLibFiles(nil, dmdproc.Parameters);
     LibMan.getLibSources(nil, dmdproc.Parameters);
@@ -1333,8 +1342,8 @@ begin
 
     if (dmdProc.ExitStatus = 0) then
     begin
-      subjLmFromString(fLogMessager, shortenPath(editor.fileName, 25)
-        + ' successfully compiled', editor, amcEdit, amkInf);
+      subjLmFromString(fLogMessager, shortenPath(fDoc.fileName, 25)
+        + ' successfully compiled', fDoc, amcEdit, amkInf);
 
       fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
       if runArgs <> '' then
@@ -1345,8 +1354,8 @@ begin
       sysutils.DeleteFile(fname + objExt);
     end
     else begin
-      subjLmFromString(fLogMessager, shortenPath(editor.fileName,25)
-        + ' has not been compiled', editor, amcEdit, amkErr);
+      subjLmFromString(fLogMessager, shortenPath(fDoc.fileName,25)
+        + ' has not been compiled', fDoc, amcEdit, amkErr);
     end;
 
   finally
@@ -1354,24 +1363,26 @@ begin
   end;
 end;
 
+procedure TCEMainForm.actFileUnittestExecute(Sender: TObject);
+begin
+  if fDoc = nil then exit;
+  compileAndRunFile(true, '');
+end;
+
 procedure TCEMainForm.actFileCompAndRunExecute(Sender: TObject);
 begin
-  if fEditWidg = nil then exit;
-  if fEditWidg.editorIndex < 0 then exit;
-  //
-  compileAndRunFile(fEditWidg.editorIndex);
+  if fDoc = nil then exit;
+  compileAndRunFile(false, '');
 end;
 
 procedure TCEMainForm.actFileCompAndRunWithArgsExecute(Sender: TObject);
 var
   runargs: string;
 begin
-  if fEditWidg = nil then exit;
-  if fEditWidg.editorIndex < 0 then exit;
-  //
+  if fDoc = nil then exit;
   runargs := '';
   if InputQuery('Execution arguments', '', runargs) then
-    compileAndRunFile(fEditWidg.editorIndex, runargs);
+    compileAndRunFile(false, runargs);
 end;
 
 procedure TCEMainForm.actFileOpenContFoldExecute(Sender: TObject);
