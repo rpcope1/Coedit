@@ -251,7 +251,6 @@ begin
   if not exeInSysPath(aTool.executable) then
     if (aTool.chainAfter.Count = 0) and (aTool.chainBefore.Count = 0) then
       exit;
-  // TODO-cWiki: toolchain, process is async but poWaitOnExit can be set to force syncro.
   for nme in aTool.chainBefore do
     for chained in fTools do
       if TCEToolItem(chained).toolAlias = nme then

@@ -31,7 +31,6 @@ type
     fDoc: TCESynMemo;
     // http://bugs.freepascal.org/view.php?id=26329
     // TODO-cbugfix: syncro-edit partially broken, undetermined condition
-    // TODO-cbugfix: syncro-edit should not be case-sensitive
     // TODO-cbugfix: syncro-edit icon hidden after deletion, if doc is saved (as temp file, by the static explorer)
     fSyncEdit: TSynPluginSyncroEdit;
     tokLst: TLexTokenList;
@@ -85,6 +84,7 @@ begin
   //
   completion.OnPaintItem := @completionItemPaint;
   fSyncEdit := TSynPluginSyncroEdit.Create(self);
+  //TODO: activate this after enxt Laz release
   //fSyncEdit.CaseSensitive:=true;
   bmp := TBitmap.Create;
   try
