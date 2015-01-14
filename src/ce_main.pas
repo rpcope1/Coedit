@@ -778,6 +778,7 @@ begin
       //
       actFileCompAndRun.Enabled := fDoc.isDSource;
       actFileCompAndRunWithArgs.Enabled := fDoc.isDSource;
+      actFileUnittest.Enabled := fDoc.isDSource;
       //
       actEdMacPlay.Enabled := true;
       actEdMacStartStop.Enabled := true;
@@ -804,6 +805,7 @@ begin
       //
       actFileCompAndRun.Enabled := false;
       actFileCompAndRunWithArgs.Enabled := false;
+      actFileUnittest.Enabled := false;
       actFileSave.Enabled := false;
       actFileSaveAs.Enabled := false;
       actFileClose.Enabled := false;
