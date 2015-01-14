@@ -509,6 +509,7 @@ begin
     str.Free;
     DeleteFile(fJsonFname);
   end;
+  if dat.Count = 0 then exit;
 
   // update tree
   try
