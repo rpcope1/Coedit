@@ -1324,6 +1324,7 @@ begin
     dmdproc.Executable := DCompiler;
     dmdproc.Parameters.Add(editor.fileName);
     dmdproc.Parameters.AddText(fRunnableSw);
+    dmdproc.Parameters.Add('-version=runnable_module');
     dmdproc.Parameters.Add('-of' + fname + exeExt);
     LibMan.getLibFiles(nil, dmdproc.Parameters);
     LibMan.getLibSources(nil, dmdproc.Parameters);
