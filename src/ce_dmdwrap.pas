@@ -569,8 +569,6 @@ const
   binKindStr: array[TBinaryKind] of string = ('', '-lib', '-shared', '-c');
   bchKindStr: array[TBoundCheckKind] of string = ('on', 'safeonly', 'off');
 begin
-  depPatch;
-  //
   opt := binKindStr[fBinKind];
   if opt <> '' then aList.Add(opt);
   opt := trgKindStr[fTrgKind];
