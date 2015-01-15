@@ -297,12 +297,15 @@ procedure TCEEditorWidget.UpdateByEvent;
 const
   modstr: array[boolean] of string = ('...', 'MODIFIED');
 begin
-  if fDoc = nil then exit;
-  //
-  editorStatus.Panels[0].Text := format('%d : %d | %d', [fDoc.CaretY, fDoc.CaretX,
-    fDoc.SelEnd - fDoc.SelStart]);
-  editorStatus.Panels[1].Text := modstr[fDoc.modified];
-  editorStatus.Panels[2].Text := fDoc.fileName;
+  if fDoc = nil then begin
+    editorStatus.Panels[0].Text := '';
+    editorStatus.Panels[1].Text := '';
+    editorStatus.Panels[2].Text := '';
+  end else begin
+    editorStatus.Panels[0].Text := format('%d : %d | %d', [fDoc.CaretY, fDoc.CaretX, fDoc.SelEnd - fDoc.SelStart]);
+    editorStatus.Panels[1].Text := modstr[fDoc.modified];
+    editorStatus.Panels[2].Text := fDoc.fileName;
+  end;
 end;
 
 procedure TCEEditorWidget.lexFindToken(const aToken: PLexToken; out doStop: boolean);
