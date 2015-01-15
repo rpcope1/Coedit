@@ -1128,16 +1128,13 @@ begin
 end;
 
 procedure TCEMainForm.actFileAddToProjExecute(Sender: TObject);
-var
-  str: string;
 begin
-  if fEditWidg = nil then exit;
-  if fEditWidg.editorIndex < 0 then exit;
-  if fEditWidg.editor[fEditWidg.editorIndex].isProjectSource
-    then exit;
+  if fDoc = nil then exit;
+  if fDoc.isProjectSource then exit;
+  if fProject = nil then exit;
   //
-  str := fEditWidg.editor[fEditWidg.editorIndex].fileName;
-  if fileExists(str) then fProject.addSource(str)
+  if fileExists(fDoc.fileName) then
+    fProject.addSource(fDoc.fileName)
   else dlgOkInfo('the file has not been added to the project because it does not exist');
 end;
 
