@@ -131,12 +131,15 @@ procedure TCEEditorWidget.docClosing(aDoc: TCESynMemo);
 begin
   if fDoc <> aDoc then exit;
   fDoc := nil;
+  PageControl.Update;
+  UpdateByEvent;
 end;
 
 procedure TCEEditorWidget.docFocused(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
   focusedEditorChanged;
+  beginUpdateByDelay;
   UpdateByEvent;
 end;
 
@@ -184,6 +187,7 @@ end;
 
 procedure TCEEditorWidget.PageControlChange(Sender: TObject);
 begin
+  UpdateByEvent;
 end;
 
 procedure TCEEditorWidget.completionExecute(Sender: TObject);

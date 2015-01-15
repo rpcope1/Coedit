@@ -83,6 +83,10 @@ type
     procedure saveCache;
     procedure loadCache;
   protected
+    // TODO-cbugfix: open tree files, close the one at the center, select the left one, select the right one: the status bar displays the onfo from the left editor (sel count, pos, filename)
+    // however this is only a visual bug: saving works on the right editor...
+    procedure VisibleChanged; override;
+    procedure SetVisible(Value: Boolean); override;
     procedure SetHighlighter(const Value: TSynCustomHighlighter); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
@@ -353,6 +357,24 @@ begin
 end;
 
 procedure TCESynMemo.setFocus;
+begin
+  inherited;
+  if not Visible then exit;
+  checkFileDate;
+  identifierToD2Syn;
+  subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
+end;
+
+procedure TCESynMemo.SetVisible(Value: Boolean);
+begin
+  inherited;
+  if not Value then exit;
+  checkFileDate;
+  identifierToD2Syn;
+  subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
+end;
+
+procedure TCESynMemo.VisibleChanged;
 begin
   inherited;
   if not Visible then exit;
