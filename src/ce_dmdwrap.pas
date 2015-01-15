@@ -1002,7 +1002,8 @@ end;
 
 procedure TCustomProcOptions.setProcess(var aProcess: TProcess);
 begin
-  aProcess.Parameters.Assign(Parameters);
+  aProcess.Parameters.Clear;
+  aProcess.Parameters.AddText(symbolExpander.get(Parameters.Text));
   aProcess.Executable := fExecutable;
   aProcess.ShowWindow := fShowWin;
   aProcess.Options    := fOptions;
@@ -1012,7 +1013,8 @@ end;
 
 procedure TCustomProcOptions.setProcess(var aProcess: TAsyncProcess);
 begin
-  aProcess.Parameters.Assign(Parameters);
+  aProcess.Parameters.Clear;
+  aProcess.Parameters.AddText(symbolExpander.get(Parameters.Text));
   aProcess.Executable := fExecutable;
   aProcess.ShowWindow := fShowWin;
   aProcess.Options    := fOptions;
@@ -1022,7 +1024,8 @@ end;
 
 procedure TCustomProcOptions.setProcess(var aProcess: TCheckedAsyncProcess);
 begin
-  aProcess.Parameters.Assign(Parameters);
+  aProcess.Parameters.Clear;
+  aProcess.Parameters.AddText(symbolExpander.get(Parameters.Text));
   aProcess.Executable := fExecutable;
   aProcess.ShowWindow := fShowWin;
   aProcess.Options    := fOptions;
