@@ -457,14 +457,22 @@ procedure TCEProject.updateOutFilename;
 begin
   fOutputFilename := currentConfiguration.pathsOptions.outputFilename;
   // field is specified
-  if fOutputFilename <> '' then begin
+  if fOutputFilename <> '' then
+  begin
     fOutputFilename := symbolExpander.get(fOutputFilename);
     fOutputFilename := getAbsoluteFilename(fOutputFilename);
+    {$IFDEF WINDOWS}
+    // field is specified without ext or with a dot in the name.
+    // DMD will add the ext. (e.g: "-ofresourced")
+    if fileexists(fOutputFilename + exeExt) then
+      if currentConfiguration.outputOptions.binaryKind = executable then
+        fOutputFilename := fOutputFilename + exeExt;
+    {$ENDIF}
   end
   // try to guess
   else if Sources.Count > 0 then
   begin
-    // ideally, main() should be searched for, when project type is executable
+    // ideally, main() should be searched for, when project binaryKind is executable
     fOutputFilename := extractFilename(Sources.Strings[0]);
     fOutputFilename := stripFileExt(fOutputFilename);
     if FileExists(fileName) then
