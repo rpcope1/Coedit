@@ -253,10 +253,10 @@ begin
   if not exeInSysPath(ToolExeName) then exit;
   if (fDoc = nil) and (fProj = nil)then exit;
   //
-  if (fProj <> nil) and (fDoc = nil) then asProject := true;
-  if (fProj =  nil) and (fDoc <> nil) then asProject := false;
-  if (fProj <> nil) and (fDoc <> nil) and
-    (fProj.isProjectSource(fDoc.fileName)) then asProject:= true;
+  if (fProj <> nil) then if (fDoc = nil) then asProject := true;
+  if (fProj =  nil) then if (fDoc <> nil) then asProject := false;
+  if (fProj <> nil) then if (fDoc <> nil) then asProject := (fProj.isProjectSource(fDoc.fileName));
+  //
   killToolProcess;
   // process parameter
   fToolProcess := TCheckedAsyncProcess.Create(nil);
