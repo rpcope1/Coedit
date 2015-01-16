@@ -140,7 +140,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="33">
+    <Units Count="34">
       <Unit0>
         <Filename Value="coedit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -345,6 +345,14 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_icons"/>
       </Unit32>
+      <Unit33>
+        <Filename Value="..\src\ce_todolist.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="CETodoListWidget"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_todolist"/>
+      </Unit33>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
