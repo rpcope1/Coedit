@@ -9,7 +9,7 @@ as described in this [tutorial](https://github.com/BBasile/Coedit/wiki#lets-buil
 alpha 11 preview
 ================
 
-![](https://github.com/BBasile/Coedit/blob/master/cetodo/a11tdl.png)
+![](https://github.com/BBasile/Coedit/blob/master/cetodo/a11.tdl.png)
 
 In the widget, empty categories are auto hidden, items are double click-able.
 Items can only be edited in the source-code.
