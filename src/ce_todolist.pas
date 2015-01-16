@@ -353,15 +353,21 @@ end;
 procedure TCETodoListWidget.lstItemsDoubleClick(sender: TObject);
 var
   itm: TTodoItem;
+  fname: string;
+  ln: string;
 begin
   if lstItems.Selected = nil then exit;
   if lstItems.Selected.Data = nil then exit;
-  //
+  // the collection will be cleared if a file is opened
+  // docFocused->callToolProcess->fTodos....clear
+  // so line and filename must be copied
   itm := TTodoItem(lstItems.Selected.Data);
-  CEMainForm.openFile(itm.filename);
+  fname := itm.filename;
+  ln := itm.line;
+  CEMainForm.openFile(fname);
   //
   if fDoc = nil then exit;
-  fDoc.CaretY := strToInt(itm.line);
+  fDoc.CaretY := strToInt(ln);
   fDoc.SelectLine;
 end;
 
