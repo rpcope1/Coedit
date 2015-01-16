@@ -1,7 +1,7 @@
 /*******************************************************************************
 TODO source code analyzer for Coedit projects/files
 
-Format: // TODO [fields] : content
+Format: // TODO [fields] : text
 
 - TODO: used to detect that the comment is a "TODO" comment. The keyword is not
 case sensitive.
@@ -14,7 +14,7 @@ possible fields include:
   - p: TODO priority, eg: -p8 -p0
   - s: TODO status, e.g -sPartiallyFixed, -sDone
   
-- content: the literal message, e.g:  "set this property as const() to set it read only".
+- text: the literal message, e.g:  "set this property as const() to set it read only".
 
 full examples:
 
@@ -41,7 +41,7 @@ import std.d.ast, std.d.lexer, std.d.parser;
 
 private struct TodoItem 
 {
-    private enum TodoField {file, line, text, category, assignee, priority, status}
+    private enum TodoField {filename, line, text, category, assignee, priority, status}
     private string[TodoField] fFields;
      
     /**
@@ -49,7 +49,7 @@ private struct TodoItem
      * Params:
      * fname = the file where the item is located. mandatory.
      * line = the line where the item is located. mandatory.
-     * text = the TODO content. mandatory.
+     * text = the TODO text. mandatory.
      */
     @safe public this(string fname, string line, string text, string cat = "",  string ass = "", string prior = "", string status = "")
     {   
@@ -62,7 +62,7 @@ private struct TodoItem
         if (prior.length) try auto i = to!long(prior);
         catch(Exception e) prior = "";
               
-        fFields[TodoField.file]     = fname;
+        fFields[TodoField.filename] = fname;
         fFields[TodoField.line]     = line;
         fFields[TodoField.text]     = text;
         fFields[TodoField.category] = cat;
@@ -78,11 +78,11 @@ private struct TodoItem
      */
     @safe public void serialize(ref string LfmString)
     {
-        LfmString  ~= "\t\titem\n";
+        LfmString  ~= "    item\n";
         foreach(member; EnumMembers!TodoField)
             if (fFields[member].length)
-                LfmString  ~= format("\t\t\t%s = '%s'\n", to!string(member), fFields[member]);   
-        LfmString  ~= "\t\tend\n";
+                LfmString  ~= format("      %s = '%s'\n", to!string(member), fFields[member]);   
+        LfmString  ~= "    end\n";
     }
 }
 
@@ -106,7 +106,7 @@ void main(string[] args)
     {
         if (!f.exists) continue;
         
-        // loadand parse the file
+        // load and parse the file
         auto src = cast(ubyte[]) read(f, size_t.max);
         auto config = LexerConfig(f, StringBehavior.source);
         StringCache cache = StringCache(StringCache.defaultBucketCount);
@@ -117,7 +117,7 @@ void main(string[] args)
     // serialize the items using the pascal component streaming text format
     foreach(todoItem; todoItems) todoItem.serialize(LfmString);
     // the widget has the TODOs in the output
-    if (LfmString.length) writefln("object TTodoItems\n\titems = <\n%s>\nend", LfmString);
+    if (LfmString.length) writefln("object TTodoItems\n  items = <\n%s>\nend", LfmString);
 }
 
 /// Try to transforms a Token into a a TODO item
@@ -147,7 +147,7 @@ void main(string[] args)
     }
     if (!isTodoComment) return;
     
-    //fields : content
+    //fields : text
     identifier = identifier.init;
     auto fc = text.split(':');
     if (fc.length < 2) return;
@@ -187,6 +187,6 @@ void main(string[] args)
 
 // TODO-cINVALID_because_no_content:              
 // TODO: set this property as const() to set it read only.
-// TODO-cfeature: save this property in the inifile.
+// TODO-cfeature-sDone: save this property in the inifile.
 // TODO-cannnotations-p8: annotates the member of the module as @safe and if possible nothrow.
 

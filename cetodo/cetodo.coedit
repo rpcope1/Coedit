@@ -5,7 +5,7 @@ object CurrentProject: TCEProject
       messagesOptions.additionalWarnings = True
       outputOptions.boundsCheck = onAlways
       outputOptions.unittest = True
-      pathsOptions.outputFilename = '..\cetodo.exe'
+      pathsOptions.outputFilename = '..\lazproj\cetodo.exe'
       preBuildProcess.options = []
       preBuildProcess.showWindow = swoNone
       postBuildProcess.options = []
@@ -13,7 +13,6 @@ object CurrentProject: TCEProject
       runOptions.options = [poUsePipes, poStderrToOutPut]
       runOptions.parameters.Strings = (
         '<CPFS>'
-        '<CFF>'
       )
       runOptions.showWindow = swoHIDE
     end  
@@ -23,7 +22,7 @@ object CurrentProject: TCEProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = '..\cetodo.exe'
+      pathsOptions.outputFilename = '..\lazproj\cetodo.exe'
       preBuildProcess.options = []
       preBuildProcess.showWindow = swoNone
       postBuildProcess.options = []
@@ -34,7 +33,7 @@ object CurrentProject: TCEProject
   Sources.Strings = (
     'cetodo.d'
   )
-  ConfigurationIndex = 0
+  ConfigurationIndex = 1
   LibraryAliases.Strings = (
     'libdparse'
   )
