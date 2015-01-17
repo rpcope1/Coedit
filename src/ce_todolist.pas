@@ -6,10 +6,12 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, TreeFilterEdit, ListFilterEdit, Forms, Controls,
-  Graphics, Dialogs, ExtCtrls, Menus, Buttons, StdCtrls, ComCtrls, ce_widget,
-  process, ce_common, ce_interfaces, ce_synmemo, ce_project, ce_symstring;
+  Graphics, Dialogs, ExtCtrls, Menus, Buttons, StdCtrls, ComCtrls, asyncprocess,
+  ce_widget, process, ce_common, ce_interfaces, ce_synmemo, ce_project, ce_symstring;
 
 type
+
+  TTodoContext = (tcNone, tcProject, tcFile);
 
   // represents a TODO item
   // warning: the props names must be kept in sync with the values set in the tool.
@@ -64,6 +66,7 @@ type
     fDoc: TCESynMemo;
     fToolProcess: TCheckedAsyncProcess;
     fTodos: TTodoItems;
+    fLogMessager: TCELogMessageSubject;
     // ICEMultiDocObserver
     procedure docNew(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
@@ -76,6 +79,7 @@ type
     procedure projFocused(aProject: TCEProject);
     procedure projCompiling(aProject: TCEProject);
     // TODOlist things
+    function getContext: TTodoContext;
     procedure killToolProcess;
     procedure callToolProcess;
     procedure procTerminated(sender: TObject);
@@ -157,6 +161,7 @@ var
 begin
   inherited;
   fTodos := TTodoItems.Create(self);
+  fLogMessager := TCELogMessageSubject.create;
   lstItems.OnDblClick := @lstItemsDoubleClick;
   btnRefresh.OnClick := @btnRefreshClick;
 
@@ -177,6 +182,7 @@ end;
 destructor TCETodoListWidget.destroy;
 begin
   killToolProcess;
+  fLogMessager.Free;
   inherited;
 end;
 {$ENDREGION}
@@ -236,6 +242,19 @@ end;
 {$ENDREGION}
 
 {$REGION Todo list things ------------------------------------------------------}
+function TCETodoListWidget.getContext: TTodoContext;
+begin
+  result := tcNone;
+  //
+  if ((fProj = nil) and (fDoc = nil)) then exit;
+  if ((fProj = nil) and (fDoc <> nil)) then exit(tcFile);
+  if ((fProj <> nil) and (fDoc = nil)) then exit(tcProject);
+  //
+  result := tcFile;
+  if not FileExists(fDoc.fileName) then exit;
+  if fProj.isProjectSource(fDoc.fileName) then exit(tcProject);
+end;
+
 procedure TCETodoListWidget.killToolProcess;
 begin
   if fToolProcess = nil then exit;
@@ -247,15 +266,13 @@ end;
 
 procedure TCETodoListWidget.callToolProcess;
 var
-  asProject: boolean;
+  ctxt: TTodoContext;
 begin
   clearTodoList;
   if not exeInSysPath(ToolExeName) then exit;
+  ctxt := getContext;
+  if ctxt = tcNone then exit;
   if (fDoc = nil) and (fProj = nil)then exit;
-  //
-  if (fProj <> nil) then if (fDoc = nil) then asProject := true;
-  if (fProj =  nil) then if (fDoc <> nil) then asProject := false;
-  if (fProj <> nil) then if (fDoc <> nil) then asProject := (fProj.isProjectSource(fDoc.fileName));
   //
   killToolProcess;
   // process parameter
@@ -266,16 +283,32 @@ begin
   fToolProcess.OnTerminate := @procTerminated;
   fToolProcess.OnReadData := @procOutput;
   // files passed to the tool argument
-  if asProject then fToolProcess.Parameters.Add(symbolExpander.get('<CPFS>'))
+  if ctxt = tcProject then fToolProcess.Parameters.Add(symbolExpander.get('<CPFS>'))
   else fToolProcess.Parameters.AddText(symbolExpander.get('<CFF>'));
   //
   fToolProcess.Execute;
 end;
 
 procedure TCETodoListWidget.procOutput(sender: TObject);
+var
+  str: TStringList;
+  msg: string;
+  ctxt: TTodoContext;
 begin
-  // output during run-time
-  // should not be called
+  subjLmFromString(fLogMessager, 'called even if nothing in output', fProj, amcProj, amkAuto);
+  str := TStringList.Create;
+  try
+    processOutputToStrings(TAsyncProcess(fToolProcess), str);
+    ctxt := getContext;
+    for msg in str do case ctxt of
+      tcNone:   subjLmFromString(fLogMessager, msg, nil, amcMisc, amkAuto);
+      tcFile:   subjLmFromString(fLogMessager, msg, fDoc, amcEdit, amkAuto);
+      tcProject:subjLmFromString(fLogMessager, msg, fProj, amcProj, amkAuto);
+    end;
+  finally
+    str.Free;
+  end;
+  fToolProcess.Input.WriteByte($0A);
 end;
 
 procedure TCETodoListWidget.procTerminated(sender: TObject);

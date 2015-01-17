@@ -1,32 +1,39 @@
 /*******************************************************************************
 TODO source code analyzer for Coedit projects/files
 
-Format: // TODO [fields] : text
+## Format: 
+
+`` 
+// TODO [fields] : text
+``
 
 - TODO: used to detect that the comment is a "TODO" comment. The keyword is not
 case sensitive.
 
 - fields: an optional list of property with a format similar to the execution argument 
-of a program: -<char x><property for char x>-<char y><property for char y>.
+of a program: `-<char x><property for char x>-<char y><property for char y>`.
 possible fields include:
-  - c: TODO category, e.g: -cserialization -cpersistence -cerrorhandling
-  - a: TODO assignee, e.g: -aMisterFreeze -aMadameMichou -aJhonSmith
-  - p: TODO priority, eg: -p8 -p0
-  - s: TODO status, e.g -sPartiallyFixed, -sDone
+    - c: TODO category, e.g: _-cserialization_, _-cpersistence_, _ -cerrorhandling_.
+    - a: TODO assignee, e.g: _-aMisterFreeze_, _-aMadameMichou_, _-aJhonSmith_.
+    - p: TODO priority, eg: _-p8_, _-p0_.
+    - s: TODO status, e.g _-sPartiallyFixed_, _-sDone_.
   
 - text: the literal message, e.g:  "set this property as const() to set it read only".
 
-full examples:
+## Examples:
 
-// TODO: set this property as const() to set it read only.
-// TODO-cfeature: save this property in the inifile.
-// TODO-cannnotations-p8: annotates the member of the module as @safe and if possible nothrow.
+``// TODO: set this property as const() to make it read-only.``
 
-- widget to tool IPC:
+``// TODO-cfeature: save this property in the inifile.``
 
-The widget call the tool with a list of file as argument and read the process
-output on exit. the widget expects to find some TODO items in LFM format, according
-to the classes declarations of TTodoItems (the collection container) and TTodoItem(the collection item)
+``// TODO-cannnotations-p8: annotate the members of the module with @safe and if possible nothrow.``
+
+## Widget-to-tool IPC:
+
+The widget calls the tool with a file list as argument and reads the process
+output on exit. The widget expects to find some _TODO items_ in _LFM_ format, 
+according to the classes declarations of TTodoItems (the collection container) 
+and TTodoItem(the collection item).
 
 ********************************************************************************/
 module cetodo;
@@ -38,18 +45,26 @@ import std.file, std.path, std.range;
 // libdparse
 import std.d.ast, std.d.lexer, std.d.parser;
 
-
+/// Encapsulates the fields of a _TODO comment_.
 private struct TodoItem 
 {
+    /** 
+     * Enumerates the possible fields of _a TODO comment_. 
+     * They must match the published member of the widget-side class TTodoItem.
+     */
     private enum TodoField {filename, line, text, category, assignee, priority, status}
     private string[TodoField] fFields;
      
     /**
      * Constructs a TODO item with its fields.
      * Params:
-     * fname = the file where the item is located. mandatory.
-     * line = the line where the item is located. mandatory.
-     * text = the TODO text. mandatory.
+     * fname = the file where the _TODO comment_ is located. mandatory.
+     * line = the line where the _TODO comment_ is located. mandatory.
+     * text = the _TODO comment_ main text. mandatory.
+     * cat = the _TODO comment_ category, optional.
+     * ass = the _TODO comment_ assignee, optional.
+     * prior = the _TODO comment_ priority, as an integer litteral, optional.
+     * status = the _TODO comment_ status, optional.
      */
     @safe public this(string fname, string line, string text, string cat = "",  string ass = "", string prior = "", string status = "")
     {   
@@ -93,8 +108,8 @@ private alias TodoItems = TodoItem * [];
  * Params:
  * args = a list of files to analyze. 
  * Called each time a document is focused. Args is set using:
- * - the symbolic string <CFF> (current file is not in a project).
- * - the symbolic string <CPFS> (current file is in a project).
+ * - the symbolic string `<CFF>` (current file is not in a project).
+ * - the symbolic string `<CPFS>` (current file is in a project).
  */
 void main(string[] args)
 {
@@ -111,12 +126,22 @@ void main(string[] args)
         auto config = LexerConfig(f, StringBehavior.source);
         StringCache cache = StringCache(StringCache.defaultBucketCount);
         auto lexer = DLexer(src, config, &cache);
+
         // analyze the tokens
         foreach(tok; lexer) token2TodoItem(tok, f, todoItems);                     
     }
+    
     // serialize the items using the pascal component streaming text format
     foreach(todoItem; todoItems) todoItem.serialize(LfmString);
-    // the widget has the TODOs in the output
+       
+    // separates the data sent in procOutput() from those sent in procTerminated()
+    // TODO-cbugfix: find a way to determine if stdout has been written
+    if (stdout.size != 0) {
+        stdout.flush;
+        readln;
+    }
+
+    // the widget has the LFM script in the output, it reads in procTerminated()
     if (LfmString.length) writefln("object TTodoItems\n  items = <\n%s>\nend", LfmString);
 }
 

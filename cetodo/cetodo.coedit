@@ -18,7 +18,6 @@ object CurrentProject: TCEProject
     end  
     item
       name = 'release'
-      outputOptions.inlining = True
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
@@ -33,7 +32,7 @@ object CurrentProject: TCEProject
   Sources.Strings = (
     'cetodo.d'
   )
-  ConfigurationIndex = 0
+  ConfigurationIndex = 1
   LibraryAliases.Strings = (
     'libdparse'
   )
