@@ -272,7 +272,6 @@ begin
   if not exeInSysPath(ToolExeName) then exit;
   ctxt := getContext;
   if ctxt = tcNone then exit;
-  if (fDoc = nil) and (fProj = nil)then exit;
   //
   killToolProcess;
   // process parameter
@@ -291,8 +290,8 @@ begin
   fToolProcess.OnReadData := @procOutput;
 
   // files passed to the tool argument
-  if ctxt = tcProject then fToolProcess.Parameters.Add(symbolExpander.get('<CPFS>'))
-  else fToolProcess.Parameters.AddText(symbolExpander.get('<CFF>'));
+  if ctxt = tcProject then fToolProcess.Parameters.AddText(symbolExpander.get('<CPFS>'))
+  else fToolProcess.Parameters.Add(symbolExpander.get('<CFF>'));
   //
   fToolProcess.Execute;
 end;
