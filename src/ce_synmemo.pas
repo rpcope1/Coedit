@@ -396,6 +396,7 @@ begin
   Inherited;
   checkFileDate;
   identifierToD2Syn;
+  subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
 
 procedure TCESynMemo.SetHighlighter(const Value: TSynCustomHighlighter);
