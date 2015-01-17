@@ -464,6 +464,7 @@ begin
     {$IFDEF WINDOWS}
     // field is specified without ext or with a dot in the name.
     // DMD will add the ext. (e.g: "-ofresourced")
+    // https://issues.dlang.org/show_bug.cgi?id=13989
     if fileexists(fOutputFilename + exeExt) then
       if currentConfiguration.outputOptions.binaryKind = executable then
         fOutputFilename := fOutputFilename + exeExt;
