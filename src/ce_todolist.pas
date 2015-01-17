@@ -82,8 +82,8 @@ type
     function getContext: TTodoContext;
     procedure killToolProcess;
     procedure callToolProcess;
-    procedure procTerminated(sender: TObject);
     procedure procOutput(sender: TObject);
+    procedure procOutputDbg(sender: TObject);
     procedure clearTodoList;
     procedure fillTodoList;
     procedure lstItemsDoubleClick(sender: TObject);
@@ -278,10 +278,18 @@ begin
   // process parameter
   fToolProcess := TCheckedAsyncProcess.Create(nil);
   fToolProcess.Executable := ToolExeName;
-  fToolProcess.Options := [poUsePipes, poStderrToOutPut];
+  fToolProcess.Options := [poUsePipes];
   fToolProcess.ShowWindow := swoHIDE;
-  fToolProcess.OnTerminate := @procTerminated;
+
+  // Something not quite clear:
+  // --------------------------
+  // actually the two events can be called, depending
+  // on the amount of data in the output.
+  // many: OnReadData is called.
+  // few: OnTerminate is called.
+  fToolProcess.OnTerminate := @procOutput;
   fToolProcess.OnReadData := @procOutput;
+
   // files passed to the tool argument
   if ctxt = tcProject then fToolProcess.Parameters.Add(symbolExpander.get('<CPFS>'))
   else fToolProcess.Parameters.AddText(symbolExpander.get('<CFF>'));
@@ -289,16 +297,15 @@ begin
   fToolProcess.Execute;
 end;
 
-procedure TCETodoListWidget.procOutput(sender: TObject);
+procedure TCETodoListWidget.procOutputDbg(sender: TObject);
 var
   str: TStringList;
   msg: string;
   ctxt: TTodoContext;
 begin
-  subjLmFromString(fLogMessager, 'called even if nothing in output', fProj, amcProj, amkAuto);
   str := TStringList.Create;
   try
-    processOutputToStrings(TAsyncProcess(fToolProcess), str);
+    processOutputToStrings(fToolProcess, str);
     ctxt := getContext;
     for msg in str do case ctxt of
       tcNone:   subjLmFromString(fLogMessager, msg, nil, amcMisc, amkAuto);
@@ -308,10 +315,9 @@ begin
   finally
     str.Free;
   end;
-  fToolProcess.Input.WriteByte($0A);
 end;
 
-procedure TCETodoListWidget.procTerminated(sender: TObject);
+procedure TCETodoListWidget.procOutput(sender: TObject);
 var
   str: TMemoryStream;
   cnt: Integer;

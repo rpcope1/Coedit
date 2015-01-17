@@ -93,11 +93,11 @@ private struct TodoItem
      */
     @safe public void serialize(ref string LfmString)
     {
-        LfmString  ~= "    item\n";
+        LfmString  ~= "  \r\n    item\r\n";
         foreach(member; EnumMembers!TodoField)
             if (fFields[member].length)
-                LfmString  ~= format("      %s = '%s'\n", to!string(member), fFields[member]);   
-        LfmString  ~= "    end\n";
+                LfmString  ~= format("      %s = '%s'\r\n", to!string(member), fFields[member]);   
+        LfmString  ~= "    end";
     }
 }
 
@@ -126,7 +126,7 @@ void main(string[] args)
         auto config = LexerConfig(f, StringBehavior.source);
         StringCache cache = StringCache(StringCache.defaultBucketCount);
         auto lexer = DLexer(src, config, &cache);
-
+        
         // analyze the tokens
         foreach(tok; lexer) token2TodoItem(tok, f, todoItems);                     
     }
@@ -134,15 +134,10 @@ void main(string[] args)
     // serialize the items using the pascal component streaming text format
     foreach(todoItem; todoItems) todoItem.serialize(LfmString);
        
-    // separates the data sent in procOutput() from those sent in procTerminated()
-    // TODO-cbugfix: find a way to determine if stdout has been written
-    if (stdout.size != 0) {
-        stdout.flush;
-        readln;
-    }
-
-    // the widget has the LFM script in the output, it reads in procTerminated()
-    if (LfmString.length) writefln("object TTodoItems\n  items = <\n%s>\nend", LfmString);
+    //TODO: NEVER call writeln() in this program otherwise the widget cant interpret the output as LFM
+       
+    // the widget has the LFM script in the output
+    if (LfmString.length) writefln("object TTodoItems\r\n  items = <%s>\r\nend\r\n", LfmString);
 }
 
 /// Try to transforms a Token into a a TODO item
@@ -150,12 +145,13 @@ void main(string[] args)
 {
     if (atok.type != (tok!"comment")) 
         return;
-    if (atok.text.length < 3) 
+    auto text = atok.text.strip;
+    if (text.length < 3) 
         return;
-    if (atok.text[1] == '*' || atok.text[1] == '+' || atok.text[2] == '/')
+    if (text[1] == '*' || text[1] == '+' || text[2] == '/')
         return; 
         
-    auto text = atok.text[2..$];
+    text = text[2..$];
     string identifier;
     bool isTodoComment;
     size_t pos;
@@ -214,4 +210,4 @@ void main(string[] args)
 // TODO: set this property as const() to set it read only.
 // TODO-cfeature-sDone: save this property in the inifile.
 // TODO-cannnotations-p8: annotates the member of the module as @safe and if possible nothrow.
-
+// TODO-cfeature-sDone: save this property in the inifile.
