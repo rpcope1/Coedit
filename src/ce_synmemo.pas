@@ -386,7 +386,8 @@ begin
   Inherited;
   checkFileDate;
   identifierToD2Syn;
-  subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
+  // produces too much updates in the widgets
+  //subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
 
 procedure TCESynMemo.SetHighlighter(const Value: TSynCustomHighlighter);
