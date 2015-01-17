@@ -365,59 +365,104 @@ end;
 
 procedure TCEProject.afterLoad;
 var
-  i, j: Integer;
-  src, ini, newdir: string;
   hasPatched: Boolean;
+  // either all the source files have moved or only the project file
+  procedure checkMissingAllSources;
+  var
+    allMissing: boolean;
+    dirHint: string;
+    newdir: string;
+    ini: string;
+    src: string;
+    i: Integer;
+  begin
+    if fSrcs.Count = 0 then exit;
+    allMissing := true;
+    for i:= 0 to fSrcs.Count-1 do
+      if fileExists(getAbsoluteSourceName(i)) then
+        allMissing := false;
+    if not allMissing then exit;
+    if dlgOkCancel( 'The project source(s) are all missing. ' + LineEnding +
+      'This can be encountered if the project file has been moved from its original location.' + LineEnding + LineEnding +
+      'Do you wish to select the new root folder ?') <> mrOk then exit;
+    // hint for the common dir
+    dirHint := fSrcs.Strings[i];
+    while (dirHint[1] = '.') or (dirHint[1] = DirectorySeparator) do
+        dirHint := dirHint[2..length(dirHint)];
+    ini := extractFilePath(fFilename);
+    if not selectDirectory( format('select the folder (which contains "%s")',[dirHint]), ini, newdir) then
+      exit;
+    for i := 0 to fSrcs.Count-1 do
+    begin
+      src := fSrcs.Strings[i];
+      while (src[1] = '.') or (src[1] = DirectorySeparator) do
+        src := src[2..length(src)];
+      if fileExists(expandFilenameEx(fBasePath, newdir + DirectorySeparator + src)) then
+        fSrcs.Strings[i] := ExtractRelativepath(fBasePath, newdir + DirectorySeparator + src);
+      hasPatched := true;
+    end;
+  end;
+  // single sources files are missing
+  procedure checkMissingSingleSource;
+  var
+    oldsrc: string;
+    opendlg: TOpenDialog;
+    i: Integer;
+  begin
+    for i:= fSrcs.Count-1 downto 0 do
+    begin
+      oldsrc := getAbsoluteSourceName(i);
+      if fileExists(oldsrc) then continue;
+      if dlgOkCancel(format('a particular project source file ("%s") is missing. '
+        + LineEnding + 'This happends if a source file has been moved, renamed ' +
+        'or deleted.' + LineEnding + LineEnding +
+        'Do you wish to select its new location?', [fSrcs[i]])) <> mrOk then exit;
+      //
+      opendlg := TOpenDialog.Create(nil);
+      try
+        opendlg.InitialDir := extractFilePath(fFilename);
+        opendlg.FileName := fSrcs[i];
+        if opendlg.execute then
+        begin
+          if ExtractFileName(oldsrc) <> ExtractFileName(opendlg.filename) then
+            if dlgOkCancel('the filenames are different, replace the old file ?') <> mrOk then
+              continue;
+            fSrcs[i] := ExtractRelativepath(fBasePath, opendlg.Filename);
+            hasPatched := true;
+        end else
+        begin
+          if dlgOkCancel('You have choosen not to update the file, ' +
+          'do you wish to remove it from the project ?') <> mrOk then
+              continue;
+          fSrcs.Delete(i);
+          hasPatched := true;
+        end;
+      finally
+        opendlg.Free;
+      end;
+    end;
+  end;
+//
 begin
   patchPlateformPaths(fSrcs);
   doChanged;
   fModified := false;
   hasPatched := false;
-
-  // patch location: this only works when the project file is moved.
-  // if the source structure changes this doesn't help much.
-  // if both appends then the project must be restarted from scratch.
-  for i := 0 to fSrcs.Count-1 do
-  begin
-    src := getAbsoluteSourceName(i);
-    if fileExists(src) then
-      continue;
-    if ce_common.dlgOkCancel(
-      'The project source(s) point to invalid file(s). ' + LineEnding +
-      'This can be encountered if the project file has been moved from its original location.' + LineEnding + LineEnding +
-      'Do you wish to select the new root folder ?') <> mrOk then
-        exit;
-    // hint for the common dir
-    src := fSrcs.Strings[i];
-    while (src[1] = '.') or (src[1] = DirectorySeparator) do
-        src := src[2..length(src)];
-    // prompt
-    ini := extractFilePath(fFilename);
-    if not selectDirectory( format('select the folder (which contains "%s")',[src]), ini, newdir) then
-      exit;
-    // patch
-    for j := i to fSrcs.Count-1 do
-    begin
-      src := fSrcs.Strings[j];
-      while (src[1] = '.') or (src[1] = DirectorySeparator) do
-        src := src[2..length(src)];
-      if fileExists(expandFilenameEx(fBasePath, newdir + DirectorySeparator + src)) then
-        fSrcs.Strings[j] := ExtractRelativepath(fBasePath, newdir + DirectorySeparator + src)
-      else break; // next pass: patch from another folder.
-    end;
-    hasPatched := true;
-  end;
   //
-  if hasPatched then begin
-    saveToFile(fFilename);
-    // warning for other relative paths
-    if fileExists(getAbsoluteSourceName(0)) then
-      ce_common.dlgOkInfo('the main sources paths has been patched, some others invalid ' +
-      'paths may still exists (-of, -od, etc.) but cannot be automatically handled');
+  // TODO-cfeature: a modal form with the file list, green checkers and red crosses to indicate the state
+  // and some actions to apply to a particular selection: patch root, remove from project, replace, etc...
+  checkMissingAllSources;
+  checkMissingSingleSource;
+  if hasPatched then
+  begin
+    dlgOkInfo('some source file paths has been patched, some others invalid ' +
+    'paths or file may still exist (-of, -od, extraSources, etc)' +
+    'but cannot be automatically handled. Note that the modifications have not been saved.');
   end;
-  updateOutFilename;
   endUpdate;
-  fModified := false;
+  //
+  updateOutFilename;
+  if not hasPatched then fModified := false;
 end;
 
 procedure TCEProject.readerPropNoFound(Reader: TReader; Instance: TPersistent;
