@@ -491,6 +491,7 @@ begin
 
   clearTree;
   updateVisibleCat;
+  if fDoc = nil then exit;
 
   if not FileExists(fJsonFname) then exit;
 
