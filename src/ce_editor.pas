@@ -12,6 +12,13 @@ uses
 
 type
 
+  // this descendant propagates the Visible property to the children.
+  // this fix the bug described in commit c1a0ed2799390d788b1d1e435eb8dc1ed3369ce7
+  TCEEditorPage = class(TTabSheet)
+  protected
+    procedure SetVisible(Value: Boolean); override;
+  end;
+
   { TCEEditorWidget }
   TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver)
     imgList: TImageList;
@@ -71,6 +78,17 @@ implementation
 
 uses
   ce_main;
+
+
+procedure TCEEditorPage.SetVisible(Value: Boolean);
+var
+  i: integer;
+begin
+  inherited;
+  for i := 0 to ComponentCount-1 do
+    if (Components[i] is TWinControl) then
+      TWinControl(Components[i]).Visible:= Value;
+end;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEEditorWidget.create(aOwner: TComponent);
@@ -205,11 +223,12 @@ end;
 
 procedure TCEEditorWidget.addEditor;
 var
-  sheet: TTabSheet;
+  sheet: TCEEditorPage;
   memo: TCESynMemo;
 begin
-  sheet := pageControl.AddTabSheet;
+  sheet := TCEEditorPage.Create(self);
   memo  := TCESynMemo.Create(sheet);
+  sheet.PageControl := PageControl;
   //
   memo.Align := alClient;
   memo.Parent := sheet;
