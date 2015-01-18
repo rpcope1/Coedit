@@ -83,9 +83,6 @@ type
     procedure saveCache;
     procedure loadCache;
   protected
-    // TODO-cbugfix: open 3 files, close the 1 at the center, select the left 1,
-    // select the right 1: the status bar displays the info from the left editor (sel count, pos, filename)
-    // however this is only a visual bug: saving works on the right editor...
     procedure SetVisible(Value: Boolean); override;
     procedure SetHighlighter(const Value: TSynCustomHighlighter); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
