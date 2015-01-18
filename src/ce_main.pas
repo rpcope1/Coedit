@@ -989,8 +989,7 @@ end;
 
 procedure TCEMainForm.newFile;
 begin
-  if fEditWidg = nil then exit;
-  fEditWidg.addEditor;
+  TCESynMemo.Create(nil);
 end;
 
 function TCEMainForm.findFile(const aFilename: string): NativeInt;
@@ -1017,10 +1016,9 @@ begin
     fEditWidg.PageControl.PageIndex := i;
     exit;
   end;
-  i := fEditWidg.editorCount;
-  fEditWidg.addEditor;
-  fEditWidg.editor[i].loadFromFile(aFilename);
-  fEditWidg.focusedEditorChanged;
+  TCESynMemo.Create(nil);
+  if fDoc = nil then exit;
+  fDoc.loadFromFile(aFilename);
   fFileMru.Insert(0, aFilename);
 end;
 
@@ -1148,7 +1146,8 @@ begin
       'The latest mdofifications are not saved, continue ?') = mrCancel
       then exit;
   //
-  fEditWidg.removeEditor(fEditWidg.editorIndex);
+  fDoc.Free;
+  //fEditWidg.removeEditor(fEditWidg.editorIndex);
 end;
 
 procedure TCEMainForm.actFileSaveAllExecute(Sender: TObject);

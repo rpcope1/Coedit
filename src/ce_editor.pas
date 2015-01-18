@@ -59,8 +59,6 @@ type
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
-    procedure addEditor;
-    procedure removeEditor(const aIndex: NativeInt);
     procedure focusedEditorChanged;
     //
     procedure docNew(aDoc: TCESynMemo);
@@ -85,9 +83,8 @@ var
   i: integer;
 begin
   inherited;
-  for i := 0 to ComponentCount-1 do
-    if (Components[i] is TWinControl) then
-      TWinControl(Components[i]).Visible:= Value;
+  for i := 0 to ControlCount-1 do
+    Controls[i].Visible:= Value;
 end;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
@@ -116,8 +113,14 @@ begin
 end;
 
 destructor TCEEditorWidget.destroy;
+var
+  i: integer;
 begin
   EntitiesConnector.removeObserver(self);
+  for i := 0 to PageControl.PageCount-1 do
+    if PageControl.Page[i].ControlCount > 0 then
+      if (PageControl.Controls[0] is TCESynMemo) then
+        PageControl.Controls[0].Free;
   tokLst.Free;
   errLst.Free;
   inherited;
@@ -142,14 +145,38 @@ end;
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
 procedure TCEEditorWidget.docNew(aDoc: TCESynMemo);
+var
+  sheet: TCEEditorPage;
 begin
+  sheet := TCEEditorPage.Create(self);
+  sheet.PageControl := PageControl;
+  //
+  aDoc.Align := alClient;
+  aDoc.Parent := sheet;
+  //
+  aDoc.OnKeyDown := @memoKeyDown;
+  aDoc.OnKeyUp := @memoKeyDown;
+  aDoc.OnKeyPress := @memoKeyPress;
+  aDoc.OnMouseDown := @memoMouseDown;
+  aDoc.OnMouseMove := @memoMouseMove;
+  aDoc.OnClickLink := @memoCtrlClick;
+  //
+  fDoc := aDoc;
+  pageControl.ActivePage := sheet;
+  focusedEditorChanged;
+  beginUpdateByDelay;
+  UpdateByEvent;
 end;
 
 procedure TCEEditorWidget.docClosing(aDoc: TCESynMemo);
+var
+  sheet: TWinControl;
 begin
   if fDoc <> aDoc then exit;
+  sheet := fDoc.Parent;
+  fDoc.Parent := nil;
   fDoc := nil;
-  PageControl.Update;
+  if sheet <> nil then sheet.Free;
   UpdateByEvent;
 end;
 
@@ -219,34 +246,6 @@ procedure TCEEditorWidget.completionCodeCompletion(var Value: string;
 begin
   // warning: '20' depends on ce_dcd, case knd of, string literals length
   Value := Value[1..length(Value)-20];
-end;
-
-procedure TCEEditorWidget.addEditor;
-var
-  sheet: TCEEditorPage;
-  memo: TCESynMemo;
-begin
-  sheet := TCEEditorPage.Create(self);
-  memo  := TCESynMemo.Create(sheet);
-  sheet.PageControl := PageControl;
-  //
-  memo.Align := alClient;
-  memo.Parent := sheet;
-  //
-  memo.OnKeyDown := @memoKeyDown;
-  memo.OnKeyUp := @memoKeyDown;
-  memo.OnKeyPress := @memoKeyPress;
-  memo.OnMouseDown := @memoMouseDown;
-  memo.OnMouseMove := @memoMouseMove;
-  memo.OnClickLink := @memoCtrlClick;
-  //
-  pageControl.ActivePage := sheet;
-end;
-
-procedure TCEEditorWidget.removeEditor(const aIndex: NativeInt);
-begin
-  editor[aIndex].OnChange:= nil;
-  pageControl.Pages[aIndex].Free;
 end;
 
 procedure TCEEditorWidget.memoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
