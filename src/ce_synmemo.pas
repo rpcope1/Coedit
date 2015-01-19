@@ -363,10 +363,7 @@ end;
 procedure TCESynMemo.SetVisible(Value: Boolean);
 begin
   inherited;
-  if not Value then exit;
-  checkFileDate;
-  identifierToD2Syn;
-  subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
+  if Value then setFocus;
 end;
 
 procedure TCESynMemo.SetHighlighter(const Value: TSynCustomHighlighter);
@@ -408,7 +405,7 @@ begin
   loadCache;
   //
   fModified := false;
-  subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
+  setFocus;
   subjDocChanged(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
 
