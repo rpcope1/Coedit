@@ -31,6 +31,7 @@ type
     procedure TreeSelectionChanged(Sender: TObject);
   protected
     procedure UpdateByEvent; override;
+    procedure SetVisible(Value: boolean); override;
   private
     fActOpenFile: TAction;
     fActSelConf: TAction;
@@ -111,6 +112,11 @@ begin
   inherited;
 end;
 
+procedure TCEProjectInspectWidget.SetVisible(Value: boolean);
+begin
+  inherited;
+  if Value then UpdateByEvent;
+end;
 {$ENDREGION}
 
 {$REGION ICEContextualActions---------------------------------------------------}
@@ -143,7 +149,7 @@ end;
 procedure TCEProjectInspectWidget.projNew(aProject: TCEProject);
 begin
   fProject := aProject;
-  UpdateByEvent;
+  if Visible then UpdateByEvent;
 end;
 
 procedure TCEProjectInspectWidget.projClosing(aProject: TCEProject);
@@ -157,14 +163,13 @@ end;
 procedure TCEProjectInspectWidget.projFocused(aProject: TCEProject);
 begin
   fProject := aProject;
-  UpdateByEvent;
+  if Visible then UpdateByEvent;
 end;
 
 procedure TCEProjectInspectWidget.projChanged(aProject: TCEProject);
 begin
-  if fProject <> aProject then
-    exit;
-  UpdateByEvent;
+  if fProject <> aProject then exit;
+  if Visible then UpdateByEvent;
 end;
 
 procedure TCEProjectInspectWidget.projCompiling(aProject: TCEProject);

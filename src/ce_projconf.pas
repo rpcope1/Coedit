@@ -52,6 +52,7 @@ type
     procedure projCompiling(aProject: TCEProject);
   protected
     procedure UpdateByEvent; override;
+    procedure SetVisible(Value: boolean); override;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -90,6 +91,13 @@ begin
   EntitiesConnector.removeObserver(self);
   inherited;
 end;
+
+procedure TCEProjectConfigurationWidget.SetVisible(Value: boolean);
+begin
+  inherited;
+  if Visible then UpdateByEvent;
+end;
+
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
@@ -97,7 +105,7 @@ procedure TCEProjectConfigurationWidget.projNew(aProject: TCEProject);
 begin
   beginUpdateByEvent;
   fProj := aProject;
-  endUpdateByEvent;
+  if Visible then UpdateByEvent;
   syncroMode := false;
 end;
 
@@ -114,18 +122,15 @@ end;
 
 procedure TCEProjectConfigurationWidget.projChanged(aProject: TCEProject);
 begin
-  if fProj <> aProject then
-    exit;
-  beginUpdateByEvent;
+  if fProj <> aProject then exit;
   fProj := aProject;
-  endUpdateByEvent;
+  if Visible then UpdateByEvent;
 end;
 
 procedure TCEProjectConfigurationWidget.projFocused(aProject: TCEProject);
 begin
-  beginUpdateByEvent;
   fProj := aProject;
-  endUpdateByEvent;
+  if Visible then UpdateByEvent;
 end;
 
 procedure TCEProjectConfigurationWidget.projCompiling(aProject: TCEProject);
@@ -359,10 +364,11 @@ var
 begin
   selConf.ItemIndex:= -1;
   selConf.Clear;
+  if fProj = nil then exit;
+  //
   for i:= 0 to fProj.OptionsCollection.Count-1 do
     selConf.Items.Add(fProj.configuration[i].name);
   selConf.ItemIndex := fProj.ConfigurationIndex;
-
   inspector.TIObject := getGridTarget;
 end;
 {$ENDREGION --------------------------------------------------------------------}

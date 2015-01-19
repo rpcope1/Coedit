@@ -76,6 +76,8 @@ type
     function contextName: string; override;
     function contextActionCount: integer; override;
     function contextAction(index: integer): TAction; override;
+    //
+    procedure SetVisible(Value: boolean); override;
   published
     property autoRefresh: boolean read fAutoRefresh write fAutoRefresh;
     property refreshOnChange: boolean read fRefreshOnChange write fRefreshOnChange;
@@ -159,6 +161,13 @@ begin
   killProcess(fDmdProc);
   fLogMessager.Free;
   inherited;
+end;
+
+procedure TCEStaticExplorerWidget.SetVisible(Value: boolean);
+begin
+  inherited;
+  if Value then
+    produceJsonInfo;
 end;
 {$ENDREGION}
 
@@ -277,6 +286,8 @@ end;
 procedure TCEStaticExplorerWidget.docFocused(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
+  if not Visible then exit;
+  //
   if fAutoRefresh then beginUpdateByDelay
   else if fRefreshOnFocus then produceJsonInfo;
 end;
@@ -284,10 +295,10 @@ end;
 procedure TCEStaticExplorerWidget.docChanged(aDoc: TCESynMemo);
 begin
   if fDoc <> aDoc then exit;
-  if fAutoRefresh then
-    beginUpdateByDelay
-  else if fRefreshOnChange then
-    produceJsonInfo;
+  if not Visible then exit;
+  //
+  if fAutoRefresh then beginUpdateByDelay
+  else if fRefreshOnChange then produceJsonInfo;
 end;
 {$ENDREGION}
 

@@ -89,6 +89,8 @@ type
     procedure lstItemsDoubleClick(sender: TObject);
     procedure btnRefreshClick(sender: TObject);
     procedure filterItems(sender: TObject);
+  protected
+    procedure SetVisible(Value: boolean); override;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -185,6 +187,14 @@ begin
   fLogMessager.Free;
   inherited;
 end;
+
+procedure TCETodoListWidget.SetVisible(Value: boolean);
+begin
+  inherited;
+  if Value then
+    callToolProcess;
+end;
+
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
@@ -195,7 +205,8 @@ end;
 procedure TCETodoListWidget.docFocused(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
-  callToolProcess;
+  if Visible then
+    callToolProcess;
 end;
 
 procedure TCETodoListWidget.docChanged(aDoc: TCESynMemo);
@@ -220,7 +231,8 @@ end;
 procedure TCETodoListWidget.projChanged(aProject: TCEProject);
 begin
   if fProj <> aProject then exit;
-  callToolProcess;
+  if Visible then
+    callToolProcess;
 end;
 
 procedure TCETodoListWidget.projClosing(aProject: TCEProject);
@@ -233,7 +245,8 @@ end;
 procedure TCETodoListWidget.projFocused(aProject: TCEProject);
 begin
   fProj := aProject;
-  callToolProcess;
+  if Visible then
+    callToolProcess;
 end;
 
 procedure TCETodoListWidget.projCompiling(aProject: TCEProject);
