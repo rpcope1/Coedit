@@ -117,10 +117,10 @@ var
   i: integer;
 begin
   EntitiesConnector.removeObserver(self);
-  for i := 0 to PageControl.PageCount-1 do
+  for i := PageControl.PageCount-1 downto 0 do
     if PageControl.Page[i].ControlCount > 0 then
-      if (PageControl.Controls[0] is TCESynMemo) then
-        PageControl.Controls[0].Free;
+      if (PageControl.Page[i].Controls[0] is TCESynMemo) then
+        PageControl.Page[i].Controls[0].Free;
   tokLst.Free;
   errLst.Free;
   inherited;
