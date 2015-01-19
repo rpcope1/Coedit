@@ -294,6 +294,7 @@ end;
 constructor TCESynMemo.Create(aOwner: TComponent);
 begin
   inherited;
+  SetDefaultKeystrokes; // not called in inherited if owner = nil !
   Font.Quality := fqProof;
   //Font.CharSet := OEM_CHARSET;
   Font.Pitch := fpFixed;
