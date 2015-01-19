@@ -94,7 +94,6 @@ type
     constructor Create(aOwner: TComponent); override;
     destructor destroy; override;
     procedure setFocus; override;
-    procedure DoEnter; override;
     //
     procedure checkFileDate;
     procedure loadFromFile(const aFilename: string);
@@ -367,13 +366,6 @@ begin
   checkFileDate;
   identifierToD2Syn;
   subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
-end;
-
-procedure TCESynMemo.DoEnter;
-begin
-  Inherited;
-  checkFileDate;
-  identifierToD2Syn;
 end;
 
 procedure TCESynMemo.SetHighlighter(const Value: TSynCustomHighlighter);
