@@ -1083,6 +1083,7 @@ end;
 procedure TCEMainForm.actFileNewExecute(Sender: TObject);
 begin
   newFile;
+  fDoc.setFocus;
 end;
 
 procedure TCEMainForm.actFileNewRunExecute(Sender: TObject);
@@ -1099,6 +1100,7 @@ begin
   '    // phobos and libman imports are allowed' + LineEnding +
   '    writeln("hello runnable module");' + LineEnding +
   '}';
+  fDoc.setFocus;
 end;
 
 procedure TCEMainForm.actFileSaveAsExecute(Sender: TObject);
