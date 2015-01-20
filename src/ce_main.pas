@@ -590,16 +590,19 @@ var
   xcfg: TXMLConfigStorage;
   i: NativeInt;
 begin
-  if not fInitialized then
-    exit;
-  if WindowState = wsMinimized then
-    WindowState := wsNormal;
+  if not fInitialized then exit;
+  if not Visible then exit;
+  //
+  if WindowState = wsMinimized then WindowState := wsNormal;
+  // TODO-cbugfix: check new docking persistence behaviour on new Laz release.
+  // does not save minimized/undocked windows to prevent bugs
   for i:= 0 to fWidgList.Count-1 do
   begin
-    DockMaster.GetAnchorSite(fWidgList.widget[i]).Show;
-    DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState := wsNormal;
+    if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then
+      DockMaster.GetAnchorSite(fWidgList.widget[i]).Close
+    else if DockMaster.GetAnchorSite(fWidgList.widget[i]).SiteType = adhstNone then
+      DockMaster.GetAnchorSite(fWidgList.widget[i]).Close;
   end;
-  if not Visible then exit;
   //
   forceDirectory(getCoeditDocPath);
   xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'docking.xml',false);
@@ -1504,8 +1507,10 @@ begin
   // TODO-cbugfix: possible loading AV, xml saved after undocking some widgets, xml file abnormal size.
   for i:= 0 to fWidgList.Count-1 do
   begin
-    DockMaster.GetAnchorSite(fWidgList.widget[i]).Show;
-    DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState := wsNormal;
+    if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then
+      DockMaster.GetAnchorSite(fWidgList.widget[i]).Close
+    else if DockMaster.GetAnchorSite(fWidgList.widget[i]).SiteType = adhstNone then
+      DockMaster.GetAnchorSite(fWidgList.widget[i]).Close;
   end;
   //
   forceDirectory(extractFilePath(aFilename));
