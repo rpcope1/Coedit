@@ -25,6 +25,7 @@ type
     fDoc: TCESynMemo;
     fProj: TCEProject;
     procedure killServer;
+    procedure terminateClient;
     //
     procedure projNew(aProject: TCEProject);
     procedure projChanged(aProject: TCEProject);
@@ -91,6 +92,8 @@ begin
   if fTempLines <> nil then
     fTempLines.Free;
   killServer;
+  fServer.Free;
+  fClient.Free;
   inherited;
 end;
 {$ENDREGION}
@@ -161,6 +164,12 @@ end;
 {$ENDREGION}
 
 {$REGION DCD things ------------------------------------------------------------}
+procedure TCEDcdWrapper.terminateClient;
+begin
+  if fClient.Running then
+    fClient.Terminate(0);
+end;
+
 procedure TCEDcdWrapper.killServer;
 begin
   if not fAvailable then exit;
@@ -171,6 +180,7 @@ begin
   fClient.Execute;
   {$IFDEF LINUX}
   fClient.Terminate(0);
+  fServer.Terminate(0);
   {$ENDIF}
 end;
 
@@ -187,9 +197,6 @@ begin
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-I' + aFolder);
   fClient.Execute;
-  {$IFDEF LINUX}
-  fClient.Terminate(0);
-  {$ENDIF}
 end;
 
 procedure TCEDcdWrapper.getComplAtCursor(aList: TStrings);
@@ -205,6 +212,7 @@ begin
   fTempLines.Assign(fDoc.Lines);
   fTempLines.SaveToFile(fDoc.tempFilename);
   //
+  terminateClient;
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-c');
   fClient.Parameters.Add(intToStr(fDoc.SelStart - 1));
@@ -212,9 +220,6 @@ begin
   fClient.Execute;
   //
   fTempLines.LoadFromStream(fClient.Output);
-  {$IFDEF LINUX}
-  fClient.Terminate(0);
-  {$ENDIF}
   if fTempLines.Count = 0 then exit;
   //
   asComp := fTempLines.Strings[0] = 'identifiers';
@@ -261,6 +266,7 @@ begin
   fTempLines.Assign(fDoc.Lines);
   fTempLines.SaveToFile(fDoc.tempFilename);
   //
+  terminateClient;
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-d');
   fClient.Parameters.Add('-c');
@@ -270,12 +276,8 @@ begin
   //
   aComment := '';
   fTempLines.LoadFromStream(fClient.Output);
-  {$IFDEF LINUX}
-  fClient.Terminate(0);
-  {$ENDIF}
   for i := 0 to fTempLines.Count-1 do
     aComment += ReplaceStr(fTempLines.Strings[i], '\n', LineEnding);
-
 end;
 
 procedure TCEDcdWrapper.getDeclFromCursor(out aFilename: string; out aPosition: Integer);
@@ -289,6 +291,7 @@ begin
   fTempLines.Assign(fDoc.Lines);
   fTempLines.SaveToFile(fDoc.tempFilename);
   //
+  terminateClient;
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-l');
   fClient.Parameters.Add('-c');
@@ -299,9 +302,6 @@ begin
   str := 'a';
   setlength(str, 256);
   i := fClient.Output.Read(str[1], 256);
-  {$IFDEF LINUX}
-  fClient.Terminate(0);
-  {$ENDIF}
   setLength(str, i);
   if str <> '' then
   begin
