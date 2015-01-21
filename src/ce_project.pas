@@ -112,6 +112,10 @@ begin
   subjProjNew(TCEProjectSubject(fProjectSubject), self);
   subjProjChanged(TCEProjectSubject(fProjectSubject), self);
   //
+  {$IFDEF LINUX}
+  fBasePath := '/';
+  {$ENDIF}
+  //
   fModified := false;
 end;
 
