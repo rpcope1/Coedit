@@ -169,6 +169,9 @@ begin
   fClient.Parameters.Clear;
   fClient.Parameters.Add('--shutdown');
   fClient.Execute;
+  {$IFDEF LINUX}
+  fClient.Terminate(0);
+  {$ENDIF}
 end;
 
 procedure TCEDcdWrapper.restartServer;
@@ -184,6 +187,9 @@ begin
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-I' + aFolder);
   fClient.Execute;
+  {$IFDEF LINUX}
+  fClient.Terminate(0);
+  {$ENDIF}
 end;
 
 procedure TCEDcdWrapper.getComplAtCursor(aList: TStrings);
@@ -206,6 +212,9 @@ begin
   fClient.Execute;
   //
   fTempLines.LoadFromStream(fClient.Output);
+  {$IFDEF LINUX}
+  fClient.Terminate(0);
+  {$ENDIF}
   if fTempLines.Count = 0 then exit;
   //
   asComp := fTempLines.Strings[0] = 'identifiers';
@@ -261,6 +270,9 @@ begin
   //
   aComment := '';
   fTempLines.LoadFromStream(fClient.Output);
+  {$IFDEF LINUX}
+  fClient.Terminate(0);
+  {$ENDIF}
   for i := 0 to fTempLines.Count-1 do
     aComment += ReplaceStr(fTempLines.Strings[i], '\n', LineEnding);
 
@@ -287,6 +299,9 @@ begin
   str := 'a';
   setlength(str, 256);
   i := fClient.Output.Read(str[1], 256);
+  {$IFDEF LINUX}
+  fClient.Terminate(0);
+  {$ENDIF}
   setLength(str, i);
   if str <> '' then
   begin
