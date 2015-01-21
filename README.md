@@ -17,6 +17,7 @@ Current features
 - module symbol list.
 - static libraries manager.
 - search and replace.
+- "todo comment" analyzer.
 - user-defined tools powered by a string interpolation system.
 - [D Completion Daemon](https://github.com/Hackerpilot/DCD) integration for completion proposal and source code hints.
 - mini file browser.
@@ -27,7 +28,7 @@ Missing features before the first beta
 
 Project information
 -------------------
-- status: alpha 10.
+- status: alpha 11.
 - license: MIT.
 - programmed in Object Pascal with [Lazarus & FPC](http://www.lazarus.freepascal.org) as IDE & compiler.
 - based on *DMD* (the alternative backends, LDC or GDC, are not supported).
