@@ -43,6 +43,9 @@ type
     tokLst: TLexTokenList;
     errLst: TLexErrorList;
     fModStart: boolean;
+    {$IFDEF LINUX}
+    procedure pageCloseBtnClick(Sender: TObject);
+    {$ENDIF}
     function completionItemPaint(const AKey: string; ACanvas: TCanvas;X, Y: integer; Selected: boolean; Index: integer): boolean;
     procedure lexFindToken(const aToken: PLexToken; out doStop: boolean);
     procedure memoKeyPress(Sender: TObject; var Key: char);
@@ -108,6 +111,10 @@ begin
   finally
     bmp.Free;
   end;
+  //
+  {$IFDEF LINUX}
+  PageControl.OnCloseTabClicked := @pageCloseBtnClick;
+  {$ENDIF}
   //
   EntitiesConnector.addObserver(self);
 end;
@@ -198,6 +205,13 @@ end;
 {$ENDREGION}
 
 {$REGION PageControl/Editor things ---------------------------------------------}
+{$IFDEF LINUX}
+procedure TCEEditorWidget.pageCloseBtnClick(Sender: TObject);
+begin
+  if fDoc <> nil then fDoc.Free;
+end;
+{$ENDIF}
+
 function TCEEditorWidget.getEditorCount: NativeInt;
 begin
   result := pageControl.PageCount;
