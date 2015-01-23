@@ -45,7 +45,7 @@ type
     destructor destroy; override;
   end;
 
-  TCETools = class(TWritableComponent, ICEMainMenuProvider)
+  TCETools = class(TWritableLfmTextComponent, ICEMainMenuProvider)
   private
     fTools: TCollection;
     function getTool(index: Integer): TCEToolItem;

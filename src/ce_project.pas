@@ -21,7 +21,7 @@ type
  *
  * Basically it' s designed to provide the options for the dmd process.
  *)
-  TCEProject = class(TWritableComponent)
+  TCEProject = class(TWritableLfmTextComponent)
   private
     fOnChange: TNotifyEvent;
     fModified: boolean;

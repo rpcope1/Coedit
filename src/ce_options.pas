@@ -9,7 +9,7 @@ uses
 
 type
 
-  TCEOptions = class(TWritableComponent)
+  TCEOptions = class(TWritableLfmTextComponent)
   private
     fSubjPersObservers: TCECustomSubject;
   protected

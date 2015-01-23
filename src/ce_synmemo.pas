@@ -24,7 +24,7 @@ type
     property nestedIndex: Integer read fNestedIndex write fNestedIndex;
   end;
 
-  TCESynMemoCache = class(TWritableComponent)
+  TCESynMemoCache = class(TWritableLfmTextComponent)
   private
     fMemo: TCESynMemo;
     fFolds: TCollection;

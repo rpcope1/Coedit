@@ -22,7 +22,7 @@ type
    * Shift + SPACE works automatically on the right editor (ICEMultiDocObserver)
    * Automatic insertion is handled in TCESynMemo.KeyUp()
    *)
-  TCEStaticEditorMacro = class(TWritableComponent, ICEMultiDocObserver)
+  TCEStaticEditorMacro = class(TWritableLfmTextComponent, ICEMultiDocObserver)
   private
     fCompletor: TSynAutoComplete;
     fMacros: TStringList;
