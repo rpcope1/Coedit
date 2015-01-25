@@ -16,7 +16,7 @@ type
    * Completion, hints and declaration finder automatically work on the current
    *   document: ICEMultiDocObserver.
    *)
-  TCEDcdWrapper = class(TWritableComponent, ICEProjectObserver, ICEMultiDocObserver)
+  TCEDcdWrapper = class(TWritableLfmTextComponent, ICEProjectObserver, ICEMultiDocObserver)
   private
     fTempLines: TStringList;
     //fPortNum: Word;

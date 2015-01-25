@@ -77,13 +77,13 @@ private struct TodoItem
         if (prior.length) try auto i = to!long(prior);
         catch(Exception e) prior = "";
               
-        fFields[TodoField.filename] = fname;
-        fFields[TodoField.line]     = line;
-        fFields[TodoField.text]     = text;
-        fFields[TodoField.category] = cat;
-        fFields[TodoField.assignee] = ass;
-        fFields[TodoField.priority] = prior;
-        fFields[TodoField.status]   = status;
+        fFields[TodoField.filename] = fname.idup;
+        fFields[TodoField.line]     = line.idup;
+        fFields[TodoField.text]     = text.idup;
+        fFields[TodoField.category] = cat.idup;
+        fFields[TodoField.assignee] = ass.idup;
+        fFields[TodoField.priority] = prior.idup;
+        fFields[TodoField.status]   = status.idup;
     }
     
     /**

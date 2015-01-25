@@ -5,7 +5,7 @@ unit ce_dmdwrap;
 interface
 
 uses
-  classes, sysutils, process, asyncprocess, ce_common;
+  classes, sysutils, process, asyncprocess, ce_common, ce_inspectors;
 
 (*
 
@@ -39,18 +39,18 @@ type
   TDocOpts = class(TOptsGroup)
   private
     fGenDoc: boolean;
-    fDocDir: string;
+    fDocDir: TCEPathname;
     fGenJson: boolean;
-    fJsonFname: string;
+    fJsonFname: TCEFilename;
     procedure setGenDoc(const aValue: boolean);
     procedure setGenJSON(const aValue: boolean);
-    procedure setDocDir(const aValue: string);
-    procedure setJSONFile(const aValue: string);
+    procedure setDocDir(const aValue: TCEPathname);
+    procedure setJSONFile(const aValue: TCEFilename);
   published
     property generateDocumentation: boolean read fGenDoc write setGenDoc default false;
     property generateJSON: boolean read fGenJson write setGenJSON default false;
-    property DocumentationDirectory: string read fDocDir write setDocDir;
-    property JSONFilename: string read fJsonFname write setJSONFile;
+    property DocumentationDirectory: TCEPathname read fDocDir write setDocDir;
+    property JSONFilename: TCEFilename read fJsonFname write setJSONFile;
   public
     procedure assign(aValue: TPersistent); override;
     procedure getOpts(const aList: TStrings); override;
@@ -207,19 +207,22 @@ type
     fExtraSrcs: TStringList;
     fIncl: TStringList;
     fImpt: TStringList;
-    fFname: string;
-    fObjDir: string;
-    procedure setFname(const aValue: string);
-    procedure setObjDir(const aValue: string);
-    procedure setSrcs(const aValue: TStringList);
-    procedure setIncl(const aValue: TStringList);
-    procedure setImpt(const aValue: TStringList);
+    fExcl: TStringList;
+    fFname: TCEFilename;
+    fObjDir: TCEPathname;
+    procedure setFname(const aValue: TCEFilename);
+    procedure setObjDir(const aValue: TCEPathname);
+    procedure setSrcs(aValue: TStringList);
+    procedure setIncl(aValue: TStringList);
+    procedure setImpt(aValue: TStringList);
+    procedure setExcl(aValue: TStringList);
     procedure strLstChange(sender: TObject);
   published
-    property outputFilename: string read fFname write setFname;
-    property objectDirectory: string read fObjDir write setObjDir;
-    property Sources: TStringList read fExtraSrcs write setSrcs stored false; deprecated;// will be reloaded but saved as extraSources
-    property extraSources: TStringList read fExtraSrcs write setSrcs; // not common srcs, made for static libs
+    property outputFilename: TCEFilename read fFname write setFname;
+    property objectDirectory: TCEPathname read fObjDir write setObjDir;
+    property Sources: TStringList read fExtraSrcs write setSrcs stored false; deprecated;
+    property exclusions: TStringList read fExcl write setExcl;
+    property extraSources: TStringList read fExtraSrcs write setSrcs;
     property includes: TStringList read fIncl write setIncl;
     property imports: TStringList read fImpt write setImpt;
   public
@@ -251,19 +254,19 @@ type
    *)
   TCustomProcOptions = class(TOptsGroup)
   private
-    fExecutable: string;
-    fWorkDir: string;
+    fExecutable: TCEFilename;
+    fWorkDir: TCEPathname;
     fOptions: TProcessOptions;
     fParameters: TStringList;
     fShowWin: TShowWindowOptions;
-    procedure setExecutable(const aValue: string);
-    procedure setWorkDir(const aValue: string);
+    procedure setExecutable(const aValue: TCEFilename);
+    procedure setWorkDir(const aValue: TCEPathname);
     procedure setOptions(const aValue: TProcessOptions);
     procedure setParameters(aValue: TStringList);
     procedure setShowWin(const aValue: TShowWindowOptions);
   protected
-    property executable: string read fExecutable write setExecutable;
-    property workingDirectory: string read fWorkDir write setWorkDir;
+    property executable: TCEFilename read fExecutable write setExecutable;
+    property workingDirectory: TCEPathname read fWorkDir write setWorkDir;
     property options: TProcessOptions read fOptions write setOptions;
     property parameters: TStringList read fParameters write setParameters;
     property showWindow: TShowWindowOptions read fShowWin write setShowWin;
@@ -419,7 +422,7 @@ begin
   doChanged;
 end;
 
-procedure TDocOpts.setDocDir(const aValue: string);
+procedure TDocOpts.setDocDir(const aValue: TCEPathname);
 begin
   if fDocDir = aValue then
     exit;
@@ -429,7 +432,7 @@ begin
   doChanged;
 end;
 
-procedure TDocOpts.setJSONFile(const aValue: string);
+procedure TDocOpts.setJSONFile(const aValue: TCEFilename);
 begin
   if fJsonFname = aValue then
     exit;
@@ -824,11 +827,13 @@ begin
   fExtraSrcs := TStringList.Create;
   fIncl := TStringList.Create;
   fImpt := TStringList.Create;
+  fExcl := TStringList.Create;
   // setSrcs(), setIncl(), etc are not called when reloading from
   // a stream but rather the TSgringList.Assign()
   fExtraSrcs.OnChange := @strLstChange;
   fIncl.OnChange := @strLstChange;
   fImpt.OnChange := @strLstChange;
+  fExcl.OnChange := @strLstChange;
 end;
 
 procedure TPathsOpts.strLstChange(sender: TObject);
@@ -879,10 +884,11 @@ begin
   fExtraSrcs.free;
   fIncl.free;
   fImpt.free;
+  fExcl.free;
   inherited;
 end;
 
-procedure TPathsOpts.setFname(const aValue: string);
+procedure TPathsOpts.setFname(const aValue: TCEFilename);
 begin
   if fFname = aValue then exit;
   fFname := patchPlateformPath(aValue);
@@ -890,31 +896,38 @@ begin
   doChanged;
 end;
 
-procedure TPathsOpts.setObjDir(const aValue: string);
+procedure TPathsOpts.setObjDir(const aValue: TCEPathname);
 begin
   if fObjDir = aValue then exit;
   fObjDir := patchPlateformPath(aValue);
   doChanged;
 end;
 
-procedure TPathsOpts.setSrcs(const aValue: TStringList);
+procedure TPathsOpts.setSrcs(aValue: TStringList);
 begin
   fExtraSrcs.Assign(aValue);
   patchPlateformPaths(fExtraSrcs);
   doChanged;
 end;
 
-procedure TPathsOpts.setIncl(const aValue: TStringList);
+procedure TPathsOpts.setIncl(aValue: TStringList);
 begin
   fIncl.Assign(aValue);
   patchPlateformPaths(fIncl);
   doChanged;
 end;
 
-procedure TPathsOpts.setImpt(const aValue: TStringList);
+procedure TPathsOpts.setImpt(aValue: TStringList);
 begin
   fImpt.Assign(aValue);
   patchPlateformPaths(fImpt);
+  doChanged;
+end;
+
+procedure TPathsOpts.setExcl(aValue: TStringList);
+begin
+  fExcl.Assign(aValue);
+  patchPlateformPaths(fExcl);
   doChanged;
 end;
 {$ENDREGION}
@@ -1033,14 +1046,14 @@ begin
   aProcess.StartupOptions := aProcess.StartupOptions + [suoUseShowWindow];
 end;
 
-procedure TCustomProcOptions.setExecutable(const aValue: string);
+procedure TCustomProcOptions.setExecutable(const aValue: TCEFilename);
 begin
   if fExecutable = aValue then exit;
   fExecutable := aValue;
   doChanged;
 end;
 
-procedure TCustomProcOptions.setWorkDir(const aValue: string);
+procedure TCustomProcOptions.setWorkDir(const aValue: TCEPathname);
 begin
   if fWorkDir = aValue then exit;
   fWorkDir := aValue;

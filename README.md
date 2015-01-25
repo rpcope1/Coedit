@@ -3,8 +3,7 @@ Coedit
 
 Coedit is a simple IDE for the [D2](http://dlang.org) lang. (**Co** mpile & **Edit**).
 
-![](lazproj/coedit.win7.33.png)
-![](lazproj/coedit.linux.kde.33.png)
+![](lazproj/coedit.win7.33.png) ![](lazproj/coedit.linux.kde.33.png)
 
 Current features
 ----------------
@@ -17,7 +16,7 @@ Current features
 - module symbol list.
 - static libraries manager.
 - search and replace.
-- "todo comment" analyzer.
+- "todo comments" analyzer.
 - user-defined tools powered by a string interpolation system.
 - [D Completion Daemon](https://github.com/Hackerpilot/DCD) integration for completion proposal and source code hints.
 - mini file browser.
@@ -31,7 +30,7 @@ Project information
 - status: alpha 11.
 - license: MIT.
 - programmed in Object Pascal with [Lazarus & FPC](http://www.lazarus.freepascal.org) as IDE & compiler.
-- based on *DMD* (the alternative backends, LDC or GDC, are not supported).
+- based on *DMD* (the alternative compilers, LDC or GDC, are not supported).
 
 Setup & test
 ------------

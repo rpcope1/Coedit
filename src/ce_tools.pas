@@ -6,15 +6,15 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, process, menus,
-  ce_common, ce_writableComponent, ce_interfaces, ce_observer;
+  ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_inspectors;
 
 type
 
   TCEToolItem = class(TCollectionItem)
   private
     fProcess: TCheckedAsyncProcess;
-    fExecutable: string;
-    fWorkingDir: string;
+    fExecutable: TCEFilename;
+    fWorkingDir: TCEPathname;
     fShowWin: TShowWindowOptions;
     fOpts: TProcessOptions;
     fParameters: TStringList;
@@ -32,8 +32,8 @@ type
   published
     property toolAlias: string read fToolAlias write fToolAlias;
     property options: TProcessOptions read fOpts write fOpts;
-    property executable: string read fExecutable write fExecutable;
-    property workingDirectory: string read fWorkingDir write fWorkingDir;
+    property executable: TCEFilename read fExecutable write fExecutable;
+    property workingDirectory: TCEPathname read fWorkingDir write fWorkingDir;
     property parameters: TStringList read fParameters write setParameters;
     property showWindows: TShowWindowOptions read fShowWin write fShowWin;
     property queryParameters: boolean read fQueryParams write fQueryParams;
@@ -45,7 +45,7 @@ type
     destructor destroy; override;
   end;
 
-  TCETools = class(TWritableComponent, ICEMainMenuProvider)
+  TCETools = class(TWritableLfmTextComponent, ICEMainMenuProvider)
   private
     fTools: TCollection;
     function getTool(index: Integer): TCEToolItem;

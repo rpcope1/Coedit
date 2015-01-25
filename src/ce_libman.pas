@@ -27,7 +27,7 @@ type
   (**
    * Represents all the D libraries present on this system.
    *)
-  TLibraryManager = class(TWritableComponent)
+  TLibraryManager = class(TWritableLfmTextComponent)
   private
     fCol: TCollection;
     procedure setCol(const aValue: TCollection);
