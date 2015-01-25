@@ -884,6 +884,7 @@ begin
   fExtraSrcs.free;
   fIncl.free;
   fImpt.free;
+  fExcl.free;
   inherited;
 end;
 
