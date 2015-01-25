@@ -449,7 +449,6 @@ var
 //
 begin
   patchPlateformPaths(fSrcs);
-  doChanged;
   fModified := false;
   hasPatched := false;
   //
@@ -463,9 +462,9 @@ begin
     'paths or file may still exist (-of, -od, extraSources, etc)' +
     'but cannot be automatically handled. Note that the modifications have not been saved.');
   end;
-  endUpdate;
   //
   updateOutFilename;
+  endUpdate;
   if not hasPatched then fModified := false;
 end;
 
