@@ -319,18 +319,46 @@ end;
 procedure TCEProject.getOpts(const aList: TStrings);
 var
   rel, abs: string;
+  i: Integer;
+  ex_files: TStringList;
+  ex_folds: TStringList;
+  str: string;
 begin
   if fConfIx = -1 then exit;
-  for rel in fSrcs do if rel <> '' then
-  begin
-    abs := expandFilenameEx(fBasePath,rel);
-    aList.Add(abs); // process.inc ln 249. double quotes are added if there's a space.
+  ex_files := TStringList.Create;
+  ex_folds := TStringList.Create;
+  try
+    // prepares the exclusions
+    for i := 0 to currentConfiguration.pathsOptions.exclusions.Count-1 do
+    begin
+      str := symbolExpander.get(currentConfiguration.pathsOptions.exclusions.Strings[i]);
+      rel := expandFilenameEx(fBasePath, currentConfiguration.pathsOptions.exclusions.Strings[i]);
+      if fileExists(str) then
+        ex_files.Add(str)
+      else if DirectoryExists(str) then
+        ex_folds.Add(str);
+      if fileExists(rel) then
+        ex_files.Add(rel)
+      else if DirectoryExists(rel) then
+        ex_folds.Add(rel);
+    end;
+    // sources
+    for rel in fSrcs do if rel <> '' then
+    begin
+      abs := expandFilenameEx(fBasePath, rel);
+      if ex_files.IndexOf(abs) = -1 then
+        if ex_folds.IndexOf(ExtractFilePath(abs)) = -1
+          then aList.Add(abs); // note: process.inc ln 249. double quotes are added if there's a space.
+    end;
+    // libraries
+    LibMan.getLibFiles(fLibAliases, aList);
+    LibMan.getLibSources(fLibAliases, aList);
+    // config
+    TCompilerConfiguration(fOptsColl.Items[fConfIx]).getOpts(aList);
+  finally
+    ex_files.Free;
+    ex_folds.Free;
   end;
-  //
-  LibMan.getLibFiles(fLibAliases, aList);
-  LibMan.getLibSources(fLibAliases, aList);
-  //
-  TCompilerConfiguration(fOptsColl.Items[fConfIx]).getOpts(aList);
 end;
 
 function TCEProject.isProjectSource(const aFilename: string): boolean;
