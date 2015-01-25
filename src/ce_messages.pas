@@ -416,6 +416,8 @@ begin
   dt := new(PMessageData);
   dt^.data := aData;
   dt^.ctxt := aCtxt;
+  if fAutoSelect then if fCtxt <> aCtxt then
+    fBtns[aCtxt].Click;
   item := List.Items.Add(nil, aValue);
   item.Data := dt;
   item.ImageIndex := iconIndex(aKind);
@@ -423,8 +425,6 @@ begin
   clearOutOfRangeMessg;
   scrollToBack;
   Application.ProcessMessages;
-  if fAutoSelect then if fCtxt <> aCtxt then
-    fBtns[aCtxt].Click;
   filterMessages(fCtxt);
 end;
 
