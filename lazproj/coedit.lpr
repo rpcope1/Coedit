@@ -8,7 +8,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, Forms, lazcontrols, runtimetypeinfocontrols, ce_observer, ce_libman,
   ce_tools, ce_dcd, ce_main, ce_writableComponent, ce_options, ce_symstring,
-  ce_staticmacro, ce_icons, ce_dubwrap;
+  ce_staticmacro, ce_icons, ce_dubwrap, ce_inspectors;
 
 {$R *.res}
 
