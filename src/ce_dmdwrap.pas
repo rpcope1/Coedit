@@ -207,19 +207,22 @@ type
     fExtraSrcs: TStringList;
     fIncl: TStringList;
     fImpt: TStringList;
+    fExcl: TStringList;
     fFname: string;
     fObjDir: string;
     procedure setFname(const aValue: string);
     procedure setObjDir(const aValue: string);
-    procedure setSrcs(const aValue: TStringList);
-    procedure setIncl(const aValue: TStringList);
-    procedure setImpt(const aValue: TStringList);
+    procedure setSrcs(aValue: TStringList);
+    procedure setIncl(aValue: TStringList);
+    procedure setImpt(aValue: TStringList);
+    procedure setExcl(aValue: TStringList);
     procedure strLstChange(sender: TObject);
   published
     property outputFilename: string read fFname write setFname;
     property objectDirectory: string read fObjDir write setObjDir;
-    property Sources: TStringList read fExtraSrcs write setSrcs stored false; deprecated;// will be reloaded but saved as extraSources
-    property extraSources: TStringList read fExtraSrcs write setSrcs; // not common srcs, made for static libs
+    property Sources: TStringList read fExtraSrcs write setSrcs stored false; deprecated;
+    property exclusions: TStringList read fExcl write setExcl;
+    property extraSources: TStringList read fExtraSrcs write setSrcs;
     property includes: TStringList read fIncl write setIncl;
     property imports: TStringList read fImpt write setImpt;
   public
@@ -824,11 +827,13 @@ begin
   fExtraSrcs := TStringList.Create;
   fIncl := TStringList.Create;
   fImpt := TStringList.Create;
+  fExcl := TStringList.Create;
   // setSrcs(), setIncl(), etc are not called when reloading from
   // a stream but rather the TSgringList.Assign()
   fExtraSrcs.OnChange := @strLstChange;
   fIncl.OnChange := @strLstChange;
   fImpt.OnChange := @strLstChange;
+  fExcl.OnChange := @strLstChange;
 end;
 
 procedure TPathsOpts.strLstChange(sender: TObject);
@@ -897,24 +902,31 @@ begin
   doChanged;
 end;
 
-procedure TPathsOpts.setSrcs(const aValue: TStringList);
+procedure TPathsOpts.setSrcs(aValue: TStringList);
 begin
   fExtraSrcs.Assign(aValue);
   patchPlateformPaths(fExtraSrcs);
   doChanged;
 end;
 
-procedure TPathsOpts.setIncl(const aValue: TStringList);
+procedure TPathsOpts.setIncl(aValue: TStringList);
 begin
   fIncl.Assign(aValue);
   patchPlateformPaths(fIncl);
   doChanged;
 end;
 
-procedure TPathsOpts.setImpt(const aValue: TStringList);
+procedure TPathsOpts.setImpt(aValue: TStringList);
 begin
   fImpt.Assign(aValue);
   patchPlateformPaths(fImpt);
+  doChanged;
+end;
+
+procedure TPathsOpts.setExcl(aValue: TStringList);
+begin
+  fExcl.Assign(aValue);
+  patchPlateformPaths(fExcl);
   doChanged;
 end;
 {$ENDREGION}
