@@ -177,7 +177,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION Insêctor things -------------------------------------------------------}
+{$REGION Inspector things -------------------------------------------------------}
 procedure TCEProjectInspectWidget.TreeKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Key = VK_RETURN then
@@ -333,6 +333,7 @@ begin
   fInclNode.DeleteChildren;
   fXtraNode.DeleteChildren;
   if fProject = nil then exit;
+  Tree.BeginUpdate;
   // display main sources
   for src in fProject.Sources do
    begin
@@ -390,6 +391,7 @@ begin
     end;
   end;
   fXtraNode.Collapse(false);
+  Tree.EndUpdate;
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
