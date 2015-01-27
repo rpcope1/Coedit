@@ -448,9 +448,9 @@ begin
       itm := fProj.getAbsoluteSourceName(i);
       if srcFname <> itm then fDmdProc.Parameters.Add(itm);
     end;
-    for itm in fProj.currentConfiguration.pathsOptions.Includes do
+    for itm in fProj.currentConfiguration.pathsOptions.importModulePaths do
       fDmdProc.Parameters.Add('-I' + symbolExpander.get(itm));
-    for itm in fProj.currentConfiguration.pathsOptions.Imports do
+    for itm in fProj.currentConfiguration.pathsOptions.importStringPaths do
       fDmdProc.Parameters.Add('-J' + symbolExpander.get(itm));
   end;
 

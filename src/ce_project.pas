@@ -282,7 +282,7 @@ begin
   begin
     Name := 'debug';
     debugingOptions.debug := true;
-    debugingOptions.addCInformations := true;
+    debugingOptions.codeviewCformat := true;
     outputOptions.boundsCheck := onAlways;
   end;
   with TCompilerConfiguration(fOptsColl.Add) do

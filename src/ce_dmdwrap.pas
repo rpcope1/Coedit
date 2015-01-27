@@ -189,8 +189,10 @@ type
     property debug: boolean read fDbg write setDbg default false;
     property debugIdentifiers: TStringList read fDbgIdents write setDbgIdents;
     property debugLevel: Integer read fDbgLevel write setDbgLevel default 0;
-    property addDInformations: boolean read fDbgD write setDbgD default false;
-    property addCInformations: boolean read fDbgC write setDbgC default false;
+    property addDInformations: boolean read fDbgD write setDbgD stored false; deprecated;
+    property addCInformations: boolean read fDbgC write setDbgC stored false; deprecated;
+    property codeviewDexts: boolean read fDbgD write setDbgD default false;
+    property codeviewCformat: boolean read fDbgC write setDbgC default false;
     property generateMapFile: boolean read fMap write setMap default false;
   public
     constructor create;
@@ -223,8 +225,10 @@ type
     property Sources: TStringList read fExtraSrcs write setSrcs stored false; deprecated;
     property exclusions: TStringList read fExcl write setExcl;
     property extraSources: TStringList read fExtraSrcs write setSrcs;
-    property includes: TStringList read fIncl write setIncl;
-    property imports: TStringList read fImpt write setImpt;
+    property includes: TStringList read fIncl write setIncl; deprecated;
+    property imports: TStringList read fImpt write setImpt; deprecated;
+    property importModulePaths: TStringList read fIncl write setIncl;
+    property importStringPaths: TStringList read fImpt write setImpt;
   public
     constructor create;
     destructor destroy; override;

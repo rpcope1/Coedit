@@ -116,9 +116,9 @@ begin
   //
   for i:= 0 to fProj.Sources.Count-1 do
     addImportFolder(extractFilePath(fProj.getAbsoluteSourceName(i)));
-  for i := 0 to fProj.currentConfiguration.pathsOptions.includes.Count-1 do
+  for i := 0 to fProj.currentConfiguration.pathsOptions.importModulePaths.Count-1 do
   begin
-    fold := fProj.currentConfiguration.pathsOptions.includes.Strings[i];
+    fold := fProj.currentConfiguration.pathsOptions.importModulePaths.Strings[i];
     if DirectoryExists(fold) then
       addImportFolder(fold);
   end;
