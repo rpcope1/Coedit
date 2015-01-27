@@ -225,8 +225,10 @@ type
     property Sources: TStringList read fExtraSrcs write setSrcs stored false; deprecated;
     property exclusions: TStringList read fExcl write setExcl;
     property extraSources: TStringList read fExtraSrcs write setSrcs;
-    property includes: TStringList read fIncl write setIncl;
-    property imports: TStringList read fImpt write setImpt;
+    property includes: TStringList read fIncl write setIncl; deprecated;
+    property imports: TStringList read fImpt write setImpt; deprecated;
+    property importModulePaths: TStringList read fIncl write setIncl;
+    property importStringPaths: TStringList read fImpt write setImpt;
   public
     constructor create;
     destructor destroy; override;
