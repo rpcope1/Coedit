@@ -523,7 +523,7 @@ begin
 
   for i := 0 to fWidgList.Count-1 do
   begin
-    DockMaster.MakeDockable(fWidgList.widget[i],true);
+    DockMaster.MakeDockable(fWidgList.widget[i], false);
     DockMaster.GetAnchorSite(fWidgList.widget[i]).Header.HeaderPosition := adlhpTop;
   end;
 
