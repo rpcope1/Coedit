@@ -405,7 +405,7 @@ begin
   loadCache;
   //
   fModified := false;
-  setFocus;
+  if Showing then setFocus;
   subjDocChanged(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
 
