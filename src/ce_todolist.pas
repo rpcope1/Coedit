@@ -292,6 +292,7 @@ begin
   fToolProcess.Executable := ToolExeName;
   fToolProcess.Options := [poUsePipes];
   fToolProcess.ShowWindow := swoHIDE;
+  fToolProcess.CurrentDirectory := ExtractFileDir(Application.ExeName);
 
   // Something not quite clear:
   // --------------------------
