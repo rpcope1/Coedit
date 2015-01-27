@@ -43,7 +43,7 @@ import std.stdio, std.getopt, std.string;
 import std.array, std.conv, std.traits;
 import std.file, std.path, std.range;
 // libdparse
-import std.d.ast, std.d.lexer, std.d.parser;
+import std.d.lexer;
 
 /// Encapsulates the fields of a _TODO comment_.
 private struct TodoItem 
