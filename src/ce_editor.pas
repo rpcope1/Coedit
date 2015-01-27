@@ -36,7 +36,6 @@ type
   private
     fKeyChanged: boolean;
     fDoc: TCESynMemo;
-    // http://bugs.freepascal.org/view.php?id=26329
     // TODO-cbugfix: syncro-edit partially broken, undetermined condition
     // TODO-cbugfix: syncro-edit icon hidden after deletion, if doc is saved (as temp file, by the static explorer)
     fSyncEdit: TSynPluginSyncroEdit;
@@ -51,7 +50,6 @@ type
     procedure memoKeyPress(Sender: TObject; var Key: char);
     procedure memoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure memoMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure memoChange(Sender: TObject);
     procedure memoCtrlClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure memoMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     function getEditor(index: NativeInt): TCESynMemo;
@@ -59,15 +57,15 @@ type
     function getEditorIndex: NativeInt;
     procedure getCompletionList;
     procedure getSymbolLoc;
-  public
-    constructor create(aOwner: TComponent); override;
-    destructor destroy; override;
     procedure focusedEditorChanged;
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
+  public
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
     //
     property editor[index: NativeInt]: TCESynMemo read getEditor;
     property editorCount: NativeInt read getEditorCount;
@@ -79,7 +77,6 @@ implementation
 
 uses
   ce_main;
-
 
 procedure TCEEditorPage.SetVisible(Value: Boolean);
 var
@@ -102,7 +99,7 @@ begin
   //
   completion.OnPaintItem := @completionItemPaint;
   fSyncEdit := TSynPluginSyncroEdit.Create(self);
-  //TODO: activate this after enxt Laz release
+  //TODO: activate this after next Laz release
   //fSyncEdit.CaseSensitive:=true;
   bmp := TBitmap.Create;
   try
@@ -295,10 +292,6 @@ begin
   UpdateByEvent;
 end;
 
-procedure TCEEditorWidget.memoChange(Sender: TObject);
-begin
-end;
-
 procedure TCEEditorWidget.memoCtrlClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   getSymbolLoc;
@@ -358,8 +351,6 @@ end;
 
 procedure TCEEditorWidget.UpdateByDelay;
 var
-  //dt: PMessageItemData;
-  //err: TLexError;
   md: string;
 begin
   if fDoc = nil then exit;
