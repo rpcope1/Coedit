@@ -351,7 +351,7 @@ begin
     itm.SelectedIndex:= 3;
   end;
   // display Imports (-J)
-  for fold in FProject.currentConfiguration.pathsOptions.Imports do
+  for fold in FProject.currentConfiguration.pathsOptions.importStringPaths do
   begin
     if fold = '' then
       continue;
@@ -361,7 +361,7 @@ begin
   end;
   fImpsNode.Collapse(false);
   // display Includes (-I)
-  for fold in FProject.currentConfiguration.pathsOptions.Includes do
+  for fold in FProject.currentConfiguration.pathsOptions.importModulePaths do
   begin
     if fold = '' then
       continue;

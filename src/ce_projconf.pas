@@ -323,17 +323,30 @@ begin
   if getGridTarget = fProj then
   begin
     if aEditor.GetName = 'Name' then
-      aShow := false;
-    if aEditor.GetName = 'Tag' then
+      aShow := false
+    else if aEditor.GetName = 'Tag' then
       aShow := false;
   end;
   // deprecated field
   if getGridTarget = fProj.currentConfiguration.pathsOptions  then
+  begin
     if aEditor.GetName = 'Sources' then
+      aShow := false
+    else if aEditor.GetName = 'includes' then
+      aShow := false
+    else if aEditor.GetName = 'imports' then
       aShow := false;
+  end;
   if getGridTarget = fProj.currentConfiguration.outputOptions  then
     if aEditor.GetName = 'noBoundsCheck' then
       aShow := false;
+  if getGridTarget = fProj.currentConfiguration.debugingOptions then
+  begin
+    if aEditor.GetName = 'addCInformations' then
+      aShow := false
+    else if aEditor.GetName = 'addDInformations' then
+      aShow := false;
+  end;
 end;
 
 function TCEProjectConfigurationWidget.getGridTarget: TPersistent;
