@@ -19,6 +19,7 @@ type
     btnAddLib: TBitBtn;
     btnRemLib: TBitBtn;
     btnEditAlias: TBitBtn;
+    btnSelfoldOfFiles: TBitBtn;
     btnSelRoot: TBitBtn;
     List: TListView;
     Panel1: TPanel;
@@ -26,6 +27,7 @@ type
     procedure btnEditAliasClick(Sender: TObject);
     procedure btnRemLibClick(Sender: TObject);
     procedure btnSelFileClick(Sender: TObject);
+    procedure btnSelfoldOfFilesClick(Sender: TObject);
     procedure btnSelRootClick(Sender: TObject);
     procedure btnMoveUpClick(Sender: TObject);
     procedure btnMoveDownClick(Sender: TObject);
@@ -67,6 +69,8 @@ begin
     btnEditAlias.Glyph.Assign(png);
     png.LoadFromLazarusResource('folder_brick');
     btnSelFile.Glyph.Assign(png);
+    png.LoadFromLazarusResource('bricks');
+    btnSelfoldOfFiles.Glyph.Assign(png);
     png.LoadFromLazarusResource('folder_add');
     btnSelRoot.Glyph.Assign(png);
   finally
@@ -136,6 +140,23 @@ begin
   finally
     Free;
   end;
+  gridToData;
+end;
+
+procedure TCELibManEditorWidget.btnSelfoldOfFilesClick(Sender: TObject);
+var
+  dir, outdir: string;
+begin
+  if List.Selected = nil then exit;
+  if List.Selected.SubItems.Count > 0 then
+    dir := List.Selected.SubItems[0]
+  else
+  begin
+    dir := '';
+    List.Selected.SubItems.Add(dir);
+  end;
+  if selectDirectory('folder of static libraries', dir, outdir, true, 0) then
+    List.Selected.SubItems[0] := outdir;
   gridToData;
 end;
 
