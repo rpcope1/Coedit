@@ -145,7 +145,7 @@ begin
       try
         dir := itm.libFile;
         if itm.libFile[length(dir)] = DirectorySeparator then
-          dir := dir[1..length(dir)-1]
+          dir := dir[1..length(dir)-1];
         listFiles(lst, dir);
         for j:= 0 to lst.Count-1 do
         begin
