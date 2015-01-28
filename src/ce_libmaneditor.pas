@@ -92,6 +92,8 @@ begin
   itm.Caption := notav;
   itm.SubItems.Add(notav);
   itm.SubItems.Add(notav);
+  SetFocus;
+  itm.Selected := true;
 end;
 
 procedure TCELibManEditorWidget.btnEditAliasClick(Sender: TObject);
