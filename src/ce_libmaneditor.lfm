@@ -1,7 +1,7 @@
 inherited CELibManEditorWidget: TCELibManEditorWidget
-  Left = 1355
+  Left = 699
   Height = 349
-  Top = 210
+  Top = 362
   Width = 466
   Caption = 'Library manager'
   ClientHeight = 349
@@ -50,7 +50,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           TabOrder = 1
         end
         object btnSelFile: TBitBtn
-          Left = 402
+          Left = 374
           Height = 24
           Hint = 'select the library file'
           Top = 0
@@ -72,7 +72,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           TabOrder = 3
         end
         object btnEditAlias: TBitBtn
-          Left = 374
+          Left = 346
           Height = 24
           Hint = 'edit the library alias'
           Top = 0
@@ -101,6 +101,17 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           OnClick = btnMoveUpClick
           Spacing = 0
           TabOrder = 6
+        end
+        object btnSelfoldOfFiles: TBitBtn
+          Left = 402
+          Height = 24
+          Hint = 'select a folder of library files'
+          Top = 0
+          Width = 28
+          Align = alRight
+          OnClick = btnSelfoldOfFilesClick
+          Spacing = 0
+          TabOrder = 7
         end
       end
       object List: TListView[1]

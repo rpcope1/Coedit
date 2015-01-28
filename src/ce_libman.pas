@@ -121,6 +121,7 @@ var
   itm: TLibraryItem;
   lst: TStringList;
   i, j: NativeInt;
+  dir: string;
 begin
   for i := 0 to fCol.Count-1 do
   begin
@@ -142,7 +143,10 @@ begin
     begin
       lst := TStringList.Create;
       try
-        listFiles(lst, itm.libFile);
+        dir := itm.libFile;
+        if itm.libFile[length(dir)] = DirectorySeparator then
+          dir := dir[1..length(dir)-1];
+        listFiles(lst, dir);
         for j:= 0 to lst.Count-1 do
         begin
           if extractFileExt(lst.Strings[j]) = libExt then
