@@ -250,6 +250,7 @@ end;
 procedure TCEEditorWidget.completionExecute(Sender: TObject);
 begin
   getCompletionList;
+  completion.TheForm.Font.Size := fDoc.Font.Size;
 end;
 
 procedure TCEEditorWidget.completionCodeCompletion(var Value: string;
