@@ -37,7 +37,7 @@ type
     fRefreshOnChange: boolean;
     fRefreshOnFocus: boolean;
     fJsonFname: string;
-    ndAlias, ndClass, ndEnum, ndFunc: TTreeNode;
+    ndAlias, ndClass, ndEnum, ndFunc, ndUni: TTreeNode;
     ndImp, ndIntf, ndMix, ndStruct, ndTmp, ndVar: TTreeNode;
     procedure TreeDblClick(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
@@ -138,7 +138,8 @@ begin
   ndMix     := Tree.Items[6];
   ndStruct  := Tree.Items[7];
   ndTmp     := Tree.Items[8];
-  ndVar     := Tree.Items[9];
+  ndUni     := Tree.Items[9];
+  ndVar     := Tree.Items[10];
   //
   png := TPortableNetworkGraphic.Create;
   try
@@ -360,6 +361,7 @@ begin
     ndMix.Visible   := ndMix.Count > 0;
     ndStruct.Visible:= ndStruct.Count > 0;
     ndTmp.Visible   := ndTmp.Count > 0;
+    ndUni.Visible   := ndUni.Count > 0;
     ndVar.Visible   := ndVar.Count > 0;
   end else
   begin
@@ -372,6 +374,7 @@ begin
     ndMix.Visible   := true;
     ndStruct.Visible:= true;
     ndTmp.Visible   := true;
+    ndUni.Visible   := true;
     ndVar.Visible   := true;
   end;
 end;
@@ -387,6 +390,7 @@ begin
   ndMix.DeleteChildren;
   ndStruct.DeleteChildren;
   ndTmp.DeleteChildren;
+  ndUni.DeleteChildren;
   ndVar.DeleteChildren;
 end;
 
@@ -548,6 +552,7 @@ begin
         'mixin'     :ndCat := Tree.Items.AddChildObject(ndMix, nme, ln);
         'struct'    :ndCat := Tree.Items.AddChildObject(ndStruct, nme, ln);
         'template'  :ndCat := Tree.Items.AddChildObject(ndTmp, nme, ln);
+        'union'     :ndCat := Tree.Items.AddChildObject(ndUni, nme, ln);
         'variable'  :ndCat := Tree.Items.AddChildObject(ndVar, nme, ln);
         else subjLmFromString(fLogMessager, 'static explorer does not handle this kind: '
           + knd, nil, amcApp, amkWarn);

@@ -194,6 +194,7 @@ procedure TCEDcdWrapper.addImportFolder(const aFolder: string);
 begin
   if not fAvailable then exit;
   //
+  while fClient.Running do sleep(1);
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-I' + aFolder);
   fClient.Execute;
