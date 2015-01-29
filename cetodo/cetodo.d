@@ -7,7 +7,7 @@ TODO source code analyzer for Coedit projects/files
 // TODO [fields] : text
 ``
 
-- TODO: used to detect that the comment is a "TODO" comment. The keyword is not
+- TODO/FIXME: used to detect that the comment is a "TODO" comment. The keyword is not
 case sensitive.
 
 - fields: an optional list of property with a format similar to the execution argument 
@@ -27,6 +27,8 @@ possible fields include:
 ``// TODO-cfeature: save this property in the inifile.``
 
 ``// TODO-cannnotations-p8: annotate the members of the module with @safe and if possible nothrow.``
+
+``// FIXME-p8: This won't work if all the flags are OR-ed.``
 
 ## Widget-to-tool IPC:
 
@@ -158,8 +160,9 @@ void main(string[] args)
 
     // "TODO" 
     while (true) {
-        if (pos == text.length) break;  
-        if (identifier.strip.toUpper == "TODO") {
+        if (pos == text.length) break; 
+        auto upIdent = identifier.strip.toUpper;  
+        if (upIdent == "TODO" || upIdent == "FIXME"){
             isTodoComment = true;
             text = text[pos..$];
             break;
@@ -206,6 +209,7 @@ void main(string[] args)
 
 // samples for testing the program as a runnable module with <CFF>
 
+// fixme-p8: fixme also handled
 // TODO-cINVALID_because_no_content:              
 // TODO: set this property as const() to set it read only.
 // TODO-cfeature-sDone: save this property in the inifile.
