@@ -110,7 +110,7 @@ end;
 procedure TCELibManEditorWidget.btnRemLibClick(Sender: TObject);
 begin
   if List.Selected = nil then exit;
-  List.Items.Delete( List.Selected.Index );
+  List.Items.Delete(List.Selected.Index);
   gridToData;
 end;
 

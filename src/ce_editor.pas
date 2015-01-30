@@ -234,6 +234,7 @@ begin
   macRecorder.Editor := fDoc;
   fSyncEdit.Editor := fDoc;
   completion.Editor := fDoc;
+  //TODO-cbugfix: prevent completion to steal the focus, this trigs too much updates after Ctrl+Space
   if (pageControl.ActivePage.Caption = '') then
   begin
     fKeyChanged := true;
@@ -249,6 +250,7 @@ end;
 procedure TCEEditorWidget.completionExecute(Sender: TObject);
 begin
   getCompletionList;
+  completion.TheForm.Font.Size := fDoc.Font.Size;
 end;
 
 procedure TCEEditorWidget.completionCodeCompletion(var Value: string;
