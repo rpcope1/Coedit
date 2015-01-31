@@ -186,6 +186,7 @@ end;
 
 procedure TCEEditorWidget.docFocused(aDoc: TCESynMemo);
 begin
+  if aDoc = fDoc then exit;
   fDoc := aDoc;
   focusedEditorChanged;
   beginUpdateByDelay;
@@ -234,7 +235,6 @@ begin
   macRecorder.Editor := fDoc;
   fSyncEdit.Editor := fDoc;
   completion.Editor := fDoc;
-  //TODO-cbugfix: prevent completion to steal the focus, this trigs too much updates after Ctrl+Space
   if (pageControl.ActivePage.Caption = '') then
   begin
     fKeyChanged := true;

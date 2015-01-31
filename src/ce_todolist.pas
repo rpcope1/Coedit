@@ -204,6 +204,7 @@ end;
 
 procedure TCETodoListWidget.docFocused(aDoc: TCESynMemo);
 begin
+  if aDoc = fDoc then exit;
   fDoc := aDoc;
   if Visible then
     callToolProcess;
@@ -244,6 +245,7 @@ end;
 
 procedure TCETodoListWidget.projFocused(aProject: TCEProject);
 begin
+  if aProject = fProj then exit;
   fProj := aProject;
   if Visible then
     callToolProcess;

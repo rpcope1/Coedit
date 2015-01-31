@@ -29,7 +29,7 @@ type
     procedure cbToFindChange(Sender: TObject);
     procedure chkEnableRepChange(Sender: TObject);
   private
-    fEditor: TCESynMemo;
+    fDoc: TCESynMemo;
     fToFind: string;
     fReplaceWth: string;
     fActFindNext, fActReplaceNext: TAction;
@@ -187,28 +187,28 @@ end;
 
 procedure TCESearchWidget.actFindNextExecute(sender: TObject);
 begin
-  if fEditor = nil then exit;
+  if fDoc = nil then exit;
   //
   fSearchMru.Insert(0,fToFind);
   if not chkFromCur.Checked then
   begin
     if chkBack.Checked then
-      fEditor.CaretXY := Point(high(Integer), high(Integer))
+      fDoc.CaretXY := Point(high(Integer), high(Integer))
     else
     begin
       if not fHasRestarted then
-        fEditor.CaretXY := Point(0,0);
+        fDoc.CaretXY := Point(0,0);
       fHasRestarted := true;
     end;
   end
   else if fHasSearched then
   begin
     if chkBack.Checked then
-      fEditor.CaretX := fEditor.CaretX - 1
+      fDoc.CaretX := fDoc.CaretX - 1
     else
-      fEditor.CaretX := fEditor.CaretX + length(fToFind);
+      fDoc.CaretX := fDoc.CaretX + length(fToFind);
   end;
-  if fEditor.SearchReplace(fToFind, '', getOptions) = 0 then
+  if fDoc.SearchReplace(fToFind, '', getOptions) = 0 then
     dlgOkInfo('the expression cannot be found')
   else
   begin
@@ -221,29 +221,29 @@ end;
 
 procedure TCESearchWidget.actReplaceNextExecute(sender: TObject);
 begin
-  if fEditor = nil then exit;
+  if fDoc = nil then exit;
   //
   fSearchMru.Insert(0, fToFind);
   fReplaceMru.Insert(0, fReplaceWth);
   if chkPrompt.Checked then
-    fEditor.OnReplaceText := @replaceEvent;
+    fDoc.OnReplaceText := @replaceEvent;
   if not chkFromCur.Checked then
   begin
     if chkBack.Checked then
-      fEditor.CaretXY := Point(high(Integer), high(Integer))
+      fDoc.CaretXY := Point(high(Integer), high(Integer))
     else
-      fEditor.CaretXY := Point(0,0);
+      fDoc.CaretXY := Point(0,0);
   end
   else if fHasSearched then
   begin
     if chkBack.Checked then
-      fEditor.CaretX := fEditor.CaretX - 1
+      fDoc.CaretX := fDoc.CaretX - 1
     else
-      fEditor.CaretX := fEditor.CaretX + length(fToFind);
+      fDoc.CaretX := fDoc.CaretX + length(fToFind);
   end;
-  if fEditor.SearchReplace(fToFind, fReplaceWth, getOptions + [ssoReplace]) <> 0 then
+  if fDoc.SearchReplace(fToFind, fReplaceWth, getOptions + [ssoReplace]) <> 0 then
     fHasSearched := true;
-  fEditor.OnReplaceText := nil;
+  fDoc.OnReplaceText := nil;
   UpdateByEvent;
 end;
 
@@ -251,17 +251,17 @@ procedure TCESearchWidget.actReplaceAllExecute(sender: TObject);
 var
   opts: TSynSearchOptions;
 begin
-  if fEditor = nil then exit;
+  if fDoc = nil then exit;
   opts := getOptions + [ssoReplace];
   opts -= [ssoBackwards];
   //
   fSearchMru.Insert(0, fToFind);
   fReplaceMru.Insert(0, fReplaceWth);
-  if chkPrompt.Checked then fEditor.OnReplaceText := @replaceEvent;
-  fEditor.CaretXY := Point(0,0);
+  if chkPrompt.Checked then fDoc.OnReplaceText := @replaceEvent;
+  fDoc.CaretXY := Point(0,0);
   while(true) do
   begin
-    if fEditor.SearchReplace(fToFind, fReplaceWth, opts) = 0
+    if fDoc.SearchReplace(fToFind, fReplaceWth, opts) = 0
       then break;
     if fCancelAll then
     begin
@@ -269,7 +269,7 @@ begin
       break;
     end;
   end;
-  fEditor.OnReplaceText := nil;
+  fDoc.OnReplaceText := nil;
   UpdateByEvent;
 end;
 {$ENDREGION}
@@ -277,19 +277,20 @@ end;
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
 procedure TCESearchWidget.docNew(aDoc: TCESynMemo);
 begin
-  fEditor := aDoc;
+  fDoc := aDoc;
   UpdateByEvent;
 end;
 
 procedure TCESearchWidget.docClosing(aDoc: TCESynMemo);
 begin
-  if fEditor = aDoc then fEditor := nil;
+  if fDoc = aDoc then fDoc := nil;
   UpdateByEvent;
 end;
 
 procedure TCESearchWidget.docFocused(aDoc: TCESynMemo);
 begin
-  fEditor := aDoc;
+  if fDoc = aDoc then exit;
+  fDoc := aDoc;
   UpdateByEvent;
 end;
 
@@ -321,11 +322,11 @@ end;
 
 procedure TCESearchWidget.UpdateByEvent;
 begin
-  fActFindNext.Enabled := fEditor <> nil;
-  fActReplaceNext.Enabled := (fEditor <> nil) and (chkEnableRep.Checked);
-  fActReplaceAll.Enabled := (fEditor <> nil) and (chkEnableRep.Checked);
-  cbReplaceWth.Enabled := (fEditor <> nil) and (chkEnableRep.Checked);
-  cbToFind.Enabled := fEditor <> nil;
+  fActFindNext.Enabled := fDoc <> nil;
+  fActReplaceNext.Enabled := (fDoc <> nil) and (chkEnableRep.Checked);
+  fActReplaceAll.Enabled := (fDoc <> nil) and (chkEnableRep.Checked);
+  cbReplaceWth.Enabled := (fDoc <> nil) and (chkEnableRep.Checked);
+  cbToFind.Enabled := fDoc <> nil;
   //
   cbToFind.Items.Assign(fSearchMru);
   cbReplaceWth.Items.Assign(fReplaceMru);
