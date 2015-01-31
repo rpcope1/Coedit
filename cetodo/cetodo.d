@@ -161,11 +161,13 @@ void main(string[] args)
     // "TODO" 
     while (true) {
         if (pos == text.length) break; 
-        auto upIdent = identifier.strip.toUpper;  
-        if (upIdent == "TODO" || upIdent == "FIXME"){
-            isTodoComment = true;
-            text = text[pos..$];
-            break;
+        if (identifier.length > 3) {
+            auto upIdent = identifier.strip.toUpper;  
+            if (upIdent == "TODO" || upIdent == "FIXME"){
+                isTodoComment = true;
+                text = text[pos..$];
+                break;
+            }
         } 
         identifier ~= text[pos++]; 
     }
