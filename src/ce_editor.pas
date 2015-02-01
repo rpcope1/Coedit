@@ -52,9 +52,9 @@ type
     procedure memoMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure memoCtrlClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure memoMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-    function getEditor(index: NativeInt): TCESynMemo;
-    function getEditorCount: NativeInt;
-    function getEditorIndex: NativeInt;
+    function getEditor(index: Integer): TCESynMemo;
+    function getEditorCount: Integer;
+    function getEditorIndex: Integer;
     procedure getCompletionList;
     procedure getSymbolLoc;
     procedure focusedEditorChanged;
@@ -67,9 +67,9 @@ type
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     //
-    property editor[index: NativeInt]: TCESynMemo read getEditor;
-    property editorCount: NativeInt read getEditorCount;
-    property editorIndex: NativeInt read getEditorIndex;
+    property editor[index: Integer]: TCESynMemo read getEditor;
+    property editorCount: Integer read getEditorCount;
+    property editorIndex: Integer read getEditorIndex;
   end;
 
 implementation
@@ -210,12 +210,12 @@ begin
 end;
 {$ENDIF}
 
-function TCEEditorWidget.getEditorCount: NativeInt;
+function TCEEditorWidget.getEditorCount: Integer;
 begin
   result := pageControl.PageCount;
 end;
 
-function TCEEditorWidget.getEditorIndex: NativeInt;
+function TCEEditorWidget.getEditorIndex: Integer;
 begin
   if pageControl.PageCount > 0 then
     result := pageControl.PageIndex
