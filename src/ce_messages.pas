@@ -364,6 +364,7 @@ end;
 
 procedure TCEMessagesWidget.projFocused(aProject: TCEProject);
 begin
+  if fProj = aProject then exit;
   fProj := aProject;
   filterMessages(fCtxt);
 end;
@@ -394,6 +395,7 @@ end;
 
 procedure TCEMessagesWidget.docFocused(aDoc: TCESynMemo);
 begin
+  if fDoc = aDoc then exit;
   fDoc := aDoc;
   filterMessages(fCtxt);
 end;

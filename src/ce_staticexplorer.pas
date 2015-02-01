@@ -286,6 +286,7 @@ end;
 
 procedure TCEStaticExplorerWidget.docFocused(aDoc: TCESynMemo);
 begin
+  if fDoc = aDoc then exit;
   fDoc := aDoc;
   if not Visible then exit;
   //

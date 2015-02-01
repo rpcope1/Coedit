@@ -128,6 +128,7 @@ end;
 
 procedure TCEStaticEditorMacro.docFocused(aDoc: TCESynMemo);
 begin
+  if fDoc = aDoc then exit;
   fDoc := aDoc;
   fCompletor.Editor := fDoc;
 end;
