@@ -41,16 +41,29 @@ inherited CETodoListWidget: TCETodoListWidget
           TabOrder = 0
         end
         object lstfilter: TListFilterEdit
-          Left = 38
+          Left = 68
           Height = 23
           Top = 2
-          Width = 513
+          Width = 483
           ButtonWidth = 28
           NumGlyphs = 1
           Align = alCustom
           Anchors = [akTop, akLeft, akRight]
           MaxLength = 0
           TabOrder = 1
+        end
+        object btnGo: TBitBtn
+          Left = 32
+          Height = 22
+          Hint = 'refresh the list'
+          Top = 2
+          Width = 28
+          Align = alLeft
+          BorderSpacing.Around = 2
+          Layout = blGlyphBottom
+          OnClick = btnGoClick
+          Spacing = 0
+          TabOrder = 2
         end
       end
       object lstItems: TListView[1]
@@ -90,5 +103,10 @@ inherited CETodoListWidget: TCETodoListWidget
   inherited contextMenu: TPopupMenu
     left = 40
     top = 72
+    object mnuAutoRefresh: TMenuItem[0]
+      AutoCheck = True
+      Caption = 'Auto resfresh'
+      OnClick = mnuAutoRefreshClick
+    end
   end
 end

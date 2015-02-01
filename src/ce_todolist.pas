@@ -56,12 +56,17 @@ type
 
   { TCETodoListWidget }
 
-  TCETodoListWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver)
+  TCETodoListWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver, ICESessionOptionsObserver)
     btnRefresh: TBitBtn;
+    btnGo: TBitBtn;
     lstItems: TListView;
     lstfilter: TListFilterEdit;
+    mnuAutoRefresh: TMenuItem;
     Panel1: TPanel;
+    procedure btnGoClick(Sender: TObject);
+    procedure mnuAutoRefreshClick(Sender: TObject);
   private
+    fAutoRefresh: Boolean;
     fProj: TCEProject;
     fDoc: TCESynMemo;
     fToolProcess: TCheckedAsyncProcess;
@@ -91,6 +96,11 @@ type
     procedure filterItems(sender: TObject);
   protected
     procedure SetVisible(Value: boolean); override;
+    // ICESessionOptionsObserver
+    procedure optset_AutoReafresh(aReader: TReader);
+    procedure optget_AutoReafresh(aWriter: TWriter);
+    procedure sesoptDeclareProperties(aFiler: TFiler); override;
+    procedure sesoptAfterLoad; override;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -166,7 +176,8 @@ begin
   fLogMessager := TCELogMessageSubject.create;
   lstItems.OnDblClick := @lstItemsDoubleClick;
   btnRefresh.OnClick := @btnRefreshClick;
-
+  fAutoRefresh := true;
+  mnuAutoRefresh.Checked := true;
   // http://bugs.freepascal.org/view.php?id=27137
   // TODO-cCleanup: remove comment after next Laz release
   // TODO-cfeature, try the new TListViewFilterEdit here.
@@ -176,6 +187,8 @@ begin
   try
     png.LoadFromLazarusResource('arrow_update');
     btnRefresh.Glyph.Assign(png);
+    png.LoadFromLazarusResource('arrow_pen');
+    btnGo.Glyph.Assign(png);
   finally
     png.Free;
   end;
@@ -197,6 +210,30 @@ end;
 
 {$ENDREGION}
 
+{$REGION ICESessionOptionsObserver  --------------------------------------------}
+procedure TCETodoListWidget.optset_AutoReafresh(aReader: TReader);
+begin
+  fAutoRefresh := aReader.ReadBoolean;
+end;
+
+procedure TCETodoListWidget.optget_AutoReafresh(aWriter: TWriter);
+begin
+  aWriter.WriteBoolean(fAutoRefresh);
+end;
+
+procedure TCETodoListWidget.sesoptDeclareProperties(aFiler: TFiler);
+begin
+  inherited;
+  aFiler.DefineProperty(Name + '_AutoRefresh', @optset_AutoReafresh, @optget_AutoReafresh, true);
+end;
+
+procedure TCETodoListWidget.sesoptAfterLoad;
+begin
+  inherited;
+  mnuAutoRefresh.Checked := fAutoRefresh;
+end;
+{$ENDREGIOn}
+
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
 procedure TCETodoListWidget.docNew(aDoc: TCESynMemo);
 begin
@@ -206,7 +243,7 @@ procedure TCETodoListWidget.docFocused(aDoc: TCESynMemo);
 begin
   if aDoc = fDoc then exit;
   fDoc := aDoc;
-  if Visible then
+  if Visible and fAutoRefresh then
     callToolProcess;
 end;
 
@@ -232,7 +269,7 @@ end;
 procedure TCETodoListWidget.projChanged(aProject: TCEProject);
 begin
   if fProj <> aProject then exit;
-  if Visible then
+  if Visible and fAutoRefresh then
     callToolProcess;
 end;
 
@@ -247,7 +284,7 @@ procedure TCETodoListWidget.projFocused(aProject: TCEProject);
 begin
   if aProject = fProj then exit;
   fProj := aProject;
-  if Visible then
+  if Visible and fAutoRefresh then
     callToolProcess;
 end;
 
@@ -402,6 +439,16 @@ begin
     if src.status <> '' then lstItems.Column[3].Visible := true;
     if src.priority <> '' then lstItems.Column[4].Visible := true;
   end;
+end;
+
+procedure TCETodoListWidget.btnGoClick(Sender: TObject);
+begin
+  lstItemsDoubleClick(nil);
+end;
+
+procedure TCETodoListWidget.mnuAutoRefreshClick(Sender: TObject);
+begin
+  fAutoRefresh := mnuAutoRefresh.Checked;
 end;
 
 procedure TCETodoListWidget.lstItemsDoubleClick(sender: TObject);
