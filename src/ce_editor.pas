@@ -223,7 +223,7 @@ begin
     result := -1;
 end;
 
-function TCEEditorWidget.getEditor(index: NativeInt): TCESynMemo;
+function TCEEditorWidget.getEditor(index: Integer): TCESynMemo;
 begin
   result := TCESynMemo(pageControl.Pages[index].Controls[0]);
 end;
