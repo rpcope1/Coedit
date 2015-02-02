@@ -23,21 +23,22 @@ Current features
 
 Missing features before the first beta
 --------------------------------------
-- Options editor. (the big missing thing)
+- DUB support.
+- Options editor.
 
 Project information
 -------------------
-- status: alpha 11.
+- status: alpha 12.
 - license: MIT.
 - programmed in Object Pascal with [Lazarus & FPC](http://www.lazarus.freepascal.org) as IDE & compiler.
 - based on *DMD* (the alternative compilers, LDC or GDC, are not supported).
 
-Setup & test
-------------
-The latest tagged Coedit versions are available as some pre-build binaries for Win and Nux.
+Setup or build
+--------------
+Windows and Linux binaries are available for the tagged versions.
 The latest Coedit development version must be build from the sources.
 
-The complete procedure is described in the [**first section of the wiki**](https://github.com/BBasile/Coedit/wiki#detailed-setup-procedure)
+The procedure is described in the [**first section of the wiki**](https://github.com/BBasile/Coedit/wiki#detailed-setup-procedure)
 
 GUI preview
 -----------
