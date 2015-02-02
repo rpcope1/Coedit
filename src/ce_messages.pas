@@ -606,6 +606,9 @@ begin
       begin
         inc(i);
         if i > length(aMessage) then exit;
+        if aMessage[i] = 'i' then
+          inc(i);
+        if i > length(aMessage) then exit;
         if aMessage[i] = '(' then
         begin
           inc(i);
