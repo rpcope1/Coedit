@@ -31,7 +31,6 @@ type
   private
     fCol: TCollection;
     procedure setCol(const aValue: TCollection);
-    procedure addDubPackages;
   protected
     procedure afterLoad; override;
   published
@@ -75,27 +74,6 @@ end;
 procedure TLibraryManager.setCol(const aValue: TCollection);
 begin
   fCol.assign(aValue);
-end;
-
-procedure TLibraryManager.addDubPackages;
-//var
-  //path: string;
-begin
-  if not exeInSysPath('dub' + exeExt) then exit;
-  //
-  //path := getUserDocPath + 'dub' + DirectorySeparator + 'packages';
-  {
-    get folders
-    foreach folder in folders
-    begin
-      if find src/import/source then
-        add libman entry with this folder (dcd completion, static explorer will use this)
-        if find lib with matching libname then
-          add lib file to the new libman item (runnable module can use it, alias can be specified in project)
-    end
-
-    set the dubpackage entries readonly, since they'll be regenerated for each cession
-  }
 end;
 
 procedure TLibraryManager.updateDCD;
