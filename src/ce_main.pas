@@ -183,7 +183,6 @@ type
     fProject: TCEProject;
     fProjMru: TMruFileList;
     fFileMru: TMruFileList;
-    fPlugList: TCEPlugDescriptorList;
     fWidgList: TCEWidgetList;
     fMesgWidg: TCEMessagesWidget;
     fEditWidg: TCEEditorWidget;
@@ -234,13 +233,11 @@ type
     procedure checkCompilo;
     procedure InitMRUs;
     procedure InitWidgets;
-    procedure InitPlugins;
     procedure InitDocking;
     procedure InitSettings;
     procedure SaveSettings;
     procedure LoadDocking;
     procedure SaveDocking;
-    procedure KillPlugs;
     procedure FreeRunnableProc;
 
     // widget interfaces subroutines
@@ -287,8 +284,6 @@ type
     //
     property processInput: TCEProcInputWidget read fPrInpWidg;
   end;
-
-  procedure PlugDispatchToHost(aPlugin: TCEPlugin; opCode: LongWord; data0: Integer; data1, data2: Pointer); cdecl;
 
 var
   CEMainForm: TCEMainForm;
@@ -369,9 +364,6 @@ begin
       end;
     end;
   end;
-  value := application.GetOptionValue('plugs');
-  if value <> 'OFF' then
-    InitPlugins;
   value := application.GetOptionValue('p', 'project');
   if (value <> '') and fileExists(value) then
     openProj(value);
@@ -400,53 +392,6 @@ begin
   fFileMru.objectTag := mnuItemMruFile;
   fProjMru.OnChange := @mruChange;
   fFileMru.OnChange := @mruChange;
-end;
-
-procedure TCEMainForm.InitPlugins;
-var
-  pth: string;
-  fname: string;
-  i: NativeInt;
-  lst: TStringList;
-  hdl: TLibHandle;
-  plg: PPlugDescriptor;
-begin
-  fPlugList := TCEPlugDescriptorList.Create;
-  pth := extractFilePath(application.ExeName) + 'plugins';
-  lst := TStringList.Create;
-  try
-    listFiles(lst, pth, false);
-    for i := 0 to lst.Count-1 do
-    begin
-      fname := lst.Strings[i];
-      if extractFileExt(fname) <> '.' + SharedSuffix then
-        continue;
-      hdl := LoadLibrary(fname);
-      if hdl = NilHandle then
-        continue;
-
-      plg := new(PPlugDescriptor);
-      plg^.Handle := hdl;
-      plg^.HostCreatePlug   := THostCreatePlug(GetProcAddress(hdl, 'createPlug'));
-      plg^.HostDestroyPlug  := THostDestroyPlug(GetProcAddress(hdl, 'destroyPlug'));
-      plg^.HostDispatchToPlug := THostDispatchToPlug(GetProcAddress(hdl, 'dispatchToPlug'));
-      if plg^.HostCreatePlug <> nil then
-        plg^.Plugin := plg^.HostCreatePlug(@PlugDispatchToHost);
-
-      if (plg^.HostCreatePlug = nil) or (plg^.HostDestroyPlug = nil) or
-        (plg^.HostDispatchToPlug = nil) then
-      begin
-        Dispose(plg);
-        {$IFDEF RELEASE}
-        FreeLibrary(Hdl);
-        {$ENDIF}
-        continue;
-      end;
-      fPlugList.addPlugin(plg);
-    end;
-  finally
-    lst.Free;
-  end;
 end;
 
 procedure TCEMainForm.InitWidgets;
@@ -669,28 +614,6 @@ begin
   end;
 end;
 
-procedure TCEMainForm.KillPlugs;
-var
-  descr: TPlugDescriptor;
-  i: NativeInt;
-begin
-  if fPlugList = nil then exit;
-  for i := 0 to fPlugList.Count-1 do
-  begin
-    descr := fPlugList.plugin[i];
-    descr.HostDestroyPlug(descr.Plugin);
-    {$IFDEF RELEASE}
-    FreeLibrary(descr.Handle);
-    {$ENDIF}
-  end;
-  while fPlugList.Count <> 0 do
-  begin
-    Dispose(PPlugDescriptor(fPlugList.Items[fPlugList.Count-1]));
-    fPlugList.Delete(fPlugList.Count-1);
-  end;
-  fPlugList.Free;
-end;
-
 procedure TCEMainForm.FreeRunnableProc;
 var
   fname: string;
@@ -709,8 +632,6 @@ end;
 destructor TCEMainForm.destroy;
 begin
   SaveSettings;
-  //
-  KillPlugs;
   //
   fWidgList.Free;
   fProjMru.Free;
@@ -1781,40 +1702,6 @@ begin
   aWriter.WriteString(fRunnableSw);
 end;
 {$ENDREGION}
-
-procedure PlugDispatchToHost(aPlugin: TCEPlugin; opCode: LongWord; data0: Integer; data1, data2: Pointer); cdecl;
-//var
-  //ctxt: NativeUint;
-  //oper: NativeUint;
-begin
-
-  if opCode = HELLO_PLUGIN then begin
-      dlgOkInfo('Hello plugin');
-      exit;
-  end;
-{
-  ctxt := opCode and $0F000000;
-  oper := opCode and $000FFFFF;
-
-  case ctxt of
-    CTXT_MSGS:
-      case oper of
-        //DT_ERR:  CEMainForm.MessageWidget.addCeErr(PChar(data1));
-        //DT_INF:  CEMainForm.MessageWidget.addCeInf(PChar(data1));
-        //DT_WARN: CEMainForm.MessageWidget.addCeWarn(PChar(data1));
-        //else CEMainForm.MessageWidget.addCeWarn('unsupported dispatcher opCode');
-      end;
-    CTXT_DLGS:
-      case oper of
-        DT_ERR: dlgOkError(PChar(data1));
-        DT_INF: dlgOkInfo(PChar(data1));
-        DT_WARN: dlgOkInfo(PChar(data1));
-        //else CEMainForm.MessageWidget.addCeWarn('unsupported dispatcher opCode');
-      end;
-    //else CEMainForm.MessageWidget.addCeWarn('unsupported dispatcher opCode');
-  end;}
-
-end;
 
 initialization
   RegisterClasses([TCEOptions]);
