@@ -451,6 +451,8 @@ begin
     fDmdProc.CurrentDirectory := extractFilePath(fProj.fileName);
     for i := 0 to fProj.Sources.Count-1 do begin
       itm := fProj.getAbsoluteSourceName(i);
+      if dExtList.IndexOf(ExtractFileExt(itm)) = -1 then
+        continue;
       if srcFname <> itm then fDmdProc.Parameters.Add(itm);
     end;
     for itm in fProj.currentConfiguration.pathsOptions.importModulePaths do

@@ -118,6 +118,7 @@ procedure TCESymbolExpander.updateSymbols;
 var
   hasProj: boolean;
   hasDoc: boolean;
+  fname: string;
   i: Integer;
 const
   na = '``';
@@ -166,7 +167,10 @@ begin
     fSymbols[CPFS] := '';
     for i := 0 to fProj.Sources.Count-1 do
     begin
-      fSymbols[CPFS] += fProj.getAbsoluteSourceName(i);
+      fname := fProj.getAbsoluteSourceName(i);
+      if dExtList.IndexOf(ExtractFileExt(fname)) = -1 then
+        continue;
+      fSymbols[CPFS] += fname;
       if fProj.Sources.Count > 1 then
         if i <> fProj.Sources.Count-1 then
           fSymbols[CPFS] += LineEnding;
