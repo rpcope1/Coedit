@@ -23,7 +23,6 @@ Current features
 
 Missing features before the first beta
 --------------------------------------
-- DUB support.
 - Options editor.
 
 Project information
