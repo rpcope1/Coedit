@@ -100,13 +100,13 @@ private struct TodoItem
      * Params:
      * LfmString = the string containing the LFM script.
      */
-    @safe public void serialize(ref string LfmString)
+    @safe public void serialize(ref Appender!string lfmApp)
     {
-        LfmString  ~= "  \r\n    item\r\n";
+        lfmApp.put("  \r    item\r");
         foreach(member; EnumMembers!TodoField)
             if (fFields[member].length)
-                LfmString  ~= format("      %s = '%s'\r\n", to!string(member), fFields[member]);   
-        LfmString  ~= "    end";
+                lfmApp.put(format("      %s = '%s'\r", fFieldNames[member], fFields[member]));   
+        lfmApp.put("    end");
     }
 }
 
@@ -123,7 +123,7 @@ private alias TodoItems = TodoItem * [];
 void main(string[] args)
 {
     string[] files = args[1..$];
-    string LfmString;
+    Appender!string lfmApp;
     TodoItems todoItems;
    
     foreach(f; files)
@@ -140,13 +140,18 @@ void main(string[] args)
         foreach(tok; lexer) token2TodoItem(tok, f, todoItems);                     
     }
     
+    // efficient appending if the item text ~ fields is about 100 chars
+    lfmApp.reserve(todoItems.length * 128 + 64);
+    
     // serialize the items using the pascal component streaming text format
-    foreach(todoItem; todoItems) todoItem.serialize(LfmString);
-       
-    //TODO: NEVER call writeln() in this program otherwise the widget cant interpret the output as LFM
-       
+    lfmApp.put("object TTodoItems\r  items = <");
+    foreach(todoItem; todoItems) todoItem.serialize(lfmApp);
+    lfmApp.put(">\rend\r\n");
+    
     // the widget has the LFM script in the output
-    if (LfmString.length) writefln("object TTodoItems\r\n  items = <%s>\r\nend\r\n", LfmString);
+    write(lfmApp.data);
+    
+    // TODO: NEVER call writeln() in this program otherwise the widget cant interpret the output
 }
 
 /// Try to transforms a Token into a a TODO item
@@ -216,7 +221,7 @@ void main(string[] args)
     todoItems ~= new TodoItem(fname, to!string(atok.line), content, c, a, p, s);
 }
 
-// samples for testing the program as a runnable module with <CFF>
+// samples for testing the program as a runnable ('Compile and runfile ...') with '<CFF>'
 
 // fixme-p8: fixme also handled
 // TODO-cINVALID_because_no_content:              
