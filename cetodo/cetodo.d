@@ -77,10 +77,8 @@ private struct TodoItem
      */
     @safe public this(string fname, string line, string text, string cat = "",  string ass = "", string prior = "", string status = "")
     {   
-        // line and fname must really be valid
+        // fname must really be valid
         if (!fname.exists) throw new Exception("TodoItem exception, the file name is invalid");
-        try auto l = to!long(line);
-        catch(Exception e) throw new Exception("TodoItem exception, the line number is invalid");
         
         // priority must be convertible to int
         if (prior.length) try auto i = to!long(prior);
@@ -217,8 +215,12 @@ void main(string[] args)
     string content = raw_content.join.strip;
     if (!content.length) return;
     
+    string lnStr;
+    try lnStr = to!string(atok.line);
+    catch(Exception e) lnStr = "0";  
+    
     // item
-    todoItems ~= new TodoItem(fname, to!string(atok.line), content, c, a, p, s);
+    todoItems ~= new TodoItem(fname, lnStr, content, c, a, p, s);
 }
 
 // samples for testing the program as a runnable ('Compile and runfile ...') with '<CFF>'
