@@ -54,8 +54,15 @@ private struct TodoItem
      * Enumerates the possible fields of _a TODO comment_. 
      * They must match the published member of the widget-side class TTodoItem.
      */
-    private enum TodoField {filename, line, text, category, assignee, priority, status}
+    private static enum TodoField {filename, line, text, category, assignee, priority, status}
+    private static string[TodoField] fFieldNames;
     private string[TodoField] fFields;
+    
+    static this()
+    {
+        foreach(member; EnumMembers!TodoField)
+            fFieldNames[member] = to!string(member);
+    }
      
     /**
      * Constructs a TODO item with its fields.
