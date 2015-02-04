@@ -197,16 +197,15 @@ begin
   if fProject = nil then exit;
   if Tree.Selected = nil then exit;
   //
-  if Tree.Selected.Parent = fFileNode then
+  if (Tree.Selected.Parent = fFileNode) or (Tree.Selected.Parent = fXtraNode) then
   begin
     fname := Tree.Selected.Text;
     i := fProject.Sources.IndexOf(fname);
     if i > -1 then
-    begin
       fname := fProject.getAbsoluteSourceName(i);
+    if dExtList.IndexOf(ExtractFileExt(fname)) <> -1 then
       if fileExists(fname) then
         CEMainForm.openFile(fname);
-    end;
   end
   else if Tree.Selected.Parent = fConfNode then
   begin
@@ -317,7 +316,9 @@ var
 begin
   CEMainForm.FormDropFiles(Sender, Filenames);
   if fProject = nil then exit;
-  for fname in Filenames do fProject.addSource(fname);
+  for fname in Filenames do
+    if FileExists(fname) then
+      fProject.addSource(fname);
 end;
 
 procedure TCEProjectInspectWidget.UpdateByEvent;
@@ -336,11 +337,11 @@ begin
   Tree.BeginUpdate;
   // display main sources
   for src in fProject.Sources do
-   begin
-     itm := Tree.Items.AddChild(fFileNode, src);
-     itm.ImageIndex := 2;
-     itm.SelectedIndex := 2;
-   end;
+  begin
+    itm := Tree.Items.AddChild(fFileNode, src);
+    itm.ImageIndex := 2;
+    itm.SelectedIndex := 2;
+  end;
   // display configurations
   for i := 0 to fProject.OptionsCollection.Count-1 do
   begin
@@ -355,7 +356,9 @@ begin
   begin
     if fold = '' then
       continue;
-    itm := Tree.Items.AddChild(fImpsNode, shortenPath(symbolExpander.get(fold)));
+    fold := fProject.getAbsoluteFilename(fold);
+    fold := symbolExpander.get(fold);
+    itm := Tree.Items.AddChild(fImpsNode, fold);
     itm.ImageIndex := 5;
     itm.SelectedIndex := 5;
   end;
@@ -365,7 +368,9 @@ begin
   begin
     if fold = '' then
       continue;
-    itm := Tree.Items.AddChild(fInclNode, shortenPath(symbolExpander.get(fold)));
+    fold := fProject.getAbsoluteFilename(fold);
+    fold := symbolExpander.get(fold);
+    itm := Tree.Items.AddChild(fInclNode, fold);
     itm.ImageIndex := 5;
     itm.SelectedIndex := 5;
   end;
@@ -375,14 +380,16 @@ begin
   begin
     if src = '' then
       continue;
+    src := fProject.getAbsoluteFilename(src);
+    src := symbolExpander.get(src);
     lst := TStringList.Create;
     try
       if listAsteriskPath(src, lst) then for src in lst do begin
-        itm := Tree.Items.AddChild(fXtraNode, shortenPath(symbolExpander.get(src)));
+        itm := Tree.Items.AddChild(fXtraNode, src);
         itm.ImageIndex := 2;
         itm.SelectedIndex := 2;
       end else begin
-        itm := Tree.Items.AddChild(fXtraNode, shortenPath(symbolExpander.get(src)));
+        itm := Tree.Items.AddChild(fXtraNode, src);
         itm.ImageIndex := 2;
         itm.SelectedIndex := 2;
       end;
