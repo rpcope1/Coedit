@@ -72,11 +72,12 @@ type
   TRangeKinds = set of TRangeKind;
 
   // defines the ranges which can be folded
-  TFoldKinds = set of (fkBrackets, fkComments1, fkComments2, fkStrings);
+  TFoldKinds = set of (fkBrackets, fkComments1, fkComments2, fkStrings, fkRegion);
 
   // internal class used to keep trace of the useful informations of the previous line
   TSynD2SynRange = class(TSynCustomHighlighterRange)
   private
+    namedRegionCount: Integer;
     nestedCommentsCount: Integer;
     tokenStringBracketsCount: Integer;
     rangeKinds: TRangeKinds;
@@ -218,6 +219,7 @@ begin
     rangeKinds := src_t.rangeKinds;
     nestedCommentsCount := src_t.nestedCommentsCount;
     tokenStringBracketsCount := src_t.tokenStringBracketsCount;
+    namedRegionCount := src_t.namedRegionCount;
   end;
 end;
 
@@ -235,6 +237,7 @@ begin
     if src_t.nestedCommentsCount <> nestedCommentsCount then exit(1);
     if src_t.tokenStringBracketsCount <> tokenStringBracketsCount then exit(1);
     if src_t.rString <> rString then exit(1);
+    if src_t.namedRegionCount <> namedRegionCount then exit(1);
     exit(0);
   end;
 end;
@@ -243,6 +246,7 @@ procedure TSynD2SynRange.Clear;
 begin
   inherited;
   nestedCommentsCount := 0;
+  namedRegionCount := 0;
   tokenStringBracketsCount := 0;
   rangeKinds := [];
   rString := false;
@@ -473,23 +477,29 @@ begin
     exit;
   end;
 
-  // line comment
+  // line comment / region beg-end
   if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkAsm]) then if readDelim(reader, fTokStop, '//') then
   begin
     fTokKind := tkCommt;
     if readDelim(reader, fTokStop, '/') then
       fTokKind := tkDDocs;
     readLine(reader, fTokStop);
-    //if fTokStop - fTokStart > 4 then
-    //begin
-    //  Dec(reader,4);
-    //  Dec(fTokStop,4);
-    //  if reader = '---+'#10 then
-    //    StartCodeFoldBlock(nil)
-    //  else if reader = '----'#10 then
-    //    EndCodeFoldBlock();
-    //  readLine(reader, fTokStop);
-    //end;
+    if (fkRegion in fFoldKinds) and (fTokStop - fTokStart > 4) then
+    begin
+      Dec(reader,4);
+      Dec(fTokStop,4);
+      if reader = '---+'#10 then
+      begin
+        fCurrRange.namedRegionCount += 1;
+        StartCodeFoldBlock(nil);
+      end
+      else if (reader = '----'#10) and (fCurrRange.namedRegionCount > 0) then
+      begin
+        EndCodeFoldBlock();
+        fCurrRange.namedRegionCount -= 1;
+      end;
+      readLine(reader, fTokStop);
+    end;
     exit;
   end else readerReset;
 
