@@ -5,7 +5,7 @@ unit ce_dcd;
 interface
 
 uses
-  Classes, SysUtils, process, forms, strutils,
+  Classes, SysUtils, process, forms, strutils, windows,
   ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_synmemo, ce_project;
 
 type
@@ -20,6 +20,7 @@ type
   private
     fTempLines: TStringList;
     //fPortNum: Word;
+    fServerWasRunning: boolean;
     fClient, fServer: TProcess;
     fAvailable: boolean;
     fDoc: TCESynMemo;
@@ -74,14 +75,20 @@ begin
   fClient.ShowWindow := swoHIDE;
   {$ENDIF}
   //
-  fServer := TProcess.Create(self);
-  fServer.Executable := serverName;
-  fServer.Options := [{$IFDEF WINDOWS} poNewConsole{$ENDIF}];
-  {$IFNDEF DEBUG}
-  fServer.ShowWindow := swoHIDE;
-  {$ENDIF}
+  // TODO-ctest: test this feature on linux.
+  fServerWasRunning := AppIsRunning((serverName));
+  if not fServerWasRunning then begin
+    fServer := TProcess.Create(self);
+    fServer.Executable := serverName;
+    fServer.Options := [{$IFDEF WINDOWS} poNewConsole{$ENDIF}];
+    {$IFNDEF DEBUG}
+    fServer.ShowWindow := swoHIDE;
+    {$ENDIF}
+  end;
   fTempLines := TStringList.Create;
-  fServer.Execute;
+
+  if (fServer <> nil) then
+    fServer.Execute;
   //
   EntitiesConnector.addObserver(self);
 end;
@@ -91,8 +98,10 @@ begin
   EntitiesConnector.removeObserver(self);
   if fTempLines <> nil then
     fTempLines.Free;
-  killServer;
-  fServer.Free;
+  if fServer <> nil then begin
+    if not fServerWasRunning then killServer;
+    fServer.Free;
+  end;
   fClient.Free;
   inherited;
 end;
