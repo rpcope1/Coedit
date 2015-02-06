@@ -54,8 +54,15 @@ private struct TodoItem
      * Enumerates the possible fields of _a TODO comment_. 
      * They must match the published member of the widget-side class TTodoItem.
      */
-    private enum TodoField {filename, line, text, category, assignee, priority, status}
+    private static enum TodoField {filename, line, text, category, assignee, priority, status}
+    private static string[TodoField] fFieldNames;
     private string[TodoField] fFields;
+    
+    static this()
+    {
+        foreach(member; EnumMembers!TodoField)
+            fFieldNames[member] = to!string(member);
+    }
      
     /**
      * Constructs a TODO item with its fields.
@@ -70,10 +77,8 @@ private struct TodoItem
      */
     @safe public this(string fname, string line, string text, string cat = "",  string ass = "", string prior = "", string status = "")
     {   
-        // line and fname must really be valid
+        // fname must really be valid
         if (!fname.exists) throw new Exception("TodoItem exception, the file name is invalid");
-        try auto l = to!long(line);
-        catch(Exception e) throw new Exception("TodoItem exception, the line number is invalid");
         
         // priority must be convertible to int
         if (prior.length) try auto i = to!long(prior);
@@ -93,13 +98,13 @@ private struct TodoItem
      * Params:
      * LfmString = the string containing the LFM script.
      */
-    @safe public void serialize(ref string LfmString)
+    @safe public void serialize(ref Appender!string lfmApp)
     {
-        LfmString  ~= "  \r\n    item\r\n";
+        lfmApp.put("  \r    item\r");
         foreach(member; EnumMembers!TodoField)
             if (fFields[member].length)
-                LfmString  ~= format("      %s = '%s'\r\n", to!string(member), fFields[member]);   
-        LfmString  ~= "    end";
+                lfmApp.put(format("      %s = '%s'\r", fFieldNames[member], fFields[member]));   
+        lfmApp.put("    end");
     }
 }
 
@@ -116,7 +121,7 @@ private alias TodoItems = TodoItem * [];
 void main(string[] args)
 {
     string[] files = args[1..$];
-    string LfmString;
+    Appender!string lfmApp;
     TodoItems todoItems;
    
     foreach(f; files)
@@ -133,13 +138,18 @@ void main(string[] args)
         foreach(tok; lexer) token2TodoItem(tok, f, todoItems);                     
     }
     
+    // efficient appending if the item text ~ fields is about 100 chars
+    lfmApp.reserve(todoItems.length * 128 + 64);
+    
     // serialize the items using the pascal component streaming text format
-    foreach(todoItem; todoItems) todoItem.serialize(LfmString);
-       
-    //TODO: NEVER call writeln() in this program otherwise the widget cant interpret the output as LFM
-       
+    lfmApp.put("object TTodoItems\r  items = <");
+    foreach(todoItem; todoItems) todoItem.serialize(lfmApp);
+    lfmApp.put(">\rend\r\n");
+    
     // the widget has the LFM script in the output
-    if (LfmString.length) writefln("object TTodoItems\r\n  items = <%s>\r\nend\r\n", LfmString);
+    write(lfmApp.data);
+    
+    // TODO: NEVER call writeln() in this program otherwise the widget cant interpret the output
 }
 
 /// Try to transforms a Token into a a TODO item
@@ -205,11 +215,15 @@ void main(string[] args)
     string content = raw_content.join.strip;
     if (!content.length) return;
     
+    string lnStr;
+    try lnStr = to!string(atok.line);
+    catch(Exception e) lnStr = "0";  
+    
     // item
-    todoItems ~= new TodoItem(fname, to!string(atok.line), content, c, a, p, s);
+    todoItems ~= new TodoItem(fname, lnStr, content, c, a, p, s);
 }
 
-// samples for testing the program as a runnable module with <CFF>
+// samples for testing the program as a runnable ('Compile and runfile ...') with '<CFF>'
 
 // fixme-p8: fixme also handled
 // TODO-cINVALID_because_no_content:              

@@ -659,43 +659,15 @@ begin
   end;
 
   //token string
-  if fCurrRange.rangeKinds = [] then if readDelim(reader, fTokStop, 'q{') then
+  if readDelim(reader, fTokStop, 'q{') then
   begin
-    fTokKind := tkStrng;
+    fTokKind := tkIdent;
     inc(fCurrRange.tokenStringBracketsCount);
-    while readUntilAmong(reader, fTokStop, ['{','}']) do
-    begin
-      if reader^ = '{' then inc(fCurrRange.tokenStringBracketsCount) else
-      if reader^ = '}' then dec(fCurrRange.tokenStringBracketsCount);
-      readerNext;
-      if fCurrRange.tokenStringBracketsCount = 0 then
-        exit;
-    end;
     fCurrRange.rangeKinds += [rkTokString];
-    readLine(reader, fTokStop);
-    if fkStrings in fFoldKinds then
+    if (fkBrackets in fFoldKinds) then
       StartCodeFoldBlock(nil);
     exit;
   end else readerReset;
-  if rkTokString in fCurrRange.rangeKinds then
-  begin
-    fTokKind := tkStrng;
-    while readUntilAmong(reader, fTokStop, ['{','}']) do
-    begin
-      if reader^ = '{' then inc(fCurrRange.tokenStringBracketsCount) else
-      if reader^ = '}' then dec(fCurrRange.tokenStringBracketsCount);
-      readerNext;
-      if fCurrRange.tokenStringBracketsCount = 0 then
-      begin
-        fCurrRange.rangeKinds -= [rkTokString];
-        if fkStrings in fFoldKinds then
-          EndCodeFoldBlock();
-        exit;
-      end;
-    end;
-    readLine(reader, fTokStop);
-    exit;
-  end;
 
   // char literals
   if fCurrRange.rangeKinds = [] then if readDelim(reader, fTokStop, #39) then
@@ -741,14 +713,26 @@ begin
     exit;
   end;
 
-  // symbChars 1: punctuation
+  // symbols 1
   if isSymbol(reader^) then
   begin
     fTokKind := tkSymbl;
-    if (fkBrackets in fFoldKinds) then case reader^ of
-      '{': StartCodeFoldBlock(nil);
-      '}': begin EndCodeFoldBlock; if (reader^ = '}') and (rkAsm in fCurrRange.rangeKinds) then fCurrRange.rangeKinds -= [rkAsm]; end;
+    case reader^ of
+      '{': if (fkBrackets in fFoldKinds) then StartCodeFoldBlock(nil);
+      '}':
+      begin
+        if (fkBrackets in fFoldKinds) then
+          EndCodeFoldBlock;
+        if (reader^ = '}') and (rkAsm in fCurrRange.rangeKinds) then
+          fCurrRange.rangeKinds -= [rkAsm]; ;
+        if (rkTokString in fCurrRange.rangeKinds) then
+        begin
+          Dec(fCurrRange.tokenStringBracketsCount);
+          if (fCurrRange.tokenStringBracketsCount = 0) then
+            fCurrRange.rangeKinds -= [rkTokString];
+        end;
       end;
+    end;
     readerNext;
     exit;
   end;
