@@ -430,8 +430,6 @@ begin
 end;
 
 //TODO-ccomments: nested comments with multiple nesting on the same line.
-
-{$BOOLEVAL ON}
 procedure TSynD2Syn.next;
 var
   reader: PChar;
@@ -801,7 +799,6 @@ begin
   // Should not happend
   assert(false);
 end;
-{$BOOLEVAL OFF}
 
 function TSynD2Syn.GetEol: Boolean;
 begin
