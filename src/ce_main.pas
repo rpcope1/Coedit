@@ -1353,8 +1353,6 @@ label
 begin
   if fProject.currentConfiguration.outputOptions.binaryKind <> executable then
   begin
-    // TODO-cfeature: define an alternative exe name for shared lib:
-    // e.g: the dll produced by the proj. is the input filename of an host app.
     dlgOkInfo('Non executable projects cant be run');
     exit;
   end;
