@@ -99,7 +99,7 @@ begin
   //
   completion.OnPaintItem := @completionItemPaint;
   fSyncEdit := TSynPluginSyncroEdit.Create(self);
-  //TODO: activate this after next Laz release
+  //TODO-ccLCL&LAZ-specific: activate this after next Laz release
   //fSyncEdit.CaseSensitive:=true;
   bmp := TBitmap.Create;
   try
@@ -289,9 +289,7 @@ end;
 procedure TCEEditorWidget.memoMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
   if not (ssLeft in Shift) then exit;
-  //
   beginUpdateByDelay;
-  UpdateByEvent;
 end;
 
 procedure TCEEditorWidget.memoCtrlClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -356,6 +354,7 @@ var
   md: string;
 begin
   if fDoc = nil then exit;
+  UpdateByEvent;
   if not fKeyChanged then exit;
   //
   fKeyChanged := false;

@@ -112,8 +112,8 @@ begin
   Tree.OnExpanding := @treeExpanding;
 
   // http://bugs.freepascal.org/view.php?id=27137
-  // TODO-cCleanup: remove comment after next Laz release
-  // TODO-cfeature, try the new TListViewFilterEdit here.
+  // TODO-cLCL&LAZ-specific: remove comment after next Laz release
+  // TODO-cLCL&LAZ-specific, try the new TListViewFilterEdit here.
   lstFilter.FilteredListbox := nil;
   lstFilter.onChange := @lstFilterChange;
   //

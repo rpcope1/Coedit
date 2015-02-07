@@ -539,7 +539,7 @@ begin
   if not Visible then exit;
   //
   if WindowState = wsMinimized then WindowState := wsNormal;
-  // TODO-cbugfix: check new docking persistence behaviour on new Laz release.
+  // TODO-cLCL&LAZ-specific: check new docking persistence behaviour on new Laz release.
   // does not save minimized/undocked windows to prevent bugs
   for i:= 0 to fWidgList.Count-1 do
   begin
@@ -1353,8 +1353,6 @@ label
 begin
   if fProject.currentConfiguration.outputOptions.binaryKind <> executable then
   begin
-    // TODO-cfeature: define an alternative exe name for shared lib:
-    // e.g: the dll produced by the proj. is the input filename of an host app.
     dlgOkInfo('Non executable projects cant be run');
     exit;
   end;
@@ -1425,7 +1423,7 @@ var
   xcfg: TXMLConfigStorage;
   i: NativeInt;
 begin
-  // TODO-cbugfix: possible loading AV, xml saved after undocking some widgets, xml file abnormal size.
+  // TODO-cLCL&LAZ-specific: possible loading AV, xml saved after undocking some widgets, xml file abnormal size.
   for i:= 0 to fWidgList.Count-1 do
   begin
     if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then
