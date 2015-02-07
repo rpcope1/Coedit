@@ -539,7 +539,7 @@ begin
   if not Visible then exit;
   //
   if WindowState = wsMinimized then WindowState := wsNormal;
-  // TODO-cbugfix: check new docking persistence behaviour on new Laz release.
+  // TODO-cLCL&LAZ-specific: check new docking persistence behaviour on new Laz release.
   // does not save minimized/undocked windows to prevent bugs
   for i:= 0 to fWidgList.Count-1 do
   begin
@@ -1423,7 +1423,7 @@ var
   xcfg: TXMLConfigStorage;
   i: NativeInt;
 begin
-  // TODO-cbugfix: possible loading AV, xml saved after undocking some widgets, xml file abnormal size.
+  // TODO-cLCL&LAZ-specific: possible loading AV, xml saved after undocking some widgets, xml file abnormal size.
   for i:= 0 to fWidgList.Count-1 do
   begin
     if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then

@@ -99,7 +99,7 @@ begin
   //
   completion.OnPaintItem := @completionItemPaint;
   fSyncEdit := TSynPluginSyncroEdit.Create(self);
-  //TODO: activate this after next Laz release
+  //TODO-ccLCL&LAZ-specific: activate this after next Laz release
   //fSyncEdit.CaseSensitive:=true;
   bmp := TBitmap.Create;
   try
