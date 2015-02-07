@@ -8,11 +8,12 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, Forms, lazcontrols, runtimetypeinfocontrols, ce_observer, ce_libman,
   ce_tools, ce_dcd, ce_main, ce_writableComponent, ce_options, ce_symstring,
-  ce_staticmacro, ce_icons, ce_inspectors;
+  ce_staticmacro, ce_inspectors, LResources;
 
 {$R *.res}
 
 begin
+  {$I ../src/ce_icons.inc}
   Application.Initialize;
   Application.CreateForm(TCEMainForm, CEMainForm);
   Application.Run;
