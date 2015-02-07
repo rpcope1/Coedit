@@ -7,11 +7,19 @@ interface
 uses
   Classes, SysUtils, SynEdit, ce_d2syn, ce_txtsyn ,SynEditHighlighter, controls,
   lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
-  SynEditFoldedView, crc, ce_common, ce_observer, ce_writableComponent;
+  SynEditFoldedView, crc, ce_common, ce_observer, ce_writableComponent, Forms;
 
 type
 
   TCESynMemo = class;
+
+  TCEEditorHintWindow = class(THintWindow)
+  public
+    class var FontSize: Integer;
+    constructor Create(AOwner: TComponent); override;
+    function CalcHintRect(MaxWidth: Integer; const AHint: String;
+      AData: Pointer): TRect; override;
+  end;
 
   TCEFoldCache = class(TCollectionItem)
   private
@@ -123,6 +131,20 @@ implementation
 uses
   graphics, ce_interfaces, ce_staticmacro, ce_dcd, SynEditHighlighterFoldBase;
 
+
+
+constructor TCEEditorHintWindow.Create(AOwner: TComponent);
+begin
+  inherited;
+  Canvas.Font.Size:= FontSize;
+end;
+
+function TCEEditorHintWindow.CalcHintRect(MaxWidth: Integer; const AHint: String; AData: Pointer): TRect;
+begin
+  Canvas.Font.Size:= FontSize;
+  result := inherited CalcHintRect(MaxWidth, AHint, AData);
+end;
+
 {$REGION TCESynMemoCache -------------------------------------------------------}
 constructor TCESynMemoCache.create(aComponent: TComponent);
 begin
@@ -153,6 +175,7 @@ begin
   fSourceFilename := fMemo.fileName;
   fSelectionEnd := fMemo.SelEnd;
   fFontSize := fMemo.Font.Size;
+  TCEEditorHintWindow.FontSize := fMemo.Font.Size;
   //
   // TODO-cEditor Cache: >nested< folding persistence
   // cf. other ways: http://forum.lazarus.freepascal.org/index.php?topic=26748.msg164722#msg164722
@@ -486,12 +509,14 @@ procedure TCESynMemo.KeyDown(var Key: Word; Shift: TShiftState);
 begin
   inherited;
   identifierToD2Syn;
+  if not (Shift = [ssCtrl]) then exit;
   //
-  if (Shift = [ssCtrl]) then case Key of
+  case Key of
     VK_ADD: if Font.Size < 50 then Font.Size := Font.Size + 1;
     VK_SUBTRACT: if Font.Size > 3 then Font.Size := Font.Size - 1;
     VK_DECIMAL: Font.Size := fStoredFontSize;
   end;
+  TCEEditorHintWindow.FontSize := Font.Size;
 end;
 
 procedure TCESynMemo.KeyUp(var Key: Word; Shift: TShiftState);
@@ -552,6 +577,8 @@ initialization
   LfmSyn.KeyAttri.Style := [fsBold];
   LfmSyn.NumberAttri.Foreground := clMaroon;
   LfmSyn.StringAttri.Foreground := clBlue;
+  //
+  TCEEditorHintWindow.FontSize := 10;
 finalization
   D2Syn.Free;
   LfmSyn.Free;
