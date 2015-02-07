@@ -289,9 +289,7 @@ end;
 procedure TCEEditorWidget.memoMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
   if not (ssLeft in Shift) then exit;
-  //
   beginUpdateByDelay;
-  UpdateByEvent;
 end;
 
 procedure TCEEditorWidget.memoCtrlClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -356,6 +354,7 @@ var
   md: string;
 begin
   if fDoc = nil then exit;
+  UpdateByEvent;
   if not fKeyChanged then exit;
   //
   fKeyChanged := false;
