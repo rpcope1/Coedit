@@ -5,7 +5,10 @@ unit ce_dcd;
 interface
 
 uses
-  Classes, SysUtils, process, forms, strutils, windows,
+  Classes, SysUtils, process, forms, strutils,
+  {$IFDEF WINDOWS}
+  windows,
+  {$ENDIF}
   ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_synmemo, ce_project;
 
 type

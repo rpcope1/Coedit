@@ -224,7 +224,7 @@ type
 
 
   (**
-   * Returns TRUE if EXEName is running under Windows or Linux
+   * Returns true if Exename is running under Windows or Linux
    *)
   function AppIsRunning(const ExeName: string):Boolean;
 
@@ -865,7 +865,7 @@ begin
 end;
 
 {$IFDEF WINDOWS}
-function WindowsAppIsRunning(const ExeName: string): integer;
+function internalAppIsRunning(const ExeName: string): integer;
 var
   ContinueLoop: BOOL;
   FSnapshotHandle: THandle;
@@ -889,38 +889,37 @@ begin
   CloseHandle(FSnapshotHandle);
 end;
 {$ENDIF}
+
 {$IFDEF LINUX}
-function LinuxAppIsRunning(const ExeName: string): integer;
+function internalAppIsRunning(const ExeName: string): integer;
 var
-  t: TProcess;
-  s: TStringList;
+  proc: TProcess;
+  lst: TStringList;
 begin
   Result := 0;
-  t := tprocess.Create(nil);
-  t.CommandLine := 'ps -C ' + ExeName;
-  t.Options := [poUsePipes, poWaitonexit];
+  proc := tprocess.Create(nil);
+  proc.Executable := 'ps';
+  proc.Parameters.Add('-C');
+  proc.Parameters.Add(ExeName);
+  proc.Options := [poUsePipes, poWaitonexit];
+  try
+    proc.Execute;
+    lst := TStringList.Create;
     try
-    t.Execute;
-    s := TStringList.Create;
-      try
-      s.LoadFromStream(t.Output);
-      Result := Pos(ExeName, s.Text);
-      finally
-      s.Free;
-      end;
+      lst.LoadFromStream(proc.Output);
+      Result := Pos(ExeName, lst.Text);
     finally
-    t.Free;
+      lst.Free;
     end;
+  finally
+    proc.Free;
+  end;
 end;
 {$ENDIF}
+
 function AppIsRunning(const ExeName: string):Boolean;
 begin
-{$IFDEF WINDOWS}
-  Result:=(WindowsAppIsRunning(ExeName) > 0);
-{$ENDIF}
-{$IFDEF LINUX}
-  Result:=(LinuxAppIsRunning(ExeName) > 0);
-{$ENDIF}
+  Result:= internalAppIsRunning(ExeName) > 0;
 end;
 
 
