@@ -78,7 +78,6 @@ begin
   fClient.ShowWindow := swoHIDE;
   {$ENDIF}
   //
-  // TODO-ctest: test this feature on linux.
   fServerWasRunning := AppIsRunning((serverName));
   if not fServerWasRunning then begin
     fServer := TProcess.Create(self);
