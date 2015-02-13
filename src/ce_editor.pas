@@ -299,17 +299,35 @@ end;
 
 procedure TCEEditorWidget.getSymbolLoc;
 var
-  srcpos: Integer;
+  srcpos, i, sum: Integer;
   fname: string;
+  lel: byte;
 begin
   if not DcdWrapper.available then exit;
   //
   DcdWrapper.getDeclFromCursor(fname, srcpos);
   if fname <> fDoc.fileName then if fileExists(fname) then
     CEMainForm.openFile(fname);
-  if srcpos <> -1 then begin
-    fDoc.SelStart := srcpos;
-    fDoc.SelectWord;
+  if srcpos <> -1 then
+  begin
+    //fDoc.SelStart := srcpos;
+    //fDoc.SelectWord;
+
+    // note: SelStart only matches the srcpos if the target file has the same line ending
+    // as the operating system: the pos has to be found manually.
+    sum := 0;
+    lel := getLineEndingLength(fDoc.fileName);
+    for i := 0 to fDoc.Lines.Count-1 do
+    begin
+      sum += length(fDoc.Lines.Strings[i]);
+      sum += lel;
+      //TODO-cenhancement: find declaration, determine column accurately.
+      if sum >= srcpos then
+      begin
+        fDoc.CaretY := i+1;
+        break;
+      end;
+    end;
   end;
 end;
 
