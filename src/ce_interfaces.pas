@@ -5,16 +5,17 @@ unit ce_interfaces;
 interface
 
 uses
-  Classes, SysUtils, actnList, menus,
+  Classes, SysUtils, actnList, menus, process,
   ce_synmemo, ce_project, ce_observer;
 
 type
+
 
   (**
    * An implementer can save and load some stuffs on application start/quit
    *)
   ICESessionOptionsObserver = interface
-  ['ICEWidgetPersist']
+  ['ICESessionOptionsObserver']
     // persistent things are about to be saved.
     procedure sesoptBeforeSave;
     // persistent things can be declared to aFiler.
@@ -147,24 +148,28 @@ type
   TCEAppMessageCtxt = (amcAll, amcEdit, amcProj, amcApp, amcMisc);
 
   (**
-   * An implementer gets some log messages.
-   * AData: either an editor or a project, according to aCtxt.
+   * Single service given by the messages widget.
+   * Client can retrieve the service instance in the EntityConnector.
    *)
-  ICELogMessageObserver = interface
-  ['ICEMessage']
-    // a TCELogMessageSubject sends a message based on a string.
-    procedure lmFromString(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
-    // a TCELogMessageSubject sends a clearing request based on a context.
-    procedure lmClearByContext(aCtxt: TCEAppMessageCtxt);
-    // a TCELogMessageSubject sends a clearing request based on a data.
-    procedure lmClearByData(aData: Pointer);
+  ICEMessagesDisplay = interface(ICESingleService)
+    // display a message
+    procedure message(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+    // clear the messages related to the context aCtxt.
+    procedure clearByContext(aCtxt: TCEAppMessageCtxt);
+    // clear the messages related to the data aData.
+    procedure clearByData(aData: Pointer);
   end;
+
+
   (**
-   * An implementer sends some log messages.
+   * Single service given by the process-input widget.
+   * Client can retrieve the service instance in the EntityConnector.
    *)
-  TCELogMessageSubject = class(TCECustomSubject)
-  protected
-    function acceptObserver(aObject: TObject): boolean; override;
+  ICEProcInputHandler = interface(ICESingleService)
+    // add an entry to the list of process which can receive an user input
+    procedure addProcess(aProcess: TProcess);
+    // remove an entry
+    procedure removeProcess(aProcess: TProcess);
   end;
 
 
@@ -198,13 +203,17 @@ type
   procedure subjSesOptsDeclareProperties(aSubject: TCESessionOptionsSubject; aFiler: TFiler);{$IFDEF RELEASE}inline;{$ENDIF}
   procedure subjSesOptsAfterLoad(aSubject: TCESessionOptionsSubject);                        {$IFDEF RELEASE}inline;{$ENDIF}
 
-  (**
-   * TCELogMessageSubject primitives.
-   *)
-  procedure subjLmFromString(aSubject: TCELogMessageSubject; const aValue: string;
-      aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind); {$IFDEF RELEASE}inline;{$ENDIF}
-  procedure subjLmClearByContext(aSubject: TCELogMessageSubject; aCtxt: TCEAppMessageCtxt); {$IFDEF RELEASE}inline;{$ENDIF}
-  procedure subjLmClearByData(aSubject: TCELogMessageSubject; aData: Pointer); {$IFDEF RELEASE}inline;{$ENDIF}
+
+{
+  Services assignements:
+
+  lazily get the interface of a service when needed or for a ponctual usage
+}
+
+  function getMessageDisplay(var obj: ICEMessagesDisplay): ICEMessagesDisplay; overload;
+  function getMessageDisplay: ICEMessagesDisplay;overload;
+  function getprocInputHandler(var obj: ICEProcInputHandler): ICEProcInputHandler;overload;
+  function getprocInputHandler: ICEProcInputHandler;overload;
 
 implementation
 
@@ -339,38 +348,29 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION TCELogMessageSubject --------------------------------------------------}
-function TCELogMessageSubject.acceptObserver(aObject: TObject): boolean;
+
+function getMessageDisplay(var obj: ICEMessagesDisplay): ICEMessagesDisplay;
 begin
-  exit(aObject is ICELogMessageObserver);
+  if obj = nil then
+    obj := EntitiesConnector.getSingleService('ICEMessagesDisplay') as ICEMessagesDisplay;
+  exit(obj);
 end;
 
-procedure subjLmFromString(aSubject: TCELogMessageSubject; const aValue: string;
-  aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
-var
-  i: Integer;
+function getMessageDisplay: ICEMessagesDisplay;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICELogMessageObserver).lmFromString(aValue, aData, aCtxt, aKind);
+  exit(EntitiesConnector.getSingleService('ICEMessagesDisplay') as ICEMessagesDisplay);
 end;
 
-procedure subjLmClearByContext(aSubject: TCELogMessageSubject; aCtxt: TCEAppMessageCtxt);
-var
-  i: Integer;
+function getprocInputHandler(var obj: ICEProcInputHandler): ICEProcInputHandler;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICELogMessageObserver).lmClearByContext(aCtxt);
+  if obj = nil then
+    obj := EntitiesConnector.getSingleService('ICEProcInputHandler') as ICEProcInputHandler;
+  exit(obj);
 end;
 
-
-procedure subjLmClearByData(aSubject: TCELogMessageSubject; aData: Pointer);
-var
-  i: Integer;
+function getprocInputHandler: ICEProcInputHandler;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICELogMessageObserver).lmClearByData(aData);
+  exit(EntitiesConnector.getSingleService('ICEProcInputHandler') as ICEProcInputHandler);
 end;
 
-
-{$ENDREGION}
 end.
