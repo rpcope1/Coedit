@@ -251,7 +251,6 @@ end;
 
 procedure TCETodoListWidget.docChanged(aDoc: TCESynMemo);
 begin
-  if fDoc <> aDoc then exit;
 end;
 
 procedure TCETodoListWidget.docClosing(aDoc: TCESynMemo);
@@ -298,15 +297,12 @@ end;
 {$REGION Todo list things ------------------------------------------------------}
 function TCETodoListWidget.getContext: TTodoContext;
 begin
-  result := tcNone;
-  //
-  if ((fProj = nil) and (fDoc = nil)) then exit;
+  if ((fProj = nil) and (fDoc = nil)) then exit(tcNone);
   if ((fProj = nil) and (fDoc <> nil)) then exit(tcFile);
   if ((fProj <> nil) and (fDoc = nil)) then exit(tcProject);
   //
-  result := tcFile;
-  if not FileExists(fDoc.fileName) then exit;
-  if fProj.isProjectSource(fDoc.fileName) then exit(tcProject);
+  if fProj.isProjectSource(fDoc.fileName) then
+    exit(tcProject) else exit(tcFile);
 end;
 
 procedure TCETodoListWidget.killToolProcess;
