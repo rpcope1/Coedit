@@ -23,8 +23,8 @@ type
     procedure TreeFilterEdit1AfterFilter(Sender: TObject);
     procedure TreeKeyPress(Sender: TObject; var Key: char);
   private
+    fMsgs: ICEMessagesDisplay;
     fDmdProc: TCheckedAsyncProcess;
-    fLogMessager: TCELogMessageSubject;
     fActCopyIdent: TAction;
     fActRefresh: TAction;
     fActRefreshOnChange: TAction;
@@ -97,7 +97,6 @@ constructor TCEStaticExplorerWidget.create(aOwner: TComponent);
 var
   png: TPortableNetworkGraphic;
 begin
-  fLogMessager := TCELogMessageSubject.create;
   fAutoRefresh := false;
   fRefreshOnFocus := true;
   fRefreshOnChange := false;
@@ -160,13 +159,13 @@ begin
   EntitiesConnector.removeObserver(self);
   //
   killProcess(fDmdProc);
-  fLogMessager.Free;
   inherited;
 end;
 
 procedure TCEStaticExplorerWidget.SetVisible(Value: boolean);
 begin
   inherited;
+  getMessageDisplay(fMsgs);
   if Value then
     produceJsonInfo;
 end;
@@ -557,8 +556,7 @@ begin
         'template'  :ndCat := Tree.Items.AddChildObject(ndTmp, nme, ln);
         'union'     :ndCat := Tree.Items.AddChildObject(ndUni, nme, ln);
         'variable'  :ndCat := Tree.Items.AddChildObject(ndVar, nme, ln);
-        else subjLmFromString(fLogMessager, 'static explorer does not handle this kind: '
-          + knd, nil, amcApp, amkWarn);
+        else fMsgs.message('static explorer does not handle this kind: '+ knd, nil, amcApp, amkWarn);
       end;
 
       if ndCat = nil then

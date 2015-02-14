@@ -203,7 +203,7 @@ type
     fInitialized: boolean;
     fRunnableSw: string;
     fRunProc: TCheckedAsyncProcess;
-    fLogMessager: TCELogMessageSubject;
+    fMsgs: ICEMessagesDisplay;
     fMainMenuSubj: TCEMainMenuSubject;
     procedure updateMainMenuProviders;
 
@@ -298,7 +298,6 @@ uses
 constructor TCEMainForm.create(aOwner: TComponent);
 begin
   inherited create(aOwner);
-  fLogMessager := TCELogMessageSubject.create;
   fMainMenuSubj:= TCEMainMenuSubject.create;
   //
   EntitiesConnector.addObserver(self);
@@ -413,6 +412,8 @@ begin
   fPrInpWidg:= TCEProcInputWidget.create(self);
   fTodolWidg:= TCETodoListWidget.create(self);
   //fResWidg  := TCEResmanWidget.create(self);
+
+  getMessageDisplay(fMsgs);
 
   {$IFDEF WIN32}
   fCdbWidg  := TCECdbWidget.create(self);
@@ -639,7 +640,6 @@ begin
   fProject.Free;
   FreeRunnableProc;
   //
-  fLogMessager.Free;
   fMainMenuSubj.Free;
   EntitiesConnector.removeObserver(self);
   inherited;
@@ -656,7 +656,7 @@ begin
   if fMesgWidg = nil then
     ce_common.dlgOkError(E.Message)
   else
-    fMesgWidg.lmFromString(E.Message, nil, amcApp, amkErr);
+    fMsgs.message(E.Message, nil, amcApp, amkErr);
 end;
 
 procedure TCEMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -1203,10 +1203,10 @@ begin
   try
     processOutputToStrings(proc, lst);
     if proc = fRunProc then for str in lst do
-      subjLmFromString(fLogMessager, str, fDoc, amcEdit, amkBub)
+      fMsgs.message(str, fDoc, amcEdit, amkBub)
     else if proc.Executable = DCompiler then
       for str in lst do
-        subjLmFromString(fLogMessager, str, fDoc, amcEdit, amkAuto);
+        fMsgs.message(str, fDoc, amcEdit, amkAuto);
   finally
     lst.Free;
   end;
@@ -1217,6 +1217,7 @@ var
   proc: TProcess;
   lst: TStringList;
   str: string;
+  inph: TObject;
 begin
   proc := TProcess(sender);
   lst := TStringList.Create;
@@ -1226,13 +1227,16 @@ begin
     if proc = fRunProc then
     begin
       for str in lst do
-        subjLmFromString(fLogMessager, str, fDoc, amcEdit, amkBub);
+        fMsgs.message(str, fDoc, amcEdit, amkBub);
     end;
   finally
     lst.Free;
   end;
-  if proc = fPrInpWidg.process then
-    fPrInpWidg.process := nil;
+  //if proc = fPrInpWidg.process then
+    //fPrInpWidg.process := nil;
+
+  inph := EntitiesConnector.getSingleService('ICEProcInputHandler');
+  if (inph <> nil) then (inph as ICEProcInputHandler).removeProcess(proc);
 end;
 
 procedure TCEMainForm.compileAndRunFile(unittest: boolean; const runArgs: string = '');
@@ -1253,9 +1257,8 @@ begin
   dmdproc := TProcess.Create(nil);
   try
 
-    subjLmClearByData(fLogMessager, fDoc);
-    subjLmFromString(fLogMessager, 'compiling ' + shortenPath(fDoc.fileName, 25),
-      fDoc, amcEdit, amkInf);
+    fMsgs.clearByData(fDoc);
+    fMsgs.message('compiling ' + shortenPath(fDoc.fileName, 25), fDoc, amcEdit, amkInf);
 
     if fileExists(fDoc.fileName) then fDoc.save
     else fDoc.saveTempFile;
@@ -1284,20 +1287,20 @@ begin
 
     if (dmdProc.ExitStatus = 0) then
     begin
-      subjLmFromString(fLogMessager, shortenPath(fDoc.fileName, 25)
-        + ' successfully compiled', fDoc, amcEdit, amkInf);
+      fMsgs.message(shortenPath(fDoc.fileName, 25) + ' successfully compiled',
+        fDoc, amcEdit, amkInf);
 
       fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
       if runArgs <> '' then
         fRunProc.Parameters.DelimitedText := symbolExpander.get(runArgs);
       fRunProc.Executable := fname + exeExt;
-      fPrInpWidg.process := fRunProc;
+      getprocInputHandler.addProcess(fRunProc);
       fRunProc.Execute;
       sysutils.DeleteFile(fname + objExt);
     end
     else begin
-      subjLmFromString(fLogMessager, shortenPath(fDoc.fileName,25)
-        + ' has not been compiled', fDoc, amcEdit, amkErr);
+      fMsgs.message(shortenPath(fDoc.fileName,25) + ' has not been compiled',
+        fDoc, amcEdit, amkErr);
     end;
 
   finally

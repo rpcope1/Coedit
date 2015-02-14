@@ -559,6 +559,7 @@ begin
   inherited;
   if (Button = mbMiddle) and (Shift = [ssCtrl]) then
     Font.Size := fStoredFontSize
+  //TODO-cLCL&LAZ-specific: test this feature under gtk2/linux on next release, should work
   else if Button = mbExtra1 then
     fPositions.back
   else if Button = mbExtra2 then

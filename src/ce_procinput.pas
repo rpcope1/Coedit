@@ -6,10 +6,10 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, StdCtrls, ce_widget, process, ce_common;
+  Menus, StdCtrls, ce_widget, process, ce_common, ce_interfaces, ce_observer;
 
 type
-  TCEProcInputWidget = class(TCEWidget)
+  TCEProcInputWidget = class(TCEWidget, ICEProcInputHandler)
     btnSend: TButton;
     txtInp: TEdit;
     txtExeName: TStaticText;
@@ -20,16 +20,18 @@ type
     fMru: TMRUList;
     fProc: TProcess;
     procedure sendInput;
-    procedure setProc(const aValue: TProcess);
     //
     procedure optset_InputMru(aReader: TReader);
     procedure optget_InputMru(aWriter: TWriter);
+    //
+    function singleServiceName: string;
+    procedure addProcess(aProcess: TProcess);
+    procedure removeProcess(aProcess: TProcess);
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     //
     procedure sesoptDeclareProperties(aFiler: TFiler); override;
-    property process: TProcess read fProc write setProc;
   end;
 
 implementation
@@ -44,6 +46,7 @@ begin
   inherited;
   fMru := TMRUList.Create;
   fMru.maxCount := 25;
+  EntitiesConnector.addSingleService(self);
 end;
 
 destructor TCEProcInputWidget.destroy;
@@ -71,8 +74,13 @@ begin
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
-{$REGION Process input things --------------------------------------------------}
-procedure TCEProcInputWidget.setProc(const aValue: TProcess);
+{$REGION ICEProcInputHandler ---------------------------------------------------}
+function TCEProcInputWidget.singleServiceName: string;
+begin
+  exit('ICEProcInputHandler');
+end;
+
+procedure TCEProcInputWidget.addProcess(aProcess: TProcess);
 begin
   // TODO-cfeature: process list, imply that each TCESynMemo must have its own runnable TProcess
   // currently they share the CEMainForm.fRunProc variable.
@@ -81,14 +89,22 @@ begin
 
   txtExeName.Caption := 'no process';
   fProc := nil;
-  if aValue = nil then
+  if aProcess = nil then
     exit;
-  if not (poUsePipes in aValue.Options) then
+  if not (poUsePipes in aProcess.Options) then
     exit;
-  fProc := aValue;
+  fProc := aProcess;
   txtExeName.Caption := shortenPath(fProc.Executable);
 end;
 
+procedure TCEProcInputWidget.removeProcess(aProcess: TProcess);
+begin
+  if fProc = aProcess then
+    addProcess(nil);
+end;
+{$ENDREGION}
+
+{$REGION Process input things --------------------------------------------------}
 procedure TCEProcInputWidget.sendInput;
 var
   inp: string;
