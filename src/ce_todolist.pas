@@ -91,6 +91,8 @@ type
     procedure procOutputDbg(sender: TObject);
     procedure clearTodoList;
     procedure fillTodoList;
+    procedure lstItemsColumnClick(Sender : TObject; Column : TListColumn);
+    procedure lstItemsCompare(Sender : TObject; item1, item2: TListItem;Data : Integer; var Compare : Integer);
     procedure lstItemsDoubleClick(sender: TObject);
     procedure btnRefreshClick(sender: TObject);
     procedure filterItems(sender: TObject);
@@ -175,6 +177,8 @@ begin
   fTodos := TTodoItems.Create(self);
   lstItems.OnDblClick := @lstItemsDoubleClick;
   btnRefresh.OnClick := @btnRefreshClick;
+  lstItems.OnColumnClick:= @lstItemsColumnClick;
+  lstItems.OnCompare := @lstItemsCompare;
   fAutoRefresh := true;
   mnuAutoRefresh.Checked := true;
   // http://bugs.freepascal.org/view.php?id=27137
@@ -247,7 +251,6 @@ end;
 
 procedure TCETodoListWidget.docChanged(aDoc: TCESynMemo);
 begin
-  if fDoc <> aDoc then exit;
 end;
 
 procedure TCETodoListWidget.docClosing(aDoc: TCESynMemo);
@@ -294,15 +297,12 @@ end;
 {$REGION Todo list things ------------------------------------------------------}
 function TCETodoListWidget.getContext: TTodoContext;
 begin
-  result := tcNone;
-  //
-  if ((fProj = nil) and (fDoc = nil)) then exit;
+  if ((fProj = nil) and (fDoc = nil)) then exit(tcNone);
   if ((fProj = nil) and (fDoc <> nil)) then exit(tcFile);
   if ((fProj <> nil) and (fDoc = nil)) then exit(tcProject);
   //
-  result := tcFile;
-  if not FileExists(fDoc.fileName) then exit;
-  if fProj.isProjectSource(fDoc.fileName) then exit(tcProject);
+  if fProj.isProjectSource(fDoc.fileName) then
+    exit(tcProject) else exit(tcFile);
 end;
 
 procedure TCETodoListWidget.killToolProcess;
@@ -469,6 +469,45 @@ begin
   if fDoc = nil then exit;
   fDoc.CaretY := strToInt(ln);
   fDoc.SelectLine;
+end;
+
+procedure TCETodoListWidget.lstItemsColumnClick(Sender : TObject; Column :
+  TListColumn);
+var
+  curr: TListItem;
+begin
+  if lstItems.Selected = nil then exit;
+  curr := lstItems.Selected;
+  //
+  if lstItems.SortDirection = sdAscending then
+    lstItems.SortDirection := sdDescending
+  else lstItems.SortDirection := sdAscending;
+  lstItems.SortColumn := Column.Index;
+  lstItems.Selected := nil;
+  lstItems.Selected := curr;
+  lstItems.Update;
+end;
+
+procedure TCETodoListWidget.lstItemsCompare(Sender : TObject; item1, item2:
+  TListItem;Data : Integer; var Compare : Integer);
+var
+  txt1, txt2: string;
+  col: Integer;
+begin
+  txt1 := '';
+  txt2 := '';
+  col  := lstItems.SortColumn;
+  if col = 0 then
+  begin
+    txt1 := item1.Caption;
+    txt2 := item2.Caption;
+  end else
+  begin
+    if col < item1.SubItems.Count then txt1 := item1.SubItems.Strings[col];
+    if col < item2.SubItems.Count then txt2 := item2.SubItems.Strings[col];
+  end;
+  Compare := AnsiCompareStr(txt1, txt2);
+  if lstItems.SortDirection = sdDescending then Compare := -Compare;
 end;
 
 procedure TCETodoListWidget.btnRefreshClick(sender: TObject);
