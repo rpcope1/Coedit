@@ -10,12 +10,23 @@ uses
 type
 
   (**
+   * interface for a single Coedit service (many to one relation).
+   * A service is valid during the whole application life-time and
+   * is mostly designed to avoid messy uses clauses or to limit
+   * the visibility of the implementer methods.
+   *)
+  ICESingleService = interface
+    function singleServiceName: string;
+  end;
+
+  (**
    * Manages the connections between the observers and their subjects in the whole program.
    *)
   TCEEntitiesConnector = class
   private
     fObservers: TObjectList;
     fSubjects: TObjectList;
+    fServices: TObjectList;
     fUpdatesCount: Integer;
     procedure tryUpdate;
     procedure updateEntities;
@@ -34,15 +45,20 @@ type
     procedure addSubject(aSubject: TObject);
     procedure removeObserver(anObserver: TObject);
     procedure removeSubject(aSubject: TObject);
+    // allow to register a single service provider.
+    procedure addSingleService(aServiceProvider: TObject);
+    // allow to retrieve a single service provider based on its interface name
+    function getSingleService(const aName: string): TObject;
     // should be tested before forceUpdate()
     property isUpdating: boolean read getIsUpdating;
   end;
+
+
 
   (**
    * Interface for a Coedit subject. Basically designed to hold a list of observer
    *)
   ICESubject = interface
-  ['ICESubject']
     // an observer is proposed. anObserver is not necessarly compatible.
     procedure addObserver(anObserver: TObject);
     // anObserver must be removed.
@@ -87,6 +103,7 @@ constructor TCEEntitiesConnector.create;
 begin
   fObservers  := TObjectList.create(false);
   fSubjects   := TObjectList.create(false);
+  fServices   := TObjectList.create(false);
 end;
 
 destructor TCEEntitiesConnector.destroy;
@@ -176,9 +193,33 @@ begin
 end;
 
 procedure TCEEntitiesConnector.removeSubject(aSubject: TObject);
+
 begin
   fSubjects.Remove(aSubject);
   tryUpdate;
+end;
+
+procedure TCEEntitiesConnector.addSingleService(aServiceProvider: TObject);
+begin
+  if fServices.IndexOf(aServiceProvider) <> -1 then
+    exit;
+  if not (aServiceProvider is ICESingleService) then
+    exit;
+  fServices.Add(aServiceProvider);
+end;
+
+function TCEEntitiesConnector.getSingleService(const aName: string): TObject;
+var
+  i: Integer;
+  serv: ICESingleService;
+begin
+  result := nil;
+  for i := 0 to fServices.Count-1 do
+  begin
+    serv := fServices[i] as ICESingleService;
+    if serv.singleServiceName = aName then
+      exit(fServices[i]);
+  end;
 end;
 {$ENDREGION}
 

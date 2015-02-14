@@ -34,7 +34,6 @@ type
     fUpdateCount: NativeInt;
     fProjectSubject: TCECustomSubject;
     fRunner: TCheckedAsyncProcess;
-    fLogMessager: TCECustomSubject;
     fOutputFilename: string;
     fCanBeRun: boolean;
     procedure updateOutFilename;
@@ -92,13 +91,12 @@ type
 implementation
 
 uses
-  ce_interfaces, controls, dialogs, ce_symstring, ce_libman, ce_main, ce_dcd;
+  ce_interfaces, controls, dialogs, ce_symstring, ce_libman, ce_dcd;
 
 constructor TCEProject.create(aOwner: TComponent);
 begin
   inherited create(aOwner);
   //
-  fLogMessager := TCELogMessageSubject.create;
   fProjectSubject := TCEProjectSubject.create;
   //
   fLibAliases := TStringList.Create;
@@ -123,7 +121,6 @@ destructor TCEProject.destroy;
 begin
   subjProjClosing(TCEProjectSubject(fProjectSubject), self);
   fProjectSubject.Free;
-  fLogMessager.Free;
   //
   fOnChange := nil;
   fLibAliases.Free;
@@ -611,22 +608,24 @@ var
   compilproc: TProcess;
   olddir, prjpath: string;
   prjname: string;
+  msgs: ICEMessagesDisplay;
 begin
   result := false;
   config := currentConfiguration;
+  msgs := getMessageDisplay;
   if config = nil then
   begin
-    subjLmFromString(TCELogMessageSubject(fLogMessager),
-      'unexpected project error: no active configuration', Self, amcProj, amkErr);
+    msgs.message('unexpected project error: no active configuration',
+      Self, amcProj, amkErr);
     exit;
   end;
   //
-  subjLmClearByData(TCELogMessageSubject(fLogMessager), Self);
+  msgs.clearByData(Self);
   subjProjCompiling(TCEProjectSubject(fProjectSubject), Self);
   //
   if not runPrePostProcess(config.preBuildProcess) then
-    subjLmFromString(TCELogMessageSubject(fLogMessager),
-      'project warning: the pre-compilation process has not been properly executed', Self, amcProj, amkWarn);
+    msgs.message('project warning: the pre-compilation process has not been properly executed',
+      Self, amcProj, amkWarn);
   //
   if Sources.Count = 0 then exit;
   //
@@ -635,8 +634,7 @@ begin
   olddir := '';
   getDir(0, olddir);
   try
-    subjLmFromString(TCELogMessageSubject(fLogMessager),
-      'compiling ' + prjname, Self, amcProj, amkInf);
+    msgs.message('compiling ' + prjname, Self, amcProj, amkInf);
     prjpath := extractFilePath(fileName);
     if directoryExists(prjpath) then
     begin
@@ -651,16 +649,14 @@ begin
     while compilProc.Running do
       compProcOutput(compilproc);
     if compilproc.ExitStatus = 0 then begin
-      subjLmFromString(TCELogMessageSubject(fLogMessager),
-        prjname + ' has been successfully compiled', Self, amcProj, amkInf);
+      msgs.message(prjname + ' has been successfully compiled', Self, amcProj, amkInf);
       result := true;
     end else
-      subjLmFromString(TCELogMessageSubject(fLogMessager),
-        prjname + ' has not been compiled', Self, amcProj, amkWarn);
+      msgs.message(prjname + ' has not been compiled', Self, amcProj, amkWarn);
 
     if not runPrePostProcess(config.PostBuildProcess) then
-      subjLmFromString(TCELogMessageSubject(fLogMessager),
-        'project warning: the post-compilation process has not been properly executed', Self, amcProj, amkWarn);
+      msgs.message( 'project warning: the post-compilation process has not been properly executed',
+        Self, amcProj, amkWarn);
 
   finally
     updateOutFilename;
@@ -694,8 +690,8 @@ begin
   //
   if not fileExists(outputFilename) then
   begin
-    subjLmFromString(TCELogMessageSubject(fLogMessager),
-        'output executable missing: ' + shortenPath(outputFilename, 25), Self, amcProj, amkErr);
+    getMessageDisplay.message('output executable missing: ' + shortenPath(outputFilename, 25),
+      Self, amcProj, amkErr);
     exit;
   end;
   //
@@ -705,7 +701,7 @@ begin
   if poUsePipes in fRunner.Options then begin
     fRunner.OnReadData := @runProcOutput;
     fRunner.OnTerminate := @runProcOutput;
-    CEMainForm.processInput.process := fRunner;
+    getprocInputHandler.addProcess(fRunner);
   end;
   fRunner.Execute;
   //
@@ -717,34 +713,35 @@ var
   proc: TProcess;
   lst: TStringList;
   str: string;
+  msgs: ICEMessagesDisplay;
 begin
   proc := TProcess(sender);
   lst := TStringList.Create;
+  msgs := getMessageDisplay;
   try
     processOutputToStrings(proc, lst);
     for str in lst do
-      subjLmFromString(TCELogMessageSubject(fLogMessager),
-        str, Self, amcProj, amkBub);
+      msgs.message(str, Self, amcProj, amkBub);
   finally
     lst.Free;
   end;
   //
   if not proc.Active then
-    if CEMainForm.processInput.process = proc then
-      CEMainForm.processInput.process := nil;
+    getprocInputHandler.removeProcess(proc);
 end;
 
 procedure TCEProject.compProcOutput(proc: TProcess);
 var
   lst: TStringList;
   str: string;
+  msgs: ICEMessagesDisplay;
 begin
   lst := TStringList.Create;
+  msgs := getMessageDisplay;
   try
     processOutputToStrings(proc, lst);
     for str in lst do
-      subjLmFromString(TCELogMessageSubject(fLogMessager),
-        str, Self, amcProj, amkAuto);
+      msgs.message(str, Self, amcProj, amkAuto);
   finally
     lst.Free;
   end;

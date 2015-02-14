@@ -36,7 +36,6 @@ type
   private
     fFavorites: TStringList;
     fLastFold: string;
-    fLogMessager: TCELogMessageSubject;
     procedure lstFavDblClick(Sender: TObject);
     procedure optset_LastFold(aReader: TReader);
     procedure optget_LastFold(aWriter: TWriter);
@@ -97,7 +96,6 @@ begin
     png.Free;
   end;
   //
-  fLogMessager := TCELogMessageSubject.create;
   fFavorites := TStringList.Create;
   fFavorites.onChange := @favStringsChange;
   lstFiles.OnDeletion := @lstDeletion;
@@ -122,7 +120,6 @@ end;
 
 destructor TCEMiniExplorerWidget.destroy;
 begin
-  fLogMessager.Free;
   fFavorites.Free;
   inherited;
 end;
@@ -320,7 +317,7 @@ begin
   if lstFiles.Selected.Data = nil then exit;
   fname := PString(lstFiles.Selected.Data)^;
   if not fileExists(fname) then exit;
-  if not shellOpen(fname) then subjLmFromString(fLogMessager,
+  if not shellOpen(fname) then getMessageDisplay.message(
     (format('the shell failed to open "%s"', [shortenPath(fname, 25)])),
     nil, amcMisc, amkErr);
 end;

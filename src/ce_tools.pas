@@ -23,7 +23,7 @@ type
     fChainBefore: TStringList;
     fChainAfter: TStringList;
     //fShortcut: string;
-    fLogMessager: TCELogMessageSubject;
+    fMsgs: ICEMessagesDisplay;
     procedure setParameters(aValue: TStringList);
     procedure setChainBefore(aValue: TStringList);
     procedure setChainAfter(aValue: TStringList);
@@ -84,7 +84,6 @@ begin
   fParameters := TStringList.create;
   fChainBefore := TStringList.Create;
   fChainAfter := TStringList.Create;
-  fLogMessager := TCELogMessageSubject.create;
 end;
 
 destructor TCEToolItem.destroy;
@@ -92,7 +91,6 @@ begin
   fParameters.Free;
   fChainAfter.Free;
   fChainBefore.Free;
-  fLogMessager.Free;
   killProcess(fProcess);
   inherited;
 end;
@@ -152,11 +150,12 @@ var
   lst: TStringList;
   str: string;
 begin
+  getMessageDisplay(fMsgs);
   lst := TStringList.Create;
   try
     processOutputToStrings(fProcess, lst);
     for str in lst do
-      subjLmFromString(fLogMessager, str, nil, amcMisc, amkAuto);
+      fMsgs.message(str, nil, amcMisc, amkAuto);
   finally
     lst.Free;
   end;

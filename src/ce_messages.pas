@@ -21,7 +21,7 @@ type
   end;
 
   { TCEMessagesWidget }
-  TCEMessagesWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver, ICELogMessageObserver)
+  TCEMessagesWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver, ICEMessagesDisplay)
     btnClearCat: TBitBtn;
     imgList: TImageList;
     List: TTreeView;
@@ -79,6 +79,11 @@ type
     procedure docClosing(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
+    //
+    function singleServiceName: string;
+    procedure message(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
+    procedure clearbyContext(aCtxt: TCEAppMessageCtxt);
+    procedure clearbyData(aData: Pointer);
   protected
     procedure sesoptDeclareProperties(aFiler: TFiler); override;
     //
@@ -92,10 +97,7 @@ type
     destructor destroy; override;
     //
     procedure scrollToBack;
-    //
-    procedure lmFromString(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
-    procedure lmClearbyContext(aCtxt: TCEAppMessageCtxt);
-    procedure lmClearbyData(aData: Pointer);
+
   end;
 
   function guessMessageKind(const aMessg: string): TCEAppMessageKind;
@@ -153,6 +155,7 @@ begin
   btnClearCat.OnClick := @actClearCurCatExecute;
   //
   EntitiesConnector.addObserver(self);
+  EntitiesConnector.addSingleService(self);
 end;
 
 destructor TCEMessagesWidget.destroy;
@@ -180,7 +183,7 @@ begin
       if List.Items[i].MultiSelected then
         List.Items.Delete(List.Items[i]);
     end
-    else lmClearbyContext(amcAll);
+    else clearbyContext(amcAll);
   end;
 end;
 
@@ -285,18 +288,18 @@ end;
 
 procedure TCEMessagesWidget.actClearAllExecute(Sender: TObject);
 begin
-  lmClearbyContext(amcAll);
+  clearbyContext(amcAll);
 end;
 
 procedure TCEMessagesWidget.actClearCurCatExecute(Sender: TObject);
 begin
   case fCtxt of
     amcAll, amcApp, amcMisc :
-      lmClearbyContext(fCtxt);
+      clearbyContext(fCtxt);
     amcEdit: if fDoc <> nil then
-      lmClearbyData(fDoc);
+      clearbyData(fDoc);
     amcProj: if fProj <> nil then
-      lmClearbyData(fProj);
+      clearbyData(fProj);
   end;
 end;
 
@@ -357,7 +360,7 @@ begin
   if fProj <> aProject then
     exit;
   //
-  lmClearByData(aProject);
+  clearbyData(aProject);
   fProj := nil;
   filterMessages(fCtxt);
 end;
@@ -388,7 +391,7 @@ end;
 procedure TCEMessagesWidget.docClosing(aDoc: TCESynMemo);
 begin
   if aDoc <> fDoc then exit;
-  lmClearbyData(fDoc);
+  clearbyData(fDoc);
   fDoc := nil;
   filterMessages(fCtxt);
 end;
@@ -406,8 +409,13 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION ICELogMessageObserver -------------------------------------------------}
-procedure TCEMessagesWidget.lmFromString(const aValue: string; aData: Pointer;
+{$REGION ICEMessagesDisplay ----------------------------------------------------}
+function TCEMessagesWidget.singleServiceName: string;
+begin
+  exit('ICEMessagesDisplay');
+end;
+
+procedure TCEMessagesWidget.message(const aValue: string; aData: Pointer;
   aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
 var
   dt: PMessageData;
@@ -430,7 +438,7 @@ begin
   filterMessages(fCtxt);
 end;
 
-procedure TCEMessagesWidget.lmClearByContext(aCtxt: TCEAppMessageCtxt);
+procedure TCEMessagesWidget.clearByContext(aCtxt: TCEAppMessageCtxt);
 var
   i: Integer;
   msgdt: PMessageData;
@@ -448,7 +456,7 @@ begin
   end;
 end;
 
-procedure TCEMessagesWidget.lmClearByData(aData: Pointer);
+procedure TCEMessagesWidget.clearByData(aData: Pointer);
 var
   i: Integer;
   msgdt: PMessageData;

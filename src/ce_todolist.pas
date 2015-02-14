@@ -71,7 +71,7 @@ type
     fDoc: TCESynMemo;
     fToolProcess: TCheckedAsyncProcess;
     fTodos: TTodoItems;
-    fLogMessager: TCELogMessageSubject;
+    fMsgs: ICEMessagesDisplay;
     // ICEMultiDocObserver
     procedure docNew(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
@@ -173,7 +173,6 @@ var
 begin
   inherited;
   fTodos := TTodoItems.Create(self);
-  fLogMessager := TCELogMessageSubject.create;
   lstItems.OnDblClick := @lstItemsDoubleClick;
   btnRefresh.OnClick := @btnRefreshClick;
   fAutoRefresh := true;
@@ -197,7 +196,6 @@ end;
 destructor TCETodoListWidget.destroy;
 begin
   killToolProcess;
-  fLogMessager.Free;
   inherited;
 end;
 
@@ -355,14 +353,15 @@ var
   msg: string;
   ctxt: TTodoContext;
 begin
+  getMessageDisplay(fMsgs);
   str := TStringList.Create;
   try
     processOutputToStrings(fToolProcess, str);
     ctxt := getContext;
     for msg in str do case ctxt of
-      tcNone:   subjLmFromString(fLogMessager, msg, nil, amcMisc, amkAuto);
-      tcFile:   subjLmFromString(fLogMessager, msg, fDoc, amcEdit, amkAuto);
-      tcProject:subjLmFromString(fLogMessager, msg, fProj, amcProj, amkAuto);
+      tcNone:   fMsgs.message(msg, nil, amcMisc, amkAuto);
+      tcFile:   fMsgs.message(msg, fDoc, amcEdit, amkAuto);
+      tcProject:fMsgs.message(msg, fProj, amcProj, amkAuto);
     end;
   finally
     str.Free;
