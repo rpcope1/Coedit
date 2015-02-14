@@ -95,6 +95,7 @@ inherited CETodoListWidget: TCETodoListWidget
             Width = 75
           end>
         ReadOnly = True
+        SortType = stText
         TabOrder = 1
         ViewStyle = vsReport
       end

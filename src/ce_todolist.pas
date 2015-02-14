@@ -91,6 +91,8 @@ type
     procedure procOutputDbg(sender: TObject);
     procedure clearTodoList;
     procedure fillTodoList;
+    procedure lstItemsColumnClick(Sender : TObject; Column : TListColumn);
+    procedure lstItemsCompare(Sender : TObject; item1, item2: TListItem;Data : Integer; var Compare : Integer);
     procedure lstItemsDoubleClick(sender: TObject);
     procedure btnRefreshClick(sender: TObject);
     procedure filterItems(sender: TObject);
@@ -175,6 +177,8 @@ begin
   fTodos := TTodoItems.Create(self);
   lstItems.OnDblClick := @lstItemsDoubleClick;
   btnRefresh.OnClick := @btnRefreshClick;
+  lstItems.OnColumnClick:= @lstItemsColumnClick;
+  lstItems.OnCompare := @lstItemsCompare;
   fAutoRefresh := true;
   mnuAutoRefresh.Checked := true;
   // http://bugs.freepascal.org/view.php?id=27137
@@ -469,6 +473,45 @@ begin
   if fDoc = nil then exit;
   fDoc.CaretY := strToInt(ln);
   fDoc.SelectLine;
+end;
+
+procedure TCETodoListWidget.lstItemsColumnClick(Sender : TObject; Column :
+  TListColumn);
+var
+  curr: TListItem;
+begin
+  if lstItems.Selected = nil then exit;
+  curr := lstItems.Selected;
+  //
+  if lstItems.SortDirection = sdAscending then
+    lstItems.SortDirection := sdDescending
+  else lstItems.SortDirection := sdAscending;
+  lstItems.SortColumn := Column.Index;
+  lstItems.Selected := nil;
+  lstItems.Selected := curr;
+  lstItems.Update;
+end;
+
+procedure TCETodoListWidget.lstItemsCompare(Sender : TObject; item1, item2:
+  TListItem;Data : Integer; var Compare : Integer);
+var
+  txt1, txt2: string;
+  col: Integer;
+begin
+  txt1 := '';
+  txt2 := '';
+  col  := lstItems.SortColumn;
+  if col = 0 then
+  begin
+    txt1 := item1.Caption;
+    txt2 := item2.Caption;
+  end else
+  begin
+    if col < item1.SubItems.Count then txt1 := item1.SubItems.Strings[col];
+    if col < item2.SubItems.Count then txt2 := item2.SubItems.Strings[col];
+  end;
+  Compare := AnsiCompareStr(txt1, txt2);
+  if lstItems.SortDirection = sdDescending then Compare := -Compare;
 end;
 
 procedure TCETodoListWidget.btnRefreshClick(sender: TObject);
