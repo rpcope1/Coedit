@@ -11,9 +11,6 @@ uses
   ce_observer;
 
 type
-
-  { TCEProjectConfigurationWidget }
-
   TCEProjectConfigurationWidget = class(TCEWidget, ICEProjectObserver)
     btnSyncEdit: TSpeedButton;
     imgList: TImageList;

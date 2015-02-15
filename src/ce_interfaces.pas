@@ -10,7 +10,6 @@ uses
 
 type
 
-
   (**
    * An implementer can save and load some stuffs on application start/quit
    *)
@@ -149,7 +148,6 @@ type
 
   (**
    * Single service given by the messages widget.
-   * Client can retrieve the service instance in the EntityConnector.
    *)
   ICEMessagesDisplay = interface(ICESingleService)
     // display a message
@@ -161,9 +159,9 @@ type
   end;
 
 
+
   (**
    * Single service given by the process-input widget.
-   * Client can retrieve the service instance in the EntityConnector.
    *)
   ICEProcInputHandler = interface(ICESingleService)
     // add an entry to the list of process which can receive an user input

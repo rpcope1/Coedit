@@ -319,11 +319,10 @@ begin
   inherited;
   SetDefaultKeystrokes; // not called in inherited if owner = nil !
   Font.Quality := fqProof;
-  //Font.CharSet := OEM_CHARSET;
   Font.Pitch := fpFixed;
+  Font.Size:= 10;
   TabWidth := 4;
   BlockIndent := 4;
-  Font.Size:= 10;
   Options :=
     [eoAutoIndent, eoBracketHighlight, eoGroupUndo, eoTabsToSpaces,
     eoDragDropEditing, eoShowCtrlMouseLinks, eoEnhanceHomeKey, eoTabIndent];

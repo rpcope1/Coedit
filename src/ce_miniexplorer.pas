@@ -10,9 +10,6 @@ uses
   ce_common, ce_interfaces, ce_observer;
 
 type
-
-  { TCEMiniExplorerWidget }
-
   TCEMiniExplorerWidget = class(TCEWidget)
     btnAddFav: TBitBtn;
     btnEdit: TBitBtn;

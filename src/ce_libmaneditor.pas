@@ -10,8 +10,6 @@ uses
 
 type
 
-  { TCELibManEditorWidget }
-
   TCELibManEditorWidget = class(TCEWidget)
     btnMoveDown: TBitBtn;
     btnMoveUp: TBitBtn;

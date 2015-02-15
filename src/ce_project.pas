@@ -13,7 +13,7 @@ uses
 
 type
 
-(*****************************************************************************
+(*******************************************************************************
  * Represents a D project.
  *
  * It includes all the options defined in ce_dmdwrap, organized in

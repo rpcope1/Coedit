@@ -54,8 +54,6 @@ type
     property item[index: integer]: TTodoItem read getItem; default;
   end;
 
-  { TCETodoListWidget }
-
   TCETodoListWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver, ICESessionOptionsObserver)
     btnRefresh: TBitBtn;
     btnGo: TBitBtn;

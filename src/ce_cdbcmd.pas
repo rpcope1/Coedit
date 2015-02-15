@@ -10,8 +10,6 @@ uses
   asyncprocess, ComCtrls, Buttons, ce_common;
 
 type
-
-  { TCECdbWidget }
   TCECdbWidget = class(TCEWidget, ICEProjectObserver)
     btnGo: TSpeedButton;
     btnStep: TSpeedButton;

@@ -20,7 +20,6 @@ type
     data: Pointer;
   end;
 
-  { TCEMessagesWidget }
   TCEMessagesWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver, ICEMessagesDisplay)
     btnClearCat: TBitBtn;
     imgList: TImageList;
