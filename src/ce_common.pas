@@ -5,6 +5,7 @@ unit ce_common;
 interface
 
 uses
+
   Classes, SysUtils, ExtCtrls,
   {$IFDEF WINDOWS}
   Windows, JwaTlHelp32,
@@ -12,6 +13,7 @@ uses
   ActnList, dialogs, forms, process, asyncprocess;
 
 const
+
   DdiagFilter = 'D source|*.d|D interface|*.di|All files|*.*';
   exeExt = {$IFDEF WINDOWS} '.exe' {$ELSE} ''   {$ENDIF};
   objExt = {$IFDEF WINDOWS} '.obj' {$ELSE} '.o' {$ENDIF};
@@ -19,6 +21,7 @@ const
   dynExt = {$IFDEF WINDOWS} '.dll' {$ENDIF} {$IFDEF LINUX}'.so'{$ENDIF} {$IFDEF DARWIN}'.dylib'{$ENDIF};
 
 var
+
   dExtList: TStringList;
   DCompiler: string = 'dmd';
 

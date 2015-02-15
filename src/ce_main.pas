@@ -18,7 +18,6 @@ type
   // TODO-cfeature: options
   // TODO-cwidget: options editor
 
-  { TCEMainForm }
   TCEMainForm = class(TForm, ICEMultiDocObserver, ICESessionOptionsObserver)
     actFileCompAndRun: TAction;
     actFileSaveAll: TAction;
@@ -1084,11 +1083,10 @@ procedure TCEMainForm.actFileCloseExecute(Sender: TObject);
 begin
   if fDoc = nil then exit;
   if fDoc.modified then if dlgOkCancel(
-      'The latest mdofifications are not saved, continue ?') = mrCancel
+    'The latest mdofifications are not saved, continue ?') = mrCancel
       then exit;
   //
   fDoc.Free;
-  //fEditWidg.removeEditor(fEditWidg.editorIndex);
 end;
 
 procedure TCEMainForm.actFileSaveAllExecute(Sender: TObject);
@@ -1649,7 +1647,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION ICESessionOptionsObserver ----------------------------------------------------}
+{$REGION ICESessionOptionsObserver ---------------------------------------------}
 procedure TCEMainForm.sesoptBeforeSave;
 begin
 end;

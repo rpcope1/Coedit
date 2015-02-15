@@ -10,8 +10,6 @@ uses
   ce_common, ce_project, ce_observer, ce_synmemo, ce_interfaces;
 
 type
-
-  { TCEStaticExplorerWidget }
   TCEStaticExplorerWidget = class(TCEWidget, ICEProjectObserver, ICEMultiDocObserver)
     btnRefresh: TBitBtn;
     imgList: TImageList;

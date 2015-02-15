@@ -8,7 +8,6 @@ uses
   classes, sysutils, ce_common, ce_writableComponent, ce_observer;
 
 type
-
   TCEOptions = class(TWritableLfmTextComponent)
   private
     fSubjPersObservers: TCECustomSubject;

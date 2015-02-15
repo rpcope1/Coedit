@@ -9,8 +9,6 @@ uses
   ExtCtrls, Menus, Buttons, StdCtrls, ce_widget, ce_tools;
 
 type
-
-  { TCEToolsEditorWidget }
   TCEToolsEditorWidget = class(TCEWidget)
     BtnAddTool: TBitBtn;
     btnMoveDown: TBitBtn;

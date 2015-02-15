@@ -10,8 +10,6 @@ uses
   ce_common, ce_widget, ce_observer;
 
 type
-
-  { TCEProjectInspectWidget }
   TCEProjectInspectWidget = class(TCEWidget, ICEProjectObserver)
     btnRemFold: TSpeedButton;
     imgList: TImageList;

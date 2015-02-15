@@ -19,7 +19,6 @@ type
     procedure SetVisible(Value: Boolean); override;
   end;
 
-  { TCEEditorWidget }
   TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver)
     imgList: TImageList;
     PageControl: TExtendedNotebook;
