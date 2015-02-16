@@ -879,6 +879,7 @@ begin
     fImpt.Assign(src.fImpt);
     fFName := patchPlateformPath(src.fFname);
     fObjDir := patchPlateformPath(src.fObjDir);
+    fExcl.Assign(src.fExcl);
   end
   else inherited;
 end;
