@@ -207,8 +207,8 @@ type
   TPathsOpts = class(TOptsGroup)
   private
     fExtraSrcs: TStringList;
-    fIncl: TStringList;
-    fImpt: TStringList;
+    fImpMod: TStringList;
+    fImpStr: TStringList;
     fExcl: TStringList;
     fFname: TCEFilename;
     fObjDir: TCEPathname;
@@ -225,10 +225,10 @@ type
     property Sources: TStringList read fExtraSrcs write setSrcs stored false; deprecated;
     property exclusions: TStringList read fExcl write setExcl;
     property extraSources: TStringList read fExtraSrcs write setSrcs;
-    property includes: TStringList read fIncl write setIncl stored false; deprecated;
-    property imports: TStringList read fImpt write setImpt stored false; deprecated;
-    property importModulePaths: TStringList read fIncl write setIncl;
-    property importStringPaths: TStringList read fImpt write setImpt;
+    property includes: TStringList read fImpMod write setIncl stored false; deprecated;
+    property imports: TStringList read fImpStr write setImpt stored false; deprecated;
+    property importModulePaths: TStringList read fImpMod write setIncl;
+    property importStringPaths: TStringList read fImpStr write setImpt;
   public
     constructor create;
     destructor destroy; override;
@@ -829,14 +829,14 @@ end;
 constructor TPathsOpts.create;
 begin
   fExtraSrcs := TStringList.Create;
-  fIncl := TStringList.Create;
-  fImpt := TStringList.Create;
+  fImpMod := TStringList.Create;
+  fImpStr := TStringList.Create;
   fExcl := TStringList.Create;
   // setSrcs(), setIncl(), etc are not called when reloading from
   // a stream but rather the TSgringList.Assign()
   fExtraSrcs.OnChange := @strLstChange;
-  fIncl.OnChange := @strLstChange;
-  fImpt.OnChange := @strLstChange;
+  fImpMod.OnChange := @strLstChange;
+  fImpStr.OnChange := @strLstChange;
   fExcl.OnChange := @strLstChange;
 end;
 
@@ -857,9 +857,9 @@ begin
     if not listAsteriskPath(str, aList, dExtList) then
       aList.Add(str);
   end;
-  for str in fIncl do
+  for str in fImpMod do
     aList.Add('-I'+ symbolExpander.get(str));
-  for str in fImpt do
+  for str in fImpStr do
     aList.Add('-J'+ symbolExpander.get(str));
   if fFname <> '' then
     aList.Add('-of' + symbolExpander.get(fFname));
@@ -875,10 +875,11 @@ begin
   begin
     src := TPathsOpts(aValue);
     fExtraSrcs.Assign(src.fExtraSrcs);
-    fIncl.Assign(src.fIncl);
-    fImpt.Assign(src.fImpt);
+    fImpMod.Assign(src.fImpMod);
+    fImpStr.Assign(src.fImpStr);
     fFName := patchPlateformPath(src.fFname);
     fObjDir := patchPlateformPath(src.fObjDir);
+    fExcl.Assign(src.fExcl);
   end
   else inherited;
 end;
@@ -886,8 +887,8 @@ end;
 destructor TPathsOpts.destroy;
 begin
   fExtraSrcs.free;
-  fIncl.free;
-  fImpt.free;
+  fImpMod.free;
+  fImpStr.free;
   fExcl.free;
   inherited;
 end;
@@ -916,15 +917,15 @@ end;
 
 procedure TPathsOpts.setIncl(aValue: TStringList);
 begin
-  fIncl.Assign(aValue);
-  patchPlateformPaths(fIncl);
+  fImpMod.Assign(aValue);
+  patchPlateformPaths(fImpMod);
   doChanged;
 end;
 
 procedure TPathsOpts.setImpt(aValue: TStringList);
 begin
-  fImpt.Assign(aValue);
-  patchPlateformPaths(fImpt);
+  fImpStr.Assign(aValue);
+  patchPlateformPaths(fImpStr);
   doChanged;
 end;
 
