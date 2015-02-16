@@ -854,7 +854,7 @@ procedure TCEMainForm.ApplicationProperties1ShowHint(var HintStr: string;
 begin
   // TODO-crefactor: move this to TCESynMemo or TCEEditorWidget.
   // TODO-cbugfix: first DDoc hint, window rect is wrong.
-  if fDoc <> nil then if fDoc.Focused then
+  if (fDoc <> nil) and fDoc.Focused and fDoc.isDSource then
   begin
     TCEEditorHintWindow.FontSize := fDoc.Font.Size;
     HintInfo.HintWindowClass := TCEEditorHintWindow;
