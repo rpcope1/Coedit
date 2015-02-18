@@ -11,7 +11,8 @@ uses
   ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_plugin, ce_synmemo, ce_widget,
   ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf, ce_search,
   ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist,
-  ce_observer, ce_writableComponent, ce_toolseditor, ce_procinput, ce_cdbcmd;
+  ce_observer, ce_writableComponent, ce_toolseditor, ce_procinput, ce_optionseditor,
+  ce_cdbcmd;
 
 type
 
@@ -195,6 +196,7 @@ type
     fTlsEdWidg: TCEToolsEditorWidget;
     fPrInpWidg: TCEProcInputWidget;
     fTodolWidg: TCETodoListWidget;
+    fOptEdWidg: TCEOptionEditorWidget;
     //fResWidg: TCEResmanWidget;
     {$IFDEF WIN32}
     fCdbWidg: TCECdbWidget;
@@ -407,6 +409,7 @@ begin
   fTlsEdWidg:= TCEToolsEditorWidget.create(self);
   fPrInpWidg:= TCEProcInputWidget.create(self);
   fTodolWidg:= TCETodoListWidget.create(self);
+  fOptEdWidg:= TCEOptionEditorWidget.create(self);
   //fResWidg  := TCEResmanWidget.create(self);
 
   getMessageDisplay(fMsgs);
@@ -426,6 +429,7 @@ begin
   fWidgList.addWidget(@fTlsEdWidg);
   fWidgList.addWidget(@fPrInpWidg);
   fWidgList.addWidget(@fTodolWidg);
+  fWidgList.addWidget(@fOptEdWidg);
   //fWidgList.addWidget(@fResWidg);
 
   {$IFDEF WIN32}
