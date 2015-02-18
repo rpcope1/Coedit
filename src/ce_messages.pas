@@ -20,7 +20,16 @@ type
     data: Pointer;
   end;
 
-  TCEMessagesWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver, ICEMessagesDisplay)
+  TCEMessagesOptions = class(TPersistent)
+  private
+    fMaxCount: Integer;
+    fAutoSelect: boolean;
+  published
+    property maxMessageCount: integer read fMaxCount write fMaxCount;
+    property autoSelect: boolean read fAutoSelect write fAutoSelect;
+  end;
+
+  TCEMessagesWidget = class(TCEWidget, ICEEditableOptions, ICEMultiDocObserver, ICEProjectObserver, ICEMessagesDisplay)
     btnClearCat: TBitBtn;
     imgList: TImageList;
     List: TTreeView;
@@ -49,6 +58,7 @@ type
     fDoc: TCESynMemo;
     fCtxt: TCEAppMessageCtxt;
     fAutoSelect: boolean;
+    fEditableOptions: TCEMessagesOptions;
     fBtns: array[TCEAppMessageCtxt] of TToolButton;
     procedure filterMessages(aCtxt: TCEAppMessageCtxt);
     procedure clearOutOfRangeMessg;
@@ -78,6 +88,11 @@ type
     procedure docClosing(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
+    //
+    function optionedWantCategory(): string;
+    function optionedWantEditorKind: TOptionEditorKind;
+    function optionedWantContainer: TPersistent;
+    procedure optionedEvent(anEvent: TOptionEditorEvent);
     //
     function singleServiceName: string;
     procedure message(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
@@ -134,6 +149,7 @@ begin
   //
   inherited;
   //
+  fEditableOptions := TCEMessagesOptions.Create;
   List.PopupMenu := contextMenu;
   List.OnDeletion := @ListDeletion;
   //
@@ -157,6 +173,7 @@ end;
 destructor TCEMessagesWidget.destroy;
 begin
   EntitiesConnector.removeObserver(self);
+  fEditableOptions.Free;
   Inherited;
 end;
 
@@ -206,6 +223,34 @@ begin
   else if btn = btnSelMisc then
     fCtxt := amcMisc;
   filterMessages(fCtxt);
+end;
+{$ENDREGION}
+
+{$REGION ICEEditableOptions ----------------------------------------------------}
+function TCEMessagesWidget.optionedWantCategory(): string;
+begin
+  exit('Messages');
+end;
+
+function TCEMessagesWidget.optionedWantEditorKind: TOptionEditorKind;
+begin
+  exit(oekAbstract);
+end;
+
+function TCEMessagesWidget.optionedWantContainer: TPersistent;
+begin
+  fEditableOptions.maxMessageCount:= fMaxMessCnt;
+  fEditableOptions.autoSelect:= fActAutoSel.Checked;
+  exit(fEditableOptions);
+end;
+
+procedure TCEMessagesWidget.optionedEvent(anEvent: TOptionEditorEvent);
+begin
+  if anEvent = oeeAccept then
+  begin
+    fMaxMessCnt := fEditableOptions.maxMessageCount;
+    fActAutoSel.Checked := fEditableOptions.autoSelect;
+  end;
 end;
 {$ENDREGION}
 

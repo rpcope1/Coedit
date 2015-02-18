@@ -141,6 +141,32 @@ type
 
 
 
+  TOptionEditorKind = (oekAbstract, oekForm);
+  TOptionEditorEvent = (oeeCancel, oeeAccept, oeeChange);
+  (**
+   * An implementer can expose some options to be edited in a dedicated widget.
+   *)
+  ICEEditableOptions = interface
+  ['ICEEditableOptions']
+    // the widget wants the category
+    function optionedWantCategory(): string;
+    // the widget wants to know if the options will use a generic editor or a custom form
+    function optionedWantEditorKind: TOptionEditorKind;
+    // the widget wants the custom option editor form or the TPersistent containing the options
+    function optionedWantContainer: TPersistent;
+    // the option editor informs that something has happened
+    procedure optionedEvent(anEvent: TOptionEditorEvent);
+  end;
+  (**
+   * An implementer displays its observers editable options.
+   *)
+  TCEEditableOptionsSubject = class(TCECustomSubject)
+  protected
+    function acceptObserver(aObject: TObject): boolean; override;
+  end;
+
+
+
   /// describes the message kind, when Auto implies that a ICELogMessageObserver guess the kind.
   TCEAppMessageKind = (amkAuto, amkBub, amkInf, amkHint, amkWarn, amkErr);
   /// describes the message context. Used by a ICELogMessageObserver to filter the messages.
@@ -359,17 +385,20 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION TCEMainMenuSubject ----------------------------------------------------}
+{$REGION Misc subjects ---------------------------------------------------------}
 function TCEMainMenuSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICEMainMenuProvider);
 end;
-{$ENDREGION}
 
-{$REGION TCEEditableShortCutSubject --------------------------------------------}
 function TCEEditableShortCutSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICEEditableShortCut);
+end;
+
+function TCEEditableOptionsSubject.acceptObserver(aObject: TObject): boolean;
+begin
+  exit(aObject is ICEEditableOptions);
 end;
 {$ENDREGION}
 

@@ -1,0 +1,111 @@
+inherited CEOptionEditorWidget: TCEOptionEditorWidget
+  Left = 626
+  Height = 377
+  Top = 270
+  Width = 548
+  Caption = 'Options editor'
+  ClientHeight = 377
+  ClientWidth = 548
+  inherited Back: TPanel
+    Height = 377
+    Width = 548
+    ClientHeight = 377
+    ClientWidth = 548
+    inherited Content: TPanel
+      Height = 377
+      Width = 548
+      ClientHeight = 377
+      ClientWidth = 548
+      object pnlBody: TPanel[0]
+        Left = 4
+        Height = 335
+        Top = 4
+        Width = 540
+        Align = alClient
+        BorderSpacing.Around = 4
+        BevelOuter = bvNone
+        ClientHeight = 335
+        ClientWidth = 540
+        TabOrder = 0
+        object selCat: TTreeView
+          Left = 0
+          Height = 335
+          Top = 0
+          Width = 193
+          Align = alLeft
+          DefaultItemHeight = 18
+          ScrollBars = ssAutoBoth
+          TabOrder = 0
+          OnDeletion = selCatDeletion
+          OnSelectionChanged = selCatSelectionChanged
+        end
+        object pnlEd: TPanel
+          Left = 199
+          Height = 335
+          Top = 0
+          Width = 341
+          Align = alClient
+          BevelOuter = bvNone
+          ClientHeight = 335
+          ClientWidth = 341
+          TabOrder = 1
+          object inspector: TTIPropertyGrid
+            Left = 0
+            Height = 335
+            Top = 0
+            Width = 341
+            Align = alClient
+            DefaultValueFont.Color = clWindowText
+            Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkObject, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
+            Indent = 16
+            NameFont.Color = clWindowText
+            OnModified = inspectorModified
+            ValueFont.Color = clMaroon
+          end
+        end
+        object Splitter1: TSplitter
+          Left = 193
+          Height = 335
+          Top = 0
+          Width = 6
+        end
+      end
+      object pnlFooter: TPanel[1]
+        Left = 4
+        Height = 30
+        Top = 343
+        Width = 540
+        Align = alBottom
+        BorderSpacing.Around = 4
+        BevelOuter = bvLowered
+        ClientHeight = 30
+        ClientWidth = 540
+        TabOrder = 1
+        object btnCancel: TSpeedButton
+          Left = 333
+          Height = 24
+          Top = 3
+          Width = 100
+          Align = alRight
+          BorderSpacing.Left = 2
+          BorderSpacing.Around = 2
+          OnClick = btnCancelClick
+        end
+        object btnAccept: TSpeedButton
+          Left = 437
+          Height = 24
+          Top = 3
+          Width = 100
+          Align = alRight
+          BorderSpacing.Left = 2
+          BorderSpacing.Around = 2
+          OnClick = btnAcceptClick
+        end
+      end
+    end
+  end
+  inherited contextMenu: TPopupMenu
+    left = 144
+    top = 24
+  end
+end
