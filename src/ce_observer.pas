@@ -20,7 +20,8 @@ type
   end;
 
   (**
-   * Manages the connections between the observers and their subjects in the whole program.
+   * Manages the connections between the observers and their subjects in the
+   * whole program.
    *)
   TCEEntitiesConnector = class
   private

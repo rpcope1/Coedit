@@ -69,9 +69,6 @@ type
 implementation
 {$R *.lfm}
 
-uses
-  ce_main;
-
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEMiniExplorerWidget.create(aIwner: TComponent);
 var
@@ -109,6 +106,7 @@ begin
   // http://bugs.freepascal.org/view.php?id=27137
   // TODO-cLCL&LAZ-specific: remove comment after next Laz release
   // TODO-cLCL&LAZ-specific, try the new TListViewFilterEdit here.
+  // TODO-cLCL&LAZ-specific, the align/anchors of filterxxx must be redefined, previously there was a bug.
   lstFilter.FilteredListbox := nil;
   lstFilter.onChange := @lstFilterChange;
   //
@@ -293,7 +291,7 @@ begin
   if lstFiles.Selected.Data = nil then exit;
   fname := PString(lstFiles.Selected.Data)^;
   if not fileExists(fname) then exit;
-  CEMainForm.openFile(fname);
+  getMultiDocHandler.openDocument(fname);
 end;
 
 procedure TCEMiniExplorerWidget.lstFilesDblClick(Sender: TObject);

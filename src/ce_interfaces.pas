@@ -171,6 +171,26 @@ type
   end;
 
 
+
+  (**
+   * Single service related to the collection of document
+   *)
+  ICEMultiDocHandler = interface(ICESingleService)
+    // returns the count of opened document
+    function documentCount: Integer;
+    // returns the index-th document
+    function getDocument(index: Integer): TCESynMemo;
+    // returns true if the document matching aFielanme is already opened.
+    function findDocument(aFilename: string): TCESynMemo;
+    // open or set the focus on the document matching aFilename
+    procedure openDocument(aFilename: string);
+    // close the index-th document
+    function closeDocument(index: Integer): boolean;
+    // conveniance property
+    property document[index: integer]: TCESynMemo read getDocument;
+  end;
+
+
 {
   subject Primitives:
 
@@ -203,15 +223,22 @@ type
 
 
 {
-  Services assignements:
+  Service assignators:
 
-  lazily get the interface of a service when needed or for a ponctual usage
+  Lazily get the interface of a service when needed or for a punctual usage.
+  The first overload assign the variable only when not yet set, the second is
+  designed for a punctual usage, for example if a widget needs the service in
+  a single and rarely called method.
 }
 
   function getMessageDisplay(var obj: ICEMessagesDisplay): ICEMessagesDisplay; overload;
-  function getMessageDisplay: ICEMessagesDisplay;overload;
-  function getprocInputHandler(var obj: ICEProcInputHandler): ICEProcInputHandler;overload;
-  function getprocInputHandler: ICEProcInputHandler;overload;
+  function getMessageDisplay: ICEMessagesDisplay; overload;
+
+  function getprocInputHandler(var obj: ICEProcInputHandler): ICEProcInputHandler; overload;
+  function getprocInputHandler: ICEProcInputHandler; overload;
+
+  function getMultiDocHandler(var obj: ICEMultiDocHandler): ICEMultiDocHandler; overload;
+  function getMultiDocHandler: ICEMultiDocHandler; overload;
 
 implementation
 
@@ -346,7 +373,7 @@ begin
 end;
 {$ENDREGION}
 
-
+{$REGION ICESingleService assignators ------------------------------------------}
 function getMessageDisplay(var obj: ICEMessagesDisplay): ICEMessagesDisplay;
 begin
   if obj = nil then
@@ -370,5 +397,18 @@ function getprocInputHandler: ICEProcInputHandler;
 begin
   exit(EntitiesConnector.getSingleService('ICEProcInputHandler') as ICEProcInputHandler);
 end;
+
+function getMultiDocHandler(var obj: ICEMultiDocHandler): ICEMultiDocHandler;
+begin
+  if obj = nil then
+    obj := EntitiesConnector.getSingleService('ICEMultiDocHandler') as ICEMultiDocHandler;
+  exit(obj);
+end;
+
+function getMultiDocHandler: ICEMultiDocHandler;
+begin
+  exit(EntitiesConnector.getSingleService('ICEMultiDocHandler') as ICEMultiDocHandler);
+end;
+{$ENDREGION}
 
 end.

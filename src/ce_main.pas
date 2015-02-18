@@ -178,6 +178,7 @@ type
   private
 
     fDoc: TCESynMemo;
+    fMultidoc: ICEMultiDocHandler;
     fUpdateCount: NativeInt;
     fProject: TCEProject;
     fProjMru: TMruFileList;
@@ -249,9 +250,8 @@ type
 
     // file sub routines
     procedure newFile;
-    function findFile(const aFilename: string): NativeInt;
-    procedure saveFile(const edIndex: NativeInt);
-    procedure saveFileAs(const edIndex: NativeInt; const aFilename: string);
+    procedure saveFile(aDocument: TCESynMemo);
+    procedure openFile(const aFilename: string);
 
     // project sub routines
     procedure saveProjSource(const aEditor: TCESynMemo);
@@ -278,10 +278,6 @@ type
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     procedure UpdateDockCaption(Exclude: TControl = nil); override;
-    //
-    procedure openFile(const aFilename: string);
-    //
-    property processInput: TCEProcInputWidget read fPrInpWidg;
   end;
 
 var
@@ -306,6 +302,7 @@ begin
   InitDocking;
   InitSettings;
   layoutUpdateMenu;
+  fMultidoc := getMultiDocHandler;
   //
   newProj;
   checkCompilo;
@@ -660,22 +657,18 @@ end;
 
 procedure TCEMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 var
-  i: NativeInt;
-  ed: TCESynMemo;
+  i: Integer;
 begin
   canClose := false;
   if fProject <> nil then if fProject.modified then
-    if ce_common.dlgOkCancel('last project modifications are not saved, quit anyway ?')
-        <> mrOK then exit;
-  for i := 0 to fEditWidg.editorCount-1 do
-  begin
-    ed := fEditWidg.editor[i];
-    if ed.modified then if ce_common.dlgOkCancel(format
-      ('last "%s" modifications are not saved, quit anyway ?',
-        [shortenPath(ed.fileName, 25)])) <> mrOK then exit;
-  end;
+    if ce_common.dlgOkCancel(
+      'last project modifications are not saved, quit anyway ?') <> mrOK then
+          exit;
+  for i := 0 to fMultidoc.documentCount-1 do
+    if not fMultidoc.closeDocument(i) then exit;
   canClose := true;
-  // saving doesnt work when csDestroying in comp.state.
+
+  // saving doesnt work when csDestroying in comp.state (in Free)
   SaveDocking;
 end;
 
@@ -930,62 +923,18 @@ begin
   TCESynMemo.Create(nil);
 end;
 
-function TCEMainForm.findFile(const aFilename: string): NativeInt;
-var
-  i: NativeInt;
-begin
-  result := -1;
-  if fEditWidg = nil then exit;
-  for i := 0 to fEditWidg.editorCount-1 do begin
-    if SameText(fEditWidg.editor[i].fileName, aFilename) then exit(i);
-    if SameText(fEditWidg.editor[i].tempFilename, aFilename) then exit(i);
-  end;
-end;
-
 procedure TCEMainForm.openFile(const aFilename: string);
-var
-  i: NativeInt;
 begin
-  if fEditWidg = nil then exit;
-  //
-  i := findFile(aFilename);
-  if i > -1 then
-  begin
-    fEditWidg.PageControl.PageIndex := i;
-    exit;
-  end;
-  TCESynMemo.Create(nil);
-  if fDoc = nil then exit;
-  fDoc.loadFromFile(aFilename);
+  fMultidoc.openDocument(aFilename);
   fFileMru.Insert(0, aFilename);
 end;
 
-procedure TCEMainForm.saveFile(const edIndex: NativeInt);
-var
-  str: string;
+procedure TCEMainForm.saveFile(aDocument: TCESynMemo);
 begin
-  if fEditWidg = nil then exit;
-  if edIndex >= fEditWidg.editorCount then exit;
-  //
-  if fEditWidg.editor[edIndex].Highlighter = LfmSyn then
-  begin
-    saveProjSource(fEditWidg.editor[edIndex]);
-    exit;
-  end;
-  //
-  str := fEditWidg.editor[edIndex].fileName;
-  if str = '' then exit;
-  fEditWidg.editor[edIndex].save;
-end;
-
-procedure TCEMainForm.saveFileAs(const edIndex: NativeInt; const aFilename: string);
-begin
-  if fEditWidg = nil then exit;
-  if edIndex < 0 then exit;
-  if edIndex >= fEditWidg.editorCount then exit;
-  //
-  fEditWidg.editor[edIndex].saveToFile(aFilename);
-  fFileMru.Insert(0, aFilename);
+  if aDocument.Highlighter = LfmSyn then
+    saveProjSource(aDocument)
+  else if aDocument.fileName <> '' then
+    aDocument.save;
 end;
 
 procedure TCEMainForm.mruFileItemClick(Sender: TObject);
@@ -1043,14 +992,14 @@ end;
 
 procedure TCEMainForm.actFileSaveAsExecute(Sender: TObject);
 begin
-  if fEditWidg = nil then exit;
-  if fEditWidg.editorIndex < 0 then exit;
+  if fDoc = nil then exit;
   //
   with TSaveDialog.Create(nil) do
   try
     Filter := DdiagFilter;
     if execute then
-      saveFileAs(fEditWidg.editorIndex, filename);
+      fDoc.saveToFile(filename);
+      fFileMru.Insert(0, filename);
   finally
     free;
   end;
@@ -1064,7 +1013,7 @@ begin
   //
   str := fDoc.fileName;
   if (str <> fDoc.tempFilename) and (fileExists(str)) then
-    saveFile(fEditWidg.editorIndex)
+    saveFile(fDoc)
   else actFileSaveAs.Execute;
 end;
 
@@ -1091,10 +1040,10 @@ end;
 
 procedure TCEMainForm.actFileSaveAllExecute(Sender: TObject);
 var
-  i: NativeInt;
+  i: Integer;
 begin
-  for i:= 0 to fEditWidg.editorCount-1 do
-    saveFile(i);
+  for i:= 0 to fMultidoc.documentCount-1 do
+    saveFile(fMultidoc.document[i]);
 end;
 
 procedure TCEMainForm.FormDropFiles(Sender: TObject;const FileNames: array of String);
