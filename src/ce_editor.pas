@@ -19,7 +19,7 @@ type
     procedure SetVisible(Value: Boolean); override;
   end;
 
-  TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver)
+  TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler)
     imgList: TImageList;
     PageControl: TExtendedNotebook;
     macRecorder: TSynMacroRecorder;
@@ -51,9 +51,6 @@ type
     procedure memoMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure memoCtrlClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure memoMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-    function getEditor(index: Integer): TCESynMemo;
-    function getEditorCount: Integer;
-    function getEditorIndex: Integer;
     procedure getCompletionList;
     procedure getSymbolLoc;
     procedure focusedEditorChanged;
@@ -62,20 +59,20 @@ type
     procedure docClosing(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
+    //
+    function SingleServiceName: string;
+    function documentCount: Integer;
+    function getDocument(index: Integer): TCESynMemo;
+    function findDocument(aFilename: string): TCESynMemo;
+    procedure openDocument(aFilename: string);
+    function closeDocument(index: Integer): boolean;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
-    //
-    property editor[index: Integer]: TCESynMemo read getEditor;
-    property editorCount: Integer read getEditorCount;
-    property editorIndex: Integer read getEditorIndex;
   end;
 
 implementation
 {$R *.lfm}
-
-uses
-  ce_main;
 
 procedure TCEEditorPage.SetVisible(Value: Boolean);
 var
@@ -113,6 +110,7 @@ begin
   {$ENDIF}
   //
   EntitiesConnector.addObserver(self);
+  EntitiesConnector.addSingleService(self);
 end;
 
 destructor TCEEditorWidget.destroy;
@@ -201,6 +199,62 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION ICEMultiDocHandler ----------------------------------------------------}
+function TCEEditorWidget.SingleServiceName: string;
+begin
+  exit('ICEMultiDocHandler');
+end;
+
+function TCEEditorWidget.documentCount: Integer;
+begin
+  exit(PageControl.PageCount);
+end;
+
+function TCEEditorWidget.getDocument(index: Integer): TCESynMemo;
+begin
+  exit(TCESynMemo(pageControl.Pages[index].Controls[0]));
+end;
+
+function TCEEditorWidget.findDocument(aFilename: string): TCESynMemo;
+var
+  i: Integer;
+begin
+  for i := 0 to PageControl.PageCount-1 do
+  begin
+    result := getDocument(i);
+    if result.fileName = aFilename then
+      exit;
+  end;
+  result := nil;
+end;
+
+procedure TCEEditorWidget.openDocument(aFilename: string);
+var
+  doc: TCESynMemo;
+begin
+  doc := findDocument(aFilename);
+  if doc <> nil then begin
+    PageControl.ActivePage := TTabSheet(doc.Parent);
+    exit;
+  end;
+  doc := TCESynMemo.Create(nil);
+  fDoc.loadFromFile(aFilename);
+end;
+
+function TCEEditorWidget.closeDocument(index: Integer): boolean;
+var
+  doc: TCESynMemo;
+begin
+  doc := getDocument(index);
+  if doc.modified then if dlgOkCancel(format(
+    'The latest "%s" mofifications are not saved, continue ?',
+    [shortenPath(doc.fileName,25)])) = mrCancel then exit(false);
+  doc.Free;
+  result := true;
+end;
+{$ENDREGION}
+
+
 {$REGION PageControl/Editor things ---------------------------------------------}
 {$IFDEF LINUX}
 procedure TCEEditorWidget.pageCloseBtnClick(Sender: TObject);
@@ -208,24 +262,6 @@ begin
   if fDoc <> nil then fDoc.Free;
 end;
 {$ENDIF}
-
-function TCEEditorWidget.getEditorCount: Integer;
-begin
-  result := pageControl.PageCount;
-end;
-
-function TCEEditorWidget.getEditorIndex: Integer;
-begin
-  if pageControl.PageCount > 0 then
-    result := pageControl.PageIndex
-  else
-    result := -1;
-end;
-
-function TCEEditorWidget.getEditor(index: Integer): TCESynMemo;
-begin
-  result := TCESynMemo(pageControl.Pages[index].Controls[0]);
-end;
 
 procedure TCEEditorWidget.focusedEditorChanged;
 begin
@@ -306,7 +342,7 @@ begin
   //
   DcdWrapper.getDeclFromCursor(fname, srcpos);
   if fname <> fDoc.fileName then if fileExists(fname) then
-    CEMainForm.openFile(fname);
+    openDocument(fname);
   if srcpos <> -1 then
   begin
     //fDoc.SelStart := srcpos;

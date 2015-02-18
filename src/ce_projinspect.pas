@@ -59,7 +59,7 @@ implementation
 {$R *.lfm}
 
 uses
-  ce_main, ce_symstring;
+  ce_symstring;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEProjectInspectWidget.create(aOwner: TComponent);
@@ -203,7 +203,7 @@ begin
       fname := fProject.getAbsoluteSourceName(i);
     if dExtList.IndexOf(ExtractFileExt(fname)) <> -1 then
       if fileExists(fname) then
-        CEMainForm.openFile(fname);
+        getMultiDocHandler.openDocument(fname);
   end
   else if Tree.Selected.Parent = fConfNode then
   begin
@@ -311,12 +311,16 @@ end;
 procedure TCEProjectInspectWidget.FormDropFiles(Sender: TObject; const FileNames: array of String);
 var
   fname: string;
+  multidoc: ICEMultiDocHandler;
 begin
-  CEMainForm.FormDropFiles(Sender, Filenames);
   if fProject = nil then exit;
+  multidoc := getMultiDocHandler;
   for fname in Filenames do
     if FileExists(fname) then
+    begin
+      multidoc.openDocument(fname);
       fProject.addSource(fname);
+    end;
 end;
 
 procedure TCEProjectInspectWidget.UpdateByEvent;

@@ -106,9 +106,6 @@ type
 implementation
 {$R *.lfm}
 
-uses
-  ce_main;
-
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEMessagesWidget.create(aOwner: TComponent);
 begin
@@ -667,7 +664,7 @@ begin
       ext := extractFileExt(ident);
       if dExtList.IndexOf(ext) = -1 then
         exit;
-      CEMainForm.openFile(ident);
+      getMultiDocHandler.openDocument(ident);
       result := true;
     end;
     ident += aMessage[i];

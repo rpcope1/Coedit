@@ -6,8 +6,9 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, TreeFilterEdit, ListFilterEdit, Forms, Controls,
-  Graphics, Dialogs, ExtCtrls, Menus, Buttons, StdCtrls, ComCtrls, asyncprocess,
-  ce_widget, process, ce_common, ce_interfaces, ce_synmemo, ce_project, ce_symstring;
+  strutils, Graphics, Dialogs, ExtCtrls, Menus, Buttons, StdCtrls, ComCtrls,
+  asyncprocess, ce_widget, process, ce_common, ce_interfaces, ce_synmemo,
+  ce_project, ce_symstring;
 
 type
 
@@ -109,9 +110,6 @@ type
 implementation
 {$R *.lfm}
 
-uses
-  ce_main, strutils;
-
 const
   ToolExeName = 'cetodo' + exeExt;
 
@@ -182,6 +180,7 @@ begin
   // http://bugs.freepascal.org/view.php?id=27137
   // TODO-cLCL&LAZ-specific: remove comment after next Laz release
   // TODO-cLCL&LAZ-specific, try the new TListViewFilterEdit here.
+  // TODO-cLCL&LAZ-specific, the align/anchors of filterxxx must be redefined, previously there was a bug.
   lstfilter.OnChange:= @filterItems;
   //
   png := TPortableNetworkGraphic.Create;
@@ -462,7 +461,7 @@ begin
   itm := TTodoItem(lstItems.Selected.Data);
   fname := itm.filename;
   ln := itm.line;
-  CEMainForm.openFile(fname);
+  getMultiDocHandler.openDocument(fname);
   //
   if fDoc = nil then exit;
   fDoc.CaretY := strToInt(ln);
