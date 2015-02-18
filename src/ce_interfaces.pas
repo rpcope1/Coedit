@@ -385,14 +385,12 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION TCEMainMenuSubject ----------------------------------------------------}
+{$REGION Misc subjects ---------------------------------------------------------}
 function TCEMainMenuSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICEMainMenuProvider);
 end;
-{$ENDREGION}
 
-{$REGION Misc subjects ---------------------------------------------------------}
 function TCEEditableShortCutSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICEEditableShortCut);
