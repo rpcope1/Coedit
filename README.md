@@ -24,6 +24,8 @@ Current features
 Missing features before the first beta
 --------------------------------------
 - Options editor.
+- Shortcuts editor.
+- a few context menus and toolbars.
 
 Project information
 -------------------
