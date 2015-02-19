@@ -62,7 +62,8 @@ inherited CEOptionEditorWidget: TCEOptionEditorWidget
             Indent = 16
             NameFont.Color = clWindowText
             OnModified = inspectorModified
-            SplitterX = 200
+            PreferredSplitterX = 170
+            SplitterX = 170
             ValueFont.Color = clMaroon
           end
         end
@@ -85,20 +86,22 @@ inherited CEOptionEditorWidget: TCEOptionEditorWidget
         ClientWidth = 540
         TabOrder = 1
         object btnCancel: TSpeedButton
-          Left = 333
+          Left = 473
           Height = 24
+          Hint = 'cancel and revert modifications'
           Top = 3
-          Width = 100
+          Width = 30
           Align = alRight
           BorderSpacing.Left = 2
           BorderSpacing.Around = 2
           OnClick = btnCancelClick
         end
         object btnAccept: TSpeedButton
-          Left = 437
+          Left = 507
           Height = 24
+          Hint = 'accept modifications'
           Top = 3
-          Width = 100
+          Width = 30
           Align = alRight
           BorderSpacing.Left = 2
           BorderSpacing.Around = 2

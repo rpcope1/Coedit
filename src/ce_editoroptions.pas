@@ -21,14 +21,13 @@ type
 
   (**
    * Container for the editor and highlither options.
-   * The base class is also used to backup settings
-   * to allow settings to be previewed in live and restored
-   * when not accepted.
+   * The base class is also used to backup the settings
+   * to allow a live preview and to restore them when not accepted.
    *)
   TCEEditorOptionsBase = class(TWritableLfmTextComponent)
   private
-    fDHlOptions: TPersistent;
-    fTxtHlOptions: TPersistent;
+    fD2Syn: TPersistent;
+    fTxtSyn: TPersistent;
     fFont: TFont;
     //
     fTabWidth: Integer;
@@ -40,6 +39,8 @@ type
     fMouseOptions: TSynEditorMouseOptions;
     //
     procedure setFont(aFont: TFont);
+    procedure setD2Syn(aValue: TPersistent);
+    procedure setTxtSyn(aValue: TPersistent);
   published
     property tabulationWidth: Integer read fTabWidth write fTabWidth;
     property blockIdentation: Integer read fBlockIdent write fBlockIdent;
@@ -49,11 +50,11 @@ type
     property options1: TSynEditorOptions read fOptions1 write fOptions1;
     property options2: TSynEditorOptions2 read fOptions2 write fOptions2;
     property mouseOptions: TSynEditorMouseOptions read fMouseOptions write fMouseOptions;
-
-    property D_colorizer: TPersistent read fDHlOptions;
-    property TXT_colorizer: TPersistent read fTxtHlOptions;
+    property D2Highlighter: TPersistent read fD2Syn write setD2Syn;
+    property TxtHighlighter: TPersistent read fTxtSyn write setTxtSyn;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     //
     procedure assign(src: TPersistent); override;
   end;
@@ -77,22 +78,25 @@ type
     //
     procedure applyChangesFromSelf;
     procedure applyChangeToEditor(anEditor: TCESynMemo);
+  protected
+    procedure afterLoad; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   end;
 
+implementation
+
+const
+  edoptFname = 'editor.txt';
+
 var
   EditorOptions: TCEEditorOptions;
-
-implementation
 
 {$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCEEditorOptionsBase.Create(AOwner: TComponent);
 begin
   inherited;
-  fDHlOptions := D2Syn;
-  fTxtHlOptions := TxtSyn;
   //
   fFont := TFont.Create;
   fFont.Size := 10;
@@ -100,6 +104,11 @@ begin
   fFont.Quality := fqProof;
   fFont.Pitch := fpFixed;
   fFont.Size:= 10;
+  //
+  fD2Syn := TSynD2Syn.create(self);
+  fD2Syn.Assign(D2Syn);
+  fTxtSyn := TSynTxtSyn.create(self);
+  fTxtSyn.Assign(TxtSyn);
   //
   tabulationWidth := 4;
   blockIdentation := 4;
@@ -114,16 +123,9 @@ begin
     [emAltSetsColumnMode, emDragDropEditing, emCtrlWheelZoom, emShowCtrlMouseLinks];
 end;
 
-constructor TCEEditorOptions.Create(AOwner: TComponent);
+destructor TCEEditorOptionsBase.Destroy;
 begin
-  inherited;
-  fBackup := TCEEditorOptionsBase.Create(self);
-  EntitiesConnector.addObserver(self);
-end;
-
-destructor TCEEditorOptions.Destroy;
-begin
-  EntitiesConnector.removeObserver(self);
+  fFont.Free;
   inherited;
 end;
 
@@ -136,6 +138,8 @@ begin
     srcopt := TCEEditorOptionsBase(src);
     //
     font.Assign(srcopt.font);
+    fD2Syn.Assign(srcopt.fD2Syn);
+    fTxtSyn.Assign(srcopt.fTxtSyn);
     tabulationWidth := srcopt.tabulationWidth;
     blockIdentation := srcopt.blockIdentation;
     lineSpacing     := srcopt.lineSpacing;
@@ -150,6 +154,43 @@ end;
 procedure TCEEditorOptionsBase.setFont(aFont: TFont);
 begin
   fFont.Assign(aFont);
+end;
+
+procedure TCEEditorOptionsBase.setD2Syn(aValue: TPersistent);
+begin
+  D2Syn.Assign(aValue);
+end;
+
+procedure TCEEditorOptionsBase.setTxtSyn(aValue: TPersistent);
+begin
+  TxtSyn.Assign(aValue);
+end;
+
+constructor TCEEditorOptions.Create(AOwner: TComponent);
+var
+  fname: string;
+begin
+  inherited;
+  fBackup := TCEEditorOptionsBase.Create(self);
+  EntitiesConnector.addObserver(self);
+  //
+  fname := getCoeditDocPath + edoptFname;
+  if fileExists(fname) then loadFromFile(fname);
+end;
+
+destructor TCEEditorOptions.Destroy;
+begin
+  saveToFile(getCoeditDocPath + edoptFname);
+  //
+  EntitiesConnector.removeObserver(self);
+  inherited;
+end;
+
+procedure TCEEditorOptions.afterLoad;
+begin
+  inherited;
+  D2Syn.Assign(fD2Syn);
+  TxtSyn.Assign(fTxtSyn);
 end;
 {$ENDREGION}
 
@@ -185,7 +226,11 @@ end;
 
 function TCEEditorOptions.optionedWantContainer: TPersistent;
 begin
+  fD2Syn := D2Syn;
+  fTxtSyn := TxtSyn;
   fBackup.Assign(self);
+  fBackup.fD2Syn.Assign(D2Syn);
+  fBackup.fTxtSyn.Assign(TxtSyn);
   exit(self);
 end;
 
@@ -193,12 +238,21 @@ procedure TCEEditorOptions.optionedEvent(anEvent: TOptionEditorEvent);
 begin
   // restores
   if anEvent = oeeCancel then
+  begin
     self.assign(fBackup);
-  // apply
+    D2Syn.Assign(fBackup.fD2Syn);
+    TxtSyn.Assign(fBackup.fTxtSyn);
+  end;
+  // apply, if change/accept event
+  // to get a live preview
   applyChangesFromSelf;
   // new backup values based on accepted values.
   if anEvent = oeeAccept then
+  begin
     fBackup.assign(self);
+    fBackup.fD2Syn.Assign(D2Syn);
+    fBackup.fTxtSyn.Assign(TxtSyn);
+  end;
 end;
 {$ENDREGION}
 
@@ -208,16 +262,16 @@ var
   multied: ICEMultiDocHandler;
   i: Integer;
 begin
-  // editors
   multied := getMultiDocHandler;
   for i := 0 to multied.documentCount-1 do
     applyChangeToEditor(multied.document[i]);
-  // highlighter(s)
-  // ...
+
 end;
 
 procedure TCEEditorOptions.applyChangeToEditor(anEditor: TCESynMemo);
 begin
+  anEditor.defaultFontSize := font.Size;
+  // current editor zoom cant be mainainted.
   anEditor.Font.Assign(font);
   anEditor.TabWidth := tabulationWidth;
   anEditor.BlockIndent := blockIdentation;
