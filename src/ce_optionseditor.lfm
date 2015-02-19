@@ -1,11 +1,13 @@
 inherited CEOptionEditorWidget: TCEOptionEditorWidget
-  Left = 626
+  Left = 594
   Height = 377
-  Top = 270
+  Top = 257
   Width = 548
+  BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   Caption = 'Options editor'
   ClientHeight = 377
   ClientWidth = 548
+  FormStyle = fsSystemStayOnTop
   inherited Back: TPanel
     Height = 377
     Width = 548
@@ -31,7 +33,7 @@ inherited CEOptionEditorWidget: TCEOptionEditorWidget
           Left = 0
           Height = 335
           Top = 0
-          Width = 193
+          Width = 140
           Align = alLeft
           DefaultItemHeight = 18
           ScrollBars = ssAutoBoth
@@ -40,31 +42,32 @@ inherited CEOptionEditorWidget: TCEOptionEditorWidget
           OnSelectionChanged = selCatSelectionChanged
         end
         object pnlEd: TPanel
-          Left = 199
+          Left = 146
           Height = 335
           Top = 0
-          Width = 341
+          Width = 394
           Align = alClient
           BevelOuter = bvNone
           ClientHeight = 335
-          ClientWidth = 341
+          ClientWidth = 394
           TabOrder = 1
           object inspector: TTIPropertyGrid
             Left = 0
             Height = 335
             Top = 0
-            Width = 341
+            Width = 394
             Align = alClient
             DefaultValueFont.Color = clWindowText
             Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkObject, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
             Indent = 16
             NameFont.Color = clWindowText
             OnModified = inspectorModified
+            SplitterX = 200
             ValueFont.Color = clMaroon
           end
         end
         object Splitter1: TSplitter
-          Left = 193
+          Left = 140
           Height = 335
           Top = 0
           Width = 6

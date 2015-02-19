@@ -51,6 +51,7 @@ var
   png: TPortableNetworkGraphic;
 begin
   inherited;
+  fDockable := false;
   fEdOptsSubj := TCEEditableOptionsSubject.create;
   //
   png := TPortableNetworkGraphic.Create;
@@ -149,6 +150,9 @@ begin
   PCategoryData(selCat.Selected.Data)^
     .observer
     .optionedEvent(oeeCancel);
+  //
+  // if generic editor then
+  //  refresh displayed value since the provider may have updated the options container
 end;
 
 procedure TCEOptionEditorWidget.btnAcceptClick(Sender: TObject);
