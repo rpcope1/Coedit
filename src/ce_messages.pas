@@ -235,7 +235,7 @@ end;
 
 function TCEMessagesWidget.optionedWantEditorKind: TOptionEditorKind;
 begin
-  exit(oekAbstract);
+  exit(oekGeneric);
 end;
 
 function TCEMessagesWidget.optionedWantContainer: TPersistent;
