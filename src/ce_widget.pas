@@ -35,6 +35,7 @@ type
     procedure optget_UpdaterDelay(aWriter: TWriter);
     procedure optset_UpdaterDelay(aReader: TReader);
   protected
+    fDockable: boolean;
     fID: string;
     // a descendant overrides to implementi a periodic update.
     procedure UpdateByLoop; virtual;
@@ -74,6 +75,8 @@ type
     //
     // returns true if one of the three updater is processing.
     property updating: boolean read fUpdating;
+    // true by default, allow a widget to be docked.
+    property isDockable: boolean read fDockable;
   end;
 
   (**
@@ -110,6 +113,7 @@ var
   itm: TmenuItem;
 begin
   inherited;
+  fDockable := true;
   fUpdaterAuto := TTimer.Create(self);
   fUpdaterAuto.Interval := 70;
   fUpdaterAuto.OnTimer := @updaterAutoProc;

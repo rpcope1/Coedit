@@ -469,6 +469,7 @@ begin
 
   for i := 0 to fWidgList.Count-1 do
   begin
+    if not fWidgList.widget[i].isDockable then continue;
     DockMaster.MakeDockable(fWidgList.widget[i], not fileExists(getCoeditDocPath + 'docking.xml'));
     DockMaster.GetAnchorSite(fWidgList.widget[i]).Header.HeaderPosition := adlhpTop;
   end;
@@ -544,6 +545,7 @@ begin
   // does not save minimized/undocked windows to prevent bugs
   for i:= 0 to fWidgList.Count-1 do
   begin
+    if not fWidgList.widget[i].isDockable then continue;
     if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then
       DockMaster.GetAnchorSite(fWidgList.widget[i]).Close
     else if DockMaster.GetAnchorSite(fWidgList.widget[i]).SiteType = adhstNone then
@@ -1366,7 +1368,12 @@ var
 begin
   widg := TCEWidget( TComponent(sender).tag );
   if widg = nil then exit;
-  win := DockMaster.GetAnchorSite(widg);
+  //
+  if widg.isDockable then
+    win := DockMaster.GetAnchorSite(widg)
+  else
+    win := widg;
+  //
   if win = nil then exit;
   win.Show;
   win.BringToFront;
@@ -1395,6 +1402,7 @@ begin
   // TODO-cLCL&LAZ-specific: possible loading AV, xml saved after undocking some widgets, xml file abnormal size.
   for i:= 0 to fWidgList.Count-1 do
   begin
+    if not fWidgList.widget[i].isDockable then continue;
     if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then
       DockMaster.GetAnchorSite(fWidgList.widget[i]).Close
     else if DockMaster.GetAnchorSite(fWidgList.widget[i]).SiteType = adhstNone then

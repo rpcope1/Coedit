@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, SynEdit, ce_d2syn, ce_txtsyn ,SynEditHighlighter, controls,
   lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
-  SynEditFoldedView, crc, ce_common, ce_observer, ce_writableComponent, Forms;
+  SynEditFoldedView, crc, ce_common, ce_observer, ce_writableComponent, Forms,
+  graphics;
 
 type
 
@@ -129,9 +130,7 @@ var
 implementation
 
 uses
-  graphics, ce_interfaces, ce_staticmacro, ce_dcd, SynEditHighlighterFoldBase;
-
-
+  ce_interfaces, ce_staticmacro, ce_dcd, SynEditHighlighterFoldBase;
 
 constructor TCEEditorHintWindow.Create(AOwner: TComponent);
 begin
@@ -318,20 +317,7 @@ constructor TCESynMemo.Create(aOwner: TComponent);
 begin
   inherited;
   SetDefaultKeystrokes; // not called in inherited if owner = nil !
-  Font.Quality := fqProof;
-  Font.Pitch := fpFixed;
-  Font.Size:= 10;
-  TabWidth := 4;
-  BlockIndent := 4;
-  Options :=
-    [eoAutoIndent, eoBracketHighlight, eoGroupUndo, eoTabsToSpaces,
-    eoDragDropEditing, eoShowCtrlMouseLinks, eoEnhanceHomeKey, eoTabIndent];
-  Options2 :=
-    [eoEnhanceEndKey, eoFoldedCopyPaste, eoOverwriteBlock];
-  fStoredFontSize := Font.Size;
-
-  MouseOptions := MouseOptions +
-    [emAltSetsColumnMode, emDragDropEditing, emCtrlWheelZoom, emShowCtrlMouseLinks];
+  fStoredFontSize := 10;
   Gutter.LineNumberPart.ShowOnlyLineNumbersMultiplesOf := 5;
   Gutter.LineNumberPart.MarkupInfo.Foreground := clGray;
   Gutter.SeparatorPart.LineOffset := 1;
@@ -541,10 +527,11 @@ end;
 
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
+  fMousePos := PixelsToRowColumn(Point(X,Y));
+  Application.HideHint;
   inherited;
   if ssLeft in Shift then
     identifierToD2Syn;
-  fMousePos := PixelsToRowColumn(Point(X,Y));
 end;
 
 procedure TCESynMemo.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:Integer);
