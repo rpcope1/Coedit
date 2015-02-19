@@ -670,7 +670,7 @@ begin
     if ce_common.dlgOkCancel(
       'last project modifications are not saved, quit anyway ?') <> mrOK then
           exit;
-  for i := 0 to fMultidoc.documentCount-1 do
+  for i := fMultidoc.documentCount-1 downto 0 do
     if not fMultidoc.closeDocument(i) then exit;
   canClose := true;
 

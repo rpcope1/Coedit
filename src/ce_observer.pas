@@ -111,6 +111,7 @@ destructor TCEEntitiesConnector.destroy;
 begin
   fObservers.Free;
   fSubjects.Free;
+  fServices.Free;
   inherited;
 end;
 
