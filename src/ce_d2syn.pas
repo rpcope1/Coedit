@@ -265,6 +265,7 @@ end;
 constructor TSynD2Syn.create(aOwner: TComponent);
 begin
 	inherited create(aOwner);
+  SetSubComponent(true);
 
   DefaultFilter:= 'D source|*.d|D interface|*.di';
 

@@ -59,6 +59,7 @@ uses
 constructor TSynTxtSyn.create(aOwner: TComponent);
 begin
   inherited;
+  SetSubComponent(true);
   //
   fSymAttribs := TSynHighlighterAttributes.Create('Symbols', 'Symbols');
   fTxtAttribs := TSynHighlighterAttributes.Create('Text', 'Text');
