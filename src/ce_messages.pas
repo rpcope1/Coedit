@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, Buttons,
+  lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, Buttons, ce_writableComponent,
   ce_common, ce_project, ce_synmemo, ce_dlangutils, ce_interfaces, ce_observer;
 
 type
@@ -20,7 +20,7 @@ type
     data: Pointer;
   end;
 
-  TCEMessagesOptions = class(TPersistent)
+  TCEMessagesOptions = class(TWritableLfmTextComponent)
   private
     fMaxCount: Integer;
     fAutoSelect: boolean;
@@ -74,9 +74,9 @@ type
     function iconIndex(aKind: TCEAppMessageKind): Integer;
     //
     procedure optset_MaxMessageCount(aReader: TReader);
-    procedure optget_MaxMessageCount(awriter: TWriter);
+    procedure optget_MaxMessageCount(aWriter: TWriter);
     procedure optset_AutoSelect(aReader: TReader);
-    procedure optget_AutoSelect(awriter: TWriter);
+    procedure optget_AutoSelect(aWriter: TWriter);
     //
     procedure projNew(aProject: TCEProject);
     procedure projClosing(aProject: TCEProject);
@@ -124,7 +124,7 @@ implementation
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEMessagesWidget.create(aOwner: TComponent);
 begin
-  fMaxMessCnt := 125;
+  fMaxMessCnt := 500;
   fCtxt := amcAll;
   //
   fActAutoSel := TAction.Create(self);
@@ -149,7 +149,9 @@ begin
   //
   inherited;
   //
-  fEditableOptions := TCEMessagesOptions.Create;
+  fEditableOptions := TCEMessagesOptions.Create(Self);
+  fEditableOptions.Name:= 'messageOptions';
+  //
   List.PopupMenu := contextMenu;
   List.OnDeletion := @ListDeletion;
   //
@@ -173,7 +175,6 @@ end;
 destructor TCEMessagesWidget.destroy;
 begin
   EntitiesConnector.removeObserver(self);
-  fEditableOptions.Free;
   Inherited;
 end;
 
@@ -250,6 +251,7 @@ begin
   begin
     fMaxMessCnt := fEditableOptions.maxMessageCount;
     fActAutoSel.Checked := fEditableOptions.autoSelect;
+    clearOutOfRangeMessg;
   end;
 end;
 {$ENDREGION}
@@ -257,10 +259,8 @@ end;
 {$REGION ICESessionOptionsObserver ---------------------------------------------}
 procedure TCEMessagesWidget.setMaxMessageCount(aValue: Integer);
 begin
-  if aValue < 10 then
-    aValue := 10;
-  if aValue > 1023 then
-    aValue := 1023;
+  if aValue < 5 then
+    aValue := 5;
   if fMaxMessCnt = aValue then
     exit;
   fMaxMessCnt := aValue;
@@ -283,9 +283,9 @@ begin
   fActAutoSel.Checked := fAutoSelect;
 end;
 
-procedure TCEMessagesWidget.optget_AutoSelect(awriter: TWriter);
+procedure TCEMessagesWidget.optget_AutoSelect(aWriter: TWriter);
 begin
-  awriter.WriteBoolean(fAutoSelect);
+  aWriter.WriteBoolean(fAutoSelect);
 end;
 
 procedure TCEMessagesWidget.sesoptDeclareProperties(aFiler: TFiler);
