@@ -83,7 +83,7 @@ type
     fIdentifier: string;
     fTempFileName: string;
     fMultiDocSubject: TCECustomSubject;
-    fStoredFontSize: Integer;
+    fDefaultFontSize: Integer;
     fPositions: TCESynMemoPositions;
     fMousePos: TPoint;
     function getMouseStart: Integer;
@@ -91,6 +91,7 @@ type
     procedure identifierToD2Syn;
     procedure saveCache;
     procedure loadCache;
+    procedure setDefaultFontSize(aValue: Integer);
   protected
     procedure SetVisible(Value: Boolean); override;
     procedure SetHighlighter(const Value: TSynCustomHighlighter); override;
@@ -99,6 +100,8 @@ type
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:Integer); override;
+  published
+    property defaultFontSize: Integer read fDefaultFontSize write setDefaultFontSize;
   public
     constructor Create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -317,7 +320,7 @@ constructor TCESynMemo.Create(aOwner: TComponent);
 begin
   inherited;
   SetDefaultKeystrokes; // not called in inherited if owner = nil !
-  fStoredFontSize := 10;
+  fDefaultFontSize := 10;
   Gutter.LineNumberPart.ShowOnlyLineNumbersMultiplesOf := 5;
   Gutter.LineNumberPart.MarkupInfo.Foreground := clGray;
   Gutter.SeparatorPart.LineOffset := 1;
@@ -358,6 +361,17 @@ begin
   if fileExists(fTempFileName) then
     sysutils.DeleteFile(fTempFileName);
   inherited;
+end;
+
+procedure TCESynMemo.setDefaultFontSize(aValue: Integer);
+var
+  old: Integer;
+begin
+  old := Font.Size;
+  if aValue < 5 then aValue := 5;
+  fDefaultFontSize:= aValue;
+  if Font.Size = old then
+    Font.Size := fDefaultFontSize;
 end;
 
 procedure TCESynMemo.setFocus;
@@ -499,7 +513,7 @@ begin
   case Key of
     VK_ADD: if Font.Size < 50 then Font.Size := Font.Size + 1;
     VK_SUBTRACT: if Font.Size > 3 then Font.Size := Font.Size - 1;
-    VK_DECIMAL: Font.Size := fStoredFontSize;
+    VK_DECIMAL: Font.Size := fDefaultFontSize;
   end;
   TCEEditorHintWindow.FontSize := Font.Size;
 end;
@@ -544,7 +558,7 @@ procedure TCESynMemo.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:Inte
 begin
   inherited;
   if (Button = mbMiddle) and (Shift = [ssCtrl]) then
-    Font.Size := fStoredFontSize
+    Font.Size := fDefaultFontSize
   //TODO-cLCL&LAZ-specific: test this feature under gtk2/linux on next release, should work
   else if Button = mbExtra1 then
     fPositions.back
