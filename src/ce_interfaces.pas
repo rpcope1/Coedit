@@ -118,7 +118,7 @@ type
 
 
   (**
-   * An implementer can expose some customizable shortcuts
+   * An implementer can expose some customizable shortcuts to be edited in a dedicated widget.
    *)
   ICEEditableShortCut = interface
   ['ICEEditableShortCut']
@@ -141,7 +141,7 @@ type
 
 
 
-  TOptionEditorKind = (oekAbstract, oekForm);
+  TOptionEditorKind = (oekGeneric, oekForm);
   TOptionEditorEvent = (oeeCancel, oeeAccept, oeeChange);
   (**
    * An implementer can expose some options to be edited in a dedicated widget.
@@ -249,7 +249,7 @@ type
 
 
 {
-  Service assignators:
+  Service getters:
 
   Lazily get the interface of a service when needed or for a punctual usage.
   The first overload assign the variable only when not yet set, the second is
@@ -402,7 +402,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION ICESingleService assignators ------------------------------------------}
+{$REGION ICESingleService getters ----------------------------------------------}
 function getMessageDisplay(var obj: ICEMessagesDisplay): ICEMessagesDisplay;
 begin
   if obj = nil then

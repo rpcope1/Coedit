@@ -221,7 +221,7 @@ end;
 
 function TCEEditorOptions.optionedWantEditorKind: TOptionEditorKind;
 begin
-  exit(oekAbstract);
+  exit(oekGeneric);
 end;
 
 function TCEEditorOptions.optionedWantContainer: TPersistent;

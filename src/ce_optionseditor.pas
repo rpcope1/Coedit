@@ -123,7 +123,7 @@ begin
         TForm(dt^.container).Align := alClient;
         TForm(dt^.container).BorderStyle:= bsNone;
       end;
-    oekAbstract:
+    oekGeneric:
       begin
         inspector.Parent := pnlEd;
         inspector.Align := alClient;

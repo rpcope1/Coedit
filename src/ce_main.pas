@@ -858,6 +858,8 @@ begin
     TCEEditorHintWindow.FontSize := fDoc.Font.Size;
     HintInfo.HintWindowClass := TCEEditorHintWindow;
     HintInfo.HideTimeout := 120000;
+    HintInfo.CursorRect.Left := fDoc.CaretXPix;
+    HintInfo.CursorRect.Top := fDoc.CaretYPix;
     // note: non-default color allows non-themed draw() which allows custom font-size to be handled.
     HintInfo.HintColor := clInfoBk + $01010100;
     //
