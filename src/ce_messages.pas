@@ -485,11 +485,8 @@ var
   msgdt: PMessageData;
 begin
   if aCtxt = amcAll then
-  begin
-    List.Items.Clear;
-    exit;
-  end;
-  for i := List.Items.Count-1 downto 0 do
+    List.Items.Clear
+  else for i := List.Items.Count-1 downto 0 do
   begin
     msgdt := PMessageData(List.Items[i].Data);
     if msgdt^.ctxt = aCtxt then
