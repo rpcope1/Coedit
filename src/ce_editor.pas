@@ -20,7 +20,6 @@ type
   end;
 
   TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler)
-    imgList: TImageList;
     PageControl: TExtendedNotebook;
     macRecorder: TSynMacroRecorder;
     editorStatus: TStatusBar;
@@ -86,7 +85,7 @@ end;
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEEditorWidget.create(aOwner: TComponent);
 var
-  bmp: TBitmap;
+  png: TPortableNetworkGraphic;
 begin
   inherited;
   //
@@ -97,12 +96,12 @@ begin
   fSyncEdit := TSynPluginSyncroEdit.Create(self);
   //TODO-cLCL&LAZ-specific: activate this after next Laz release
   //fSyncEdit.CaseSensitive:=true;
-  bmp := TBitmap.Create;
+  png := TPortableNetworkGraphic.Create;
   try
-    imgList.GetBitmap(0, bmp);
-    fSyncEdit.GutterGlyph.Assign(bmp);
+    png.LoadFromLazarusResource('link_edit');
+    fSyncEdit.GutterGlyph.Assign(png);
   finally
-    bmp.Free;
+    png.Free;
   end;
   //
   {$IFDEF LINUX}
