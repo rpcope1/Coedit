@@ -18,6 +18,8 @@ type
     observer: ICEEditableOptions;
   end;
 
+  //TODO-cbugfix: linux only, a conversion error is raised after a color's  been edited using the dialog color.
+
   TCEOptionEditorWidget = class(TCEWidget)
     btnCancel: TSpeedButton;
     btnAccept: TSpeedButton;
