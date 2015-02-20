@@ -126,7 +126,7 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
           Indent = 16
           NameFont.Color = clWindowText
           OnModified = propsEdModified
-          ValueFont.Color = clMaroon
+          ValueFont.Color = clGreen
         end
       end
     end
