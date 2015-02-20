@@ -35,7 +35,6 @@ type
     fKeyChanged: boolean;
     fDoc: TCESynMemo;
     // TODO-cbugfix: syncro-edit partially broken, undetermined condition
-    // TODO-cbugfix: syncro-edit icon hidden after deletion, if doc is saved (as temp file, by the static explorer)
     fSyncEdit: TSynPluginSyncroEdit;
     tokLst: TLexTokenList;
     errLst: TLexErrorList;
@@ -421,6 +420,12 @@ begin
   //
   tokLst.Clear;
   errLst.Clear;
+  // when a widget saves a temp file & syncro mode is on:
+  // - editor is saved
+  // - gutter is updated (green bar indicating a saved block)
+  // - syncroedit icon is hidden
+  if fSyncEdit.Active then
+    fDoc.Refresh;
 end;
 {$ENDREGION}
 
