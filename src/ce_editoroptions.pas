@@ -5,7 +5,7 @@ unit ce_editoroptions;
 interface
 
 uses
-  Classes, SysUtils, Graphics, SynEdit, SynEditMouseCmds,
+  Classes, SysUtils, Graphics, SynEdit, SynEditMouseCmds, SynEditMiscClasses,
   ce_interfaces, ce_observer, ce_common, ce_writableComponent, ce_synmemo,
   ce_d2syn, ce_txtsyn;
 
@@ -23,29 +23,48 @@ type
    * Container for the editor and highlither options.
    * The base class is also used to backup the settings
    * to allow a live preview and to restore them when not accepted.
+   *
+   * note: when adding a new property, the default value must be set in
+   * the constructor according to the default value of the member binded
+   * to the property.
    *)
   TCEEditorOptionsBase = class(TWritableLfmTextComponent)
   private
     fD2Syn: TPersistent;
     fTxtSyn: TPersistent;
+    fSelCol: TSynSelectedColor;
+    fFoldCol: TSynSelectedColor;
+    fLinkCol: TSynSelectedColor;
     fFont: TFont;
     //
     fTabWidth: Integer;
     fBlockIdent: Integer;
     fLineSpacing: Integer;
     fCharSpacing: Integer;
+    fRightEdge: Integer;
+    fBackground: TColor;
+    fRightEdgeCol: TColor;
     fOptions1: TSynEditorOptions;
     fOptions2: TSynEditorOptions2;
     fMouseOptions: TSynEditorMouseOptions;
     //
-    procedure setFont(aFont: TFont);
+    procedure setFont(aValue: TFont);
+    procedure setSelCol(aValue: TSynSelectedColor);
+    procedure setFoldCol(aValue: TSynSelectedColor);
+    procedure setLinkCol(aValue: TSynSelectedColor);
     procedure setD2Syn(aValue: TPersistent);
     procedure setTxtSyn(aValue: TPersistent);
   published
-    property tabulationWidth: Integer read fTabWidth write fTabWidth;
-    property blockIdentation: Integer read fBlockIdent write fBlockIdent;
-    property lineSpacing: Integer read fLineSpacing write fLineSpacing;
-    property characterSpacing: Integer read fCharSpacing write fCharSpacing;
+    property mouseLinkColor: TSynSelectedColor read fLinkCol write setLinkCol;
+    property selectedColor: TSynSelectedColor read fSelCol write setSelCol;
+    property foldedColor: TSynSelectedColor read fFoldCol write setFoldCol;
+    property background: TColor read fBackground write fBackground default clWhite;
+    property tabulationWidth: Integer read fTabWidth write fTabWidth default 4;
+    property blockIdentation: Integer read fBlockIdent write fBlockIdent default 4;
+    property lineSpacing: Integer read fLineSpacing write fLineSpacing default 0;
+    property characterSpacing: Integer read fCharSpacing write fCharSpacing default 0;
+    property rightEdge: Integer read fRightEdge write fRightEdge default 80;
+    property rightEdgeColor: TColor read fRightEdgeCol write fRightEdgeCol default clSilver;
     property font: TFont read fFont write setFont;
     property options1: TSynEditorOptions read fOptions1 write fOptions1;
     property options2: TSynEditorOptions2 read fOptions2 write fOptions2;
@@ -99,7 +118,6 @@ begin
   inherited;
   //
   fFont := TFont.Create;
-  fFont.Size := 10;
   fFont.Name := 'Courier New';
   fFont.Quality := fqProof;
   fFont.Pitch := fpFixed;
@@ -110,8 +128,25 @@ begin
   fTxtSyn := TSynTxtSyn.create(self);
   fTxtSyn.Assign(TxtSyn);
   //
+  fSelCol := TSynSelectedColor.Create;
+  fFoldCol := TSynSelectedColor.Create;
+  fLinkCol := TSynSelectedColor.Create;
+  //
+  // note: default values come from TSynEditFoldedView ctor.
+  fFoldCol.Background := clNone;
+  fFoldCol.Foreground := clDkGray;
+  fFoldCol.FrameColor := clDkGray;
+  //
+  fLinkCol.Style := [fsUnderline, fsBold];
+  fLinkCol.StyleMask := [];
+  fLinkCol.Foreground := clNone;
+  fLinkCol.Background := clNone;
+  //
+  rightEdge := 80;
   tabulationWidth := 4;
   blockIdentation := 4;
+  fBackground := clWhite;
+  fRightEdgeCol := clSilver;
   //
   options1 :=
     [eoAutoIndent, eoBracketHighlight, eoGroupUndo, eoTabsToSpaces,
@@ -126,6 +161,9 @@ end;
 destructor TCEEditorOptionsBase.Destroy;
 begin
   fFont.Free;
+  fSelCol.Free;
+  fFoldCol.Free;
+  fLinkCol.Free;
   inherited;
 end;
 
@@ -137,9 +175,13 @@ begin
   begin
     srcopt := TCEEditorOptionsBase(src);
     //
-    font.Assign(srcopt.font);
+    fFont.Assign(srcopt.fFont);
+    fSelCol.Assign(srcopt.fSelCol);
+    fFoldCol.Assign(srcopt.fFoldCol);
+    fLinkCol.Assign(srcopt.fLinkCol);
     fD2Syn.Assign(srcopt.fD2Syn);
     fTxtSyn.Assign(srcopt.fTxtSyn);
+    background      := srcopt.background;
     tabulationWidth := srcopt.tabulationWidth;
     blockIdentation := srcopt.blockIdentation;
     lineSpacing     := srcopt.lineSpacing;
@@ -147,13 +189,30 @@ begin
     options1        := srcopt.options1;
     options2        := srcopt.options2;
     mouseOptions    := srcopt.mouseOptions;
+    rightEdge       := srcopt.rightEdge;
+    rightEdgeColor  := srcopt.rightEdgeColor;
   end
   else inherited;
 end;
 
-procedure TCEEditorOptionsBase.setFont(aFont: TFont);
+procedure TCEEditorOptionsBase.setFont(aValue: TFont);
 begin
-  fFont.Assign(aFont);
+  fFont.Assign(aValue);
+end;
+
+procedure TCEEditorOptionsBase.setSelCol(aValue: TSynSelectedColor);
+begin
+  fSelCol.Assign(aValue);
+end;
+
+procedure TCEEditorOptionsBase.setFoldCol(aValue: TSynSelectedColor);
+begin
+  fFoldCol.Assign(aValue);
+end;
+
+procedure TCEEditorOptionsBase.setLinkCol(aValue: TSynSelectedColor);
+begin
+  fLinkCol.Assign(aValue);
 end;
 
 procedure TCEEditorOptionsBase.setD2Syn(aValue: TPersistent);
@@ -271,8 +330,10 @@ end;
 procedure TCEEditorOptions.applyChangeToEditor(anEditor: TCESynMemo);
 begin
   anEditor.defaultFontSize := font.Size;
-  // current editor zoom cant be mainainted.
   anEditor.Font.Assign(font);
+  anEditor.SelectedColor.Assign(fSelCol);
+  anEditor.FoldedCodeColor.Assign(fFoldCol);
+  anEditor.MouseLinkColor.Assign(fLinkCol);
   anEditor.TabWidth := tabulationWidth;
   anEditor.BlockIndent := blockIdentation;
   anEditor.ExtraLineSpacing := lineSpacing;
@@ -280,6 +341,9 @@ begin
   anEditor.Options := options1;
   anEditor.Options2 := options2;
   anEditor.MouseOptions := mouseOptions;
+  anEditor.Color:= background;
+  anEditor.RightEdge := rightEdge;
+  anEditor.RightEdgeColor := rightEdgeColor;
 end;
 {$ENDREGION}
 
