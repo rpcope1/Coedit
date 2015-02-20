@@ -64,7 +64,7 @@ inherited CEOptionEditorWidget: TCEOptionEditorWidget
             OnModified = inspectorModified
             PreferredSplitterX = 170
             SplitterX = 170
-            ValueFont.Color = clMaroon
+            ValueFont.Color = clGreen
           end
         end
         object Splitter1: TSplitter
