@@ -140,7 +140,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="36">
+    <Units Count="37">
       <Unit0>
         <Filename Value="coedit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -366,6 +366,13 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_dockoptions"/>
       </Unit35>
+      <Unit36>
+        <Filename Value="..\src\ce_shortcutseditor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="CEShortcutEditor"/>
+        <ResourceBaseClass Value="Frame"/>
+        <UnitName Value="ce_shortcutseditor"/>
+      </Unit36>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

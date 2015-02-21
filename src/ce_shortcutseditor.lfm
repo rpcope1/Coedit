@@ -1,0 +1,56 @@
+object CEShortcutEditor: TCEShortcutEditor
+  Left = 0
+  Height = 471
+  Top = 0
+  Width = 431
+  ClientHeight = 471
+  ClientWidth = 431
+  TabOrder = 0
+  DesignLeft = 796
+  DesignTop = 213
+  object Panel1: TPanel
+    Left = 0
+    Height = 471
+    Top = 0
+    Width = 431
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 471
+    ClientWidth = 431
+    TabOrder = 0
+    object fltItems: TTreeFilterEdit
+      Left = 0
+      Height = 23
+      Top = 0
+      Width = 407
+      ButtonWidth = 23
+      NumGlyphs = 1
+      Align = alCustom
+      Anchors = [akTop, akLeft, akRight]
+      MaxLength = 0
+      TabOrder = 0
+      FilteredTreeview = tree
+    end
+    object tree: TTreeView
+      Left = 1
+      Height = 389
+      Top = 28
+      Width = 430
+      Align = alCustom
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      DefaultItemHeight = 18
+      ScrollBars = ssAutoBoth
+      TabOrder = 1
+    end
+    object Panel2: TPanel
+      Left = 0
+      Height = 50
+      Top = 421
+      Width = 431
+      Align = alBottom
+      BevelOuter = bvNone
+      Caption = 'Controls to edit the shortcut...'
+      TabOrder = 2
+    end
+  end
+end
