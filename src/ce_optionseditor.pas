@@ -119,12 +119,17 @@ begin
   dt := PCategoryData(selCat.Selected.Data);
   if dt^.container = nil then exit;
   case dt^.kind of
+    oekControl:
+      begin
+        TWinControl(dt^.container).Parent := pnlEd;
+        TWinControl(dt^.container).Align := alClient;
+      end;
     oekForm:
       begin
-        TForm(dt^.container).Parent := pnlEd;
-        TForm(dt^.container).Align := alClient;
-        //TForm(dt^.container).BorderIcons:= [];
-        //TForm(dt^.container).BorderStyle:= bsNone;
+        TCustomForm(dt^.container).Parent := pnlEd;
+        TCustomForm(dt^.container).Align := alClient;
+        TCustomForm(dt^.container).BorderIcons:= [];
+        TCustomForm(dt^.container).BorderStyle:= bsNone;
       end;
     oekGeneric:
       begin
