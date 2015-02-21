@@ -122,14 +122,13 @@ type
    *)
   ICEEditableShortCut = interface
   ['ICEEditableShortCut']
-    // a TCEEditableShortCutSubject queries the editable shortcuts count.
-    procedure scGetCount(out aValue: Integer);
-    // a TCEEditableShortCutSubject queries the shortcut category name.
-    procedure scGetCategory(out aValue: string);
-    // a TCEEditableShortCutSubject queries the state of the index-th shortcut.
-    procedure scGetItem(index: Integer; out aName: string; out aShortcut: Word);
-    // a TCEEditableShortCutSubject sends the possibly modified assignation of the index-th shortcut.
-    procedure scSetItem(index: Integer; const aCategory, aName: string; aShortcut: Word);
+    // a TCEEditableShortCutSubject will start to collect shortcuts if result
+    function scedWantFirst: boolean;
+    // a TCEEditableShortCutSubject collects the information on the shortcuts while result
+    function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
+    // a TCEEditableShortCutSubject sends the possibly modified shortcut
+    procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+
   end;
   (**
    * An implementer manages its observers shortcuts.
