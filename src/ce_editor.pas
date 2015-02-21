@@ -7,8 +7,8 @@ interface
 uses
   Classes, SysUtils, FileUtil, ExtendedNotebook, Forms, Controls, lcltype,
   Graphics, SynEditKeyCmds, ComCtrls, SynEditHighlighter, ExtCtrls, Menus,
-  SynMacroRecorder, SynPluginSyncroEdit, SynEdit, SynCompletion, ce_widget,
-  ce_interfaces, ce_synmemo, ce_dlang, ce_common, ce_dcd, ce_observer;
+  SynMacroRecorder, SynPluginSyncroEdit, SynEdit, SynCompletion,
+  ce_widget, ce_interfaces, ce_synmemo, ce_dlang, ce_common, ce_dcd, ce_observer;
 
 type
 
@@ -19,7 +19,7 @@ type
     procedure SetVisible(Value: Boolean); override;
   end;
 
-  TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler)
+  TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler, ICEEditableShortCut)
     PageControl: TExtendedNotebook;
     macRecorder: TSynMacroRecorder;
     editorStatus: TStatusBar;
@@ -36,9 +36,10 @@ type
     fDoc: TCESynMemo;
     // TODO-cbugfix: syncro-edit partially broken, undetermined condition
     fSyncEdit: TSynPluginSyncroEdit;
-    tokLst: TLexTokenList;
-    errLst: TLexErrorList;
+    fTokList: TLexTokenList;
+    fErrList: TLexErrorList;
     fModStart: boolean;
+    fShortcutCount: Integer;
     {$IFDEF LINUX}
     procedure pageCloseBtnClick(Sender: TObject);
     {$ENDIF}
@@ -64,6 +65,10 @@ type
     function findDocument(aFilename: string): TCESynMemo;
     procedure openDocument(aFilename: string);
     function closeDocument(index: Integer): boolean;
+    //
+    function scedWantFirst: boolean;
+    function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
+    procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -88,8 +93,8 @@ var
 begin
   inherited;
   //
-  tokLst := TLexTokenList.Create;
-  errLst := TLexErrorList.Create;
+  fTokList := TLexTokenList.Create;
+  fErrList := TLexErrorList.Create;
   //
   completion.OnPaintItem := @completionItemPaint;
   fSyncEdit := TSynPluginSyncroEdit.Create(self);
@@ -120,8 +125,8 @@ begin
     if PageControl.Page[i].ControlCount > 0 then
       if (PageControl.Page[i].Controls[0] is TCESynMemo) then
         PageControl.Page[i].Controls[0].Free;
-  tokLst.Free;
-  errLst.Free;
+  fTokList.Free;
+  fErrList.Free;
   inherited;
 end;
 
@@ -252,6 +257,34 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION ICEEDitableSHortcut ---------------------------------------------------}
+function TCEEditorWidget.scedWantFirst: boolean;
+begin
+  result := fDoc <> nil;
+  fShortcutCount := 0;
+end;
+
+function TCEEditorWidget.scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
+var
+  shrct: TSynEditKeyStroke;
+begin
+  result := false;
+  if fShortcutCount > fDoc.Keystrokes.Count-1 then exit;
+  //
+  shrct     := fDoc.Keystrokes.Items[fShortcutCount];
+  category  := 'Editor';
+  identifier:= shrct.DisplayName;
+  aShortcut := Shortcut(shrct.Key, shrct.Shift);
+  //
+  fShortcutCount += 1;
+  result := true;
+end;
+
+procedure TCEEditorWidget.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+begin
+
+end;
+{$ENDREGION}
 
 {$REGION PageControl/Editor things ---------------------------------------------}
 {$IFDEF LINUX}
@@ -411,15 +444,15 @@ begin
   fKeyChanged := false;
   if fDoc.Lines.Count = 0 then exit;
   //
-  lex(fDoc.Lines.Text, tokLst, @lexFindToken);
+  lex(fDoc.Lines.Text, fTokList, @lexFindToken);
   md := '';
   if fDoc.isDSource then
-    md := getModuleName(tokLst);
+    md := getModuleName(fTokList);
   if md = '' then md := extractFileName(fDoc.fileName);
   pageControl.ActivePage.Caption := md;
   //
-  tokLst.Clear;
-  errLst.Clear;
+  fTokList.Clear;
+  fErrList.Clear;
   // when a widget saves a temp file & syncro mode is on:
   // - editor is saved
   // - gutter is updated (green bar indicating a saved block)
