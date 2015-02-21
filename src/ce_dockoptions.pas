@@ -67,7 +67,7 @@ end;
 
 function TEditableAnchorDockOptions.optionedWantEditorKind: TOptionEditorKind;
 begin
-  exit(oekForm);
+  exit(oekControl);
 end;
 
 function TEditableAnchorDockOptions.optionedWantContainer: TPersistent;

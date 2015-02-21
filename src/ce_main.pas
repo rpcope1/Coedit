@@ -17,9 +17,8 @@ uses
 type
 
   // TODO-cfeature: options
-  // TODO-cwidget: options editor
 
-  TCEMainForm = class(TForm, ICEMultiDocObserver, ICESessionOptionsObserver)
+  TCEMainForm = class(TForm, ICEMultiDocObserver, ICESessionOptionsObserver, ICEEditableShortCut)
     actFileCompAndRun: TAction;
     actFileSaveAll: TAction;
     actFileClose: TAction;
@@ -180,6 +179,7 @@ type
 
     fDoc: TCESynMemo;
     fMultidoc: ICEMultiDocHandler;
+    fScCollectCount: Integer;
     fUpdateCount: NativeInt;
     fProject: TCEProject;
     fProjMru: TMruFileList;
@@ -214,6 +214,11 @@ type
     procedure docClosing(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
+
+    // ICEEditableShortcut
+    function scedWantFirst: boolean;
+    function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
+    procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
 
     // ICESessionOptionsObserver
     procedure sesoptBeforeSave;
@@ -897,6 +902,35 @@ end;
 procedure TCEMainForm.docChanged(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
+end;
+{$ENDREGION}
+
+{$REGION ICEEditableShortCut}
+function TCEMainForm.scedWantFirst: boolean;
+begin
+  fScCollectCount := 0;
+  result := true;
+end;
+
+function TCEMainForm.scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
+var
+  act: TCustomAction;
+begin
+  result := false;
+  if fScCollectCount > actions.ActionCount -1 then exit;
+  //
+  act := TCustomAction(Actions.Actions[fScCollectCount]);
+  category := act.Category;
+  identifier := act.Caption;
+  aShortcut := act.ShortCut;
+  //
+  fScCollectCount += 1;
+  result := true;
+end;
+
+procedure TCEMainForm.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+begin
+
 end;
 {$ENDREGION}
 
