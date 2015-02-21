@@ -123,7 +123,8 @@ begin
       begin
         TForm(dt^.container).Parent := pnlEd;
         TForm(dt^.container).Align := alClient;
-        TForm(dt^.container).BorderStyle:= bsNone;
+        //TForm(dt^.container).BorderIcons:= [];
+        //TForm(dt^.container).BorderStyle:= bsNone;
       end;
     oekGeneric:
       begin

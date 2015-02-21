@@ -140,7 +140,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="35">
+    <Units Count="36">
       <Unit0>
         <Filename Value="coedit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -361,6 +361,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="ce_editoroptions"/>
       </Unit34>
+      <Unit35>
+        <Filename Value="..\src\ce_dockoptions.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_dockoptions"/>
+      </Unit35>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
