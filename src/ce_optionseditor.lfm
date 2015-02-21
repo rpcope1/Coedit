@@ -35,11 +35,15 @@ inherited CEOptionEditorWidget: TCEOptionEditorWidget
           Top = 0
           Width = 140
           Align = alLeft
+          AutoExpand = True
           DefaultItemHeight = 18
+          HideSelection = False
+          ReadOnly = True
           ScrollBars = ssAutoBoth
           TabOrder = 0
           OnDeletion = selCatDeletion
           OnSelectionChanged = selCatSelectionChanged
+          Options = [tvoAutoExpand, tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
         end
         object pnlEd: TPanel
           Left = 146
