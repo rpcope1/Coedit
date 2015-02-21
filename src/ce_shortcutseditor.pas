@@ -5,8 +5,8 @@ unit ce_shortcutseditor;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Menus,
-  ExtCtrls, LCLProc, ComCtrls,
+  Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Menus, Graphics,
+  ExtCtrls, LCLProc, ComCtrls, StdCtrls, LMessages, Buttons, LCLType,
   ce_observer, ce_interfaces, ce_common, ce_writableComponent;
 
 type
@@ -41,11 +41,21 @@ type
     property item[index: Integer]: TShortcutItem read getShortcut; default;
   end;
 
+  { TCEShortcutEditor }
+
   TCEShortcutEditor = class(TFrame, ICEEditableOptions)
+    shcCatch: TEdit;
     Panel1: TPanel;
     fltItems: TTreeFilterEdit;
     Panel2: TPanel;
+    schrtText: TStaticText;
+    btnActivate: TSpeedButton;
     tree: TTreeView;
+    procedure btnActivateClick(Sender: TObject);
+    procedure LabeledEdit1KeyDown(Sender: TObject; var Key: Word;Shift: TShiftState);
+    procedure shcCatchExit(Sender: TObject);
+    procedure shcCatchMouseLeave(Sender: TObject);
+    procedure treeSelectionChanged(Sender: TObject);
   private
     fObservers: TCEEditableShortCutSubject;
     fShortcuts: TShortCutCollection;
@@ -58,6 +68,9 @@ type
     //
     function findCategory(const aName: string; aData: Pointer): TTreeNode;
     procedure updateFromObservers;
+    procedure updateEditCtrls;
+  protected
+    procedure UpdateShowing; override;
   public
     constructor create(TheOwner: TComponent); override;
     destructor destroy; override;
@@ -139,6 +152,22 @@ begin
   fObservers.Free;
   inherited;
 end;
+
+procedure TCEShortcutEditor.UpdateShowing;
+var
+  png : TPortableNetworkGraphic;
+begin
+  inherited;
+  if not visible then exit;
+  //
+  png := TPortableNetworkGraphic.Create;
+  try
+    png.LoadFromLazarusResource('keyboard_pencil');
+    btnActivate.Glyph.Assign(png);
+  finally
+    png.free;
+  end;
+end;
 {$ENDREGION}
 
 {$REGION ICEEditableOptions ----------------------------------------------------}
@@ -165,6 +194,57 @@ end;
 {$ENDREGION}
 
 {$REGION shortcut editor things ------------------------------------------------}
+procedure TCEShortcutEditor.treeSelectionChanged(Sender: TObject);
+begin
+  updateEditCtrls;
+end;
+
+procedure TCEShortcutEditor.shcCatchExit(Sender: TObject);
+begin
+  shcCatch.Enabled := false;
+  updateEditCtrls;
+end;
+
+procedure TCEShortcutEditor.shcCatchMouseLeave(Sender: TObject);
+begin
+  shcCatch.Enabled := false;
+  updateEditCtrls;
+end;
+
+procedure TCEShortcutEditor.btnActivateClick(Sender: TObject);
+begin
+  if tree.Selected = nil then exit;
+  if tree.Selected.Level = 0 then exit;
+  if tree.Selected.Data = nil then exit;
+  //
+  shcCatch.Enabled := not shcCatch.Enabled;
+end;
+
+procedure TCEShortcutEditor.LabeledEdit1KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if tree.Selected = nil then exit;
+  if tree.Selected.Level = 0 then exit;
+  if tree.Selected.Data = nil then exit;
+  //
+  if Key = VK_RETURN then shcCatch.Enabled := false
+  else TShortcutItem(tree.Selected.Data).data := Shortcut(Key, Shift);
+  //
+  updateEditCtrls;
+end;
+
+procedure TCEShortcutEditor.updateEditCtrls;
+begin
+  schrtText.Caption := '';
+  //
+  if tree.Selected = nil then exit;
+  if tree.Selected.Level = 0 then exit;
+  if tree.Selected.Data = nil then exit;
+  //
+  schrtText.Caption := TShortcutItem(tree.Selected.Data).combination;
+  shcCatch.Text:= '';
+end;
+
 function TCEShortcutEditor.findCategory(const aName: string; aData: Pointer): TTreeNode;
 var
   i: Integer;
@@ -197,11 +277,13 @@ begin
     if obs.scedWantFirst then while obs.scedWantNext(cat, idt, sht) do
     begin
       // root category
+      if cat = '' then
+        continue;
+      if idt = '' then
+        continue;
       prt := findCategory(cat, obs);
       if prt = nil then
         prt := tree.Items.AddObject(nil, cat, obs);
-      if idt = '' then
-        continue;
       // item as child
       itm := TShortcutItem(fShortcuts.items.Add);
       itm.identifier := idt;
