@@ -37,7 +37,6 @@ inherited CEMessagesWidget: TCEMessagesWidget
         ShowLines = False
         ShowRoot = False
         TabOrder = 0
-        OnDblClick = ListDblClick
         OnKeyDown = ListKeyDown
         Options = [tvoAllowMultiselect, tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoToolTips, tvoThemedDraw]
       end
@@ -63,6 +62,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
         end
         object ToolButton2: TToolButton
           Left = 133
+          Height = 24
           Top = 2
           Width = 5
           Caption = 'ToolButton2'
@@ -76,6 +76,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
         end
         object ToolButton4: TToolButton
           Left = 238
+          Height = 24
           Top = 2
           Width = 5
           Caption = 'ToolButton4'
@@ -89,6 +90,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
         end
         object ToolButton8: TToolButton
           Left = 343
+          Height = 24
           Top = 2
           Width = 5
           Caption = 'ToolButton8'
@@ -102,6 +104,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
         end
         object ToolButton10: TToolButton
           Left = 448
+          Height = 24
           Top = 2
           Width = 5
           Caption = 'ToolButton10'
@@ -158,6 +161,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
         end
         object ToolButton1: TToolButton
           Left = 28
+          Height = 24
           Top = 2
           Width = 5
           Caption = 'ToolButton1'

@@ -24,11 +24,13 @@ type
   private
     fMaxCount: Integer;
     fAutoSelect: boolean;
+    fSingleClick: boolean;
     fFont: TFont;
     procedure setFont(aValue: TFont);
   published
     property maxMessageCount: integer read fMaxCount write fMaxCount;
     property autoSelect: boolean read fAutoSelect write fAutoSelect;
+    property singleMessageClick: boolean read fSingleClick write fSingleClick;
     property font: TFont read fFont write setFont;
   public
     constructor Create(AOwner: TComponent); override;
@@ -52,7 +54,6 @@ type
     btnSelProj: TToolButton;
     ToolButton8: TToolButton;
     btnSelApp: TToolButton;
-    procedure ListDblClick(Sender: TObject);
     procedure ListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     fActAutoSel: TAction;
@@ -66,6 +67,7 @@ type
     fDoc: TCESynMemo;
     fCtxt: TCEAppMessageCtxt;
     fAutoSelect: boolean;
+    fSingleClick: boolean;
     fOptions: TCEMessagesOptions;
     fOptionsBackup: TCEMessagesOptions;
     fBtns: array[TCEAppMessageCtxt] of TToolButton;
@@ -79,9 +81,11 @@ type
     procedure actSelAllExecute(Sender: TObject);
     procedure setMaxMessageCount(aValue: Integer);
     procedure setAutoSelectCategory(aValue: boolean);
+    procedure setSingleMessageClick(aValue: boolean);
     procedure listDeletion(Sender: TObject; Node: TTreeNode);
     procedure selCtxtClick(Sender: TObject);
     function iconIndex(aKind: TCEAppMessageKind): Integer;
+    procedure handleMessageClick(Sender: TObject);
     //
     procedure projNew(aProject: TCEProject);
     procedure projClosing(aProject: TCEProject);
@@ -111,6 +115,7 @@ type
     //
     property maxMessageCount: Integer read fMaxMessCnt write setMaxMessageCount;
     property autoSelectCategory: boolean read fAutoSelect write setAutoSelectCategory;
+    property singleMessageClick: boolean read fSingleClick write setSingleMessageClick;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -158,6 +163,7 @@ begin
     fFont.Assign(opts.font);
     fMaxCount := opts.fMaxCount;
     fAutoSelect := opts.fAutoSelect;
+    fSingleClick := opts.fSingleClick;
     fFont.EndUpdate;
   end
   else if Source is TCEMessagesWidget then
@@ -166,6 +172,7 @@ begin
     fFont.Assign(widg.List.Font);
     fMaxCount := widg.fMaxMessCnt;
     fAutoSelect := widg.fAutoSelect;
+    fSingleClick := widg.fSingleClick;
   end
   else inherited;
 end;
@@ -180,6 +187,7 @@ begin
     widg.List.Font.Assign(fFont);
     widg.maxMessageCount := fMaxCount;
     widg.autoSelectCategory := fAutoSelect;
+    widg.singleMessageClick := fSingleClick;
   end
   else inherited;
 end;
@@ -317,6 +325,20 @@ begin
   fAutoSelect := aValue;
   fActAutoSel.Checked:= fAutoSelect;
 end;
+
+procedure TCEMessagesWidget.setSingleMessageClick(aValue: boolean);
+begin
+  fSingleClick := aValue;
+  if fSingleClick then
+  begin
+    List.OnClick := @handleMessageClick;
+    List.OnDblClick:= nil;
+  end else begin
+    List.OnClick := nil;
+    List.OnDblClick:= @handleMessageClick;
+  end;
+end;
+
 {$ENDREGION}
 
 {$REGION ICEEditableOptions ----------------------------------------------------}
@@ -588,7 +610,7 @@ begin
     List.BottomItem.MakeVisible;
 end;
 
-procedure TCEMessagesWidget.ListDblClick(Sender: TObject);
+procedure TCEMessagesWidget.handleMessageClick(Sender: TObject);
 var
   pos: TPoint;
   msg: string;
