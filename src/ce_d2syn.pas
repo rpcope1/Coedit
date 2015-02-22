@@ -143,6 +143,7 @@ type
 	public
 		constructor create(aOwner: TComponent); override;
     destructor destroy; override;
+    procedure Assign(Source: TPersistent); override;
     procedure GetTokenEx(out TokenStart: PChar; out TokenLength: integer); override;
     function GetDefaultAttribute(Index: integer): TSynHighlighterAttributes; override;
     procedure setLine(const NewValue: String; LineNumber: Integer); override;
@@ -335,6 +336,18 @@ destructor TSynD2Syn.destroy;
 begin
   fCurrRange.Free;
   inherited;
+end;
+
+procedure TSynD2Syn.Assign(Source: TPersistent);
+var
+  srcsyn: TSynD2Syn;
+begin
+  inherited;
+  if Source is TSynD2Syn then
+  begin
+    srcsyn := TSynD2Syn(Source);
+    FoldKinds := srcsyn.FoldKinds;
+  end;
 end;
 
 function TSynD2Syn.GetRangeClass: TSynCustomHighlighterRangeClass;

@@ -337,7 +337,6 @@ begin
   end;
   //
   Highlighter := D2Syn;
-  D2Syn.FoldKinds := [fkBrackets, fkComments1, fkComments2, fkStrings, fkRegion];
   //
   fTempFileName := GetTempDir(false) + 'temp_' + uniqueObjStr(self) + '.d';
   fFilename := '<new document>';
