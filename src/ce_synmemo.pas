@@ -230,6 +230,7 @@ var
   chksm: Cardinal;
 begin
   tempn := fMemo.fileName;
+  if tempn = fMemo.tempFilename then exit;
   if not fileExists(tempn) then exit;
   //
   fname := getCoeditDocPath + 'editorcache' + DirectorySeparator;
