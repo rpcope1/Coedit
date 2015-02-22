@@ -230,6 +230,7 @@ begin
   //
   List.PopupMenu := contextMenu;
   List.OnDeletion := @ListDeletion;
+  List.OnDblClick := @handleMessageClick;
   //
   btnSelProj.OnClick  := @selCtxtClick;
   btnSelMisc.OnClick  := @selCtxtClick;
