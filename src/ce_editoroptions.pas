@@ -19,9 +19,6 @@ type
 
   end;
 
-  // attributes frameedges are not stored because of:
-  //TODO-cLCL&LAZ-specific: remove this comment once http://bugs.freepascal.org/view.php?id=27513 merged/fixed
-
   (**
    * Container for the editor and highlither options.
    * The base class is also used to backup the settings

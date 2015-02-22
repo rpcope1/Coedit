@@ -102,11 +102,7 @@ begin
   Tree.OnDeletion := @treeDeletion;
   Tree.OnSelectionChanged := @treeSelectionChanged;
   Tree.OnExpanding := @treeExpanding;
-
-  // http://bugs.freepascal.org/view.php?id=27137
-  // TODO-cLCL&LAZ-specific: remove comment after next Laz release
-  // TODO-cLCL&LAZ-specific, try the new TListViewFilterEdit here.
-  // TODO-cLCL&LAZ-specific, the align/anchors of filterxxx must be redefined, previously there was a bug.
+  //
   lstFilter.FilteredListbox := nil;
   lstFilter.onChange := @lstFilterChange;
   //

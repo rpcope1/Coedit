@@ -89,13 +89,13 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
           ShowCaption = False
         end
         object TreeFilterEdit1: TTreeFilterEdit
-          Left = 144
-          Height = 23
-          Top = 0
-          Width = 159
+          Left = 142
+          Height = 20
+          Top = 2
+          Width = 193
           ButtonWidth = 28
           NumGlyphs = 1
-          Align = alCustom
+          Align = alClient
           Anchors = [akTop, akLeft, akRight]
           BorderSpacing.Around = 2
           MaxLength = 0

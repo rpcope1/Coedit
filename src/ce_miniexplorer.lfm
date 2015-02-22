@@ -149,14 +149,15 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
             TabOrder = 3
           end
           object lstFilter: TListFilterEdit
-            Left = 116
-            Height = 23
-            Top = 0
-            Width = 196
-            ButtonWidth = 23
+            Left = 113
+            Height = 22
+            Top = 1
+            Width = 221
+            ButtonWidth = 28
             NumGlyphs = 1
-            Align = alCustom
+            Align = alClient
             Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Around = 1
             MaxLength = 0
             TabOrder = 4
           end

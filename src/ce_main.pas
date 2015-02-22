@@ -1435,7 +1435,7 @@ var
   xcfg: TXMLConfigStorage;
   i: NativeInt;
 begin
-  // TODO-cLCL&LAZ-specific: possible loading AV, xml saved after undocking some widgets, xml file abnormal size.
+  // TODO-cbugfix: possible loading AV, xml saved after undocking some widgets, xml file abnormal size, seems to be related to Anchordocking itself, not its usage.
   for i:= 0 to fWidgList.Count-1 do
   begin
     if not fWidgList.widget[i].isDockable then continue;

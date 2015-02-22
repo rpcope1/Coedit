@@ -41,14 +41,15 @@ inherited CETodoListWidget: TCETodoListWidget
           TabOrder = 0
         end
         object lstfilter: TListFilterEdit
-          Left = 68
-          Height = 23
+          Left = 62
+          Height = 22
           Top = 2
-          Width = 483
+          Width = 516
           ButtonWidth = 28
           NumGlyphs = 1
-          Align = alCustom
+          Align = alClient
           Anchors = [akTop, akLeft, akRight]
+          BorderSpacing.Around = 2
           MaxLength = 0
           TabOrder = 1
         end
