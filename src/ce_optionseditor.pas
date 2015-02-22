@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, RTTIGrids, Forms, Controls, Graphics, ExtCtrls,
-  Menus, ComCtrls, StdCtrls, Buttons, ce_common, ce_widget, ce_interfaces,
+  Menus, ComCtrls, Buttons, ce_common, ce_widget, ce_interfaces,
   ce_observer;
 
 type
@@ -155,12 +155,11 @@ begin
   if selCat.Selected = nil then exit;
   if selcat.Selected.Data = nil then exit;
   //
+  if inspector.Parent <> nil then
+    inspector.ItemIndex := -1;
   PCategoryData(selCat.Selected.Data)^
     .observer
     .optionedEvent(oeeCancel);
-  //
-  // if generic editor then
-  //  refresh displayed value since the provider may have updated the options container
 end;
 
 procedure TCEOptionEditorWidget.btnAcceptClick(Sender: TObject);
@@ -168,6 +167,8 @@ begin
   if selCat.Selected = nil then exit;
   if selcat.Selected.Data = nil then exit;
   //
+  if inspector.Parent <> nil then
+    inspector.ItemIndex := -1;
   PCategoryData(selCat.Selected.Data)^
     .observer
     .optionedEvent(oeeAccept);

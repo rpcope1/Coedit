@@ -7,8 +7,8 @@ interface
 uses
   Classes, SysUtils, FileUtil, SynEditKeyCmds, SynHighlighterLFM, Forms,
   AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls, Graphics,
-  Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, dynlibs, SynExportHTML,
-  ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_plugin, ce_synmemo, ce_widget,
+  Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, SynExportHTML,
+  ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_synmemo, ce_widget,
   ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf, ce_search,
   ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist,
   ce_observer, ce_writableComponent, ce_toolseditor, ce_procinput, ce_optionseditor,

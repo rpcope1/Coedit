@@ -151,6 +151,7 @@
       <Unit3>
         <Filename Value="..\src\ce_d2syn.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_d2syn"/>
       </Unit3>
       <Unit4>
         <Filename Value="..\src\ce_dcd.pas"/>
@@ -213,7 +214,6 @@
         <ComponentName Value="CEMiniExplorerWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_miniexplorer"/>
       </Unit14>
       <Unit15>
         <Filename Value="..\src\ce_observer.pas"/>
@@ -237,7 +237,6 @@
         <ComponentName Value="CEProjectConfigurationWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_projconf"/>
       </Unit18>
       <Unit19>
         <Filename Value="..\src\ce_project.pas"/>
@@ -264,16 +263,15 @@
         <ComponentName Value="CEStaticExplorerWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_staticexplorer"/>
       </Unit22>
       <Unit23>
         <Filename Value="..\src\ce_staticmacro.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_staticmacro"/>
       </Unit23>
       <Unit24>
         <Filename Value="..\src\ce_symstring.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_symstring"/>
       </Unit24>
       <Unit25>
         <Filename Value="..\src\ce_synmemo.pas"/>
@@ -290,6 +288,7 @@
         <ComponentName Value="CEToolsEditorWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_toolseditor"/>
       </Unit27>
       <Unit28>
         <Filename Value="..\src\ce_txtsyn.pas"/>
@@ -305,6 +304,7 @@
       <Unit30>
         <Filename Value="..\src\ce_writablecomponent.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_writableComponent"/>
       </Unit30>
       <Unit31>
         <Filename Value="..\src\ce_todolist.pas"/>
@@ -324,7 +324,6 @@
         <ComponentName Value="CEOptionEditorWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_optionseditor"/>
       </Unit33>
       <Unit34>
         <Filename Value="..\src\ce_editoroptions.pas"/>
@@ -341,7 +340,6 @@
         <ComponentName Value="CEShortcutEditor"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
-        <UnitName Value="ce_shortcutseditor"/>
       </Unit36>
     </Units>
   </ProjectOptions>
@@ -353,7 +351,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\src;$(LazarusDir)\components\anchordocking"/>
+      <OtherUnitFiles Value="..\src"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>
