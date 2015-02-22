@@ -13,13 +13,15 @@ type
   (**
    * The option frame to edit the docking option, displayed in the option form.
    *)
-  TEditableAnchorDockOptions = class(TAnchorDockOptionsFrame, ICEEditableOptions)
+  TDockOptionsEditor = class(TAnchorDockOptionsFrame, ICEEditableOptions)
   private
     fBackup: TXMLConfigStorage;
+    //
     function optionedWantCategory(): string;
     function optionedWantEditorKind: TOptionEditorKind;
     function optionedWantContainer: TPersistent;
     procedure optionedEvent(anEvent: TOptionEditorEvent);
+    //
     procedure doChanged(Sender: TObject);
   public
     constructor Create(TheOwner: TComponent); override;
@@ -29,12 +31,12 @@ type
 implementation
 
 var
-  DockOptionsEditor: TEditableAnchorDockOptions;
+  DockOptionsEditor: TDockOptionsEditor;
 
-constructor TEditableAnchorDockOptions.Create(TheOwner: TComponent);
+constructor TDockOptionsEditor.Create(TheOwner: TComponent);
 begin
   inherited;
-  fBackup := TXMLConfigStorage.Create('',false);
+  fBackup := TXMLConfigStorage.Create('', false);
   Master := AnchorDocking.DockMaster;
   //
   HeaderAlignLeftTrackBar.OnChange := @doChanged;
@@ -54,23 +56,23 @@ begin
   EntitiesConnector.addObserver(self);
 end;
 
-destructor TEditableAnchorDockOptions.Destroy;
+destructor TDockOptionsEditor.Destroy;
 begin
   fBackup.Free;
   inherited;
 end;
 
-function TEditableAnchorDockOptions.optionedWantCategory(): string;
+function TDockOptionsEditor.optionedWantCategory(): string;
 begin
   exit('Docking')
 end;
 
-function TEditableAnchorDockOptions.optionedWantEditorKind: TOptionEditorKind;
+function TDockOptionsEditor.optionedWantEditorKind: TOptionEditorKind;
 begin
   exit(oekControl);
 end;
 
-function TEditableAnchorDockOptions.optionedWantContainer: TPersistent;
+function TDockOptionsEditor.optionedWantContainer: TPersistent;
 begin
   fBackup.Clear;
   DockMaster.SaveSettingsToConfig(fBackup);
@@ -78,7 +80,7 @@ begin
   exit(self);
 end;
 
-procedure TEditableAnchorDockOptions.optionedEvent(anEvent: TOptionEditorEvent);
+procedure TDockOptionsEditor.optionedEvent(anEvent: TOptionEditorEvent);
 begin
   // restores
   if anEvent = oeeCancel then
@@ -97,7 +99,7 @@ begin
   end;
 end;
 
-procedure TEditableAnchorDockOptions.doChanged(Sender: TObject);
+procedure TDockOptionsEditor.doChanged(Sender: TObject);
 begin
   DragThresholdLabel.Caption:=adrsDragThreshold +
     ' ('+IntToStr(DragThresholdTrackBar.Position)+')';
@@ -113,7 +115,7 @@ begin
 end;
 
 initialization
-  DockOptionsEditor := TEditableAnchorDockOptions.create(nil);
+  DockOptionsEditor := TDockOptionsEditor.create(nil);
 finalization
   DockOptionsEditor.free;
 end.

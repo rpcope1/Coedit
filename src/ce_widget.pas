@@ -109,7 +109,7 @@ uses
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEWidget.create(aOwner: TComponent);
 var
-  i: NativeInt;
+  i: Integer;
   itm: TmenuItem;
 begin
   inherited;

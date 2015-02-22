@@ -14,6 +14,7 @@ type
 
   TCESynMemo = class;
 
+  // SImple THintWindow descendant allowing the font size to be in sync with the editor.
   TCEEditorHintWindow = class(THintWindow)
   public
     class var FontSize: Integer;
@@ -22,6 +23,7 @@ type
       AData: Pointer): TRect; override;
   end;
 
+  // Stores the state of a particulat source code folding.
   TCEFoldCache = class(TCollectionItem)
   private
     fCollapsed: boolean;
@@ -33,6 +35,7 @@ type
     property nestedIndex: Integer read fNestedIndex write fNestedIndex;
   end;
 
+  // Stores the state of a document between two cessions.
   TCESynMemoCache = class(TWritableLfmTextComponent)
   private
     fMemo: TCESynMemo;
@@ -58,6 +61,7 @@ type
     procedure load;
   end;
 
+  // buffer of caret positions allowing to jump quickly to the most recent locations.
   TCESynMemoPositions = class
   private
     fPos: Integer;
@@ -159,6 +163,7 @@ end;
 destructor TCESynMemoCache.destroy;
 begin
   fFolds.Free;
+  inherited;
 end;
 
 procedure TCESynMemoCache.setFolds(someFolds: TCollection);
@@ -230,6 +235,7 @@ var
   chksm: Cardinal;
 begin
   tempn := fMemo.fileName;
+  if tempn = fMemo.tempFilename then exit;
   if not fileExists(tempn) then exit;
   //
   fname := getCoeditDocPath + 'editorcache' + DirectorySeparator;

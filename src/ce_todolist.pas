@@ -49,7 +49,7 @@ type
   public
     constructor create(AOwner: TComponent); override;
     destructor destroy; override;
-    // str will be set on the tool process output.
+    // str is the output stream of the tool process.
     procedure loadFromTxtStream(str: TMemoryStream);
     property count: integer read getCount;
     property item[index: integer]: TTodoItem read getItem; default;
@@ -177,8 +177,6 @@ begin
   lstItems.OnCompare := @lstItemsCompare;
   fAutoRefresh := true;
   mnuAutoRefresh.Checked := true;
-  // TODO-cLCL&LAZ-specific, try the new TListViewFilterEdit here.
-  // TODO-cLCL&LAZ-specific, the align/anchors of filterxxx must be redefined, previously there was a bug.
   lstfilter.OnChange:= @filterItems;
   //
   png := TPortableNetworkGraphic.Create;
@@ -430,7 +428,7 @@ begin
     //
     if src.category <> '' then lstItems.Column[1].Visible := true;
     if src.assignee <> '' then lstItems.Column[2].Visible := true;
-    if src.status <> '' then lstItems.Column[3].Visible := true;
+    if src.status <> ''   then lstItems.Column[3].Visible := true;
     if src.priority <> '' then lstItems.Column[4].Visible := true;
   end;
 end;
@@ -514,7 +512,7 @@ procedure TCETodoListWidget.filterItems(sender: TObject);
 begin
   fillTodoList
 end;
-
 {$ENDREGION}
+
 end.
 

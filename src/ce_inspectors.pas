@@ -14,6 +14,9 @@ type
 
   TCustomPathType = (ptFile, ptFolder);
 
+  // base class for a property representing a path
+  // additionaly to the text field, a dialog can be opened
+  // to select the directory or the file.
   TCECustomPathEditor = class(TStringPropertyEditor)
   private
     fType: TCustomPathType;
@@ -29,7 +32,6 @@ type
   TCEFilenameEditor = class(TCECustomPathEditor)
     constructor Create(Hook: TPropertyEditorHook; APropCount: Integer); override;
   end;
-
 
 implementation
 
