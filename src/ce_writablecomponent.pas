@@ -5,7 +5,7 @@ unit ce_writableComponent;
 interface
 
 uses
-  Classes, SysUtils, ce_common, typinfo, fpjson, jsonparser, fpjsonrtti, fpjsondataset;
+  Classes, SysUtils, ce_common, typinfo, fpjson, jsonparser, fpjsonrtti;
 
 type
 

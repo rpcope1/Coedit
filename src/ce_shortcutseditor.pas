@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Menus, Graphics,
-  ExtCtrls, LCLProc, ComCtrls, StdCtrls, LMessages, Buttons, LCLType,
+  ExtCtrls, LCLProc, ComCtrls, StdCtrls, Buttons, LCLType,
   ce_observer, ce_interfaces, ce_common, ce_writableComponent;
 
 type
@@ -40,8 +40,6 @@ type
     property count: Integer read getCount;
     property item[index: Integer]: TShortcutItem read getShortcut; default;
   end;
-
-  { TCEShortcutEditor }
 
   TCEShortcutEditor = class(TFrame, ICEEditableOptions)
     shcCatch: TEdit;
@@ -189,7 +187,6 @@ end;
 
 procedure TCEShortcutEditor.optionedEvent(anEvent: TOptionEditorEvent);
 begin
-  // todo
 end;
 {$ENDREGION}
 

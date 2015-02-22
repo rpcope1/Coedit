@@ -5,9 +5,9 @@ unit ce_todolist;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, TreeFilterEdit, ListFilterEdit, Forms, Controls,
-  strutils, Graphics, Dialogs, ExtCtrls, Menus, Buttons, StdCtrls, ComCtrls,
-  asyncprocess, ce_widget, process, ce_common, ce_interfaces, ce_synmemo,
+  Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls,
+  strutils, Graphics, Dialogs, ExtCtrls, Menus, Buttons, ComCtrls,
+  ce_widget, process, ce_common, ce_interfaces, ce_synmemo,
   ce_project, ce_symstring;
 
 type
