@@ -24,9 +24,17 @@ type
   private
     fMaxCount: Integer;
     fAutoSelect: boolean;
+    fFont: TFont;
+    procedure setFont(aValue: TFont);
   published
     property maxMessageCount: integer read fMaxCount write fMaxCount;
     property autoSelect: boolean read fAutoSelect write fAutoSelect;
+    property font: TFont read fFont write setFont;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor destroy; override;
+    procedure assign(Source: TPersistent); override;
+    procedure AssignTo(Dest: TPersistent); override;
   end;
 
   TCEMessagesWidget = class(TCEWidget, ICEEditableOptions, ICEMultiDocObserver, ICEProjectObserver, ICEMessagesDisplay)
@@ -58,7 +66,8 @@ type
     fDoc: TCESynMemo;
     fCtxt: TCEAppMessageCtxt;
     fAutoSelect: boolean;
-    fEditableOptions: TCEMessagesOptions;
+    fOptions: TCEMessagesOptions;
+    fOptionsBackup: TCEMessagesOptions;
     fBtns: array[TCEAppMessageCtxt] of TToolButton;
     procedure filterMessages(aCtxt: TCEAppMessageCtxt);
     procedure clearOutOfRangeMessg;
@@ -69,14 +78,10 @@ type
     procedure actCopyMsgExecute(Sender: TObject);
     procedure actSelAllExecute(Sender: TObject);
     procedure setMaxMessageCount(aValue: Integer);
+    procedure setAutoSelectCategory(aValue: boolean);
     procedure listDeletion(Sender: TObject; Node: TTreeNode);
     procedure selCtxtClick(Sender: TObject);
     function iconIndex(aKind: TCEAppMessageKind): Integer;
-    //
-    procedure optset_MaxMessageCount(aReader: TReader);
-    procedure optget_MaxMessageCount(aWriter: TWriter);
-    procedure optset_AutoSelect(aReader: TReader);
-    procedure optget_AutoSelect(aWriter: TWriter);
     //
     procedure projNew(aProject: TCEProject);
     procedure projClosing(aProject: TCEProject);
@@ -99,19 +104,18 @@ type
     procedure clearbyContext(aCtxt: TCEAppMessageCtxt);
     procedure clearbyData(aData: Pointer);
   protected
-    procedure sesoptDeclareProperties(aFiler: TFiler); override;
     //
     function contextName: string; override;
     function contextActionCount: integer; override;
     function contextAction(index: integer): TAction; override;
-  published
-    property maxMessageCount: Integer read fMaxMessCnt write setMaxMessageCount default 125;
+    //
+    property maxMessageCount: Integer read fMaxMessCnt write setMaxMessageCount;
+    property autoSelectCategory: boolean read fAutoSelect write setAutoSelectCategory;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     //
     procedure scrollToBack;
-
   end;
 
   function guessMessageKind(const aMessg: string): TCEAppMessageKind;
@@ -121,8 +125,70 @@ type
 implementation
 {$R *.lfm}
 
+const
+  optname = 'messages.txt';
+
+{$REGION TCEMessagesOptions ----------------------------------------------------}
+constructor TCEMessagesOptions.Create(AOwner: TComponent);
+begin
+  inherited;
+  fFont := TFont.Create;
+end;
+
+destructor TCEMessagesOptions.destroy;
+begin
+  fFont.Free;
+  inherited;
+end;
+
+procedure TCEMessagesOptions.setFont(aValue: TFont);
+begin
+  fFont.Assign(aValue);
+end;
+
+procedure TCEMessagesOptions.assign(Source: TPersistent);
+var
+  widg : TCEMessagesWidget;
+  opts : TCEMessagesOptions;
+begin
+  if Source is TCEMessagesOptions then
+  begin
+    opts := TCEMessagesOptions(Source);
+    fFont.BeginUpdate;
+    fFont.Assign(opts.font);
+    fMaxCount := opts.fMaxCount;
+    fAutoSelect := opts.fAutoSelect;
+    fFont.EndUpdate;
+  end
+  else if Source is TCEMessagesWidget then
+  begin
+    widg := TCEMessagesWidget(Source);
+    fFont.Assign(widg.List.Font);
+    fMaxCount := widg.fMaxMessCnt;
+    fAutoSelect := widg.fAutoSelect;
+  end
+  else inherited;
+end;
+
+procedure TCEMessagesOptions.AssignTo(Dest: TPersistent);
+var
+  widg : TCEMessagesWidget;
+begin
+  if Dest is TCEMessagesWidget then
+  begin
+    widg := TCEMessagesWidget(Dest);
+    widg.List.Font.Assign(fFont);
+    widg.maxMessageCount := fMaxCount;
+    widg.autoSelectCategory := fAutoSelect;
+  end
+  else inherited;
+end;
+{$ENDREGION}
+
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEMessagesWidget.create(aOwner: TComponent);
+var
+  fname: string;
 begin
   fMaxMessCnt := 500;
   fCtxt := amcAll;
@@ -149,8 +215,10 @@ begin
   //
   inherited;
   //
-  fEditableOptions := TCEMessagesOptions.Create(Self);
-  fEditableOptions.Name:= 'messageOptions';
+  fOptions := TCEMessagesOptions.Create(Self);
+  fOptions.assign(self);
+  fOptions.Name:= 'messageOptions';
+  fOptionsBackup := TCEMessagesOptions.Create(Self);
   //
   List.PopupMenu := contextMenu;
   List.OnDeletion := @ListDeletion;
@@ -168,12 +236,20 @@ begin
   //
   btnClearCat.OnClick := @actClearCurCatExecute;
   //
+  fname := getCoeditDocPath + optname;
+  if fileExists(fname) then
+  begin
+    fOptions.loadFromFile(fname);
+    fOptions.AssignTo(self);
+  end;
+  //
   EntitiesConnector.addObserver(self);
   EntitiesConnector.addSingleService(self);
 end;
 
 destructor TCEMessagesWidget.destroy;
 begin
+  fOptions.saveToFile(getCoeditDocPath + optname);
   EntitiesConnector.removeObserver(self);
   Inherited;
 end;
@@ -181,7 +257,7 @@ end;
 procedure TCEMessagesWidget.listDeletion(Sender: TObject; Node: TTreeNode);
 begin
   if node.Data <> nil then
-    Dispose( PMessageData(Node.Data));
+    Dispose(PMessageData(Node.Data));
 end;
 
 procedure TCEMessagesWidget.ListKeyDown(Sender: TObject; var Key: Word;
@@ -225,6 +301,22 @@ begin
     fCtxt := amcMisc;
   filterMessages(fCtxt);
 end;
+
+procedure TCEMessagesWidget.setMaxMessageCount(aValue: Integer);
+begin
+  if aValue < 5 then
+    aValue := 5;
+  if fMaxMessCnt = aValue then
+    exit;
+  fMaxMessCnt := aValue;
+  clearOutOfRangeMessg;
+end;
+
+procedure TCEMessagesWidget.setAutoSelectCategory(aValue: boolean);
+begin
+  fAutoSelect := aValue;
+  fActAutoSel.Checked:= fAutoSelect;
+end;
 {$ENDREGION}
 
 {$REGION ICEEditableOptions ----------------------------------------------------}
@@ -240,61 +332,20 @@ end;
 
 function TCEMessagesWidget.optionedWantContainer: TPersistent;
 begin
-  fEditableOptions.maxMessageCount:= fMaxMessCnt;
-  fEditableOptions.autoSelect:= fActAutoSel.Checked;
-  exit(fEditableOptions);
+  fOptions.assign(self);
+  fOptionsBackup.assign(self);
+  exit(fOptions);
 end;
 
 procedure TCEMessagesWidget.optionedEvent(anEvent: TOptionEditorEvent);
 begin
-  if anEvent = oeeAccept then
-  begin
-    fMaxMessCnt := fEditableOptions.maxMessageCount;
-    fActAutoSel.Checked := fEditableOptions.autoSelect;
-    clearOutOfRangeMessg;
+  case anEvent of
+    oeeAccept:
+      fOptionsBackup.assign(fOptions);
+    oeeCancel:
+      fOptions.assign(fOptionsBackup);
   end;
-end;
-{$ENDREGION}
-
-{$REGION ICESessionOptionsObserver ---------------------------------------------}
-procedure TCEMessagesWidget.setMaxMessageCount(aValue: Integer);
-begin
-  if aValue < 5 then
-    aValue := 5;
-  if fMaxMessCnt = aValue then
-    exit;
-  fMaxMessCnt := aValue;
-  clearOutOfRangeMessg;
-end;
-
-procedure TCEMessagesWidget.optset_MaxMessageCount(aReader: TReader);
-begin
-  maxMessageCount := aReader.ReadInteger;
-end;
-
-procedure TCEMessagesWidget.optget_MaxMessageCount(aWriter: TWriter);
-begin
-  aWriter.WriteInteger(fMaxMessCnt);
-end;
-
-procedure TCEMessagesWidget.optset_AutoSelect(aReader: TReader);
-begin
-  fAutoSelect := aReader.ReadBoolean;
-  fActAutoSel.Checked := fAutoSelect;
-end;
-
-procedure TCEMessagesWidget.optget_AutoSelect(aWriter: TWriter);
-begin
-  aWriter.WriteBoolean(fAutoSelect);
-end;
-
-procedure TCEMessagesWidget.sesoptDeclareProperties(aFiler: TFiler);
-begin
-  inherited;
-  aFiler.DefineProperty(Name + '_MaxMessageCount', @optset_MaxMessageCount,
-    @optget_MaxMessageCount, true);
-  aFiler.DefineProperty(Name + '_AutoSelectCategory', @optset_AutoSelect,
-    @optget_AutoSelect, true);
+  fOptions.AssignTo(self);
 end;
 {$ENDREGION}
 
