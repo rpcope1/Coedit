@@ -957,7 +957,7 @@ end;
 
 destructor TOtherOpts.destroy;
 begin
-  fCustom.Destroy;
+  fCustom.Free;
   inherited;
 end;
 

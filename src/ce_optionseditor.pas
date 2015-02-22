@@ -11,6 +11,8 @@ uses
 
 type
 
+  // store the information about the obsever
+  // exposing some editable options.
   PCategoryData = ^TCategoryData;
   TCategoryData = record
     kind: TOptionEditorKind;
@@ -110,9 +112,12 @@ procedure TCEOptionEditorWidget.selCatSelectionChanged(Sender: TObject);
 var
   dt: PCategoryData;
 begin
+  // remove either the control, the form or the inspector
+  // being used as editor.
   inspector.TIObject := nil;
   if pnlEd.ControlCount > 0 then
     pnlEd.Controls[0].Parent := nil;
+  //
   if selCat.Selected = nil then exit;
   if selCat.Selected.Data = nil then exit;
   //
@@ -173,7 +178,6 @@ begin
     .observer
     .optionedEvent(oeeAccept);
 end;
-
 {$ENDREGION}
 
 end.

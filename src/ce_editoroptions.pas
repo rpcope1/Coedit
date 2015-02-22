@@ -11,18 +11,10 @@ uses
 
 type
 
-  TDHighligthOptions = class(TPersistent)
-
-  end;
-
-  TTxtHighligthOptions = class(TPersistent)
-
-  end;
-
   (**
    * Container for the editor and highlither options.
    * The base class is also used to backup the settings
-   * to allow a live preview and to restore them when not accepted.
+   * to allow a to preview and restore the settings when rejected.
    *
    * note: when adding a new property, the default value must be set in
    * the constructor according to the default value of the member binded
@@ -30,11 +22,15 @@ type
    *)
   TCEEditorOptionsBase = class(TWritableLfmTextComponent)
   private
+    // note this is how a TComponent can be edited in
+    // a basic TTIGrid: in the ctor create the component
+    // but expose it as a published TPersistent.
     fD2Syn: TPersistent;
     fTxtSyn: TPersistent;
+    //
     fSelCol: TSynSelectedColor;
-    fFoldCol: TSynSelectedColor;
-    fLinkCol: TSynSelectedColor;
+    fFoldedColor: TSynSelectedColor;
+    fMouseLinkColor: TSynSelectedColor;
     fFont: TFont;
     //
     fTabWidth: Integer;
@@ -43,28 +39,28 @@ type
     fCharSpacing: Integer;
     fRightEdge: Integer;
     fBackground: TColor;
-    fRightEdgeCol: TColor;
+    fRightEdgeColor: TColor;
     fOptions1: TSynEditorOptions;
     fOptions2: TSynEditorOptions2;
     fMouseOptions: TSynEditorMouseOptions;
     //
     procedure setFont(aValue: TFont);
     procedure setSelCol(aValue: TSynSelectedColor);
-    procedure setFoldCol(aValue: TSynSelectedColor);
-    procedure setLinkCol(aValue: TSynSelectedColor);
+    procedure setFoldedColor(aValue: TSynSelectedColor);
+    procedure setMouseLinkColor(aValue: TSynSelectedColor);
     procedure setD2Syn(aValue: TPersistent);
     procedure setTxtSyn(aValue: TPersistent);
   published
-    property mouseLinkColor: TSynSelectedColor read fLinkCol write setLinkCol;
+    property mouseLinkColor: TSynSelectedColor read fMouseLinkColor write setMouseLinkColor;
     property selectedColor: TSynSelectedColor read fSelCol write setSelCol;
-    property foldedColor: TSynSelectedColor read fFoldCol write setFoldCol;
+    property foldedColor: TSynSelectedColor read fFoldedColor write setFoldedColor;
     property background: TColor read fBackground write fBackground default clWhite;
     property tabulationWidth: Integer read fTabWidth write fTabWidth default 4;
     property blockIdentation: Integer read fBlockIdent write fBlockIdent default 4;
     property lineSpacing: Integer read fLineSpacing write fLineSpacing default 0;
     property characterSpacing: Integer read fCharSpacing write fCharSpacing default 0;
     property rightEdge: Integer read fRightEdge write fRightEdge default 80;
-    property rightEdgeColor: TColor read fRightEdgeCol write fRightEdgeCol default clSilver;
+    property rightEdgeColor: TColor read fRightEdgeColor write fRightEdgeColor default clSilver;
     property font: TFont read fFont write setFont;
     property options1: TSynEditorOptions read fOptions1 write fOptions1;
     property options2: TSynEditorOptions2 read fOptions2 write fOptions2;
@@ -80,6 +76,7 @@ type
 
   (**
    * Manages and exposes all the editor and highligther options to an TCEOptionsEditor.
+   * It's also responsible to give the current options to a new editor.
    *)
   TCEEditorOptions = class(TCEEditorOptionsBase, ICEEditableOptions, ICEMultiDocObserver)
   private
@@ -129,24 +126,24 @@ begin
   fTxtSyn.Assign(TxtSyn);
   //
   fSelCol := TSynSelectedColor.Create;
-  fFoldCol := TSynSelectedColor.Create;
-  fLinkCol := TSynSelectedColor.Create;
+  fFoldedColor := TSynSelectedColor.Create;
+  fMouseLinkColor := TSynSelectedColor.Create;
   //
   // note: default values come from TSynEditFoldedView ctor.
-  fFoldCol.Background := clNone;
-  fFoldCol.Foreground := clDkGray;
-  fFoldCol.FrameColor := clDkGray;
+  fFoldedColor.Background := clNone;
+  fFoldedColor.Foreground := clDkGray;
+  fFoldedColor.FrameColor := clDkGray;
   //
-  fLinkCol.Style := [fsUnderline, fsBold];
-  fLinkCol.StyleMask := [];
-  fLinkCol.Foreground := clNone;
-  fLinkCol.Background := clNone;
+  fMouseLinkColor.Style := [fsUnderline, fsBold];
+  fMouseLinkColor.StyleMask := [];
+  fMouseLinkColor.Foreground := clNone;
+  fMouseLinkColor.Background := clNone;
   //
   rightEdge := 80;
   tabulationWidth := 4;
   blockIdentation := 4;
   fBackground := clWhite;
-  fRightEdgeCol := clSilver;
+  fRightEdgeColor := clSilver;
   //
   options1 :=
     [eoAutoIndent, eoBracketHighlight, eoGroupUndo, eoTabsToSpaces,
@@ -162,8 +159,8 @@ destructor TCEEditorOptionsBase.Destroy;
 begin
   fFont.Free;
   fSelCol.Free;
-  fFoldCol.Free;
-  fLinkCol.Free;
+  fFoldedColor.Free;
+  fMouseLinkColor.Free;
   inherited;
 end;
 
@@ -177,8 +174,8 @@ begin
     //
     fFont.Assign(srcopt.fFont);
     fSelCol.Assign(srcopt.fSelCol);
-    fFoldCol.Assign(srcopt.fFoldCol);
-    fLinkCol.Assign(srcopt.fLinkCol);
+    fFoldedColor.Assign(srcopt.fFoldedColor);
+    fMouseLinkColor.Assign(srcopt.fMouseLinkColor);
     fD2Syn.Assign(srcopt.fD2Syn);
     fTxtSyn.Assign(srcopt.fTxtSyn);
     background      := srcopt.background;
@@ -205,14 +202,14 @@ begin
   fSelCol.Assign(aValue);
 end;
 
-procedure TCEEditorOptionsBase.setFoldCol(aValue: TSynSelectedColor);
+procedure TCEEditorOptionsBase.setFoldedColor(aValue: TSynSelectedColor);
 begin
-  fFoldCol.Assign(aValue);
+  fFoldedColor.Assign(aValue);
 end;
 
-procedure TCEEditorOptionsBase.setLinkCol(aValue: TSynSelectedColor);
+procedure TCEEditorOptionsBase.setMouseLinkColor(aValue: TSynSelectedColor);
 begin
-  fLinkCol.Assign(aValue);
+  fMouseLinkColor.Assign(aValue);
 end;
 
 procedure TCEEditorOptionsBase.setD2Syn(aValue: TPersistent);
@@ -324,7 +321,6 @@ begin
   multied := getMultiDocHandler;
   for i := 0 to multied.documentCount-1 do
     applyChangeToEditor(multied.document[i]);
-
 end;
 
 procedure TCEEditorOptions.applyChangeToEditor(anEditor: TCESynMemo);
@@ -332,8 +328,8 @@ begin
   anEditor.defaultFontSize := font.Size;
   anEditor.Font.Assign(font);
   anEditor.SelectedColor.Assign(fSelCol);
-  anEditor.FoldedCodeColor.Assign(fFoldCol);
-  anEditor.MouseLinkColor.Assign(fLinkCol);
+  anEditor.FoldedCodeColor.Assign(fFoldedColor);
+  anEditor.MouseLinkColor.Assign(fMouseLinkColor);
   anEditor.TabWidth := tabulationWidth;
   anEditor.BlockIndent := blockIdentation;
   anEditor.ExtraLineSpacing := lineSpacing;

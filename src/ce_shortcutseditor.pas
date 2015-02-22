@@ -24,12 +24,12 @@ type
 
   TShortCutCollection = class(TWritableLfmTextComponent)
   private
-    fCollection: TCollection;
-    procedure setCollection(aValue: TCollection);
+    fItems: TCollection;
+    procedure setItems(aValue: TCollection);
     function getCount: Integer;
-    function getShortcut(index: Integer): TShortcutItem;
+    function getItem(index: Integer): TShortcutItem;
   published
-    property items: TCollection read fCollection write setCollection;
+    property items: TCollection read fItems write setItems;
   public
     constructor create(AOwner: TComponent); override;
     destructor destroy; override;
@@ -38,11 +38,11 @@ type
     function findShortcut(aShortcut: Word): boolean;
     //
     property count: Integer read getCount;
-    property item[index: Integer]: TShortcutItem read getShortcut; default;
+    property item[index: Integer]: TShortcutItem read getItem; default;
   end;
 
   TCEShortcutEditor = class(TFrame, ICEEditableOptions)
-    shcCatch: TEdit;
+    shortcutCatcher: TEdit;
     Panel1: TPanel;
     fltItems: TTreeFilterEdit;
     Panel2: TPanel;
@@ -51,8 +51,8 @@ type
     tree: TTreeView;
     procedure btnActivateClick(Sender: TObject);
     procedure LabeledEdit1KeyDown(Sender: TObject; var Key: Word;Shift: TShiftState);
-    procedure shcCatchExit(Sender: TObject);
-    procedure shcCatchMouseLeave(Sender: TObject);
+    procedure shortcutCatcherExit(Sender: TObject);
+    procedure shortcutCatcherMouseLeave(Sender: TObject);
     procedure treeSelectionChanged(Sender: TObject);
   private
     fObservers: TCEEditableShortCutSubject;
@@ -89,28 +89,28 @@ end;
 constructor TShortCutCollection.create(AOwner: TComponent);
 begin
   inherited;
-  fCollection := TCollection.Create(TShortcutItem);
+  fItems := TCollection.Create(TShortcutItem);
 end;
 
 destructor TShortCutCollection.destroy;
 begin
-  fCollection.Free;
+  fItems.Free;
   inherited;
 end;
 
-procedure TShortCutCollection.setCollection(aValue: TCollection);
+procedure TShortCutCollection.setItems(aValue: TCollection);
 begin
-  fCollection.Assign(aValue);
+  fItems.Assign(aValue);
 end;
 
 function TShortCutCollection.getCount: Integer;
 begin
-  exit(fCollection.Count);
+  exit(fItems.Count);
 end;
 
-function TShortCutCollection.getShortcut(index: Integer): TShortcutItem;
+function TShortCutCollection.getItem(index: Integer): TShortcutItem;
 begin
-  exit(TShortcutItem(fCollection.Items[index]));
+  exit(TShortcutItem(fItems.Items[index]));
 end;
 
 function TShortCutCollection.findIdentifier(const identifier: string): boolean;
@@ -187,6 +187,7 @@ end;
 
 procedure TCEShortcutEditor.optionedEvent(anEvent: TOptionEditorEvent);
 begin
+  // TODO-cfeature: pass new shortcut to observer
 end;
 {$ENDREGION}
 
@@ -196,15 +197,15 @@ begin
   updateEditCtrls;
 end;
 
-procedure TCEShortcutEditor.shcCatchExit(Sender: TObject);
+procedure TCEShortcutEditor.shortcutCatcherExit(Sender: TObject);
 begin
-  shcCatch.Enabled := false;
+  shortcutCatcher.Enabled := false;
   updateEditCtrls;
 end;
 
-procedure TCEShortcutEditor.shcCatchMouseLeave(Sender: TObject);
+procedure TCEShortcutEditor.shortcutCatcherMouseLeave(Sender: TObject);
 begin
-  shcCatch.Enabled := false;
+  shortcutCatcher.Enabled := false;
   updateEditCtrls;
 end;
 
@@ -214,17 +215,16 @@ begin
   if tree.Selected.Level = 0 then exit;
   if tree.Selected.Data = nil then exit;
   //
-  shcCatch.Enabled := not shcCatch.Enabled;
+  shortcutCatcher.Enabled := not shortcutCatcher.Enabled;
 end;
 
-procedure TCEShortcutEditor.LabeledEdit1KeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TCEShortcutEditor.LabeledEdit1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if tree.Selected = nil then exit;
   if tree.Selected.Level = 0 then exit;
   if tree.Selected.Data = nil then exit;
   //
-  if Key = VK_RETURN then shcCatch.Enabled := false
+  if Key = VK_RETURN then shortcutCatcher.Enabled := false
   else TShortcutItem(tree.Selected.Data).data := Shortcut(Key, Shift);
   //
   updateEditCtrls;
@@ -239,7 +239,7 @@ begin
   if tree.Selected.Data = nil then exit;
   //
   schrtText.Caption := TShortcutItem(tree.Selected.Data).combination;
-  shcCatch.Text:= '';
+  shortcutCatcher.Text := '';
 end;
 
 function TCEShortcutEditor.findCategory(const aName: string; aData: Pointer): TTreeNode;

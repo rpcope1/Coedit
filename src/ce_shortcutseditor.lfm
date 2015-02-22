@@ -71,7 +71,7 @@ object CEShortcutEditor: TCEShortcutEditor
         BorderStyle = sbsSunken
         TabOrder = 0
       end
-      object shcCatch: TEdit
+      object shortcutCatcher: TEdit
         Left = 310
         Height = 22
         Top = 2
@@ -81,9 +81,9 @@ object CEShortcutEditor: TCEShortcutEditor
         BorderSpacing.Bottom = 1
         BorderSpacing.Around = 1
         Enabled = False
-        OnExit = shcCatchExit
+        OnExit = shortcutCatcherExit
         OnKeyDown = LabeledEdit1KeyDown
-        OnMouseLeave = shcCatchMouseLeave
+        OnMouseLeave = shortcutCatcherMouseLeave
         TabOrder = 1
       end
       object btnActivate: TSpeedButton

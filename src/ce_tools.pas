@@ -10,6 +10,8 @@ uses
 
 type
 
+  //TODO-cfeature: declare tools shortcuts, set TCETools ICEEditableShortcut
+
   TCEToolItem = class(TCollectionItem)
   private
     fProcess: TCheckedAsyncProcess;
@@ -22,7 +24,7 @@ type
     fQueryParams: boolean;
     fChainBefore: TStringList;
     fChainAfter: TStringList;
-    //fShortcut: string;
+    //fShortcut: TShortcut;
     fMsgs: ICEMessagesDisplay;
     procedure setParameters(aValue: TStringList);
     procedure setChainBefore(aValue: TStringList);
@@ -39,7 +41,7 @@ type
     property queryParameters: boolean read fQueryParams write fQueryParams;
     property chainBefore: TStringList read fChainBefore write setchainBefore;
     property chainAfter: TStringList read fChainAfter write setChainAfter;
-    //property shortcut: string read fShortcut write fShortcut;
+    //property shortcut: TShortcut read fShortcut write fShortcut;
   public
     constructor create(ACollection: TCollection); override;
     destructor destroy; override;
@@ -66,16 +68,18 @@ type
     property tool[index: integer]: TCEToolItem read getTool; default;
   end;
 
-const
-  toolsFname = 'tools.txt';
+//TODO-crefactor: either set the tools as a service of merge the tools collection& tool editor in a single unit.
 
-Var
+var
   CustomTools: TCETools;
 
 implementation
 
 uses
   ce_symstring, dialogs;
+
+const
+  toolsFname = 'tools.txt';
 
 constructor TCEToolItem.create(ACollection: TCollection);
 begin
@@ -185,7 +189,6 @@ end;
 
 procedure TCETools.executeToolFromMenu(sender: TObject);
 begin
-  //TCEToolItem(TMenuItem(sender).tag).execute;
   executeTool(TCEToolItem(TMenuItem(sender).tag));
 end;
 
@@ -213,11 +216,8 @@ var
 begin
   if item = nil then exit;
   if item.Count <> tools.Count then
-  begin
-    menuDeclare(item);
-    exit;
-  end;
-  for i:= 0 to tools.Count-1 do
+    menuDeclare(item)
+  else for i:= 0 to tools.Count-1 do
   begin
     if ptrInt(tool[i]) <> item.Items[i].Tag then
       item.Items[i].Tag := ptrInt(tool[i]);

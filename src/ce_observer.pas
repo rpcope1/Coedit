@@ -88,7 +88,7 @@ type
     procedure updateObservers; virtual;
     //
     property observersCount: Integer read getObserversCount;
-    property observers[index: Integer]: TObject read getObserver;
+    property observers[index: Integer]: TObject read getObserver; default;
   end;
 
 var
