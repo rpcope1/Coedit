@@ -98,8 +98,7 @@ begin
   //
   completion.OnPaintItem := @completionItemPaint;
   fSyncEdit := TSynPluginSyncroEdit.Create(self);
-  //TODO-cLCL&LAZ-specific: activate this after next Laz release
-  //fSyncEdit.CaseSensitive:=true;
+  fSyncEdit.CaseSensitive:=true;
   png := TPortableNetworkGraphic.Create;
   try
     png.LoadFromLazarusResource('link_edit');

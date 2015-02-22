@@ -1,7 +1,7 @@
 inherited CEStaticExplorerWidget: TCEStaticExplorerWidget
-  Left = 1521
+  Left = 1548
   Height = 430
-  Top = 259
+  Top = 457
   Width = 310
   Caption = 'Static explorer'
   ClientHeight = 430
@@ -68,14 +68,14 @@ inherited CEStaticExplorerWidget: TCEStaticExplorerWidget
         PopupMenu = contextMenu
         TabOrder = 1
         object TreeFilterEdit1: TTreeFilterEdit
-          Left = 36
-          Height = 23
+          Left = 32
+          Height = 22
           Top = 2
-          Width = 242
+          Width = 272
           OnAfterFilter = TreeFilterEdit1AfterFilter
-          ButtonWidth = 23
+          ButtonWidth = 28
           NumGlyphs = 1
-          Align = alCustom
+          Align = alClient
           Anchors = [akTop, akLeft, akRight]
           BorderSpacing.Around = 2
           MaxLength = 0
