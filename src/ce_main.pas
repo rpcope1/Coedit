@@ -178,6 +178,7 @@ type
   private
 
     fDoc: TCESynMemo;
+    fActionHandler: TCEActionProviderSubject;
     fMultidoc: ICEMultiDocHandler;
     fScCollectCount: Integer;
     fUpdateCount: NativeInt;
@@ -208,6 +209,10 @@ type
     fMsgs: ICEMessagesDisplay;
     fMainMenuSubj: TCEMainMenuSubject;
     procedure updateMainMenuProviders;
+
+    // action provider handling;
+    procedure clearActProviderEntries;
+    procedure collectedActProviderEntries;
 
     // ICEMultiDocObserver
     procedure docNew(aDoc: TCESynMemo);
@@ -300,7 +305,8 @@ uses
 constructor TCEMainForm.create(aOwner: TComponent);
 begin
   inherited create(aOwner);
-  fMainMenuSubj:= TCEMainMenuSubject.create;
+  fMainMenuSubj := TCEMainMenuSubject.create;
+  fActionHandler := TCEActionProviderSubject.create;
   //
   EntitiesConnector.addObserver(self);
   //
@@ -648,6 +654,7 @@ begin
   FreeRunnableProc;
   //
   fMainMenuSubj.Free;
+  fActionHandler.Free;
   EntitiesConnector.removeObserver(self);
   inherited;
 end;
@@ -696,6 +703,11 @@ begin
   {$ENDIF}
   if fUpdateCount > 0 then exit;
   Inc(fUpdateCount);
+
+
+  clearActProviderEntries;
+  collectedActProviderEntries;
+
   try
     HasEd := fDoc <> nil;
     if hasEd then
@@ -905,7 +917,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION ICEEditableShortCut}
+{$REGION ICEEditableShortCut ---------------------------------------------------}
 function TCEMainForm.scedWantFirst: boolean;
 begin
   fScCollectCount := 0;
@@ -928,6 +940,60 @@ end;
 procedure TCEMainForm.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
 begin
 
+end;
+{$ENDREGION}
+
+{$REGION TCEActionProviderHandler ----------------------------------------------}
+procedure TCEMainForm.clearActProviderEntries;
+var
+  prov: ICEActionProvider;
+  act: TContainedAction;
+  i, j: Integer;
+begin
+  for i:= 0 to fActionHandler.observersCount-1 do
+  begin
+    prov := fActionHandler[i] as ICEActionProvider;
+    if not prov.actHandlerWantRecollect then continue;
+    //
+    for j := Actions.ActionCount-1 downto 0 do
+    begin
+      act := Actions.Actions[j];
+      if act.Owner = Self then continue;
+      if act.Tag <> PtrInt(prov) then continue;
+      //
+      act.ActionList := nil;
+    end;
+  end;
+end;
+
+procedure TCEMainForm.collectedActProviderEntries;
+var
+  prov: ICEActionProvider;
+  act: TCustomAction;
+  cat: string;
+  i: Integer;
+  procedure addAction;
+  begin
+    act.ActionList := Actions;
+    act.Tag := ptrInt(prov);
+    act.Category := cat;
+    //
+    act := nil;
+    cat := '';
+  end;
+
+begin
+  for i:= 0 to fActionHandler.observersCount-1 do
+  begin
+    prov := fActionHandler[i] as ICEActionProvider;
+    if not prov.actHandlerWantFirst then continue;
+    //
+    act := nil;
+    cat := '';
+    while prov.actHandlerWantNext(cat, act) do
+      addAction;
+    addAction;
+  end;
 end;
 {$ENDREGION}
 
