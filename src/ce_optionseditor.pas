@@ -41,6 +41,7 @@ type
   private
     fEdOptsSubj: TCEEditableOptionsSubject;
     procedure updateCategories;
+    function sortCategories(Cat1, Cat2: TTreeNode): integer;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -100,6 +101,12 @@ begin
     dt^.kind := ed.optionedWantEditorKind;
     dt^.observer := ed;
   end;
+  selCat.Items.SortTopLevelNodes(@sortCategories);
+end;
+
+function TCEOptionEditorWidget.sortCategories(Cat1, Cat2: TTreeNode): integer;
+begin
+  result := CompareText(Cat1.Text, Cat2.Text);
 end;
 
 procedure TCEOptionEditorWidget.selCatDeletion(Sender: TObject; Node: TTreeNode);

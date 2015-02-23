@@ -256,7 +256,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION ICEEDitableSHortcut ---------------------------------------------------}
+{$REGION ICEEDitableShortcut ---------------------------------------------------}
 function TCEEditorWidget.scedWantFirst: boolean;
 begin
   result := fDoc <> nil;
@@ -267,16 +267,13 @@ function TCEEditorWidget.scedWantNext(out category, identifier: string; out aSho
 var
   shrct: TSynEditKeyStroke;
 begin
-  result := false;
-  if fShortcutCount > fDoc.Keystrokes.Count-1 then exit;
-  //
   shrct     := fDoc.Keystrokes.Items[fShortcutCount];
   category  := 'Editor';
   identifier:= shrct.DisplayName;
   aShortcut := Shortcut(shrct.Key, shrct.Shift);
   //
   fShortcutCount += 1;
-  result := true;
+  result := fShortcutCount < fDoc.Keystrokes.Count;
 end;
 
 procedure TCEEditorWidget.scedSendItem(const category, identifier: string; aShortcut: TShortcut);

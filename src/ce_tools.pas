@@ -10,8 +10,6 @@ uses
 
 type
 
-  //TODO-cfeature: declare tools shortcuts, set TCETools ICEEditableShortcut
-
   TCEToolItem = class(TCollectionItem)
   private
     fProcess: TCheckedAsyncProcess;
@@ -24,7 +22,7 @@ type
     fQueryParams: boolean;
     fChainBefore: TStringList;
     fChainAfter: TStringList;
-    //fShortcut: TShortcut;
+    fShortcut: TShortcut;
     fMsgs: ICEMessagesDisplay;
     procedure setParameters(aValue: TStringList);
     procedure setChainBefore(aValue: TStringList);
@@ -41,21 +39,26 @@ type
     property queryParameters: boolean read fQueryParams write fQueryParams;
     property chainBefore: TStringList read fChainBefore write setchainBefore;
     property chainAfter: TStringList read fChainAfter write setChainAfter;
-    //property shortcut: TShortcut read fShortcut write fShortcut;
+    property shortcut: TShortcut read fShortcut write fShortcut;
   public
     constructor create(ACollection: TCollection); override;
     destructor destroy; override;
   end;
 
-  TCETools = class(TWritableLfmTextComponent, ICEMainMenuProvider)
+  TCETools = class(TWritableLfmTextComponent, ICEMainMenuProvider, ICEEditableShortcut)
   private
     fTools: TCollection;
+    fShctCount: Integer;
     function getTool(index: Integer): TCEToolItem;
     procedure setTools(const aValue: TCollection);
     //
     procedure menuDeclare(item: TMenuItem);
     procedure menuUpdate(item: TMenuItem);
     procedure executeToolFromMenu(sender: TObject);
+    //
+    function scedWantFirst: boolean;
+    function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
+    procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
   published
     property tools: TCollection read fTools write setTools;
   public
@@ -81,6 +84,7 @@ uses
 const
   toolsFname = 'tools.txt';
 
+{$REGION TCEToolItem -----------------------------------------------------------}
 constructor TCEToolItem.create(ACollection: TCollection);
 begin
   inherited;
@@ -164,7 +168,9 @@ begin
     lst.Free;
   end;
 end;
+{$ENDREGION --------------------------------------------------------------------}
 
+{$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCETools.create(aOwner: TComponent);
 var
   fname: string;
@@ -186,7 +192,9 @@ begin
   fTools.Free;
   inherited;
 end;
+{$ENDREGION}
 
+{$REGION ICEMainMenuProvider ---------------------------------------------------}
 procedure TCETools.executeToolFromMenu(sender: TObject);
 begin
   executeTool(TCEToolItem(TMenuItem(sender).tag));
@@ -225,7 +233,32 @@ begin
       item.Items[i].Caption := tool[i].toolAlias;
   end;
 end;
+{$ENDREGION}
 
+{$REGION ICEEditableShortcut ---------------------------------------------------}
+function TCETools.scedWantFirst: boolean;
+begin
+  result := fTools.Count > 0;
+  fShctCount := 0;
+end;
+
+function TCETools.scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
+begin
+  category  := 'Tools';
+  identifier:= tool[fShctCount].toolAlias;
+  aShortcut := tool[fShctCount].shortcut;
+  //
+  fShctCount += 1;
+  result := fShctCount < fTools.Count;
+end;
+
+procedure TCETools.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+begin
+
+end;
+{$ENDREGION}
+
+{$REGION Tools things ----------------------------------------------------------}
 procedure TCETools.setTools(const aValue: TCollection);
 begin
   fTools.Assign(aValue);
@@ -271,6 +304,7 @@ begin
   //
   executeTool(tool[aToolIndex]);
 end;
+{$ENDREGION}
 
 initialization
   RegisterClasses([TCEToolItem, TCETools]);
