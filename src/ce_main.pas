@@ -1403,13 +1403,18 @@ begin
   if widg = nil then exit;
   //
   if widg.isDockable then
-    win := DockMaster.GetAnchorSite(widg)
-  else
-    win := widg;
-  //
-  if win = nil then exit;
-  win.Show;
-  win.BringToFront;
+  begin
+    win := DockMaster.GetAnchorSite(widg);
+    win.Show;
+    win.BringToFront;
+  end
+  else begin
+    if widg.isModal then widg.ShowModal else
+    begin
+      widg.Show;
+      widg.BringToFront;
+    end;
+  end;
 end;
 
 procedure TCEMainForm.layoutLoadFromFile(const aFilename: string);
