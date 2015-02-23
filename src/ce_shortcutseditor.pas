@@ -15,6 +15,8 @@ type
   private
     fIdentifier: string;
     fData: TShortcut;
+    fDeclarator: ICEEditableShortCut;
+    property declarator: ICEEditableShortCut read fDeclarator write fDeclarator;
   published
     property identifier: string read fIdentifier write fIdentifier;
     property data: TShortcut read fData write fData;
@@ -220,13 +222,23 @@ begin
 end;
 
 procedure TCEShortcutEditor.LabeledEdit1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  sh: TShortCut;
 begin
   if tree.Selected = nil then exit;
   if tree.Selected.Level = 0 then exit;
   if tree.Selected.Data = nil then exit;
   //
-  if Key = VK_RETURN then shortcutCatcher.Enabled := false
-  else TShortcutItem(tree.Selected.Data).data := Shortcut(Key, Shift);
+  if Key = VK_RETURN then
+    shortcutCatcher.Enabled := false
+  else
+  begin
+    sh := Shortcut(Key, Shift);
+    TShortcutItem(tree.Selected.Data).data := sh;
+    TShortcutItem(tree.Selected.Data).declarator.scedSendItem(
+      tree.Selected.Parent.Text,
+      tree.Selected.Text, sh );
+  end;
   //
   updateEditCtrls;
 end;
@@ -281,6 +293,7 @@ begin
   itm := TShortcutItem(fShortcuts.items.Add);
   itm.identifier := idt;
   itm.data:= sht;
+  itm.declarator := obs;
   tree.Items.AddChildObject(prt, idt, itm);
   cat := '';
   idt := '';

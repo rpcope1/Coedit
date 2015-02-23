@@ -36,6 +36,7 @@ type
     procedure optset_UpdaterDelay(aReader: TReader);
   protected
     fDockable: boolean;
+    fModal: boolean;
     fID: string;
     // a descendant overrides to implementi a periodic update.
     procedure UpdateByLoop; virtual;
@@ -51,6 +52,8 @@ type
     procedure sesoptBeforeSave; virtual;
     procedure sesoptDeclareProperties(aFiler: TFiler); virtual;
     procedure sesoptAfterLoad; virtual;
+    //
+    function getIfModal: boolean;
   published
     property updaterByLoopInterval: Integer read fLoopInter write setLoopInt;
     property updaterByDelayDuration: Integer read fDelayDur write setDelayDur;
@@ -77,6 +80,8 @@ type
     property updating: boolean read fUpdating;
     // true by default, allow a widget to be docked.
     property isDockable: boolean read fDockable;
+    // not if isDockable, otherwise a the widget is shown as modal form.
+    property isModal: boolean read getIfModal;
   end;
 
   (**
@@ -138,6 +143,13 @@ begin
   EntitiesConnector.removeObserver(self);
   inherited;
 end;
+
+function TCEWidget.getIfModal: boolean;
+begin
+  if isDockable then result := false
+  else result := fModal;
+end;
+
 {$ENDREGION}
 
 {$REGION ICESessionOptionsObserver ---------------------------------------------}

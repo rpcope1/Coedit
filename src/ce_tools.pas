@@ -204,15 +204,20 @@ procedure TCETools.menuDeclare(item: TMenuItem);
 var
   i: Integer;
   itm: TMenuItem;
+  colitm: TCEToolItem;
 begin
   if tools.Count = 0 then exit;
   //
   item.Caption := 'Custom tools';
   item.Clear;
-  for i := 0 to tools.Count-1 do begin
+  for i := 0 to tools.Count-1 do
+  begin
+    colitm := tool[i];
+    //
     itm := TMenuItem.Create(item);
-    itm.Caption := tool[i].toolAlias;
-    itm.tag := ptrInt(tool[i]);
+    itm.ShortCut:= colitm.shortcut;
+    itm.Caption := colitm.toolAlias;
+    itm.tag := ptrInt(colitm);
     itm.onClick := @executeToolFromMenu;
     item.add(itm);
   end;
@@ -221,16 +226,23 @@ end;
 procedure TCETools.menuUpdate(item: TMenuItem);
 var
   i: Integer;
+  colitm: TCEToolItem;
+  mnuitm: TMenuItem;
 begin
   if item = nil then exit;
   if item.Count <> tools.Count then
     menuDeclare(item)
   else for i:= 0 to tools.Count-1 do
   begin
-    if ptrInt(tool[i]) <> item.Items[i].Tag then
-      item.Items[i].Tag := ptrInt(tool[i]);
-    if item.Items[i].Caption <> tool[i].toolAlias then
-      item.Items[i].Caption := tool[i].toolAlias;
+    colitm := tool[i];
+    mnuitm := item.Items[i];
+    //
+    if mnuitm.Tag <> ptrInt(colitm) then
+      mnuitm.Tag := ptrInt(colitm);
+    if mnuitm.Caption <> colitm.toolAlias then
+      mnuitm.Caption := colitm.toolAlias;
+    if mnuitm.shortcut <> colitm.shortcut then
+      mnuitm.shortcut := colitm.shortcut;
   end;
 end;
 {$ENDREGION}
@@ -253,8 +265,16 @@ begin
 end;
 
 procedure TCETools.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+var
+  i: Integer;
 begin
-
+ if category <> 'Tools' then exit;
+ //
+ for i := 0 to tools.Count-1 do if tool[i].toolAlias = identifier then
+ begin
+   tool[i].shortcut := aShortcut;
+   break;
+ end;
 end;
 {$ENDREGION}
 

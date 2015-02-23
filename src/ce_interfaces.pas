@@ -98,7 +98,7 @@ type
 
 
   (**
-   * An implementer can add a mai nmenu entry.
+   * An implementer can add a main menu entry.
    *)
   ICEMainMenuProvider = interface
   ['ICEMainMenuProvider']
@@ -108,9 +108,34 @@ type
     procedure menuUpdate(item: TMenuItem);
   end;
   (**
-   * An implementer agregates its observers menus.
+   * An implementer collects and updates its observers menus.
    *)
   TCEMainMenuSubject = class(TCECustomSubject)
+  protected
+    function acceptObserver(aObject: TObject): boolean; override;
+  end;
+
+
+
+  (**
+   * An implementer declares some actions which have their own main menu entry and
+   * whose shortcuts are automatically handled
+   *)
+  ICEActionProvider = interface
+  ['ICEActionProvider']
+    // the action handler will clear the references to the actions collected previously and start collecting if result.
+    function actHandlerWantRecollect: boolean;
+    // the action handler starts to collect the actions if result.
+    function actHandlerWantFirst: boolean;
+    // the handler continue collecting action if result.
+    function actHandlerWantNext(out category: string; out action: TCustomAction): boolean;
+    // the handler update the state of a particular action.
+    procedure actHandleUpdater(action: TCustomAction);
+  end;
+  (**
+   * An implementer handles its observers actions.
+   *)
+  TCEActionProviderSubject = class(TCECustomSubject)
   protected
     function acceptObserver(aObject: TObject): boolean; override;
   end;
@@ -128,7 +153,6 @@ type
     function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
     // a TCEEditableShortCutSubject sends the possibly modified shortcut
     procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
-
   end;
   (**
    * An implementer manages its observers shortcuts.
@@ -137,6 +161,7 @@ type
   protected
     function acceptObserver(aObject: TObject): boolean; override;
   end;
+
 
 
   // the option editor uses this value as a hint to cast and display an option container.
@@ -399,6 +424,11 @@ end;
 function TCEEditableOptionsSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICEEditableOptions);
+end;
+
+function TCEActionProviderSubject.acceptObserver(aObject: TObject): boolean;
+begin
+  exit(aObject is ICEActionProvider);
 end;
 {$ENDREGION}
 
