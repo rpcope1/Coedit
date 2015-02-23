@@ -916,16 +916,13 @@ function TCEMainForm.scedWantNext(out category, identifier: string; out aShortcu
 var
   act: TCustomAction;
 begin
-  result := false;
-  if fScCollectCount > actions.ActionCount -1 then exit;
-  //
   act := TCustomAction(Actions.Actions[fScCollectCount]);
   category := act.Category;
   identifier := act.Caption;
   aShortcut := act.ShortCut;
   //
   fScCollectCount += 1;
-  result := true;
+  result := fScCollectCount < actions.ActionCount;
 end;
 
 procedure TCEMainForm.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
