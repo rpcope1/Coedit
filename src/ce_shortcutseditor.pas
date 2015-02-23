@@ -65,6 +65,7 @@ type
     procedure optionedEvent(anEvent: TOptionEditorEvent);
     //
     function findCategory(const aName: string; aData: Pointer): TTreeNode;
+    function sortCategories(Cat1, Cat2: TTreeNode): integer;
     procedure updateFromObservers;
     procedure updateEditCtrls;
   protected
@@ -253,15 +254,37 @@ begin
         exit(tree.Items[i]);
 end;
 
+function TCEShortcutEditor.sortCategories(Cat1, Cat2: TTreeNode): integer;
+begin
+  result := CompareText(Cat1.Text, Cat2.Text);
+end;
+
 procedure TCEShortcutEditor.updateFromObservers;
 var
   i: Integer;
   obs: ICEEditableShortCut;
   cat: string;
-  prt: TTreeNode;
   sht: word;
   idt: string;
   itm: TShortcutItem;
+procedure addItem();
+var
+  prt: TTreeNode;
+begin
+  // root category
+  if cat = '' then exit;
+  if idt = '' then exit;
+  prt := findCategory(cat, obs);
+  if prt = nil then
+    prt := tree.Items.AddObject(nil, cat, obs);
+  // item as child
+  itm := TShortcutItem(fShortcuts.items.Add);
+  itm.identifier := idt;
+  itm.data:= sht;
+  tree.Items.AddChildObject(prt, idt, itm);
+  cat := '';
+  idt := '';
+end;
 begin
   tree.Items.Clear;
   fShortcuts.items.Clear;
@@ -271,25 +294,14 @@ begin
   for i:= 0 to fObservers.observersCount-1 do
   begin
     obs := fObservers.observers[i] as ICEEditableShortCut;
-    if obs.scedWantFirst then while obs.scedWantNext(cat, idt, sht) do
+    if obs.scedWantFirst then
     begin
-      // root category
-      if cat = '' then
-        continue;
-      if idt = '' then
-        continue;
-      prt := findCategory(cat, obs);
-      if prt = nil then
-        prt := tree.Items.AddObject(nil, cat, obs);
-      // item as child
-      itm := TShortcutItem(fShortcuts.items.Add);
-      itm.identifier := idt;
-      itm.data:= sht;
-      tree.Items.AddChildObject(prt, idt, itm);
-      cat := '';
-      idt := '';
+      while obs.scedWantNext(cat, idt, sht) do
+        addItem();
+      addItem();
     end;
   end;
+  tree.Items.SortTopLevelNodes(@sortCategories);
 end;
 {$ENDREGION}
 

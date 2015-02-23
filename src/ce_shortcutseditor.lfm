@@ -44,6 +44,7 @@ object CEShortcutEditor: TCEShortcutEditor
       HideSelection = False
       ReadOnly = True
       ScrollBars = ssAutoBoth
+      SortType = stText
       TabOrder = 1
       OnSelectionChanged = treeSelectionChanged
       Options = [tvoAutoExpand, tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
