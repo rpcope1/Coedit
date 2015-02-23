@@ -7,7 +7,7 @@ inherited CEOptionEditorWidget: TCEOptionEditorWidget
   Caption = 'Options editor'
   ClientHeight = 493
   ClientWidth = 559
-  FormStyle = fsStayOnTop
+  FormStyle = fsSystemStayOnTop
   inherited Back: TPanel
     Height = 493
     Width = 559

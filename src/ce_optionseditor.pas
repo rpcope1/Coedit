@@ -57,6 +57,7 @@ var
 begin
   inherited;
   fDockable := false;
+  fModal:= true;
   fEdOptsSubj := TCEEditableOptionsSubject.create;
   //
   png := TPortableNetworkGraphic.Create;
