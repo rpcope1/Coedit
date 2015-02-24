@@ -464,42 +464,55 @@ end;
 
 procedure TCEMainForm.InitDocking;
 var
-  i: NativeInt;
+  i: Integer;
+  widg: TCEWidget;
   aManager: TAnchorDockManager;
 begin
   DockMaster.MakeDockSite(Self, [akBottom], admrpChild);
   DockMaster.OnShowOptions := @ShowAnchorDockOptions;
   DockMaster.HeaderStyle := adhsPoints;
   DockMaster.HideHeaderCaptionFloatingControl := true;
-
+  // this is a fix copied from Laz, seems to force the space between the menu and the UI stay 0.
   if DockManager is TAnchorDockManager then begin
     aManager:=TAnchorDockManager(DockManager);
     aManager.PreferredSiteSizeAsSiteMinimum:=false;
   end;
-  Height := 0;
-
+  // makes widget dockable
   for i := 0 to fWidgList.Count-1 do
   begin
-    if not fWidgList.widget[i].isDockable then continue;
-    DockMaster.MakeDockable(fWidgList.widget[i], not fileExists(getCoeditDocPath + 'docking.xml'));
-    DockMaster.GetAnchorSite(fWidgList.widget[i]).Header.HeaderPosition := adlhpTop;
+    widg := fWidgList.widget[i];
+    if not widg.isDockable then continue;
+    DockMaster.MakeDockable(widg, true);
+    DockMaster.GetAnchorSite(widg).Header.HeaderPosition := adlhpTop;
   end;
-
-  DockMaster.ManualDock(DockMaster.GetAnchorSite(fEditWidg), DockMaster.GetSite(Self), alBottom);
-  DockMaster.ManualDock(DockMaster.GetAnchorSite(fMesgWidg), DockMaster.GetSite(Self), alBottom);
-  DockMaster.ManualDock(DockMaster.GetAnchorSite(fStExpWidg), DockMaster.GetSite(Self), alLeft);
-  DockMaster.ManualDock(DockMaster.GetAnchorSite(fFindWidg),
-    DockMaster.GetAnchorSite(fStExpWidg), alBottom, fStExpWidg);
-  width := width - fProjWidg.Width;
-  DockMaster.ManualDock(DockMaster.GetAnchorSite(fProjWidg), DockMaster.GetSite(Self), alRight);
-  DockMaster.ManualDock(DockMaster.GetAnchorSite(fPrjCfWidg),
-    DockMaster.GetAnchorSite(fProjWidg), alBottom, fProjWidg);
-  DockMaster.GetAnchorSite(fEditWidg).Header.HeaderPosition := adlhpTop;
-
-  DockMaster.GetAnchorSite(fExplWidg).Close;
-  DockMaster.GetAnchorSite(fLibMWidg).Close;
-  DockMaster.GetAnchorSite(fTlsEdWidg).Close;
-  LoadDocking;
+  // load existing or default docking
+  if FileExists(getCoeditDocPath + 'docking.xml') then LoadDocking
+  else begin
+    Height := 0;
+    fStExpWidg.width  := 120;
+    fFindWidg.Width   := 120;
+    fProjWidg.Width   := 120;
+    fPrjCfWidg.Width  := 120;
+    // center
+    DockMaster.ManualDock(DockMaster.GetAnchorSite(fEditWidg), DockMaster.GetSite(Self), alBottom);
+    DockMaster.ManualDock(DockMaster.GetAnchorSite(fMesgWidg), DockMaster.GetSite(fEditWidg), alBottom);
+    DockMaster.ManualDock(DockMaster.GetAnchorSite(fPrInpWidg), DockMaster.GetSite(fMesgWidg), alBottom);
+    // left
+    DockMaster.ManualDock(DockMaster.GetAnchorSite(fStExpWidg), DockMaster.GetSite(fEditWidg), alLeft);
+    DockMaster.ManualDock(DockMaster.GetAnchorSite(fFindWidg), DockMaster.GetAnchorSite(fStExpWidg), alBottom, fStExpWidg);
+    // right
+    DockMaster.ManualDock(DockMaster.GetAnchorSite(fProjWidg), DockMaster.GetSite(fEditWidg), alRight);
+    DockMaster.ManualDock(DockMaster.GetAnchorSite(fPrjCfWidg), DockMaster.GetAnchorSite(fProjWidg), alBottom, fProjWidg);
+    // close remaining and header to top
+    for i := 0 to fWidgList.Count-1 do
+    begin
+      widg := fWidgList.widget[i];
+      if not widg.isDockable then continue;
+      DockMaster.GetAnchorSite(widg).Header.HeaderPosition := adlhpTop;
+      if not DockMaster.GetAnchorSite(widg).HasParent then
+        DockMaster.GetAnchorSite(widg).Close
+    end;
+  end;
 end;
 
 procedure TCEMainForm.InitSettings;
@@ -552,14 +565,13 @@ begin
   if not Visible then exit;
   //
   if WindowState = wsMinimized then WindowState := wsNormal;
-  // TODO-cLCL&LAZ-specific: check new docking persistence behaviour on new Laz release.
   // does not save minimized/undocked windows to prevent bugs
   for i:= 0 to fWidgList.Count-1 do
   begin
     if not fWidgList.widget[i].isDockable then continue;
     if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then
       DockMaster.GetAnchorSite(fWidgList.widget[i]).Close
-    else if DockMaster.GetAnchorSite(fWidgList.widget[i]).SiteType = adhstNone then
+    else if not DockMaster.GetAnchorSite(fWidgList.widget[i]).HasParent then
       DockMaster.GetAnchorSite(fWidgList.widget[i]).Close;
   end;
   //
@@ -1509,7 +1521,7 @@ begin
     if not fWidgList.widget[i].isDockable then continue;
     if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then
       DockMaster.GetAnchorSite(fWidgList.widget[i]).Close
-    else if DockMaster.GetAnchorSite(fWidgList.widget[i]).SiteType = adhstNone then
+    else if not DockMaster.GetAnchorSite(fWidgList.widget[i]).HasParent then
       DockMaster.GetAnchorSite(fWidgList.widget[i]).Close;
   end;
   //
