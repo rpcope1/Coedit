@@ -44,13 +44,6 @@ begin
   DragThresholdTrackBar.OnChange := @doChanged;
   SplitterWidthTrackBar.OnChange := @doChanged;
   //
-  FlattenHeaders.OnChange := @doChanged;
-  FilledHeaders.OnChange := @doChanged;
-  HideHeaderCaptionForFloatingCheckBox.OnChange := @doChanged;
-  ScaleOnResizeCheckBox.OnChange := @doChanged;
-  ShowHeaderCaptionCheckBox.OnChange := @doChanged;
-  ShowHeaderCheckBox.OnChange := @doChanged;
-  //
   HeaderStyleComboBox.OnChange:= @doChanged;
   //
   EntitiesConnector.addObserver(self);
@@ -109,7 +102,11 @@ begin
     ' ('+IntToStr(HeaderAlignLeftTrackBar.Position) +')';
   SplitterWidthLabel.Caption:=adrsSplitterWidth +
     ' ('+IntToStr(SplitterWidthTrackBar.Position) +')';
-  ShowHeaderCheckBox.Visible:=adofShow_ShowHeader in Flags;
+
+  FlattenHeaders.Enabled := adofShow_ShowHeader in Flags;
+  FilledHeaders.Enabled := adofShow_ShowHeader in Flags;
+  ShowHeaderCaptionCheckBox.Enabled := adofShow_ShowHeader in Flags;
+  HideHeaderCaptionForFloatingCheckBox.Enabled := adofShow_ShowHeader in Flags;
   //
   SaveToMaster;
 end;
