@@ -7,9 +7,12 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Menus, StdCtrls, actnList, Buttons, SynEdit, SynEditSearch, SynEditTypes, ce_common,
-  ce_widget, ce_synmemo, ce_interfaces, ce_observer;
+  ce_widget, ce_synmemo, ce_interfaces, ce_observer, SynEditHighlighter;
 
 type
+
+  { TCESearchWidget }
+
   TCESearchWidget = class(TCEWidget, ICEMultiDocObserver)
     btnFind: TBitBtn;
     btnReplace: TBitBtn;
@@ -18,6 +21,7 @@ type
     cbReplaceWth: TComboBox;
     chkEnableRep: TCheckBox;
     chkPrompt: TCheckBox;
+    chkRegex: TCheckBox;
     chkWWord: TCheckBox;
     chkBack: TCheckBox;
     chkFromCur: TCheckBox;
@@ -156,11 +160,12 @@ end;
 
 function TCESearchWidget.getOptions: TSynSearchOptions;
 begin
-  result := [ssoRegExpr];
-  if chkWWord.Checked then result += [ssoWholeWord];
-  if chkBack.Checked then result += [ssoBackwards];
-  if chkCaseSens.Checked then result += [ssoMatchCase];
-  if chkPrompt.Checked then result += [ssoPrompt];
+  result := [];
+  if chkRegex.Checked     then result += [ssoRegExpr];
+  if chkWWord.Checked     then result += [ssoWholeWord];
+  if chkBack.Checked      then result += [ssoBackwards];
+  if chkCaseSens.Checked  then result += [ssoMatchCase];
+  if chkPrompt.Checked    then result += [ssoPrompt];
 end;
 
 function dlgReplaceAll: TModalResult;
