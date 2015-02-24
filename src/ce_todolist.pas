@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls,
   strutils, Graphics, Dialogs, ExtCtrls, Menus, Buttons, ComCtrls,
   ce_widget, process, ce_common, ce_interfaces, ce_synmemo,
-  ce_project, ce_symstring, ce_writableComponent, ce_observer, EditBtn;
+  ce_project, ce_symstring, ce_writableComponent, ce_observer;
 
 type
 
