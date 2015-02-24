@@ -547,7 +547,6 @@ end;
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   fMousePos := PixelsToRowColumn(Point(X,Y));
-  Application.HideHint;
   inherited;
   if ssLeft in Shift then
     identifierToD2Syn;
