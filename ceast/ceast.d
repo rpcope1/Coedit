@@ -1,11 +1,7 @@
 module runnable;
 
-import std.path, std.file;
-import std.stdio;
-import std.d.lexer;
-import std.d.ast;
-import std.d.parser;
-
+import std.stdio, std.path, std.file, std.array;
+import std.d.lexer, std.d.ast, std.d.parser;
 
 interface I{}
 
@@ -31,12 +27,12 @@ enum SymbolType
     _enum,      // X
     _function,  // X
     _interface, // X
-    _import,
+    _import,    // X
     _mixin,
     _struct,    // X
     _template,  // X
     _union,     // X
-    _variable 
+    _variable   // X
 }
 
 struct Symbol
@@ -53,7 +49,7 @@ void main(string[] args)
     if (args.length < 2) return;
     auto fname = args[1];
     if (!fname.exists) return;
-    
+
     // load and parse the file
     auto config = LexerConfig(fname, StringBehavior.source, WhitespaceBehavior.include);
     auto source = cast(ubyte[]) read(fname, size_t.max);
@@ -68,11 +64,13 @@ void main(string[] args)
         slb.visit(decl);
     } 
     
+    
+    // TODO-cfeature: Outputs the symbol tree in a format handlable by a Coedit widget
+    
     int level = -1;
     void print(Symbol * s)
     {
-        
-        foreach(i; 0..level) write(".");
+        foreach(i; 0 .. level) write(".");
         level++;
         write(s.name, '\r');
         foreach(ss; s.subs)
@@ -83,7 +81,6 @@ void main(string[] args)
     
     print(&slb.root);
     writeln();
-    
 }
 
 class SymbolListBuilder : ASTVisitor
@@ -130,17 +127,20 @@ class SymbolListBuilder : ASTVisitor
         auto newSymbol = addDeclaration(dt);
         newSymbol.type = st;
         //
-        auto previousParent = parent;
-        parent = newSymbol;
-        static if (dig) dt.accept(this);
-        parent = previousParent;       
+        static if (dig)
+        {
+            auto previousParent = parent;
+            scope(exit) parent = previousParent;
+            parent = newSymbol;
+            dt.accept(this);
+        }       
     }
     
-    
+    //TODO-ctest: try to see if what dmd outputs as "static import", "enum member" is handled.
     
     final override void visit(const AliasDeclaration aliasDeclaration) 
     { 
-        // IdentifierList
+        // TODO-cfeature: AliasDeclaration handling
     }
      
     final override void visit(const ClassDeclaration decl) 
@@ -165,19 +165,31 @@ class SymbolListBuilder : ASTVisitor
     
     final override void visit(const ImportDeclaration decl) 
     {
-        // singlesImp[]  
-        
-        // singleImport.identifierchain.join
-        
-        import std.array;
         foreach(const(SingleImport) si; decl.singleImports)
-            
-            writeln(  si.identifierChain.identifiers[0].text ); 
+        { 
+            if (!si.identifierChain.identifiers.length)
+                continue;
+            //
+            string[] modules;
+            foreach(ident; si.identifierChain.identifiers)
+            {
+                modules ~= ident.text;
+                modules ~= ".";
+            }
+            //
+            auto result = new Symbol;
+            result.name = modules[0..$-1].join;
+            result.line = si.identifierChain.identifiers[0].line;
+            result.col  = si.identifierChain.identifiers[0].column; 
+            result.type = SymbolType._import;            
+            parent.subs ~= result;  
+        } 
+        
     }
     
     final override void visit(const MixinDeclaration decl) 
     {
-        // identifier  
+        // TODO-cfeature: MixinDeclaration handling 
     }
     
     final override void visit(const StructDeclaration decl) 
