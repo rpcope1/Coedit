@@ -66,6 +66,7 @@ inherited CEOptionEditorWidget: TCEOptionEditorWidget
             Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkObject, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
             Indent = 16
             NameFont.Color = clWindowText
+            OnEditorFilter = inspectorEditorFilter
             OnModified = inspectorModified
             PreferredSplitterX = 170
             SplitterX = 170
