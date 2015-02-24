@@ -27,7 +27,6 @@ type
     procedure btnDelConfClick(Sender: TObject);
     procedure btnCloneCurrClick(Sender: TObject);
     procedure btnSyncEditClick(Sender: TObject);
-    procedure inspectorEditorFilter(Sender: TObject; aEditor: TPropertyEditor;var aShow: boolean);
     procedure inspectorModified(Sender: TObject);
     procedure selConfChange(Sender: TObject);
     procedure TreeChange(Sender: TObject; Node: TTreeNode);
@@ -151,12 +150,6 @@ procedure TCEProjectConfigurationWidget.TreeChange(Sender: TObject;
   Node: TTreeNode);
 begin
   inspector.TIObject := getGridTarget;
-end;
-
-procedure TCEProjectConfigurationWidget.inspectorEditorFilter(Sender: TObject;
-  aEditor: TPropertyEditor; var aShow: boolean);
-begin
-  if aEditor.ClassType = TCollectionPropertyEditor then aShow := false;
 end;
 
 procedure TCEProjectConfigurationWidget.setSyncroMode(aValue: boolean);
@@ -316,12 +309,15 @@ procedure TCEProjectConfigurationWidget.GridFilter(Sender: TObject; aEditor: TPr
   var aShow: boolean);
 begin
   if fProj = nil then exit;
+
   // filter TComponent things.
   if getGridTarget = fProj then
   begin
     if aEditor.GetName = 'Name' then
       aShow := false
     else if aEditor.GetName = 'Tag' then
+      aShow := false
+    else  if aEditor.ClassType = TCollectionPropertyEditor then
       aShow := false;
   end;
   // deprecated field
