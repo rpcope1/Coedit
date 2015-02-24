@@ -62,7 +62,6 @@ inherited CETodoListWidget: TCETodoListWidget
           Align = alLeft
           BorderSpacing.Around = 2
           Layout = blGlyphBottom
-          OnClick = btnGoClick
           Spacing = 0
           TabOrder = 2
         end
