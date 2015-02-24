@@ -8,9 +8,21 @@ uses
   Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls,
   strutils, Graphics, Dialogs, ExtCtrls, Menus, Buttons, ComCtrls,
   ce_widget, process, ce_common, ce_interfaces, ce_synmemo,
-  ce_project, ce_symstring;
+  ce_project, ce_symstring, ce_writableComponent, ce_observer, EditBtn;
 
 type
+
+  TCETodoOptions = class(TWritableLfmTextComponent)
+  private
+    fAutoRefresh: boolean;
+    fSingleClick: boolean;
+  published
+    property autoRefresh: boolean read fAutoRefresh write fAutoRefresh;
+    property singleClickSelect: boolean read fSingleClick write fSingleClick;
+  public
+    procedure AssignTo(Dest: TPersistent); override;
+    procedure Assign(Src: TPersistent); override;
+  end;
 
   TTodoContext = (tcNone, tcProject, tcFile);
 
@@ -55,22 +67,26 @@ type
     property item[index: integer]: TTodoItem read getItem; default;
   end;
 
-  TCETodoListWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver, ICESessionOptionsObserver)
+  { TCETodoListWidget }
+
+  TCETodoListWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver, ICEEditableOptions)
     btnRefresh: TBitBtn;
     btnGo: TBitBtn;
     lstItems: TListView;
     lstfilter: TListFilterEdit;
     mnuAutoRefresh: TMenuItem;
     Panel1: TPanel;
-    procedure btnGoClick(Sender: TObject);
+    procedure handleListClick(Sender: TObject);
     procedure mnuAutoRefreshClick(Sender: TObject);
   private
     fAutoRefresh: Boolean;
+    fSingleClick: Boolean;
     fProj: TCEProject;
     fDoc: TCESynMemo;
     fToolProcess: TCheckedAsyncProcess;
     fTodos: TTodoItems;
     fMsgs: ICEMessagesDisplay;
+    fOptions: TCETodoOptions;
     // ICEMultiDocObserver
     procedure docNew(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
@@ -82,6 +98,11 @@ type
     procedure projClosing(aProject: TCEProject);
     procedure projFocused(aProject: TCEProject);
     procedure projCompiling(aProject: TCEProject);
+    // ICEEditableOptions
+    function optionedWantCategory(): string;
+    function optionedWantEditorKind: TOptionEditorKind;
+    function optionedWantContainer: TPersistent;
+    procedure optionedEvent(anEvent: TOptionEditorEvent);
     // TODOlist things
     function getContext: TTodoContext;
     procedure killToolProcess;
@@ -92,19 +113,18 @@ type
     procedure fillTodoList;
     procedure lstItemsColumnClick(Sender : TObject; Column : TListColumn);
     procedure lstItemsCompare(Sender : TObject; item1, item2: TListItem;Data : Integer; var Compare : Integer);
-    procedure lstItemsDoubleClick(sender: TObject);
     procedure btnRefreshClick(sender: TObject);
     procedure filterItems(sender: TObject);
+    procedure setSingleClick(aValue: boolean);
+    procedure setAutoRefresh(aValue: boolean);
   protected
     procedure SetVisible(Value: boolean); override;
-    // ICESessionOptionsObserver
-    procedure optset_AutoReafresh(aReader: TReader);
-    procedure optget_AutoReafresh(aWriter: TWriter);
-    procedure sesoptDeclareProperties(aFiler: TFiler); override;
-    procedure sesoptAfterLoad; override;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
+    //
+    property singleClickSelect: boolean read fSingleClick write setSingleClick;
+    property autoRefresh: boolean read fAutoRefresh write setAutoRefresh;
   end;
 
 implementation
@@ -112,6 +132,7 @@ implementation
 
 const
   ToolExeName = 'cetodo' + exeExt;
+  OptFname = 'todolist.txt';
 
 {$REGION TTodoItems ------------------------------------------------------------}
 constructor TTodoItems.create(aOwner: TComponent);
@@ -168,16 +189,24 @@ end;
 constructor TCETodoListWidget.create(aOwner: TComponent);
 var
   png: TPortableNetworkGraphic;
+  fname: string;
 begin
   inherited;
+  //
+  fOptions := TCETodoOptions.Create(self);
+  fOptions.autoRefresh := true;
+  fOptions.Name := 'todolistOptions';
+  //
   fTodos := TTodoItems.Create(self);
-  lstItems.OnDblClick := @lstItemsDoubleClick;
+  lstItems.OnDblClick := @handleListClick;
   btnRefresh.OnClick := @btnRefreshClick;
   lstItems.OnColumnClick:= @lstItemsColumnClick;
   lstItems.OnCompare := @lstItemsCompare;
   fAutoRefresh := true;
+  fSingleClick := false;
   mnuAutoRefresh.Checked := true;
   lstfilter.OnChange:= @filterItems;
+  btnGo.OnClick:= @handleListClick;
   //
   png := TPortableNetworkGraphic.Create;
   try
@@ -188,10 +217,18 @@ begin
   finally
     png.Free;
   end;
+  //
+  fname := getCoeditDocPath + OptFname;
+  if FileExists(fname) then
+    fOptions.loadFromFile(fname);
+  fOptions.AssignTo(self);
+  //
+  EntitiesConnector.addObserver(self);
 end;
 
 destructor TCETodoListWidget.destroy;
 begin
+  fOptions.saveToFile(getCoeditDocPath + OptFname);
   killToolProcess;
   inherited;
 end;
@@ -199,35 +236,60 @@ end;
 procedure TCETodoListWidget.SetVisible(Value: boolean);
 begin
   inherited;
-  if Value then
+  if Value and fAutoRefresh then
     callToolProcess;
 end;
-
 {$ENDREGION}
 
-{$REGION ICESessionOptionsObserver  --------------------------------------------}
-procedure TCETodoListWidget.optset_AutoReafresh(aReader: TReader);
+{$REGION ICEEditableOptions ----------------------------------------------------}
+procedure TCETodoOptions.AssignTo(Dest: TPersistent);
+var
+  widg: TCETodoListWidget;
 begin
-  fAutoRefresh := aReader.ReadBoolean;
+  if Dest is TCETodoListWidget then
+  begin
+    widg := TCETodoListWidget(Dest);
+    widg.singleClickSelect := fSingleClick;
+    widg.autoRefresh := fAutoRefresh;
+  end
+  else inherited;
 end;
 
-procedure TCETodoListWidget.optget_AutoReafresh(aWriter: TWriter);
+procedure TCETodoOptions.Assign(Src: TPersistent);
+var
+  widg: TCETodoListWidget;
 begin
-  aWriter.WriteBoolean(fAutoRefresh);
+  if Src is TCETodoListWidget then
+  begin
+    widg := TCETodoListWidget(Src);
+    fSingleClick := widg.singleClickSelect;
+    fAutoRefresh := widg.autoRefresh;
+  end
+  else inherited;
 end;
 
-procedure TCETodoListWidget.sesoptDeclareProperties(aFiler: TFiler);
+function TCETodoListWidget.optionedWantCategory(): string;
 begin
-  inherited;
-  aFiler.DefineProperty(Name + '_AutoRefresh', @optset_AutoReafresh, @optget_AutoReafresh, true);
+  exit('Todo list');
 end;
 
-procedure TCETodoListWidget.sesoptAfterLoad;
+function TCETodoListWidget.optionedWantEditorKind: TOptionEditorKind;
 begin
-  inherited;
-  mnuAutoRefresh.Checked := fAutoRefresh;
+  exit(oekGeneric);
 end;
-{$ENDREGIOn}
+
+function TCETodoListWidget.optionedWantContainer: TPersistent;
+begin
+  fOptions.Assign(self);
+  exit(fOptions);
+end;
+
+procedure TCETodoListWidget.optionedEvent(anEvent: TOptionEditorEvent);
+begin
+  if anEvent <> oeeAccept then exit;
+  fOptions.AssignTo(self);
+end;
+{$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
 procedure TCETodoListWidget.docNew(aDoc: TCESynMemo);
@@ -250,7 +312,8 @@ procedure TCETodoListWidget.docClosing(aDoc: TCESynMemo);
 begin
   if fDoc <> aDoc then exit;
   fDoc := nil;
-  callToolProcess;
+  if Visible and fAutoRefresh then
+    callToolProcess;
 end;
 {$ENDREGION}
 
@@ -271,7 +334,8 @@ procedure TCETodoListWidget.projClosing(aProject: TCEProject);
 begin
   if fProj <> aProject then exit;
   fProj := nil;
-  callToolProcess;
+  if Visible and fAutoRefresh then
+    callToolProcess;
 end;
 
 procedure TCETodoListWidget.projFocused(aProject: TCEProject);
@@ -433,21 +497,10 @@ begin
   end;
 end;
 
-procedure TCETodoListWidget.btnGoClick(Sender: TObject);
-begin
-  lstItemsDoubleClick(nil);
-end;
-
-procedure TCETodoListWidget.mnuAutoRefreshClick(Sender: TObject);
-begin
-  fAutoRefresh := mnuAutoRefresh.Checked;
-end;
-
-procedure TCETodoListWidget.lstItemsDoubleClick(sender: TObject);
+procedure TCETodoListWidget.handleListClick(Sender: TObject);
 var
-  itm: TTodoItem;
-  fname: string;
-  ln: string;
+  itm : TTodoItem;
+  fname, ln : string;
 begin
   if lstItems.Selected = nil then exit;
   if lstItems.Selected.Data = nil then exit;
@@ -462,6 +515,12 @@ begin
   if fDoc = nil then exit;
   fDoc.CaretY := strToInt(ln);
   fDoc.SelectLine;
+end;
+
+procedure TCETodoListWidget.mnuAutoRefreshClick(Sender: TObject);
+begin
+  autoRefresh := mnuAutoRefresh.Checked;
+  fOptions.autoRefresh := autoRefresh;
 end;
 
 procedure TCETodoListWidget.lstItemsColumnClick(Sender : TObject; Column :
@@ -510,7 +569,27 @@ end;
 
 procedure TCETodoListWidget.filterItems(sender: TObject);
 begin
-  fillTodoList
+  fillTodoList;
+end;
+
+procedure TCETodoListWidget.setSingleClick(aValue: boolean);
+begin
+  fSingleClick := aValue;
+  if fSingleClick then begin
+    lstItems.OnClick := @handleListClick;
+    lstItems.OnDblClick := nil;
+  end else
+  begin
+    lstItems.OnClick := nil;
+    lstItems.OnDblClick := @handleListClick;
+  end;
+end;
+
+procedure TCETodoListWidget.setAutoRefresh(aValue: boolean);
+begin
+  fAutoRefresh := aValue;
+  mnuAutoRefresh.Checked:= aValue;
+  if fAutoRefresh then callToolProcess;
 end;
 {$ENDREGION}
 

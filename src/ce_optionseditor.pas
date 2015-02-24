@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, RTTIGrids, Forms, Controls, Graphics, ExtCtrls,
   Menus, ComCtrls, Buttons, ce_common, ce_widget, ce_interfaces,
-  ce_observer;
+  ce_observer, PropEdits, ObjectInspector;
 
 type
 
@@ -22,6 +22,8 @@ type
 
   //TODO-cbugfix: linux only, a conversion error is raised after a color's  been edited using the dialog color.
 
+  { TCEOptionEditorWidget }
+
   TCEOptionEditorWidget = class(TCEWidget)
     btnCancel: TSpeedButton;
     btnAccept: TSpeedButton;
@@ -33,6 +35,8 @@ type
     selCat: TTreeView;
     procedure btnAcceptClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
+    procedure inspectorEditorFilter(Sender: TObject; aEditor: TPropertyEditor;
+      var aShow: boolean);
     procedure inspectorModified(Sender: TObject);
     procedure selCatDeletion(Sender: TObject; Node: TTreeNode);
     procedure selCatSelectionChanged(Sender: TObject);
@@ -173,6 +177,18 @@ begin
   PCategoryData(selCat.Selected.Data)^
     .observer
     .optionedEvent(oeeCancel);
+end;
+
+procedure TCEOptionEditorWidget.inspectorEditorFilter(Sender: TObject;aEditor:
+  TPropertyEditor; var aShow: boolean);
+begin
+  if aEditor.GetComponent(0) is TComponent then
+  begin
+    if aEditor.GetPropInfo^.Name = 'Tag' then
+      aSHow := false;
+    if aEditor.GetPropInfo^.Name = 'Name' then
+      aSHow := false;
+  end;
 end;
 
 procedure TCEOptionEditorWidget.btnAcceptClick(Sender: TObject);
