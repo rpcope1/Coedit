@@ -20,6 +20,7 @@ type
     fParameters: TStringList;
     fToolAlias: string;
     fQueryParams: boolean;
+    fClearMessages: boolean;
     fChainBefore: TStringList;
     fChainAfter: TStringList;
     fShortcut: TShortcut;
@@ -37,6 +38,7 @@ type
     property parameters: TStringList read fParameters write setParameters;
     property showWindows: TShowWindowOptions read fShowWin write fShowWin;
     property queryParameters: boolean read fQueryParams write fQueryParams;
+    property clearMessages: boolean read fClearMessages write fClearMessages;
     property chainBefore: TStringList read fChainBefore write setchainBefore;
     property chainAfter: TStringList read fChainAfter write setChainAfter;
     property shortcut: TShortcut read fShortcut write fShortcut;
@@ -134,6 +136,9 @@ var
   prms: string;
 begin
   killProcess(fProcess);
+  //
+  if fClearMessages then
+    getMessageDisplay(fMsgs).clearByContext(amcMisc);
   //
   fProcess := TCheckedAsyncProcess.Create(nil);
   fProcess.OnReadData:= @processOutput;

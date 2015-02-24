@@ -31,6 +31,7 @@ type
     fSelCol: TSynSelectedColor;
     fFoldedColor: TSynSelectedColor;
     fMouseLinkColor: TSynSelectedColor;
+    fBracketMatchColor: TSynSelectedColor;
     fFont: TFont;
     //
     fTabWidth: Integer;
@@ -48,9 +49,11 @@ type
     procedure setSelCol(aValue: TSynSelectedColor);
     procedure setFoldedColor(aValue: TSynSelectedColor);
     procedure setMouseLinkColor(aValue: TSynSelectedColor);
+    procedure setBracketMatchColor(aValue: TSynSelectedColor);
     procedure setD2Syn(aValue: TPersistent);
     procedure setTxtSyn(aValue: TPersistent);
   published
+    property bracketMatchColor: TSynSelectedColor read fBracketMatchColor write setBracketMatchColor;
     property mouseLinkColor: TSynSelectedColor read fMouseLinkColor write setMouseLinkColor;
     property selectedColor: TSynSelectedColor read fSelCol write setSelCol;
     property foldedColor: TSynSelectedColor read fFoldedColor write setFoldedColor;
@@ -128,6 +131,7 @@ begin
   fSelCol := TSynSelectedColor.Create;
   fFoldedColor := TSynSelectedColor.Create;
   fMouseLinkColor := TSynSelectedColor.Create;
+  fBracketMatchColor := TSynSelectedColor.Create;
   //
   // note: default values come from TSynEditFoldedView ctor.
   fFoldedColor.Background := clNone;
@@ -138,6 +142,9 @@ begin
   fMouseLinkColor.StyleMask := [];
   fMouseLinkColor.Foreground := clNone;
   fMouseLinkColor.Background := clNone;
+  //
+  fBracketMatchColor.Foreground:= clRed;
+  fBracketMatchColor.Background:= clNone;
   //
   rightEdge := 80;
   tabulationWidth := 4;
@@ -161,6 +168,7 @@ begin
   fSelCol.Free;
   fFoldedColor.Free;
   fMouseLinkColor.Free;
+  fBracketMatchColor.Free;
   inherited;
 end;
 
@@ -176,6 +184,7 @@ begin
     fSelCol.Assign(srcopt.fSelCol);
     fFoldedColor.Assign(srcopt.fFoldedColor);
     fMouseLinkColor.Assign(srcopt.fMouseLinkColor);
+    fBracketMatchColor.Assign(srcopt.fBracketMatchColor);
     fD2Syn.Assign(srcopt.fD2Syn);
     fTxtSyn.Assign(srcopt.fTxtSyn);
     background      := srcopt.background;
@@ -210,6 +219,11 @@ end;
 procedure TCEEditorOptionsBase.setMouseLinkColor(aValue: TSynSelectedColor);
 begin
   fMouseLinkColor.Assign(aValue);
+end;
+
+procedure TCEEditorOptionsBase.setBracketMatchColor(aValue: TSynSelectedColor);
+begin
+  fBracketMatchColor.Assign(aValue);
 end;
 
 procedure TCEEditorOptionsBase.setD2Syn(aValue: TPersistent);
@@ -330,6 +344,7 @@ begin
   anEditor.SelectedColor.Assign(fSelCol);
   anEditor.FoldedCodeColor.Assign(fFoldedColor);
   anEditor.MouseLinkColor.Assign(fMouseLinkColor);
+  anEditor.BracketMatchColor.Assign(fBracketMatchColor);
   anEditor.TabWidth := tabulationWidth;
   anEditor.BlockIndent := blockIdentation;
   anEditor.ExtraLineSpacing := lineSpacing;

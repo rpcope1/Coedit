@@ -128,50 +128,62 @@ inherited CESearchWidget: TCESearchWidget
         Align = alClient
         BorderSpacing.Around = 4
         Caption = 'Options'
-        ClientHeight = 79
+        ClientHeight = 77
         ClientWidth = 382
         TabOrder = 3
         object chkWWord: TCheckBox
           Left = 8
-          Height = 19
+          Height = 21
           Top = 0
-          Width = 82
+          Width = 84
           Caption = 'whole word'
+          Checked = True
+          State = cbChecked
           TabOrder = 0
         end
         object chkBack: TCheckBox
           Left = 8
-          Height = 19
+          Height = 21
           Top = 24
-          Width = 71
+          Width = 73
           Caption = 'backward'
-          TabOrder = 1
+          TabOrder = 2
         end
         object chkFromCur: TCheckBox
           Left = 8
-          Height = 19
+          Height = 21
           Top = 48
-          Width = 82
+          Width = 84
           Caption = 'from cursor'
           Checked = True
           State = cbChecked
-          TabOrder = 2
+          TabOrder = 3
         end
         object chkCaseSens: TCheckBox
           Left = 128
-          Height = 19
+          Height = 21
           Top = 0
-          Width = 91
+          Width = 93
           Caption = 'case sensitive'
-          TabOrder = 3
+          TabOrder = 4
         end
         object chkPrompt: TCheckBox
           Left = 128
-          Height = 19
+          Height = 21
           Top = 24
-          Width = 60
+          Width = 62
           Caption = 'prompt'
-          TabOrder = 4
+          TabOrder = 1
+        end
+        object chkRegex: TCheckBox
+          Left = 128
+          Height = 21
+          Top = 48
+          Width = 117
+          Caption = 'regular expression'
+          Checked = True
+          State = cbChecked
+          TabOrder = 5
         end
       end
       object btnReplaceAll: TBitBtn[4]
@@ -232,25 +244,25 @@ inherited CESearchWidget: TCESearchWidget
         ClientWidth = 386
         TabOrder = 5
         object cbReplaceWth: TComboBox
-          Left = 90
+          Left = 92
           Height = 23
           Top = 0
-          Width = 296
+          Width = 294
           Align = alClient
           Anchors = [akTop, akLeft, akBottom]
           ItemHeight = 15
           OnChange = cbReplaceWthChange
-          TabOrder = 0
+          TabOrder = 1
         end
         object chkEnableRep: TCheckBox
           Left = 0
           Height = 23
           Top = 0
-          Width = 90
+          Width = 92
           Align = alLeft
           Caption = 'Replace with '
           OnChange = chkEnableRepChange
-          TabOrder = 1
+          TabOrder = 0
         end
       end
     end
