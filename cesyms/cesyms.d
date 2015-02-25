@@ -167,7 +167,7 @@ class SymbolListBuilder : ASTVisitor
     
     final override void visit(const EnumDeclaration decl) 
     {
-        //TODO-ctest: try to see if what dmd outputs as , "enum member" is handled.
+        //TODO-ctest: try to see if what dmd outputs as "enum member" is handled.
         namedVisitorImpl!(EnumDeclaration, SymbolType._class)(decl);
     }
     
@@ -208,7 +208,7 @@ class SymbolListBuilder : ASTVisitor
     final override void visit(const MixinDeclaration decl) 
     {
         // TODO-cfeature: MixinDeclaration, just display the name of the mixed template.  
-        // the template might be implemented in another module so their cant be displayed.
+        // the template might be implemented in another module so its members cant be displayed.
     }
     
     final override void visit(const StructDeclaration decl) 
