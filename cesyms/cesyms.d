@@ -1,13 +1,22 @@
-module runnable;
+module cesyms;
 
-import std.path, std.file;
-import std.stdio;
-import std.d.lexer;
-import std.d.ast;
-import std.d.parser;
-
+import std.stdio, std.path, std.file, std.array, std.string;
+import std.d.lexer, std.d.ast, std.d.parser;
+static import std.conv;
 
 interface I{}
+
+alias Int32 = int;
+//alias long Int64;
+
+enum E 
+{
+    e1,
+    e2,
+    e3,
+}
+
+enum {opt1,opt2}
 
 class A
 {
@@ -26,26 +35,42 @@ class A
 
 enum SymbolType
 {
-    _alias,
+    _alias,     // X
     _class,     // X
     _enum,      // X
     _function,  // X
     _interface, // X
-    _import,
+    _import,    // X
     _mixin,
     _struct,    // X
     _template,  // X
     _union,     // X
-    _variable 
+    _variable   // X
 }
 
 struct Symbol
 {
-    uint line;
-    uint col;
+    int line;
+    int col;
     string name;
     SymbolType type; 
     Symbol * [] subs;
+    
+    void serialize(ref Appender!string lfmApp)
+    {
+        lfmApp.put("  \r    item\r");
+        
+        lfmApp.put(format("    line = %d\r", line));
+        lfmApp.put(format("    col = %d\r", col));
+        lfmApp.put(format("    name = '%s'\r", name));
+        lfmApp.put(format("    symType = %s\r", type));
+         
+        lfmApp.put("    subs = <");
+        if (subs.length) foreach(Symbol * sub; subs)
+            sub.serialize(lfmApp);
+        lfmApp.put(">\r");
+        lfmApp.put("    end\r");
+    }
 }
 
 void main(string[] args)
@@ -53,7 +78,7 @@ void main(string[] args)
     if (args.length < 2) return;
     auto fname = args[1];
     if (!fname.exists) return;
-    
+
     // load and parse the file
     auto config = LexerConfig(fname, StringBehavior.source, WhitespaceBehavior.include);
     auto source = cast(ubyte[]) read(fname, size_t.max);
@@ -68,11 +93,13 @@ void main(string[] args)
         slb.visit(decl);
     } 
     
+    
+    // TODO-cfeature: Outputs the symbol tree in a format handlable by a Coedit widget
+    
     int level = -1;
     void print(Symbol * s)
     {
-        
-        foreach(i; 0..level) write(".");
+        foreach(i; 0 .. level) write(".");
         level++;
         write(s.name, '\r');
         foreach(ss; s.subs)
@@ -80,16 +107,21 @@ void main(string[] args)
         
         level--;
     }
+    //print(&slb.root);
     
-    print(&slb.root);
-    writeln();
+    auto str = slb.serialize;
     
+    //std.file.write(r"C:\too.txt",cast(ubyte[])str);
+    
+    write(str);
+    stdout.flush;
 }
 
 class SymbolListBuilder : ASTVisitor
 {
     Symbol root;
     Symbol * parent;
+    size_t count;
     
     alias visit = ASTVisitor.visit;
     
@@ -97,11 +129,25 @@ class SymbolListBuilder : ASTVisitor
     
     void resetRoot(){parent = &root;}
     
+    string serialize()
+    {
+        Appender!string lfmApp;
+        lfmApp.reserve(count * 64);
+        
+        lfmApp.put("object TSymbolList\r  symbols = <");
+        foreach(Symbol * sym; root.subs) sym.serialize(lfmApp);
+        lfmApp.put(">\rend\r\n");
+        
+        return lfmApp.data;
+        
+    }
+    
     /// returns a new symbol if the declarator is based on a Token named "name".
     Symbol * addDeclaration(DT)(DT adt)
     {
         static if 
         (
+            is(DT == const(AliasInitializer))       ||
             is(DT == const(ClassDeclaration))       ||
             is(DT == const(Declarator))             ||
             is(DT == const(EnumDeclaration))        ||
@@ -113,8 +159,9 @@ class SymbolListBuilder : ASTVisitor
             
         )
         {
+            count++;
             auto result = new Symbol;
-            result.name = adt.name.text;
+            result.name = adt.name.text.idup;
             result.line = adt.name.line;
             result.col  = adt.name.column;             
             parent.subs ~= result;  
@@ -130,17 +177,21 @@ class SymbolListBuilder : ASTVisitor
         auto newSymbol = addDeclaration(dt);
         newSymbol.type = st;
         //
-        auto previousParent = parent;
-        parent = newSymbol;
-        static if (dig) dt.accept(this);
-        parent = previousParent;       
+        static if (dig)
+        {
+            auto previousParent = parent;
+            scope(exit) parent = previousParent;
+            parent = newSymbol;
+            dt.accept(this);
+        }       
     }
     
-    
-    
-    final override void visit(const AliasDeclaration aliasDeclaration) 
+    final override void visit(const AliasDeclaration decl) 
     { 
-        // IdentifierList
+        // old alias syntax not supported by this.
+        // why is initializers an array ?
+        if (decl.initializers.length == 1)
+            namedVisitorImpl!(AliasInitializer, SymbolType._alias)(decl.initializers[0]);  
     }
      
     final override void visit(const ClassDeclaration decl) 
@@ -150,6 +201,7 @@ class SymbolListBuilder : ASTVisitor
     
     final override void visit(const EnumDeclaration decl) 
     {
+        // TODO-ctest: try to see if what dmd outputs as , "enum member" is handled.
         namedVisitorImpl!(EnumDeclaration, SymbolType._class)(decl);
     }
     
@@ -165,19 +217,32 @@ class SymbolListBuilder : ASTVisitor
     
     final override void visit(const ImportDeclaration decl) 
     {
-        // singlesImp[]  
-        
-        // singleImport.identifierchain.join
-        
-        import std.array;
         foreach(const(SingleImport) si; decl.singleImports)
-            
-            writeln(  si.identifierChain.identifiers[0].text ); 
+        { 
+            if (!si.identifierChain.identifiers.length)
+                continue;
+            //
+            string[] modules;
+            foreach(ident; si.identifierChain.identifiers)
+            {
+                modules ~= ident.text;
+                modules ~= ".";
+            }
+            //
+            count++;
+            auto result = new Symbol;
+            result.name = modules[0..$-1].join;
+            result.line = si.identifierChain.identifiers[0].line;
+            result.col  = si.identifierChain.identifiers[0].column; 
+            result.type = SymbolType._import;            
+            parent.subs ~= result;  
+        }   
     }
     
     final override void visit(const MixinDeclaration decl) 
     {
-        // identifier  
+        // TODO-cfeature: MixinDeclaration, just display the name of the mixed template.
+        // the template might be implemented in another module so their ùeùbrs cant be displayed.
     }
     
     final override void visit(const StructDeclaration decl) 

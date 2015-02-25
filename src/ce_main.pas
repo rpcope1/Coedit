@@ -12,7 +12,7 @@ uses
   ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf, ce_search,
   ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist,
   ce_observer, ce_writableComponent, ce_toolseditor, ce_procinput, ce_optionseditor,
-  ce_cdbcmd;
+  ce_cdbcmd, ce_symlist;
 
 type
 
@@ -198,6 +198,7 @@ type
     fPrInpWidg: TCEProcInputWidget;
     fTodolWidg: TCETodoListWidget;
     fOptEdWidg: TCEOptionEditorWidget;
+    fSymlWidg: TCESymbolListWidget;
     //fResWidg: TCEResmanWidget;
     {$IFDEF WIN32}
     fCdbWidg: TCECdbWidget;
@@ -421,6 +422,7 @@ begin
   fPrInpWidg:= TCEProcInputWidget.create(self);
   fTodolWidg:= TCETodoListWidget.create(self);
   fOptEdWidg:= TCEOptionEditorWidget.create(self);
+  fSymlWidg := TCESymbolListWidget.create(self);
   //fResWidg  := TCEResmanWidget.create(self);
 
   getMessageDisplay(fMsgs);
@@ -441,6 +443,7 @@ begin
   fWidgList.addWidget(@fPrInpWidg);
   fWidgList.addWidget(@fTodolWidg);
   fWidgList.addWidget(@fOptEdWidg);
+  fWidgList.addWidget(@fSymlWidg);
   //fWidgList.addWidget(@fResWidg);
 
   {$IFDEF WIN32}
