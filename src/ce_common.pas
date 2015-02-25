@@ -214,6 +214,11 @@ type
   procedure processOutputToStrings(aProcess: TProcess; var aList: TStringList);
 
   (**
+   * Copy available process output to a stream.
+   *)
+  procedure processOutputToStream(aProcess: TProcess; output: TMemoryStream);
+
+  (**
    * Terminates and frees aProcess;
    *)
   procedure killProcess(var aProcess: TAsyncProcess);
@@ -808,6 +813,25 @@ begin
   finally
     str.Free;
   end;
+end;
+
+procedure processOutputToStream(aProcess: TProcess; output: TMemoryStream);
+var
+  sum, cnt: Integer;
+const
+  buffSz = 2048;
+begin
+  if not (poUsePipes in aProcess.Options) then
+    exit;
+  //
+  sum := output.Size;
+  while aProcess.Output.NumBytesAvailable <> 0 do begin
+    output.SetSize(sum + buffSz);
+    cnt := aProcess.Output.Read((output.Memory + sum)^, buffSz);
+    sum += cnt;
+  end;
+  output.SetSize(sum);
+  output.Position := sum;
 end;
 
 procedure killProcess(var aProcess: TAsyncProcess);

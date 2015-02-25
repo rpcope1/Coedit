@@ -79,11 +79,12 @@ type
     procedure handleListClick(Sender: TObject);
     procedure mnuAutoRefreshClick(Sender: TObject);
   private
+    fToolOutput: TMemoryStream;
     fAutoRefresh: Boolean;
     fSingleClick: Boolean;
     fProj: TCEProject;
     fDoc: TCESynMemo;
-    fToolProcess: TCheckedAsyncProcess;
+    fToolProc: TCheckedAsyncProcess;
     fTodos: TTodoItems;
     fMsgs: ICEMessagesDisplay;
     fOptions: TCETodoOptions;
@@ -107,7 +108,8 @@ type
     function getContext: TTodoContext;
     procedure killToolProcess;
     procedure callToolProcess;
-    procedure procOutput(sender: TObject);
+    procedure toolTerminated(sender: TObject);
+    procedure toolOutputData(sender: TObject);
     procedure procOutputDbg(sender: TObject);
     procedure clearTodoList;
     procedure fillTodoList;
@@ -193,6 +195,7 @@ var
 begin
   inherited;
   //
+  fToolOutput := TMemoryStream.Create;
   fOptions := TCETodoOptions.Create(self);
   fOptions.autoRefresh := true;
   fOptions.Name := 'todolistOptions';
@@ -230,6 +233,7 @@ destructor TCETodoListWidget.destroy;
 begin
   fOptions.saveToFile(getCoeditDocPath + OptFname);
   killToolProcess;
+  fToolOutput.Free;
   inherited;
 end;
 
@@ -364,11 +368,11 @@ end;
 
 procedure TCETodoListWidget.killToolProcess;
 begin
-  if fToolProcess = nil then exit;
+  if fToolProc = nil then exit;
   //
-  fToolProcess.Terminate(0);
-  fToolProcess.Free;
-  fToolProcess := nil;
+  fToolProc.Terminate(0);
+  fToolProc.Free;
+  fToolProc := nil;
 end;
 
 procedure TCETodoListWidget.callToolProcess;
@@ -382,26 +386,19 @@ begin
   //
   killToolProcess;
   // process parameter
-  fToolProcess := TCheckedAsyncProcess.Create(nil);
-  fToolProcess.Executable := ToolExeName;
-  fToolProcess.Options := [poUsePipes];
-  fToolProcess.ShowWindow := swoHIDE;
-  fToolProcess.CurrentDirectory := ExtractFileDir(Application.ExeName);
-
-  // Something not quite clear:
-  // --------------------------
-  // actually the two events can be called, depending
-  // on the amount of data in the output.
-  // many: OnReadData is called.
-  // few: OnTerminate is called.
-  fToolProcess.OnTerminate := @procOutput;
-  fToolProcess.OnReadData := @procOutput;
+  fToolProc := TCheckedAsyncProcess.Create(nil);
+  fToolProc.Executable := ToolExeName;
+  fToolProc.Options := [poUsePipes];
+  fToolProc.ShowWindow := swoHIDE;
+  fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);
+  fToolProc.OnTerminate := @toolTerminated;
+  fToolProc.OnReadData := @toolOutputData;
 
   // files passed to the tool argument
-  if ctxt = tcProject then fToolProcess.Parameters.AddText(symbolExpander.get('<CPFS>'))
-  else fToolProcess.Parameters.Add(symbolExpander.get('<CFF>'));
+  if ctxt = tcProject then fToolProc.Parameters.AddText(symbolExpander.get('<CPFS>'))
+  else fToolProc.Parameters.Add(symbolExpander.get('<CFF>'));
   //
-  fToolProcess.Execute;
+  fToolProc.Execute;
 end;
 
 procedure TCETodoListWidget.procOutputDbg(sender: TObject);
@@ -413,7 +410,7 @@ begin
   getMessageDisplay(fMsgs);
   str := TStringList.Create;
   try
-    processOutputToStrings(fToolProcess, str);
+    processOutputToStrings(fToolProc, str);
     ctxt := getContext;
     for msg in str do case ctxt of
       tcNone:   fMsgs.message(msg, nil, amcMisc, amkAuto);
@@ -425,29 +422,22 @@ begin
   end;
 end;
 
-procedure TCETodoListWidget.procOutput(sender: TObject);
-var
-  str: TMemoryStream;
-  cnt: Integer;
-  sum: Integer;
-const
-  buffSz = 1024;
+procedure TCETodoListWidget.toolOutputData(sender: TObject);
 begin
-  sum := 0;
-  str := TMemoryStream.Create;
-  try
-    while fToolProcess.Output.NumBytesAvailable <> 0 do begin
-      str.SetSize(sum + buffSz);
-      cnt := fToolProcess.Output.Read((str.Memory + sum)^, buffSz);
-      sum += cnt;
-    end;
-    str.SetSize(sum);
-    str.Position := 0;
-    fTodos.loadFromTxtStream(str);
-    fillTodoList;
-  finally
-    str.Free;
-  end;
+  processOutputToStream(fToolProc, fToolOutput);
+end;
+
+procedure TCETodoListWidget.toolTerminated(sender: TObject);
+begin
+  processOutputToStream(fToolProc, fToolOutput);
+  fToolOutput.Position := 0;
+  //TODO-cbugfix: UTF chars in TODO comments bug either in the widget or the tool, symptom: empty todo list, conditions: to determine.
+  //fToolOutput.SaveToFile('C:\cetodo_widgetside.txt');
+  fTodos.loadFromTxtStream(fToolOutput);
+  fillTodoList;
+  fToolProc.OnTerminate := nil;
+  fToolProc.OnReadData := nil;
+  fToolOutput.Clear;
 end;
 
 procedure TCETodoListWidget.clearTodoList;
