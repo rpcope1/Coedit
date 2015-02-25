@@ -2,36 +2,6 @@ module cesyms;
 
 import std.stdio, std.path, std.file, std.array, std.string;
 import std.d.lexer, std.d.ast, std.d.parser;
-static import std.conv;
-
-interface I{}
-
-alias Int32 = int;
-//alias long Int64;
-
-enum E 
-{
-    e1,
-    e2,
-    e3,
-}
-
-enum {opt1,opt2}
-
-class A
-{
-    class AA
-    {
-        class AA1{}
-        class AA2{}
-    }
-    
-    class BB
-    {
-        class BB1{}
-        class BB2{}
-    }
-}
 
 enum SymbolType
 {
@@ -58,18 +28,18 @@ struct Symbol
     
     void serialize(ref Appender!string lfmApp)
     {
-        lfmApp.put("  \r    item\r");
+        lfmApp.put("\ritem\r");
         
-        lfmApp.put(format("    line = %d\r", line));
-        lfmApp.put(format("    col = %d\r", col));
-        lfmApp.put(format("    name = '%s'\r", name));
-        lfmApp.put(format("    symType = %s\r", type));
+        lfmApp.put(format("line = %d\r", line));
+        lfmApp.put(format("col = %d\r", col));
+        lfmApp.put(format("name = '%s'\r", name));
+        lfmApp.put(format("symType = %s\r", type));
          
-        lfmApp.put("    subs = <");
+        lfmApp.put("subs = <");
         if (subs.length) foreach(Symbol * sub; subs)
             sub.serialize(lfmApp);
         lfmApp.put(">\r");
-        lfmApp.put("    end\r");
+        lfmApp.put("end\r");
     }
 }
 
@@ -91,30 +61,27 @@ void main(string[] args)
     {
         slb.resetRoot;
         slb.visit(decl);
-    } 
-    
-    
-    // TODO-cfeature: Outputs the symbol tree in a format handlable by a Coedit widget
-    
-    int level = -1;
-    void print(Symbol * s)
-    {
-        foreach(i; 0 .. level) write(".");
-        level++;
-        write(s.name, '\r');
-        foreach(ss; s.subs)
-            print(ss);
-        
-        level--;
     }
-    //print(&slb.root);
+    
+    version(none)
+    {
+        int level = -1;
+        void print(Symbol * s)
+        {
+            foreach(i; 0 .. level) write(".");
+            level++;
+            write(s.name, '\r');
+            foreach(ss; s.subs)
+                print(ss);
+            
+            level--;
+        }
+        print(&slb.root);
+    }
     
     auto str = slb.serialize;
-    
-    //std.file.write(r"C:\too.txt",cast(ubyte[])str);
-    
+    //std.file.write(r"C:\tool.txt",cast(ubyte[])str);
     write(str);
-    stdout.flush;
 }
 
 class SymbolListBuilder : ASTVisitor
@@ -134,12 +101,11 @@ class SymbolListBuilder : ASTVisitor
         Appender!string lfmApp;
         lfmApp.reserve(count * 64);
         
-        lfmApp.put("object TSymbolList\r  symbols = <");
+        lfmApp.put("object TSymbolList\rsymbols = <");
         foreach(Symbol * sym; root.subs) sym.serialize(lfmApp);
         lfmApp.put(">\rend\r\n");
         
-        return lfmApp.data;
-        
+        return lfmApp.data; 
     }
     
     /// returns a new symbol if the declarator is based on a Token named "name".
@@ -161,7 +127,7 @@ class SymbolListBuilder : ASTVisitor
         {
             count++;
             auto result = new Symbol;
-            result.name = adt.name.text.idup;
+            result.name = adt.name.text;
             result.line = adt.name.line;
             result.col  = adt.name.column;             
             parent.subs ~= result;  
@@ -185,7 +151,7 @@ class SymbolListBuilder : ASTVisitor
             dt.accept(this);
         }       
     }
-    
+
     final override void visit(const AliasDeclaration decl) 
     { 
         // old alias syntax not supported by this.
@@ -201,7 +167,7 @@ class SymbolListBuilder : ASTVisitor
     
     final override void visit(const EnumDeclaration decl) 
     {
-        // TODO-ctest: try to see if what dmd outputs as , "enum member" is handled.
+        //TODO-ctest: try to see if what dmd outputs as , "enum member" is handled.
         namedVisitorImpl!(EnumDeclaration, SymbolType._class)(decl);
     }
     
@@ -241,8 +207,8 @@ class SymbolListBuilder : ASTVisitor
     
     final override void visit(const MixinDeclaration decl) 
     {
-        // TODO-cfeature: MixinDeclaration, just display the name of the mixed template.
-        // the template might be implemented in another module so their ùeùbrs cant be displayed.
+        // TODO-cfeature: MixinDeclaration, just display the name of the mixed template.  
+        // the template might be implemented in another module so their cant be displayed.
     }
     
     final override void visit(const StructDeclaration decl) 

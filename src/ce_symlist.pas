@@ -94,6 +94,7 @@ type
     fAutoRefresh: boolean;
     fRefreshOnChange: boolean;
     fRefreshOnFocus: boolean;
+    fToolOutput: TMemoryStream;
     ndAlias, ndClass, ndEnum, ndFunc, ndUni: TTreeNode;
     ndImp, ndIntf, ndMix, ndStruct, ndTmp, ndVar: TTreeNode;
     procedure TreeDblClick(Sender: TObject);
@@ -106,7 +107,8 @@ type
     procedure clearTree;
     //
     procedure callToolProc;
-    procedure symbolListProduced(sender: TObject);
+    procedure toolOutputData(sender: TObject);
+    procedure toolTerminated(sender: TObject);
     //
     procedure optget_AutoRefresh(aWriter: TWriter);
     procedure optset_AutoRefresh(aReader: TReader);
@@ -239,6 +241,7 @@ begin
   inherited;
   // allow empty name if owner is nil
   fSyms := TSymbolList.create(nil);
+  fToolOutput := TMemoryStream.create;
   //
   ndAlias   := Tree.Items[0];
   ndClass   := Tree.Items[1];
@@ -271,6 +274,7 @@ begin
   EntitiesConnector.removeObserver(self);
   //
   killProcess(fToolProc);
+  fToolOutput.free;
   fSyms.Free;
   inherited;
 end;
@@ -517,8 +521,8 @@ begin
   fToolProc.ShowWindow := swoHIDE;
   fToolProc.Options := [poUsePipes];
   fToolProc.Executable := 'cesyms';
-  fToolProc.OnTerminate := @symbolListProduced;
-  fToolProc.OnReadData  := @symbolListProduced;
+  fToolProc.OnTerminate := @toolTerminated;
+  fToolProc.OnReadData  := @toolOutputData;
   fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);
 
   // focused source
@@ -531,13 +535,14 @@ begin
   fToolProc.Execute;
 end;
 
-procedure TCESymbolListWidget.symbolListProduced(sender: TObject);
+procedure TCESymbolListWidget.toolOutputData(sender: TObject);
+begin
+  processOutputToStream(TProcess(sender), fToolOutput);
+end;
+
+procedure TCESymbolListWidget.toolTerminated(sender: TObject);
 var
-  cnt, sum: Integer;
-  str: TmemoryStream;
   i: Integer;
-const
-  buffSz = 1024;
 //
 procedure symbolToTreeNode(sym: TSymbol);
 var
@@ -573,23 +578,12 @@ begin
   updateVisibleCat;
   if fDoc = nil then exit;
   //
-  sum := 0;
-  str := TMemoryStream.Create;
-  try
-    while fToolProc.Output.NumBytesAvailable <> 0 do begin
-      str.SetSize(sum + buffSz);
-      cnt := fToolProc.Output.Read((str.Memory + sum)^, buffSz);
-      sum += cnt;
-    end;
-    str.SetSize(sum);
-    str.Position := 0;
-    //str.SaveToFile('C:\symlist.txt');
-    fSyms.LoadFromTool(str);
-  finally
-    str.Free;
-  end;
+  processOutputToStream(TProcess(sender), fToolOutput);
+  fToolOutput.Position := 0;
+  fSyms.LoadFromTool(fToolOutput);
   fToolProc.OnTerminate := nil;
   fToolProc.OnReadData  := nil;
+  fToolOutput.Clear;
   //
   tree.BeginUpdate;
   for i := 0 to fSyms.symbols.Count-1 do
