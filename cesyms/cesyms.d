@@ -2,46 +2,7 @@ module cesyms;
 
 import std.stdio, std.path, std.file, std.array, std.string;
 import std.d.lexer, std.d.ast, std.d.parser;
-
-enum SymbolType
-{
-    _alias,     // X
-    _class,     // X
-    _enum,      // X
-    _function,  // X
-    _interface, // X
-    _import,    // X
-    _mixin,
-    _struct,    // X
-    _template,  // X
-    _union,     // X
-    _variable   // X
-}
-
-struct Symbol
-{
-    int line;
-    int col;
-    string name;
-    SymbolType type; 
-    Symbol * [] subs;
-    
-    void serialize(ref Appender!string lfmApp)
-    {
-        lfmApp.put("\ritem\r");
-        
-        lfmApp.put(format("line = %d\r", line));
-        lfmApp.put(format("col = %d\r", col));
-        lfmApp.put(format("name = '%s'\r", name));
-        lfmApp.put(format("symType = %s\r", type));
-         
-        lfmApp.put("subs = <");
-        if (subs.length) foreach(Symbol * sub; subs)
-            sub.serialize(lfmApp);
-        lfmApp.put(">\r");
-        lfmApp.put("end\r");
-    }
-}
+import std.traits;
 
 void main(string[] args)
 {
@@ -56,7 +17,7 @@ void main(string[] args)
     auto ast = parseModule(getTokensForParser(source, config, &scache), fname);
 
     // visit each root member
-    auto slb = new SymbolListBuilder; 
+    auto slb = construct!SymbolListBuilder; 
     foreach(Declaration decl; ast.declarations)
     {
         slb.resetRoot;
@@ -80,23 +41,118 @@ void main(string[] args)
     }
     
     auto str = slb.serialize;
-    //std.file.write(r"C:\tool.txt",cast(ubyte[])str);
     write(str);
+    
+    slb.destruct;
 }
 
+// Memory utils ---------------------------------------------------------------+
+void * getMem(size_t size) nothrow
+{
+    import std.c.stdlib;
+    auto result = malloc(size);
+    assert(result, "Out of memory");
+    return result;
+}
+
+CT construct(CT, A...)(A a) 
+if (is(CT == class))
+{
+    import std.conv : emplace;
+    auto size = __traits(classInstanceSize, CT);
+    auto memory = getMem(size)[0 .. size];
+    return emplace!(CT, A)(memory, a);
+}
+
+ST * construct(ST, A...)(A a)
+if(is(ST==struct))
+{
+    import std.conv : emplace;
+    auto size = ST.sizeof;
+    auto memory = getMem(size)[0 .. size];
+    return emplace!(ST, A)(memory, a);
+}
+
+static void destruct(T)(ref T instance) 
+if (is(T == class) || (isPointer!T && is(PointerTarget!T == struct)))
+{
+    if (!instance) return;
+    destroy(instance);
+    instance = null;
+}
+//----
+
+// Serializable Symbol --------------------------------------------------------+
+enum SymbolType
+{
+    _alias,     // X
+    _class,     // X
+    _enum,      // X
+    _function,  // X
+    _interface, // X
+    _import,    // X
+    _mixin,
+    _struct,    // X
+    _template,  // X
+    _union,     // X
+    _variable   // X
+}
+
+struct Symbol
+{
+    int line;
+    int col;
+    string name;
+    SymbolType type; 
+    Symbol * [] subs;
+    
+    ~this()
+    {
+        foreach_reverse(i; 0..subs.length)
+            subs[i].destruct;
+    }
+    
+    void serialize(ref Appender!string lfmApp)
+    {
+        lfmApp.put("\ritem\r");
+        
+        lfmApp.put(format("line = %d\r", line));
+        lfmApp.put(format("col = %d\r", col));
+        lfmApp.put(format("name = '%s'\r", name));
+        lfmApp.put(format("symType = %s\r", type));
+         
+        lfmApp.put("subs = <");
+        if (subs.length) foreach(Symbol * sub; subs)
+            sub.serialize(lfmApp);
+        lfmApp.put(">\r");
+        lfmApp.put("end\r");
+    }
+}
+//----
+
+// AST visitor/Symbol list ----------------------------------------------------+
 class SymbolListBuilder : ASTVisitor
 {
-    Symbol root;
+    Symbol * root;
     Symbol * parent;
     size_t count;
     
     alias visit = ASTVisitor.visit;
     
-    this(){resetRoot;}
+    this()
+    {
+        root = construct!Symbol;
+        resetRoot;
+    }
     
-    void resetRoot(){parent = &root;}
+    ~this()
+    {
+        root.destruct;  
+    }
     
-    string serialize()
+    final void resetRoot(){parent = root;}
+    
+    final string serialize()
     {
         Appender!string lfmApp;
         lfmApp.reserve(count * 64);
@@ -109,10 +165,11 @@ class SymbolListBuilder : ASTVisitor
     }
     
     /// returns a new symbol if the declarator is based on a Token named "name".
-    Symbol * addDeclaration(DT)(DT adt)
+    final Symbol * addDeclaration(DT)(DT adt)
     {
         static if 
         (
+            is(DT == const(EponymousTemplateDeclaration)) ||
             is(DT == const(AliasInitializer))       ||
             is(DT == const(ClassDeclaration))       ||
             is(DT == const(Declarator))             ||
@@ -126,7 +183,7 @@ class SymbolListBuilder : ASTVisitor
         )
         {
             count++;
-            auto result = new Symbol;
+            auto result = construct!Symbol;
             result.name = adt.name.text;
             result.line = adt.name.line;
             result.col  = adt.name.column;             
@@ -138,7 +195,7 @@ class SymbolListBuilder : ASTVisitor
     }
     
     /// visitor implementation if the declarator is based on a Token named "name".
-    void namedVisitorImpl(DT, SymbolType st, bool dig = true)(const(DT) dt)
+    final void namedVisitorImpl(DT, SymbolType st, bool dig = true)(const(DT) dt)
     {
         auto newSymbol = addDeclaration(dt);
         newSymbol.type = st;
@@ -172,7 +229,7 @@ class SymbolListBuilder : ASTVisitor
         namedVisitorImpl!(EnumDeclaration, SymbolType._enum)(decl);
     }
     
-    void visit(const EponymousTemplateDeclaration decl)
+    final override void visit(const EponymousTemplateDeclaration decl)
     {
         namedVisitorImpl!(EponymousTemplateDeclaration, SymbolType._template)(decl);
     }
@@ -202,7 +259,7 @@ class SymbolListBuilder : ASTVisitor
             }
             //
             count++;
-            auto result = new Symbol;
+            auto result = construct!Symbol;
             result.name = modules[0..$-1].join;
             result.line = si.identifierChain.identifiers[0].line;
             result.col  = si.identifierChain.identifiers[0].column; 
@@ -237,4 +294,5 @@ class SymbolListBuilder : ASTVisitor
             namedVisitorImpl!(Declarator, SymbolType._variable, false)(elem);  
     }
 }
+//----
 
