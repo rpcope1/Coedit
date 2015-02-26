@@ -151,14 +151,16 @@ class SymbolListBuilder : ASTVisitor
             dt.accept(this);
         }       
     }
+    
+    //TODO-cfeature: anonymous enum, accept visitor and add Symbol based on the 1st member name.
 
     final override void visit(const AliasDeclaration decl) 
     { 
-        // old alias syntax not supported by this.
+        // old alias syntax not supported by this method
         // why is initializers an array ?
         if (decl.initializers.length == 1)
             namedVisitorImpl!(AliasInitializer, SymbolType._alias)(decl.initializers[0]);  
-    }
+    }   
      
     final override void visit(const ClassDeclaration decl) 
     {
@@ -167,8 +169,12 @@ class SymbolListBuilder : ASTVisitor
     
     final override void visit(const EnumDeclaration decl) 
     {
-        //TODO-ctest: try to see if what dmd outputs as "enum member" is handled.
-        namedVisitorImpl!(EnumDeclaration, SymbolType._class)(decl);
+        namedVisitorImpl!(EnumDeclaration, SymbolType._enum)(decl);
+    }
+    
+    void visit(const EponymousTemplateDeclaration decl)
+    {
+        namedVisitorImpl!(EponymousTemplateDeclaration, SymbolType._template)(decl);
     }
     
     final override void visit(const FunctionDeclaration decl) 
@@ -205,10 +211,9 @@ class SymbolListBuilder : ASTVisitor
         }   
     }
     
-    final override void visit(const MixinDeclaration decl) 
+    final override void visit(const MixinTemplateDeclaration decl) 
     {
-        // TODO-cfeature: MixinDeclaration, just display the name of the mixed template.  
-        // the template might be implemented in another module so its members cant be displayed.
+        namedVisitorImpl!(TemplateDeclaration, SymbolType._template)(decl.templateDeclaration);  
     }
     
     final override void visit(const StructDeclaration decl) 
@@ -218,12 +223,12 @@ class SymbolListBuilder : ASTVisitor
     
     final override void visit(const TemplateDeclaration decl) 
     {
-        namedVisitorImpl!(TemplateDeclaration, SymbolType._function)(decl);    
+        namedVisitorImpl!(TemplateDeclaration, SymbolType._template)(decl);    
     }
     
     final override void visit(const UnionDeclaration decl) 
     {
-        namedVisitorImpl!(UnionDeclaration, SymbolType._function)(decl);    
+        namedVisitorImpl!(UnionDeclaration, SymbolType._union)(decl);    
     }
     
     final override void visit(const VariableDeclaration decl) 
@@ -232,5 +237,4 @@ class SymbolListBuilder : ASTVisitor
             namedVisitorImpl!(Declarator, SymbolType._variable, false)(elem);  
     }
 }
-
 
