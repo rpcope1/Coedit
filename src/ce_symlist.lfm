@@ -1,7 +1,7 @@
 inherited CESymbolListWidget: TCESymbolListWidget
-  Left = 1548
+  Left = 985
   Height = 430
-  Top = 457
+  Top = 215
   Width = 310
   Caption = 'Symbol list'
   ClientHeight = 430
@@ -25,18 +25,16 @@ inherited CESymbolListWidget: TCESymbolListWidget
         Align = alClient
         BorderSpacing.Around = 4
         DefaultItemHeight = 18
-        ExpandSignType = tvestPlusMinus
         HideSelection = False
         Images = imgList
         ReadOnly = True
         RightClickSelect = True
-        RowSelect = True
         ScrollBars = ssAutoBoth
         SelectionColor = clActiveBorder
         TabOrder = 0
         OnDeletion = TreeDeletion
         OnKeyPress = TreeKeyPress
-        Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoRowSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+        Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
         Items.Data = {
           F9FFFFFF02000B000000000000000000000000000000FFFFFFFF000000000000
           00000005000000416C696173010000000100000001000000FFFFFFFF00000000
@@ -73,6 +71,7 @@ inherited CESymbolListWidget: TCESymbolListWidget
           Top = 2
           Width = 272
           OnAfterFilter = TreeFilterEdit1AfterFilter
+          OnFilterItem = TreeFilterEdit1FilterItem
           ButtonWidth = 28
           NumGlyphs = 1
           Align = alClient
@@ -80,6 +79,7 @@ inherited CESymbolListWidget: TCESymbolListWidget
           BorderSpacing.Around = 2
           MaxLength = 0
           TabOrder = 0
+          OnMouseEnter = TreeFilterEdit1MouseEnter
           FilteredTreeview = Tree
         end
         object btnRefresh: TBitBtn

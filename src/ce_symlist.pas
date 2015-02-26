@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, TreeFilterEdit, Forms, Controls, Graphics, ExtCtrls, Menus,
   ComCtrls, ce_widget, jsonparser, process, actnlist, Buttons, Clipbrd, LCLProc,
-  ce_common, ce_observer, ce_synmemo, ce_interfaces, ce_writableComponent;
+  ce_common, ce_observer, ce_synmemo, ce_interfaces, ce_writableComponent, EditBtn;
 
 type
 
@@ -77,17 +77,21 @@ type
     fRefreshOnFocus: boolean;
     fShowChildCategories: boolean;
     fAutoRefreshDelay: Integer;
+    fSmartFilter: boolean;
   published
     property autoRefresh: boolean read fAutoRefresh write fAutoRefresh;
     property refreshOnChange: boolean read fRefreshOnChange write fRefreshOnChange;
-    property refreshOnFocus: boolean read fRefreshOnFocus write fRefreshOnFocus default true;
-    property showChildCategories: boolean read fShowChildCategories write fShowChildCategories default true;
-    property autoRefreshDelay: Integer read fAutoRefreshDelay write fAutoRefreshDelay default 1500;
+    property refreshOnFocus: boolean read fRefreshOnFocus write fRefreshOnFocus;
+    property showChildCategories: boolean read fShowChildCategories write fShowChildCategories;
+    property autoRefreshDelay: Integer read fAutoRefreshDelay write fAutoRefreshDelay;
+    property smartFilter: boolean read fSmartFilter write fSmartFilter;
   public
     constructor Create(AOwner: TComponent); override;
     procedure Assign(Source: TPersistent); override;
     procedure AssignTo(Dest: TPersistent); override;
   end;
+
+  { TCESymbolListWidget }
 
   TCESymbolListWidget = class(TCEWidget, ICEMultiDocObserver, ICEEditableOptions)
     btnRefresh: TBitBtn;
@@ -98,6 +102,9 @@ type
     procedure btnRefreshClick(Sender: TObject);
     procedure TreeDeletion(Sender: TObject; Node: TTreeNode);
     procedure TreeFilterEdit1AfterFilter(Sender: TObject);
+    function TreeFilterEdit1FilterItem(Item: TObject; out Done: Boolean
+      ): Boolean;
+    procedure TreeFilterEdit1MouseEnter(Sender: TObject);
     procedure TreeKeyPress(Sender: TObject; var Key: char);
   private
     fOptions: TCESymbolListOptions;
@@ -115,6 +122,7 @@ type
     fRefreshOnChange: boolean;
     fRefreshOnFocus: boolean;
     fShowChildCategories: boolean;
+    fSmartFilter: boolean;
     fToolOutput: TMemoryStream;
     ndAlias, ndClass, ndEnum, ndFunc, ndUni: TTreeNode;
     ndImp, ndIntf, ndMix, ndStruct, ndTmp, ndVar: TTreeNode;
@@ -230,6 +238,7 @@ begin
   inherited;
   fRefreshOnFocus := true;
   fShowChildCategories := true;
+  fSmartFilter := true;
   fAutoRefreshDelay := 1500;
 end;
 
@@ -246,6 +255,7 @@ begin
     fRefreshOnChange      := widg.fRefreshOnChange;
     fAutoRefresh          := widg.fAutoRefresh;
     fShowChildCategories  := widg.fShowChildCategories;
+    fSmartFilter          := widg.fSmartFilter;
   end
   else inherited;
 end;
@@ -263,6 +273,7 @@ begin
     widg.fRefreshOnChange       := fRefreshOnChange;
     widg.fAutoRefresh           := fAutoRefresh;
     widg.fShowChildCategories   := fShowChildCategories;
+    widg.fSmartFilter           := fSmartFilter;
     //
     widg.fActAutoRefresh.Checked    := fAutoRefresh;
     widg.fActRefreshOnChange.Checked:= fRefreshOnChange;
@@ -312,7 +323,8 @@ begin
   fSyms := TSymbolList.create(nil);
   fToolOutput := TMemoryStream.create;
   //
-  fOptions := TCESymbolListOptions.Create(nil);
+  fOptions := TCESymbolListOptions.Create(self);
+  fOptions.Name:= 'symbolListOptions';
   fname := getCoeditDocPath + OptsFname;
   if FileExists(fname) then
   fOptions.loadFromFile(fname);
@@ -547,6 +559,26 @@ procedure TCESymbolListWidget.TreeFilterEdit1AfterFilter(Sender: TObject);
 begin
   if TreeFilterEdit1.Filter ='' then
     updateVisibleCat;
+end;
+
+function TCESymbolListWidget.TreeFilterEdit1FilterItem(Item: TObject; out
+  Done: Boolean): Boolean;
+begin
+  if not fSmartFilter then exit;
+  //
+  if TreeFilterEdit1.Filter <> '' then
+    tree.FullExpand
+  else if tree.Selected = nil then
+    tree.FullCollapse
+  else tree.MakeSelectionVisible;
+  result := false;
+end;
+
+procedure TCESymbolListWidget.TreeFilterEdit1MouseEnter(Sender: TObject);
+begin
+  if not fSmartFilter then exit;
+  //
+  tree.Selected := nil;
 end;
 
 procedure TCESymbolListWidget.TreeKeyPress(Sender: TObject; var Key: char);
