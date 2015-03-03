@@ -62,6 +62,7 @@ inherited CEOptionEditorWidget: TCEOptionEditorWidget
             Top = 0
             Width = 405
             Align = alClient
+            CheckboxForBoolean = False
             DefaultValueFont.Color = clWindowText
             Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkObject, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
             Indent = 16

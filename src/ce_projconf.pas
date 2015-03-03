@@ -78,6 +78,7 @@ begin
   end;
   Tree.Selected := Tree.Items.GetLastNode;
   inspector.OnEditorFilter := @GridFilter;
+  inspector.CheckboxForBoolean := true;
   //
   EntitiesConnector.addObserver(self);
 end;
