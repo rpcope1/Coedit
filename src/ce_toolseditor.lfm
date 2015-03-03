@@ -121,11 +121,14 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
           Top = 0
           Width = 268
           Align = alClient
+          CheckboxForBoolean = False
           DefaultValueFont.Color = clWindowText
           Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkObject, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
           Indent = 16
           NameFont.Color = clWindowText
           OnModified = propsEdModified
+          PreferredSplitterX = 150
+          SplitterX = 150
           ValueFont.Color = clGreen
         end
       end

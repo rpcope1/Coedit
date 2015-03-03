@@ -45,6 +45,7 @@ var
   png: TPortableNetworkGraphic;
 begin
   inherited;
+  propsEd.CheckboxForBoolean := true;
   png := TPortableNetworkGraphic.Create;
   try
     png.LoadFromLazarusResource('arrow_up');

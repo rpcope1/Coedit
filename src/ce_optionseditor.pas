@@ -63,6 +63,7 @@ begin
   fDockable := false;
   fModal:= true;
   fEdOptsSubj := TCEEditableOptionsSubject.create;
+  inspector.CheckboxForBoolean := true;
   //
   png := TPortableNetworkGraphic.Create;
   try
