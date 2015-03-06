@@ -18,7 +18,6 @@ type
   TCEEditorHintWindow = class(THintWindow)
   public
     class var FontSize: Integer;
-    constructor Create(AOwner: TComponent); override;
     function CalcHintRect(MaxWidth: Integer; const AHint: String;
       AData: Pointer): TRect; override;
   end;
@@ -139,15 +138,9 @@ implementation
 uses
   ce_interfaces, ce_staticmacro, ce_dcd, SynEditHighlighterFoldBase;
 
-constructor TCEEditorHintWindow.Create(AOwner: TComponent);
-begin
-  inherited;
-  Canvas.Font.Size:= FontSize;
-end;
-
 function TCEEditorHintWindow.CalcHintRect(MaxWidth: Integer; const AHint: String; AData: Pointer): TRect;
 begin
-  Canvas.Font.Size:= FontSize;
+  Font.Size:= FontSize;
   result := inherited CalcHintRect(MaxWidth, AHint, AData);
 end;
 
@@ -156,7 +149,7 @@ constructor TCESynMemoCache.create(aComponent: TComponent);
 begin
   inherited create(nil);
   if (aComponent is TCESynMemo) then
-  fMemo := TCESynMemo(aComponent);
+  	fMemo := TCESynMemo(aComponent);
   fFolds := TCollection.Create(TCEFoldCache);
 end;
 
