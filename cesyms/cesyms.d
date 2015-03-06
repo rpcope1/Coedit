@@ -185,8 +185,8 @@ class SymbolListBuilder : ASTVisitor
             count++;
             auto result = construct!Symbol;
             result.name = adt.name.text;
-            result.line = adt.name.line;
-            result.col  = adt.name.column;             
+            result.line = cast(int) adt.name.line;
+            result.col  = cast(int) adt.name.column;             
             parent.subs ~= result;  
             return result;
         }
@@ -261,8 +261,8 @@ class SymbolListBuilder : ASTVisitor
             count++;
             auto result = construct!Symbol;
             result.name = modules[0..$-1].join;
-            result.line = si.identifierChain.identifiers[0].line;
-            result.col  = si.identifierChain.identifiers[0].column; 
+            result.line = cast(int) si.identifierChain.identifiers[0].line;
+            result.col  = cast(int) si.identifierChain.identifiers[0].column; 
             result.type = SymbolType._import;            
             parent.subs ~= result;  
         }   
