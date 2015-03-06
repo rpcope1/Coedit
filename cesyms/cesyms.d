@@ -24,7 +24,7 @@ void main(string[] args)
         slb.visit(decl);
     }
     
-    version(none)
+    version(runnable_module)
     {
         int level = -1;
         void print(Symbol * s)
@@ -37,11 +37,13 @@ void main(string[] args)
             
             level--;
         }
-        print(&slb.root);
+        print(slb.root);
+    } 
+    else 
+    {
+        auto str = slb.serialize;
+        write(str);
     }
-    
-    auto str = slb.serialize;
-    write(str);
     
     slb.destruct;
 }
@@ -91,7 +93,7 @@ enum SymbolType
     _function,  // X
     _interface, // X
     _import,    // X
-    _mixin,
+    _mixin,     // X (template decl)
     _struct,    // X
     _template,  // X
     _union,     // X
@@ -170,6 +172,7 @@ class SymbolListBuilder : ASTVisitor
         static if 
         (
             is(DT == const(EponymousTemplateDeclaration)) ||
+            is(DT == const(AnonymousEnumMember))    ||
             is(DT == const(AliasInitializer))       ||
             is(DT == const(ClassDeclaration))       ||
             is(DT == const(Declarator))             ||
@@ -209,19 +212,45 @@ class SymbolListBuilder : ASTVisitor
         }       
     }
     
-    //TODO-cfeature: anonymous enum, accept visitor and add Symbol based on the 1st member name.
+    /// visitor implementation for special cases.
+    final void otherVisitorImpl(SymbolType st, string name, size_t line, size_t col)
+    {
+        count++;
+        auto result = construct!Symbol;
+        result.name = name;
+        result.line = cast(int) line;
+        result.col  = cast(int) col; 
+        result.type = st;            
+        parent.subs ~= result;     
+    }
 
     final override void visit(const AliasDeclaration decl) 
     { 
         // old alias syntax not supported by this method
         // why is initializers an array ?
-        if (decl.initializers.length == 1)
+        if (decl.initializers.length > 0)
             namedVisitorImpl!(AliasInitializer, SymbolType._alias)(decl.initializers[0]);  
     }   
+    
+    final override void visit(const AnonymousEnumDeclaration decl) 
+    {
+        if (decl.members.length > 0)
+            namedVisitorImpl!(AnonymousEnumMember, SymbolType._enum)(decl.members[0]);
+    }
      
     final override void visit(const ClassDeclaration decl) 
     {
         namedVisitorImpl!(ClassDeclaration, SymbolType._class)(decl);
+    }
+    
+    final override void visit(const Constructor decl) 
+    {
+        otherVisitorImpl(SymbolType._function, "this", decl.line, decl.column); 
+    }
+    
+    final override void visit(const Destructor decl) 
+    {
+        otherVisitorImpl(SymbolType._function, "~this", decl.line, decl.column); 
     }
     
     final override void visit(const EnumDeclaration decl) 
@@ -258,20 +287,17 @@ class SymbolListBuilder : ASTVisitor
                 modules ~= ".";
             }
             //
-            count++;
-            auto result = construct!Symbol;
-            result.name = modules[0..$-1].join;
-            result.line = cast(int) si.identifierChain.identifiers[0].line;
-            result.col  = cast(int) si.identifierChain.identifiers[0].column; 
-            result.type = SymbolType._import;            
-            parent.subs ~= result;  
+            otherVisitorImpl(SymbolType._import, modules[0..$-1].join, 
+                si.identifierChain.identifiers[0].line,
+                si.identifierChain.identifiers[0].column
+            ); 
         }   
     }
     
     final override void visit(const MixinTemplateDeclaration decl) 
     {
-        namedVisitorImpl!(TemplateDeclaration, SymbolType._template)(decl.templateDeclaration);  
-    }
+        namedVisitorImpl!(TemplateDeclaration, SymbolType._mixin)(decl.templateDeclaration);  
+    }   
     
     final override void visit(const StructDeclaration decl) 
     {
@@ -293,6 +319,17 @@ class SymbolListBuilder : ASTVisitor
         foreach(elem; decl.declarators)
             namedVisitorImpl!(Declarator, SymbolType._variable, false)(elem);  
     }
+    
+    /* Disabled: line and column are not available
+    final override void visit(const StaticConstructor decl) 
+    {
+        otherVisitorImpl(SymbolType._function, "static this", decl.line, decl.column); 
+    }
+    
+    final override void visit(const StaticDestructor decl) 
+    {
+        otherVisitorImpl(SymbolType._function, "static ~this", decl.line, decl.column); 
+    }
+    */ 
 }
 //----
-
