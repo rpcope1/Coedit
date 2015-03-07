@@ -419,7 +419,6 @@ end;
 procedure TCESynMemo.EditorIdle(sender: TObject);
 var
   str: string;
-  rc: TRect;
 begin
   if not Visible then exit;
   if not isDSource then exit;
@@ -579,7 +578,6 @@ end;
 procedure TCESynMemo.KeyUp(var Key: Word; Shift: TShiftState);
 var
   str: string;
-  rc: TRect;
 begin
   if Key in [VK_PRIOR, VK_NEXT, Vk_UP] then
     fPositions.store;
