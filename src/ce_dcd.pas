@@ -48,6 +48,7 @@ type
     procedure restartServer;
     procedure addImportFolder(const aFolder: string);
     procedure getComplAtCursor(aList: TStrings);
+    procedure getCallTip(out tips: string);
     procedure getDdocFromCursor(out aComment: string);
     procedure getDeclFromCursor(out aFilename: string; out aPosition: Integer);
     //
@@ -211,12 +212,7 @@ begin
   fClient.Execute;
 end;
 
-procedure TCEDcdWrapper.getComplAtCursor(aList: TStrings);
-var
-  i, j: NativeInt;
-  kind: Char;
-  item: string;
-  asComp, asTips: boolean;
+procedure TCEDcdWrapper.getCallTip(out tips: string);
 begin
   if not fAvailable then exit;
   if fDoc = nil then exit;
@@ -233,14 +229,38 @@ begin
   //
   fTempLines.LoadFromStream(fClient.Output);
   if fTempLines.Count = 0 then exit;
+  if not (fTempLines.Strings[0] = 'calltips') then exit;
   //
-  asComp := fTempLines.Strings[0] = 'identifiers';
-  asTips := fTempLines.Strings[0] = 'calltips';
-  if asTips then exit;
+  fTempLines.Delete(0);
+  tips := fTempLines.Text;
+  tips := tips[1..length(tips)-2];
+end;
+
+procedure TCEDcdWrapper.getComplAtCursor(aList: TStrings);
+var
+  i: Integer;
+  kind: Char;
+  item: string;
+begin
+  if not fAvailable then exit;
+  if fDoc = nil then exit;
   //
-  if asComp then j := 1 else j := 0;
+  fTempLines.Assign(fDoc.Lines);
+  fTempLines.SaveToFile(fDoc.tempFilename);
+  //
+  terminateClient;
+  fClient.Parameters.Clear;
+  fClient.Parameters.Add('-c');
+  fClient.Parameters.Add(intToStr(fDoc.SelStart - 1));
+  fClient.Parameters.Add(fDoc.tempFilename);
+  fClient.Execute;
+  //
+  fTempLines.LoadFromStream(fClient.Output);
+  if fTempLines.Count = 0 then exit;
+  if not (fTempLines.Strings[0] = 'identifiers') then exit;
+  //
   aList.Clear;
-  for i := j to fTempLines.Count-1 do
+  for i := 1 to fTempLines.Count-1 do
   begin
     item := fTempLines.Strings[i];
     kind := item[length(item)];
