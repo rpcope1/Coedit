@@ -8,11 +8,11 @@ uses
   Classes, SysUtils, FileUtil, SynEditKeyCmds, SynHighlighterLFM, Forms,
   AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls, Graphics,
   Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, SynExportHTML,
-  ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_synmemo, ce_widget,
-  ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf, ce_search,
-  ce_staticexplorer, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist,
-  ce_observer, ce_writableComponent, ce_toolseditor, ce_procinput, ce_optionseditor,
-  ce_cdbcmd, ce_symlist;
+  ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_synmemo, ce_writableComponent,
+  ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
+  ce_search, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist, ce_observer,
+  ce_toolseditor, ce_procinput, ce_optionseditor,{$IFDEF WIN32} ce_cdbcmd,{$ENDIF}
+  ce_symlist;
 
 type
 
@@ -194,7 +194,6 @@ type
     fEditWidg: TCEEditorWidget;
     fProjWidg: TCEProjectInspectWidget;
     fPrjCfWidg: TCEProjectConfigurationWidget;
-    fStExpWidg: TCEStaticExplorerWidget;
     fFindWidg:  TCESearchWidget;
     fExplWidg: TCEMiniExplorerWidget;
     fLibMWidg: TCELibManEditorWidget;
@@ -203,7 +202,6 @@ type
     fTodolWidg: TCETodoListWidget;
     fOptEdWidg: TCEOptionEditorWidget;
     fSymlWidg: TCESymbolListWidget;
-    //fResWidg: TCEResmanWidget;
     {$IFDEF WIN32}
     fCdbWidg: TCECdbWidget;
     {$ENDIF}
@@ -419,7 +417,6 @@ begin
   fEditWidg := TCEEditorWidget.create(self);
   fProjWidg := TCEProjectInspectWidget.create(self);
   fPrjCfWidg:= TCEProjectConfigurationWidget.create(self);
-  fStExpWidg:= TCEStaticExplorerWidget.create(self);
   fFindWidg := TCESearchWidget.create(self);
   fExplWidg := TCEMiniExplorerWidget.create(self);
   fLibMWidg := TCELibManEditorWidget.create(self);
@@ -428,7 +425,6 @@ begin
   fTodolWidg:= TCETodoListWidget.create(self);
   fOptEdWidg:= TCEOptionEditorWidget.create(self);
   fSymlWidg := TCESymbolListWidget.create(self);
-  //fResWidg  := TCEResmanWidget.create(self);
 
   getMessageDisplay(fMsgs);
 
@@ -440,7 +436,6 @@ begin
   fWidgList.addWidget(@fEditWidg);
   fWidgList.addWidget(@fProjWidg);
   fWidgList.addWidget(@fPrjCfWidg);
-  fWidgList.addWidget(@fStExpWidg);
   fWidgList.addWidget(@fFindWidg);
   fWidgList.addWidget(@fExplWidg);
   fWidgList.addWidget(@fLibMWidg);
@@ -449,7 +444,6 @@ begin
   fWidgList.addWidget(@fTodolWidg);
   fWidgList.addWidget(@fOptEdWidg);
   fWidgList.addWidget(@fSymlWidg);
-  //fWidgList.addWidget(@fResWidg);
 
   {$IFDEF WIN32}
   fWidgList.addWidget(@fCdbWidg);
@@ -480,11 +474,13 @@ begin
   DockMaster.OnShowOptions := @ShowAnchorDockOptions;
   DockMaster.HeaderStyle := adhsPoints;
   DockMaster.HideHeaderCaptionFloatingControl := true;
+
   // this is a fix copied from Laz, seems to force the space between the menu and the UI stay 0.
   if DockManager is TAnchorDockManager then begin
     aManager:=TAnchorDockManager(DockManager);
     aManager.PreferredSiteSizeAsSiteMinimum:=false;
   end;
+
   // makes widget dockable
   for i := 0 to fWidgList.Count-1 do
   begin
@@ -493,22 +489,23 @@ begin
     DockMaster.MakeDockable(widg, true);
     DockMaster.GetAnchorSite(widg).Header.HeaderPosition := adlhpTop;
   end;
+
   // load existing or default docking
   if FileExists(getCoeditDocPath + 'docking.xml') then LoadDocking
   else begin
     Height := 0;
-    fStExpWidg.width  := 120;
-    fFindWidg.Width   := 120;
-    fProjWidg.Width   := 120;
-    fPrjCfWidg.Width  := 120;
     // center
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fEditWidg), DockMaster.GetSite(Self), alBottom);
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fMesgWidg), DockMaster.GetSite(fEditWidg), alBottom);
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fPrInpWidg), DockMaster.GetSite(fMesgWidg), alBottom);
     // left
-    DockMaster.ManualDock(DockMaster.GetAnchorSite(fStExpWidg), DockMaster.GetSite(fEditWidg), alLeft);
-    DockMaster.ManualDock(DockMaster.GetAnchorSite(fFindWidg), DockMaster.GetAnchorSite(fStExpWidg), alBottom, fStExpWidg);
+    DockMaster.GetAnchorSite(fSymlWidg).Width := 200;
+    DockMaster.GetAnchorSite(fFindWidg).Width := 200;
+    DockMaster.ManualDock(DockMaster.GetAnchorSite(fSymlWidg), DockMaster.GetSite(fEditWidg), alLeft);
+    DockMaster.ManualDock(DockMaster.GetAnchorSite(fFindWidg), DockMaster.GetAnchorSite(fSymlWidg), alBottom, fSymlWidg);
     // right
+    DockMaster.GetAnchorSite(fProjWidg).Width := 250;
+    DockMaster.GetAnchorSite(fPrjCfWidg).Width := 250;
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fProjWidg), DockMaster.GetSite(fEditWidg), alRight);
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fPrjCfWidg), DockMaster.GetAnchorSite(fProjWidg), alBottom, fProjWidg);
     // close remaining and header to top
