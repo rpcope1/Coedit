@@ -171,8 +171,6 @@ type
     procedure actProjSourceExecute(Sender: TObject);
     procedure actEdUnIndentExecute(Sender: TObject);
     procedure ApplicationProperties1Exception(Sender: TObject; E: Exception);
-    procedure ApplicationProperties1ShowHint(var HintStr: string;
-      var CanShow: Boolean; var HintInfo: THintInfo);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
   private
@@ -878,34 +876,6 @@ begin
   if srcLst = nil then exit;
   //
   srcLst.Clear;
-end;
-
-procedure TCEMainForm.ApplicationProperties1ShowHint(var HintStr: string;
-  var CanShow: Boolean; var HintInfo: THintInfo);
-begin
-  // TODO-crefactor: move this to TCESynMemo or TCEEditorWidget.
-  // TODO-cbugfix: first DDoc hint, window rect is wrong.
-  if (fDoc <> nil) and fDoc.Focused and fDoc.isDSource then
-  begin
-    TCEEditorHintWindow.FontSize := fDoc.Font.Size;
-    HintInfo.HintWindowClass := TCEEditorHintWindow;
-    HintInfo.HideTimeout := 120000;
-    HintInfo.CursorRect.Left := fDoc.CaretXPix;
-    HintInfo.CursorRect.Top := fDoc.CaretYPix;
-    // note: non-default color allows non-themed paint() which allows custom font-size to be handled.
-    HintInfo.HintColor := clInfoBk + $01010100;
-    //
-    DcdWrapper.getDdocFromCursor(HintStr);
-    if (length(HintStr) > 0) then
-      if Hintstr[1] = #13 then
-        Hintstr := Hintstr[2..length(Hintstr)];
-    if (length(HintStr) > 0) then
-      if Hintstr[1] = #10 then
-        Hintstr := Hintstr[2..length(Hintstr)];
-  end else
-    HintInfo.HideTimeout := 2500;
-  //
-  CanShow := HintStr <> '';
 end;
 {$ENDREGION}
 
