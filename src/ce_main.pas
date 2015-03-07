@@ -18,6 +18,8 @@ type
 
   // TODO-cfeature: options
 
+  { TCEMainForm }
+
   TCEMainForm = class(TForm, ICEMultiDocObserver, ICESessionOptionsObserver, ICEEditableShortCut)
     actFileCompAndRun: TAction;
     actFileSaveAll: TAction;
@@ -34,6 +36,7 @@ type
     actFileOpenContFold: TAction;
     actFileHtmlExport: TAction;
     actFileUnittest: TAction;
+    actFileCompileAndRunOut: TAction;
     actLayoutSave: TAction;
     actProjOpenContFold: TAction;
     actProjOptView: TAction;
@@ -120,6 +123,8 @@ type
     MenuItem62: TMenuItem;
     MenuItem63: TMenuItem;
     MenuItem64: TMenuItem;
+    MenuItem65: TMenuItem;
+    MenuItem66: TMenuItem;
     mnuLayout: TMenuItem;
     mnuItemMruFile: TMenuItem;
     mnuItemMruProj: TMenuItem;
@@ -130,6 +135,7 @@ type
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
+    procedure actFileCompileAndRunOutExecute(Sender: TObject);
     procedure actEdFindExecute(Sender: TObject);
     procedure actEdFindNextExecute(Sender: TObject);
     procedure actFileAddToProjExecute(Sender: TObject);
@@ -257,7 +263,8 @@ type
     // run & exec sub routines
     procedure asyncprocOutput(sender: TObject);
     procedure asyncprocTerminate(sender: TObject);
-    procedure compileAndRunFile(unittest: boolean = false; const runArgs: string = '');
+    procedure compileAndRunFile(unittest: boolean = false; redirect: boolean = true;
+      const runArgs: string = '');
 
     // file sub routines
     procedure newFile;
@@ -1276,7 +1283,8 @@ begin
   if (inph <> nil) then (inph as ICEProcInputHandler).removeProcess(proc);
 end;
 
-procedure TCEMainForm.compileAndRunFile(unittest: boolean; const runArgs: string = '');
+procedure TCEMainForm.compileAndRunFile(unittest: boolean = false; redirect: boolean = true;
+	const runArgs: string = '');
 var
   dmdproc: TProcess;
   fname: string;
@@ -1286,10 +1294,13 @@ begin
   if fDoc = nil then exit;
 
   fRunProc := TCheckedAsyncProcess.Create(nil);
-  fRunProc.Options := [poStderrToOutPut, poUsePipes];
-  fRunProc.ShowWindow := swoHIDE;
-  fRunProc.OnReadData := @asyncprocOutput;
-  fRunProc.OnTerminate:= @asyncprocTerminate;
+  if redirect then
+  begin
+  	fRunProc.Options := [poStderrToOutPut, poUsePipes];
+  	fRunProc.ShowWindow := swoHIDE;
+  	fRunProc.OnReadData := @asyncprocOutput;
+  	fRunProc.OnTerminate:= @asyncprocTerminate;
+  end;
 
   dmdproc := TProcess.Create(nil);
   try
@@ -1326,12 +1337,12 @@ begin
     begin
       fMsgs.message(shortenPath(fDoc.fileName, 25) + ' successfully compiled',
         fDoc, amcEdit, amkInf);
-
       fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
       if runArgs <> '' then
         fRunProc.Parameters.DelimitedText := symbolExpander.get(runArgs);
       fRunProc.Executable := fname + exeExt;
-      getprocInputHandler.addProcess(fRunProc);
+      if redirect then
+      	getprocInputHandler.addProcess(fRunProc);
       fRunProc.Execute;
       sysutils.DeleteFile(fname + objExt);
     end
@@ -1348,13 +1359,19 @@ end;
 procedure TCEMainForm.actFileUnittestExecute(Sender: TObject);
 begin
   if fDoc = nil then exit;
-  compileAndRunFile(true, '');
+  compileAndRunFile(true);
 end;
 
 procedure TCEMainForm.actFileCompAndRunExecute(Sender: TObject);
 begin
   if fDoc = nil then exit;
-  compileAndRunFile(false, '');
+  compileAndRunFile(false);
+end;
+
+procedure TCEMainForm.actFileCompileAndRunOutExecute(Sender: TObject);
+begin
+  if fDoc = nil then exit;
+  compileAndRunFile(false, false);
 end;
 
 procedure TCEMainForm.actFileCompAndRunWithArgsExecute(Sender: TObject);
@@ -1364,7 +1381,7 @@ begin
   if fDoc = nil then exit;
   runargs := '';
   if InputQuery('Execution arguments', '', runargs) then
-    compileAndRunFile(false, runargs);
+    compileAndRunFile(false, true, runargs);
 end;
 
 procedure TCEMainForm.actFileOpenContFoldExecute(Sender: TObject);

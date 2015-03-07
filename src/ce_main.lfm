@@ -494,6 +494,9 @@ object CEMainForm: TCEMainForm
           07FFB47A07FFB47A08FFB57C0AFFB67F0FFFB88114FFBA851B23
         }
       end
+      object MenuItem65: TMenuItem
+        Action = actFileCompileAndRunOut
+      end
       object MenuItem63: TMenuItem
         Action = actFileUnittest
         Bitmap.Data = {
@@ -1701,6 +1704,9 @@ object CEMainForm: TCEMainForm
           07FFB47A07FFB47A08FFB57C0AFFB67F0FFFB88114FFBA851B23
         }
       end
+      object MenuItem66: TMenuItem
+        Action = actFileCompileAndRunOut
+      end
       object MenuItem64: TMenuItem
         Action = actFileUnittest
         Bitmap.Data = {
@@ -1990,6 +1996,7 @@ object CEMainForm: TCEMainForm
     Images = imgList
     OnUpdate = ActionsUpdate
     left = 32
+    top = 1
     object actEdCopy: TAction
       Category = 'Edit'
       Caption = 'Copy'
@@ -2082,30 +2089,10 @@ object CEMainForm: TCEMainForm
     end
     object actFileCompAndRun: TAction
       Category = 'File'
-      Caption = 'Compile and run file'
+      Caption = 'Compile file and run'
       ImageIndex = 22
       OnExecute = actFileCompAndRunExecute
       ShortCut = 16503
-    end
-    object ActFileCompAndRunWithArgs: TAction
-      Category = 'File'
-      Caption = 'Compile and run file...'
-      ImageIndex = 22
-      OnExecute = ActFileCompAndRunWithArgsExecute
-      ShortCut = 24695
-    end
-    object actFileSaveAll: TAction
-      Category = 'File'
-      Caption = 'Save all'
-      ImageIndex = 26
-      OnExecute = actFileSaveAllExecute
-    end
-    object actFileClose: TAction
-      Category = 'File'
-      Caption = 'Close file'
-      ImageIndex = 27
-      OnExecute = actFileCloseExecute
-      ShortCut = 16471
     end
     object actProjSave: TAction
       Category = 'Project'
@@ -2178,14 +2165,14 @@ object CEMainForm: TCEMainForm
     end
     object actProjCompileAndRun: TAction
       Category = 'Project'
-      Caption = 'Compile and run project'
+      Caption = 'Compile project and run'
       ImageIndex = 21
       OnExecute = actProjCompileAndRunExecute
       ShortCut = 24696
     end
     object actProjCompAndRunWithArgs: TAction
       Category = 'Project'
-      Caption = 'Compile and run project...'
+      Caption = 'Compile project and run...'
       ImageIndex = 21
       OnExecute = actProjCompAndRunWithArgsExecute
     end
@@ -2216,12 +2203,6 @@ object CEMainForm: TCEMainForm
       OnExecute = actEdFindNextExecute
       ShortCut = 114
     end
-    object actFileOpenContFold: TAction
-      Category = 'File'
-      Caption = 'View in mini explorer'
-      ImageIndex = 29
-      OnExecute = actFileOpenContFoldExecute
-    end
     object actProjOpenContFold: TAction
       Category = 'Project'
       Caption = 'View in mini explorer'
@@ -2233,6 +2214,38 @@ object CEMainForm: TCEMainForm
       Caption = 'Save layout to...'
       ImageIndex = 30
       OnExecute = actLayoutSaveExecute
+    end
+    object actFileCompileAndRunOut: TAction
+      Category = 'File'
+      Caption = 'Compile file and run outside'
+      ImageIndex = 22
+      OnExecute = actFileCompileAndRunOutExecute
+    end
+    object ActFileCompAndRunWithArgs: TAction
+      Category = 'File'
+      Caption = 'Compile file and run...'
+      ImageIndex = 22
+      OnExecute = ActFileCompAndRunWithArgsExecute
+      ShortCut = 24695
+    end
+    object actFileSaveAll: TAction
+      Category = 'File'
+      Caption = 'Save all'
+      ImageIndex = 26
+      OnExecute = actFileSaveAllExecute
+    end
+    object actFileClose: TAction
+      Category = 'File'
+      Caption = 'Close file'
+      ImageIndex = 27
+      OnExecute = actFileCloseExecute
+      ShortCut = 16471
+    end
+    object actFileOpenContFold: TAction
+      Category = 'File'
+      Caption = 'View in mini explorer'
+      ImageIndex = 29
+      OnExecute = actFileOpenContFoldExecute
     end
     object actFileHtmlExport: TAction
       Category = 'File'
