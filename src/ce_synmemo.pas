@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, SynEdit, ce_d2syn, ce_txtsyn ,SynEditHighlighter, controls,
   lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
   SynEditFoldedView, crc, ce_common, ce_observer, ce_writableComponent, Forms,
-  graphics;
+  graphics, ExtCtrls;
 
 type
 
@@ -89,12 +89,19 @@ type
     fDefaultFontSize: Integer;
     fPositions: TCESynMemoPositions;
     fMousePos: TPoint;
+    fCallTipWin: TCEEditorHintWindow;
+    fDDocWin: TCEEditorHintWindow;
+    fIdleTimer: TIdleTimer;
+    fMayHint: boolean;
     function getMouseStart: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
     procedure saveCache;
     procedure loadCache;
     procedure setDefaultFontSize(aValue: Integer);
+    procedure hintWinClick(sender: TObject);
+    procedure EditorIdle(sender: TObject);
+    procedure InitHintWins;
   protected
     procedure SetVisible(Value: Boolean); override;
     procedure SetHighlighter(const Value: TSynCustomHighlighter); override;
@@ -318,8 +325,12 @@ end;
 constructor TCESynMemo.Create(aOwner: TComponent);
 begin
   inherited;
+  InitHintWins;
+  self.ShowHint:=false;
   SetDefaultKeystrokes; // not called in inherited if owner = nil !
   fDefaultFontSize := 10;
+  fIdleTimer := TIdleTimer.Create(self);
+  fIdleTimer.OnTimer := @EditorIdle;
   Gutter.LineNumberPart.ShowOnlyLineNumbersMultiplesOf := 5;
   Gutter.LineNumberPart.MarkupInfo.Foreground := clGray;
   Gutter.SeparatorPart.LineOffset := 1;
@@ -340,7 +351,7 @@ begin
   fTempFileName := GetTempDir(false) + 'temp_' + uniqueObjStr(self) + '.d';
   fFilename := '<new document>';
   fModified := false;
-  ShowHint := true;
+  //ShowHint := true;
   TextBuffer.AddNotifyHandler(senrUndoRedoAdded, @changeNotify);
   //
   fPositions := TCESynMemoPositions.create(self);
@@ -386,11 +397,59 @@ begin
   if Value then setFocus;
 end;
 
+procedure TCESynMemo.hintWinClick(sender: TObject);
+begin
+  with THintWindow(sender) do Hide;
+end;
+
+procedure TCESynMemo.InitHintWins;
+begin
+  if fCallTipWin = nil then begin
+    fCallTipWin := TCEEditorHintWindow.Create(self);
+    fCallTipWin.Color := clInfoBk + $01010100;
+    fCallTipWin.OnClick:= @hintWinClick;
+  end;
+  if fDDocWin = nil then begin
+    fDDocWin := TCEEditorHintWindow.Create(self);
+    fDDocWin.Color := clInfoBk + $01010100;
+    fDDocWin.OnClick:= @hintWinClick;
+  end;
+end;
+
+procedure TCESynMemo.EditorIdle(sender: TObject);
+var
+  str: string;
+  rc: TRect;
+begin
+  if not Visible then exit;
+  if not isDSource then exit;
+  //
+  if not fMayHint then exit;
+  if Identifier = '' then exit;
+  DcdWrapper.getDdocFromCursor(str);
+  //
+  if (length(str) > 0) then
+    if str[1] = #13 then
+      str := str[2..length(str)];
+  if (length(str) > 0) then
+    if str[1] = #10 then
+      str := str[2..length(str)];
+  //
+  if str <> '' then
+  begin
+    fDDocWin.FontSize := Font.Size;
+    fDDocWin.Font.Size:=Font.Size;
+    fDDocWin.HintRect := fCallTipWin.CalcHintRect(0, str, nil);
+    fDDocWin.OffsetHintRect(mouse.CursorPos, Font.Size);
+		fDDocWin.ActivateHint(fDDocWin.HintRect, str);
+  end;
+end;
+
 procedure TCESynMemo.SetHighlighter(const Value: TSynCustomHighlighter);
 begin
   inherited;
   fIsDSource := Highlighter = D2Syn;
-  fIsConfig := Highlighter = LfmSyn;
+  fIsConfig  := Highlighter = LfmSyn;
   fIsTxtFile := Highlighter = TxtSyn;
 end;
 
@@ -514,9 +573,13 @@ begin
     VK_DECIMAL: Font.Size := fDefaultFontSize;
   end;
   TCEEditorHintWindow.FontSize := Font.Size;
+  fDDocWin.Hide;
 end;
 
 procedure TCESynMemo.KeyUp(var Key: Word; Shift: TShiftState);
+var
+  str: string;
+  rc: TRect;
 begin
   if Key in [VK_PRIOR, VK_NEXT, Vk_UP] then
     fPositions.store;
@@ -524,6 +587,23 @@ begin
   //
   if StaticEditorMacro.automatic then
     StaticEditorMacro.Execute;
+  //
+  if Key = 53 then
+  begin
+    if fCallTipWin = nil then
+    begin
+    	fCallTipWin := TCEEditorHintWindow.Create(self);
+      fCallTipWin.Color := clInfoBk + $01010100;
+    end;
+    DcdWrapper.getCallTip(str);
+    if str <> '' then
+    begin
+      fCallTipWin.FontSize := Font.Size;
+	  	fCallTipWin.HintRect := fCallTipWin.CalcHintRect(0, str, nil);
+      fCallTipWin.OffsetHintRect(point(CaretXPix, CaretYPix), Font.Size);
+			fCallTipWin.ActivateHint(str);
+    end;
+  end else fCallTipWin.Hide;
 end;
 
 function TCESynMemo.getMouseStart: Integer;
@@ -539,6 +619,9 @@ end;
 
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
+  fDDocWin.Hide;
+  fCallTipWin.Hide;
+  fMayHint := ((Y > 10) or (Y < -10)) and ((X > 10) or (X < -10));
   fMousePos := PixelsToRowColumn(Point(X,Y));
   inherited;
   if ssLeft in Shift then
@@ -549,6 +632,8 @@ procedure TCESynMemo.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:In
 begin
   inherited;
   identifierToD2Syn;
+  fDDocWin.Hide;
+  fCallTipWin.Hide;
 end;
 
 procedure TCESynMemo.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:Integer);
