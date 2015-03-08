@@ -237,10 +237,12 @@
         <ComponentName Value="CEProjectConfigurationWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_projconf"/>
       </Unit18>
       <Unit19>
         <Filename Value="..\src\ce_project.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_project"/>
       </Unit19>
       <Unit20>
         <Filename Value="..\src\ce_projinspect.pas"/>
@@ -248,6 +250,7 @@
         <ComponentName Value="CEProjectInspectWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_projinspect"/>
       </Unit20>
       <Unit21>
         <Filename Value="..\src\ce_search.pas"/>
@@ -255,6 +258,7 @@
         <ComponentName Value="CESearchWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_search"/>
       </Unit21>
       <Unit22>
         <Filename Value="..\src\ce_staticmacro.pas"/>
@@ -293,6 +297,7 @@
         <ComponentName Value="CEWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_widget"/>
       </Unit28>
       <Unit29>
         <Filename Value="..\src\ce_writablecomponent.pas"/>
