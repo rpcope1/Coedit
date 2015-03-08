@@ -120,19 +120,30 @@ procedure TCEDcdWrapper.projChanged(aProject: TCEProject);
 var
   i: Integer;
   fold: string;
+  folds: TStringList;
 begin
   if fProj <> aProject then
     exit;
   if fProj = nil then
     exit;
   //
-  for i:= 0 to fProj.Sources.Count-1 do
-    addImportFolder(extractFilePath(fProj.getAbsoluteSourceName(i)));
-  for i := 0 to fProj.currentConfiguration.pathsOptions.importModulePaths.Count-1 do
-  begin
-    fold := fProj.currentConfiguration.pathsOptions.importModulePaths.Strings[i];
-    if DirectoryExists(fold) then
-      addImportFolder(fold);
+  folds := TStringList.Create;
+  try
+  	for i:= 0 to fProj.Sources.Count-1 do
+    begin
+      fold := extractFilePath(fProj.getAbsoluteSourceName(i));
+      if folds.IndexOf(fold) = -1 then
+        folds.Add(fold);
+    end;
+  	for i := 0 to fProj.currentConfiguration.pathsOptions.importModulePaths.Count-1 do
+  	begin
+    	fold := fProj.currentConfiguration.pathsOptions.importModulePaths.Strings[i];
+    	if DirectoryExists(fold) and (folds.IndexOf(fold) = -1) then
+     		folds.Add(fold);
+    end;
+    for fold in folds do addImportFolder(fold);
+  finally
+    folds.Free;
   end;
 end;
 
