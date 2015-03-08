@@ -407,11 +407,13 @@ begin
   if fCallTipWin = nil then begin
     fCallTipWin := TCEEditorHintWindow.Create(self);
     fCallTipWin.Color := clInfoBk + $01010100;
+    fCallTipWin.Font.Color:= clInfoText;
     fCallTipWin.OnClick:= @hintWinClick;
   end;
   if fDDocWin = nil then begin
     fDDocWin := TCEEditorHintWindow.Create(self);
     fDDocWin.Color := clInfoBk + $01010100;
+    fDDocWin.Font.Color:= clInfoText;
     fDDocWin.OnClick:= @hintWinClick;
   end;
 end;
