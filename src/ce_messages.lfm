@@ -2,26 +2,26 @@ inherited CEMessagesWidget: TCEMessagesWidget
   Left = 694
   Height = 172
   Top = 198
-  Width = 739
+  Width = 763
   Caption = 'Messages'
   ClientHeight = 172
-  ClientWidth = 739
+  ClientWidth = 763
   inherited Back: TPanel
     Height = 172
-    Width = 739
+    Width = 763
     ClientHeight = 172
-    ClientWidth = 739
+    ClientWidth = 763
     inherited Content: TPanel
       Height = 172
-      Width = 739
+      Width = 763
       ClientHeight = 172
-      ClientWidth = 739
+      ClientWidth = 763
       PopupMenu = nil
       object List: TTreeView[0]
         Left = 2
         Height = 140
         Top = 30
-        Width = 735
+        Width = 759
         Align = alClient
         BorderSpacing.Around = 2
         DefaultItemHeight = 18
@@ -44,7 +44,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
         Left = 2
         Height = 26
         Top = 2
-        Width = 735
+        Width = 759
         AutoSize = True
         BorderSpacing.Around = 2
         ButtonHeight = 24
@@ -166,6 +166,28 @@ inherited CEMessagesWidget: TCEMessagesWidget
           Width = 5
           Caption = 'ToolButton1'
           Style = tbsDivider
+        end
+        object ToolButton11: TToolButton
+          Left = 553
+          Height = 24
+          Top = 2
+          Width = 5
+          Caption = 'ToolButton11'
+          Style = tbsDivider
+        end
+        object TreeFilterEdit1: TTreeFilterEdit
+          Left = 559
+          Height = 22
+          Top = 3
+          Width = 199
+          ButtonWidth = 23
+          NumGlyphs = 1
+          Align = alRight
+          Anchors = [akTop, akLeft, akRight, akBottom]
+          BorderSpacing.Around = 1
+          MaxLength = 0
+          TabOrder = 1
+          FilteredTreeview = List
         end
       end
     end

@@ -143,17 +143,14 @@
         <ComponentName Value="CECdbWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_cdbcmd"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\src\ce_common.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_common"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\src\ce_d2syn.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_d2syn"/>
       </Unit3>
       <Unit4>
         <Filename Value="..\src\ce_dcd.pas"/>
@@ -210,6 +207,7 @@
         <ComponentName Value="CEMessagesWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_messages"/>
       </Unit13>
       <Unit14>
         <Filename Value="..\src\ce_miniexplorer.pas"/>
@@ -232,7 +230,6 @@
         <ComponentName Value="CEProcInputWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_procinput"/>
       </Unit17>
       <Unit18>
         <Filename Value="..\src\ce_projconf.pas"/>
@@ -240,12 +237,10 @@
         <ComponentName Value="CEProjectConfigurationWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_projconf"/>
       </Unit18>
       <Unit19>
         <Filename Value="..\src\ce_project.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_project"/>
       </Unit19>
       <Unit20>
         <Filename Value="..\src\ce_projinspect.pas"/>
@@ -269,7 +264,6 @@
       <Unit23>
         <Filename Value="..\src\ce_symstring.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_symstring"/>
       </Unit23>
       <Unit24>
         <Filename Value="..\src\ce_synmemo.pas"/>
@@ -310,7 +304,6 @@
         <ComponentName Value="CETodoListWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_todolist"/>
       </Unit30>
       <Unit31>
         <Filename Value="..\src\ce_inspectors.pas"/>
@@ -323,12 +316,10 @@
         <ComponentName Value="CEOptionEditorWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_optionseditor"/>
       </Unit32>
       <Unit33>
         <Filename Value="..\src\ce_editoroptions.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_editoroptions"/>
       </Unit33>
       <Unit34>
         <Filename Value="..\src\ce_dockoptions.pas"/>

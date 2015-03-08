@@ -6,8 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, Buttons, ce_writableComponent,
-  ce_common, ce_project, ce_synmemo, ce_dlangutils, ce_interfaces, ce_observer;
+  lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, TreeFilterEdit,
+  Buttons, ce_writableComponent, ce_common, ce_project, ce_synmemo,
+  ce_dlangutils, ce_interfaces, ce_observer;
 
 type
 
@@ -39,6 +40,8 @@ type
     procedure AssignTo(Dest: TPersistent); override;
   end;
 
+  { TCEMessagesWidget }
+
   TCEMessagesWidget = class(TCEWidget, ICEEditableOptions, ICEMultiDocObserver, ICEProjectObserver, ICEMessagesDisplay)
     btnClearCat: TBitBtn;
     imgList: TImageList;
@@ -48,12 +51,14 @@ type
     ToolButton1: TToolButton;
     ToolButton10: TToolButton;
     btnSelMisc: TToolButton;
+    ToolButton11: TToolButton;
     ToolButton2: TToolButton;
     btnSelEdit: TToolButton;
     ToolButton4: TToolButton;
     btnSelProj: TToolButton;
     ToolButton8: TToolButton;
     btnSelApp: TToolButton;
+    TreeFilterEdit1: TTreeFilterEdit;
     procedure ListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     fActAutoSel: TAction;
