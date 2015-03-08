@@ -21,7 +21,4 @@ object CurrentProject: TCEProject
     'cesyms.d'
   )
   ConfigurationIndex = 0
-  LibraryAliases.Strings = (
-    'libdparse'
-  )
 end

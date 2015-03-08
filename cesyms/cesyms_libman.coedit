@@ -1,0 +1,24 @@
+object CurrentProject: TCEProject
+  OptionsCollection = <  
+    item
+      name = 'release'
+      outputOptions.inlining = True
+      outputOptions.boundsCheck = offAlways
+      outputOptions.optimizations = True
+      outputOptions.release = True
+      pathsOptions.outputFilename = '..\lazproj\cesyms'
+      preBuildProcess.options = []
+      preBuildProcess.showWindow = swoNone
+      postBuildProcess.options = []
+      postBuildProcess.showWindow = swoNone
+      runOptions.options = []
+      runOptions.showWindow = swoNone
+    end>
+  Sources.Strings = (
+    'cesyms.d'
+  )
+  ConfigurationIndex = 0
+  LibraryAliases.Strings = (
+    'libdparse'
+  )
+end

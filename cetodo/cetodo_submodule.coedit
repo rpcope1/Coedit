@@ -1,0 +1,42 @@
+object CurrentProject: TCEProject
+  OptionsCollection = <  
+    item
+      name = 'testwith_CPFS'
+      messagesOptions.additionalWarnings = True
+      outputOptions.boundsCheck = onAlways
+      outputOptions.unittest = True
+      pathsOptions.outputFilename = '..\lazproj\cetodo'
+	  pathsOptions.extraSources.Strings = (
+        '..\libdparse\src\*'
+      )
+      preBuildProcess.options = []
+      preBuildProcess.showWindow = swoNone
+      postBuildProcess.options = []
+      postBuildProcess.showWindow = swoNone
+      runOptions.options = [poUsePipes, poStderrToOutPut]
+      runOptions.parameters.Strings = (
+        '<CPFS>'
+      )
+      runOptions.showWindow = swoHIDE
+    end  
+    item
+      name = 'release'
+      outputOptions.boundsCheck = offAlways
+      outputOptions.optimizations = True
+      outputOptions.release = True
+      pathsOptions.outputFilename = '..\lazproj\cetodo'
+      pathsOptions.extraSources.Strings = (
+        '..\libdparse\src\*'
+      )
+      preBuildProcess.options = []
+      preBuildProcess.showWindow = swoNone
+      postBuildProcess.options = []
+      postBuildProcess.showWindow = swoNone
+      runOptions.options = []
+      runOptions.showWindow = swoNone
+    end>
+  Sources.Strings = (
+    'cetodo.d'
+  )
+  ConfigurationIndex = 1
+end
