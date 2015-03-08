@@ -1297,6 +1297,11 @@ begin
   	fRunProc.ShowWindow := swoHIDE;
   	fRunProc.OnReadData := @asyncprocOutput;
   	fRunProc.OnTerminate:= @asyncprocTerminate;
+  end else
+  begin
+    {$IFDEF LINUX}
+    fRunProc.Options := fRunProc.Options + [poNewConsole];
+    {$ENDIF}
   end;
 
   dmdproc := TProcess.Create(nil);
