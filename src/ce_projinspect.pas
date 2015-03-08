@@ -28,7 +28,8 @@ type
     procedure TreeKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure TreeSelectionChanged(Sender: TObject);
   protected
-    procedure UpdateByEvent; override;
+    procedure updateImperative; override;
+    procedure updateDelayed; override;
     procedure SetVisible(Value: boolean); override;
   private
     fActOpenFile: TAction;
@@ -113,7 +114,7 @@ end;
 procedure TCEProjectInspectWidget.SetVisible(Value: boolean);
 begin
   inherited;
-  if Value then UpdateByEvent;
+  if Value then updateImperative;
 end;
 {$ENDREGION}
 
@@ -147,7 +148,7 @@ end;
 procedure TCEProjectInspectWidget.projNew(aProject: TCEProject);
 begin
   fProject := aProject;
-  if Visible then UpdateByEvent;
+  if Visible then updateImperative;
 end;
 
 procedure TCEProjectInspectWidget.projClosing(aProject: TCEProject);
@@ -155,19 +156,19 @@ begin
   if fProject <> aProject then
     exit;
   fProject := nil;
-  UpdateByEvent;
+  updateImperative;
 end;
 
 procedure TCEProjectInspectWidget.projFocused(aProject: TCEProject);
 begin
   fProject := aProject;
-  if Visible then UpdateByEvent;
+  if Visible then beginDelayedUpdate;
 end;
 
 procedure TCEProjectInspectWidget.projChanged(aProject: TCEProject);
 begin
   if fProject <> aProject then exit;
-  if Visible then UpdateByEvent;
+  if Visible then beginDelayedUpdate;
 end;
 
 procedure TCEProjectInspectWidget.projCompiling(aProject: TCEProject);
@@ -209,7 +210,7 @@ begin
   begin
     i := Tree.Selected.Index;
     fProject.ConfigurationIndex := i;
-    UpdateByEvent;
+    beginDelayedUpdate;
   end;
 end;
 
@@ -229,8 +230,11 @@ begin
   with TOpenDialog.Create(nil) do
   try
     filter := DdiagFilter;
-    if execute then
+    if execute then begin
+      fProject.beginUpdate;
       fProject.addSource(filename);
+      fProject.endUpdate;
+    end;
   finally
     free;
   end;
@@ -288,7 +292,6 @@ begin
     if extractFilePath(fProject.getAbsoluteSourceName(i)) = dir then
       fProject.Sources.Delete(i);
   fProject.endUpdate;
-  UpdateByEvent;
 end;
 
 procedure TCEProjectInspectWidget.btnRemFileClick(Sender: TObject);
@@ -303,8 +306,11 @@ begin
   begin
     fname := Tree.Selected.Text;
     i := fProject.Sources.IndexOf(fname);
-    if i > -1 then fProject.Sources.Delete(i);
-    UpdateByEvent;
+    if i > -1 then begin
+      fProject.beginUpdate;
+      fProject.Sources.Delete(i);
+      fProject.endUpdate;
+    end;
   end;
 end;
 
@@ -319,11 +325,18 @@ begin
     if FileExists(fname) then
     begin
       multidoc.openDocument(fname);
+      fProject.beginUpdate;
       fProject.addSource(fname);
+      fProject.endUpdate;
     end;
 end;
 
-procedure TCEProjectInspectWidget.UpdateByEvent;
+procedure TCEProjectInspectWidget.updateDelayed;
+begin
+  updateImperative;
+end;
+
+procedure TCEProjectInspectWidget.updateImperative;
 var
   src, fold, conf: string;
   lst: TStringList;
