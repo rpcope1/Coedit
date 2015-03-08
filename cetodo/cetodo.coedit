@@ -22,6 +22,9 @@ object CurrentProject: TCEProject
       outputOptions.optimizations = True
       outputOptions.release = True
       pathsOptions.outputFilename = '..\lazproj\cetodo'
+      pathsOptions.extraSources.Strings = (
+        '..\libdparse\src\*'
+      )
       preBuildProcess.options = []
       preBuildProcess.showWindow = swoNone
       postBuildProcess.options = []
