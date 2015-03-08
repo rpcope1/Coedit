@@ -411,16 +411,19 @@ end;
 procedure TCESymbolListWidget.actAutoRefreshExecute(Sender: TObject);
 begin
   autoRefresh := fActAutoRefresh.Checked;
+  fOptions.Assign(self);
 end;
 
 procedure TCESymbolListWidget.actRefreshOnChangeExecute(Sender: TObject);
 begin
   refreshOnChange := fActRefreshOnChange.Checked;
+  fOptions.Assign(self);
 end;
 
 procedure TCESymbolListWidget.actRefreshOnFocusExecute(Sender: TObject);
 begin
   refreshOnFocus := fActRefreshOnFocus.Checked;
+  fOptions.Assign(self);
 end;
 
 procedure TCESymbolListWidget.actCopyIdentExecute(Sender: TObject);
