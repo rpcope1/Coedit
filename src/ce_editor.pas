@@ -29,8 +29,8 @@ type
     procedure completionExecute(Sender: TObject);
     procedure PageControlChange(Sender: TObject);
   protected
-    procedure UpdateByDelay; override;
-    procedure UpdateByEvent; override;
+    procedure updateDelayed; override;
+    procedure updateImperative; override;
   private
     fKeyChanged: boolean;
     fDoc: TCESynMemo;
@@ -167,8 +167,8 @@ begin
   fDoc := aDoc;
   pageControl.ActivePage := sheet;
   focusedEditorChanged;
-  beginUpdateByDelay;
-  UpdateByEvent;
+  beginDelayedUpdate;
+  updateImperative;
 end;
 
 procedure TCEEditorWidget.docClosing(aDoc: TCESynMemo);
@@ -180,7 +180,7 @@ begin
   fDoc.Parent := nil;
   fDoc := nil;
   if sheet <> nil then sheet.Free;
-  UpdateByEvent;
+  updateImperative;
 end;
 
 procedure TCEEditorWidget.docFocused(aDoc: TCESynMemo);
@@ -188,16 +188,16 @@ begin
   if aDoc = fDoc then exit;
   fDoc := aDoc;
   focusedEditorChanged;
-  beginUpdateByDelay;
-  UpdateByEvent;
+  beginDelayedUpdate;
+  updateImperative;
 end;
 
 procedure TCEEditorWidget.docChanged(aDoc: TCESynMemo);
 begin
   if fDoc <> aDoc then exit;
   fKeyChanged := true;
-  beginUpdateByDelay;
-  UpdateByEvent;
+  beginDelayedUpdate;
+  updateImperative;
 end;
 {$ENDREGION}
 
@@ -300,13 +300,13 @@ begin
   if (pageControl.ActivePage.Caption = '') then
   begin
     fKeyChanged := true;
-    beginUpdateByDelay;
+    beginDelayedUpdate;
   end;
 end;
 
 procedure TCEEditorWidget.PageControlChange(Sender: TObject);
 begin
-  UpdateByEvent;
+  updateImperative;
 end;
 
 procedure TCEEditorWidget.completionExecute(Sender: TObject);
@@ -325,12 +325,12 @@ end;
 
 procedure TCEEditorWidget.memoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  UpdateByEvent;
+  updateImperative;
   case Byte(Key) of
     VK_CLEAR,VK_RETURN,VK_BACK : fKeyChanged := true;
   end;
   if fKeyChanged then
-    beginUpdateByDelay;
+    beginDelayedUpdate;
   //
   if (Key = VK_UP) and (shift = [ssShift,ssCtrl]) then
     getSymbolLoc;
@@ -339,19 +339,19 @@ end;
 procedure TCEEditorWidget.memoKeyPress(Sender: TObject; var Key: char);
 begin
   fKeyChanged := true;
-  beginUpdateByDelay;
+  beginDelayedUpdate;
 end;
 
 procedure TCEEditorWidget.memoMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  beginUpdateByDelay;
-  UpdateByEvent;
+  beginDelayedUpdate;
+  updateImperative;
 end;
 
 procedure TCEEditorWidget.memoMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
   if not (ssLeft in Shift) then exit;
-  beginUpdateByDelay;
+  beginDelayedUpdate;
 end;
 
 procedure TCEEditorWidget.memoCtrlClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -402,7 +402,7 @@ begin
   DcdWrapper.getComplAtCursor(completion.ItemList);
 end;
 
-procedure TCEEditorWidget.UpdateByEvent;
+procedure TCEEditorWidget.updateImperative;
 const
   modstr: array[boolean] of string = ('...', 'MODIFIED');
 begin
@@ -429,12 +429,12 @@ begin
     end;
 end;
 
-procedure TCEEditorWidget.UpdateByDelay;
+procedure TCEEditorWidget.updateDelayed;
 var
   md: string;
 begin
   if fDoc = nil then exit;
-  UpdateByEvent;
+  updateImperative;
   if not fKeyChanged then exit;
   //
   fKeyChanged := false;

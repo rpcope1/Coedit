@@ -51,7 +51,7 @@ type
     procedure replaceEvent(Sender: TObject; const ASearch, AReplace:
       string; Line, Column: integer; var ReplaceAction: TSynReplaceAction);
   protected
-    procedure UpdateByEvent; override;
+    procedure updateImperative; override;
   public
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
@@ -221,7 +221,7 @@ begin
     fHasRestarted := false;
     chkFromCur.Checked := true;
   end;
-  UpdateByEvent;
+  updateImperative;
 end;
 
 procedure TCESearchWidget.actReplaceNextExecute(sender: TObject);
@@ -249,7 +249,7 @@ begin
   if fDoc.SearchReplace(fToFind, fReplaceWth, getOptions + [ssoReplace]) <> 0 then
     fHasSearched := true;
   fDoc.OnReplaceText := nil;
-  UpdateByEvent;
+  updateImperative;
 end;
 
 procedure TCESearchWidget.actReplaceAllExecute(sender: TObject);
@@ -275,7 +275,7 @@ begin
     end;
   end;
   fDoc.OnReplaceText := nil;
-  UpdateByEvent;
+  updateImperative;
 end;
 {$ENDREGION}
 
@@ -283,20 +283,20 @@ end;
 procedure TCESearchWidget.docNew(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
-  UpdateByEvent;
+  updateImperative;
 end;
 
 procedure TCESearchWidget.docClosing(aDoc: TCESynMemo);
 begin
   if fDoc = aDoc then fDoc := nil;
-  UpdateByEvent;
+  updateImperative;
 end;
 
 procedure TCESearchWidget.docFocused(aDoc: TCESynMemo);
 begin
   if fDoc = aDoc then exit;
   fDoc := aDoc;
-  UpdateByEvent;
+  updateImperative;
 end;
 
 procedure TCESearchWidget.docChanged(aDoc: TCESynMemo);
@@ -315,7 +315,7 @@ end;
 procedure TCESearchWidget.chkEnableRepChange(Sender: TObject);
 begin
   if Updating then exit;
-  UpdateByEvent;
+  updateImperative;
 end;
 
 procedure TCESearchWidget.cbReplaceWthChange(Sender: TObject);
@@ -325,7 +325,7 @@ begin
   fHasSearched := false;
 end;
 
-procedure TCESearchWidget.UpdateByEvent;
+procedure TCESearchWidget.updateImperative;
 begin
   fActFindNext.Enabled := fDoc <> nil;
   fActReplaceNext.Enabled := (fDoc <> nil) and (chkEnableRep.Checked);

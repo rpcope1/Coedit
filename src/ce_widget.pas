@@ -24,7 +24,8 @@ type
     fLoopInter: Integer;
     fUpdaterAuto: TTimer;
     fUpdaterDelay: TTimer;
-    fWidgUpdateCount: NativeInt;
+    fImperativeUpdateCount: Integer;
+    fLoopUpdateCount: Integer;
     procedure setDelayDur(aValue: Integer);
     procedure setLoopInt(aValue: Integer);
     procedure updaterAutoProc(Sender: TObject);
@@ -39,11 +40,11 @@ type
     fModal: boolean;
     fID: string;
     // a descendant overrides to implementi a periodic update.
-    procedure UpdateByLoop; virtual;
-    // a descendant overrides to implement an event driven update.
-    procedure UpdateByEvent; virtual;
-    // a descendant overrides to implement a delayed update event.
-    procedure UpdateByDelay; virtual;
+    procedure updateLoop; virtual;
+    // a descendant overrides to implement an imperative update.
+    procedure updateImperative; virtual;
+    // a descendant overrides to implement a delayed update.
+    procedure updateDelayed; virtual;
     //
     function contextName: string; virtual;
     function contextActionCount: integer; virtual;
@@ -63,19 +64,23 @@ type
     // restarts the wait period to the delayed update event.
     // if not re-called during 'updaterByDelayDuration' ms then
     // 'UpdateByDelay' is called once.
-    procedure beginUpdateByDelay;
+    procedure beginDelayedUpdate;
     // prevent any pending update.
-    procedure stopUpdateByDelay;
-    // immediate call any pending update.
-    procedure endUpdatebyDelay;
-    // increments the updates count.
-    procedure beginUpdateByEvent;
-    // decrements the update count and call 'UpdateByEvent' if the
-    // counter value is null.
-    procedure endUpdateByEvent;
-    // immediate call 'UpdateByEvent'
-    procedure forceUpdateByEvent;
-    //
+    procedure stopDelayedUpdate;
+    // immediate call any pending delayed update.
+    procedure forceDelayedUpdate;
+
+    // increments the imperative updates count.
+    procedure beginImperativeUpdate;
+    // decrements the imperative updates count and call updateImperative() if the
+    // counter value is equal to zero.
+    procedure endImperativeUpdate;
+    // calls updateImperative() immediatly
+    procedure forceImperativeUpdate;
+
+    // increment a flag used to indicate if updateLoop has to be called
+    procedure IncLoopUpdate;
+
     // returns true if one of the three updater is processing.
     property updating: boolean read fUpdating;
     // true by default, allow a widget to be docked.
@@ -223,42 +228,47 @@ begin
   fUpdaterAuto.Interval := fLoopInter;
 end;
 
-procedure TCEWidget.beginUpdateByEvent;
+procedure TCEWidget.IncLoopUpdate;
 begin
-  Inc(fWidgUpdateCount);
+  inc(fLoopUpdateCount);
 end;
 
-procedure TCEWidget.endUpdateByEvent;
+procedure TCEWidget.beginImperativeUpdate;
 begin
-  Dec(fWidgUpdateCount);
-  if fWidgUpdateCount > 0 then exit;
+  Inc(fImperativeUpdateCount);
+end;
+
+procedure TCEWidget.endImperativeUpdate;
+begin
+  Dec(fImperativeUpdateCount);
+  if fImperativeUpdateCount > 0 then exit;
   fUpdating := true;
-  UpdateByEvent;
+  updateImperative;
   fUpdating := false;
-  fWidgUpdateCount := 0;
+  fImperativeUpdateCount := 0;
 end;
 
-procedure TCEWidget.forceUpdateByEvent;
+procedure TCEWidget.forceImperativeUpdate;
 begin
   fUpdating := true;
-  UpdateByEvent;
+  updateImperative;
   fUpdating := false;
-  fWidgUpdateCount := 0;
+  fImperativeUpdateCount := 0;
 end;
 
-procedure TCEWidget.beginUpdateByDelay;
+procedure TCEWidget.beginDelayedUpdate;
 begin
   fUpdaterDelay.Enabled := false;
   fUpdaterDelay.Enabled := true;
   fUpdaterDelay.OnTimer := @updaterLatchProc;
 end;
 
-procedure TCEWidget.stopUpdateByDelay;
+procedure TCEWidget.stopDelayedUpdate;
 begin
   fUpdaterDelay.OnTimer := nil;
 end;
 
-procedure TCEWidget.endUpdateByDelay;
+procedure TCEWidget.forceDelayedUpdate;
 begin
   updaterLatchProc(nil);
 end;
@@ -266,27 +276,29 @@ end;
 procedure TCEWidget.updaterAutoProc(Sender: TObject);
 begin
   fUpdating := true;
-  UpdateByLoop;
+  if fLoopUpdateCount > 0 then
+  	updateLoop;
+  fLoopUpdateCount := 0;
   fUpdating := false;
 end;
 
 procedure TCEWidget.updaterLatchProc(Sender: TObject);
 begin
   fUpdating := true;
-  UpdateByDelay;
+  updateDelayed;
   fUpdating := false;
   fUpdaterDelay.OnTimer := nil;
 end;
 
-procedure TCEWidget.UpdateByLoop;
+procedure TCEWidget.updateLoop;
 begin
 end;
 
-procedure TCEWidget.UpdateByEvent;
+procedure TCEWidget.updateImperative;
 begin
 end;
 
-procedure TCEWidget.UpdateByDelay;
+procedure TCEWidget.updateDelayed;
 begin
 end;
 {$ENDREGION}

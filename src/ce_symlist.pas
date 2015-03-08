@@ -102,8 +102,7 @@ type
     procedure btnRefreshClick(Sender: TObject);
     procedure TreeDeletion(Sender: TObject; Node: TTreeNode);
     procedure TreeFilterEdit1AfterFilter(Sender: TObject);
-    function TreeFilterEdit1FilterItem(Item: TObject; out Done: Boolean
-      ): Boolean;
+    function TreeFilterEdit1FilterItem(Item: TObject; out Done: Boolean): Boolean;
     procedure TreeFilterEdit1MouseEnter(Sender: TObject);
     procedure TreeKeyPress(Sender: TObject; var Key: char);
   private
@@ -149,7 +148,7 @@ type
     function optionedWantContainer: TPersistent;
     procedure optionedEvent(anEvent: TOptionEditorEvent);
   protected
-    procedure UpdateByDelay; override;
+    procedure updateDelayed; override;
     //
     function contextName: string; override;
     function contextActionCount: integer; override;
@@ -411,17 +410,17 @@ end;
 
 procedure TCESymbolListWidget.actAutoRefreshExecute(Sender: TObject);
 begin
-  autoRefresh := not autoRefresh;
+  autoRefresh := fActAutoRefresh.Checked;
 end;
 
 procedure TCESymbolListWidget.actRefreshOnChangeExecute(Sender: TObject);
 begin
-  refreshOnChange := not refreshOnChange;
+  refreshOnChange := fActRefreshOnChange.Checked;
 end;
 
 procedure TCESymbolListWidget.actRefreshOnFocusExecute(Sender: TObject);
 begin
-  refreshOnFocus := not refreshOnFocus;
+  refreshOnFocus := fActRefreshOnFocus.Checked;
 end;
 
 procedure TCESymbolListWidget.actCopyIdentExecute(Sender: TObject);
@@ -460,7 +459,7 @@ end;
 procedure TCESymbolListWidget.docNew(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
-  beginUpdateByDelay;
+  beginDelayedUpdate;
 end;
 
 procedure TCESymbolListWidget.docClosing(aDoc: TCESynMemo);
@@ -477,7 +476,7 @@ begin
   fDoc := aDoc;
   if not Visible then exit;
   //
-  if fAutoRefresh then beginUpdateByDelay
+  if fAutoRefresh then beginDelayedUpdate
   else if fRefreshOnFocus then callToolProc;
 end;
 
@@ -486,13 +485,13 @@ begin
   if fDoc <> aDoc then exit;
   if not Visible then exit;
   //
-  if fAutoRefresh then beginUpdateByDelay
+  if fAutoRefresh then beginDelayedUpdate
   else if fRefreshOnChange then callToolProc;
 end;
 {$ENDREGION}
 
 {$REGION Symbol-tree things ----------------------------------------------------}
-procedure TCESymbolListWidget.UpdateByDelay;
+procedure TCESymbolListWidget.updateDelayed;
 begin
   if not fAutoRefresh then exit;
   callToolProc;

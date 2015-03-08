@@ -47,7 +47,7 @@ type
     procedure projFocused(aProject: TCEProject);
     procedure projCompiling(aProject: TCEProject);
   protected
-    procedure UpdateByEvent; override;
+    procedure updateImperative; override;
     procedure SetVisible(Value: boolean); override;
   public
     constructor create(aOwner: TComponent); override;
@@ -92,7 +92,7 @@ end;
 procedure TCEProjectConfigurationWidget.SetVisible(Value: boolean);
 begin
   inherited;
-  if Visible then UpdateByEvent;
+  if Visible then updateImperative;
 end;
 
 {$ENDREGION --------------------------------------------------------------------}
@@ -100,9 +100,9 @@ end;
 {$REGION ICEProjectObserver ----------------------------------------------------}
 procedure TCEProjectConfigurationWidget.projNew(aProject: TCEProject);
 begin
-  beginUpdateByEvent;
+  beginImperativeUpdate;
   fProj := aProject;
-  if Visible then UpdateByEvent;
+  if Visible then updateImperative;
   syncroMode := false;
 end;
 
@@ -121,13 +121,13 @@ procedure TCEProjectConfigurationWidget.projChanged(aProject: TCEProject);
 begin
   if fProj <> aProject then exit;
   fProj := aProject;
-  if Visible then UpdateByEvent;
+  if Visible then updateImperative;
 end;
 
 procedure TCEProjectConfigurationWidget.projFocused(aProject: TCEProject);
 begin
   fProj := aProject;
-  if Visible then UpdateByEvent;
+  if Visible then updateImperative;
 end;
 
 procedure TCEProjectConfigurationWidget.projCompiling(aProject: TCEProject);
@@ -142,9 +142,9 @@ begin
   if Updating then exit;
   if selConf.ItemIndex = -1 then exit;
   //
-  beginUpdateByEvent;
+  beginImperativeUpdate;
   fProj.ConfigurationIndex := selConf.ItemIndex;
-  endUpdateByEvent;
+  endImperativeUpdate;
 end;
 
 procedure TCEProjectConfigurationWidget.TreeChange(Sender: TObject;
@@ -261,12 +261,12 @@ begin
   if fProj = nil then exit;
   //
   nme := '';
-  beginUpdateByEvent;
+  beginImperativeUpdate;
   cfg := fProj.addConfiguration;
   // note: Cancel is actually related to the conf. name not to the add operation.
   if InputQuery('Configuration name', '', nme) then cfg.name := nme;
   fProj.ConfigurationIndex := cfg.Index;
-  endUpdateByEvent;
+  endImperativeUpdate;
 end;
 
 procedure TCEProjectConfigurationWidget.btnDelConfClick(Sender: TObject);
@@ -274,13 +274,13 @@ begin
   if fProj = nil then exit;
   if fProj.OptionsCollection.Count = 1 then exit;
   //
-  beginUpdateByEvent;
+  beginImperativeUpdate;
   inspector.TIObject := nil;
   inspector.Clear;
   Invalidate;
   fProj.OptionsCollection.Delete(selConf.ItemIndex);
   fProj.ConfigurationIndex := 0;
-  endUpdateByEvent;
+  endImperativeUpdate;
 end;
 
 procedure TCEProjectConfigurationWidget.btnCloneCurrClick(Sender: TObject);
@@ -291,13 +291,13 @@ begin
   if fProj = nil then exit;
   //
   nme := '';
-  beginUpdateByEvent;
+  beginImperativeUpdate;
   src := fProj.currentConfiguration;
   trg := fProj.addConfiguration;
   trg.assign(src);
   if InputQuery('Configuration name', '', nme) then trg.name := nme;
   fProj.ConfigurationIndex := trg.Index;
-  endUpdateByEvent;
+  endImperativeUpdate;
 end;
 
 procedure TCEProjectConfigurationWidget.btnSyncEditClick(Sender: TObject);
@@ -365,7 +365,7 @@ begin
   end;
 end;
 
-procedure TCEProjectConfigurationWidget.UpdateByEvent;
+procedure TCEProjectConfigurationWidget.updateImperative;
 var
   i: NativeInt;
 begin
