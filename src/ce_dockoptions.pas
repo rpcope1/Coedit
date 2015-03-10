@@ -36,7 +36,7 @@ var
 constructor TDockOptionsEditor.Create(TheOwner: TComponent);
 begin
   inherited;
-  fBackup := TXMLConfigStorage.Create('', false);
+  fBackup := TXMLConfigStorage.Create('', False);
   Master := AnchorDocking.DockMaster;
   //
   HeaderAlignLeftTrackBar.OnChange := @doChanged;
@@ -44,7 +44,7 @@ begin
   DragThresholdTrackBar.OnChange := @doChanged;
   SplitterWidthTrackBar.OnChange := @doChanged;
   //
-  HeaderStyleComboBox.OnChange:= @doChanged;
+  HeaderStyleComboBox.OnChange := @doChanged;
   //
   EntitiesConnector.addObserver(self);
 end;
@@ -94,14 +94,14 @@ end;
 
 procedure TDockOptionsEditor.doChanged(Sender: TObject);
 begin
-  DragThresholdLabel.Caption:=adrsDragThreshold +
-    ' ('+IntToStr(DragThresholdTrackBar.Position)+')';
-  HeaderAlignTopLabel.Caption:=adrsHeaderAlignTop +
-    ' ('+IntToStr(HeaderAlignTopTrackBar.Position) +')';
-  HeaderAlignLeftLabel.Caption:=adrsHeaderAlignLeft +
-    ' ('+IntToStr(HeaderAlignLeftTrackBar.Position) +')';
-  SplitterWidthLabel.Caption:=adrsSplitterWidth +
-    ' ('+IntToStr(SplitterWidthTrackBar.Position) +')';
+  DragThresholdLabel.Caption := adrsDragThreshold +
+    ' (' + IntToStr(DragThresholdTrackBar.Position) + ')';
+  HeaderAlignTopLabel.Caption := adrsHeaderAlignTop +
+    ' (' + IntToStr(HeaderAlignTopTrackBar.Position) + ')';
+  HeaderAlignLeftLabel.Caption := adrsHeaderAlignLeft +
+    ' (' + IntToStr(HeaderAlignLeftTrackBar.Position) + ')';
+  SplitterWidthLabel.Caption := adrsSplitterWidth +
+    ' (' + IntToStr(SplitterWidthTrackBar.Position) + ')';
 
   FlattenHeaders.Enabled := adofShow_ShowHeader in Flags;
   FilledHeaders.Enabled := adofShow_ShowHeader in Flags;
@@ -112,8 +112,8 @@ begin
 end;
 
 initialization
-  DockOptionsEditor := TDockOptionsEditor.create(nil);
-finalization
-  DockOptionsEditor.free;
-end.
+  DockOptionsEditor := TDockOptionsEditor.Create(nil);
 
+finalization
+  DockOptionsEditor.Free;
+end.

@@ -33,8 +33,8 @@ type
     procedure updateEntities;
     function getIsUpdating: boolean;
   public
-    constructor create;
-    destructor destroy; override;
+    constructor Create;
+    destructor Destroy; override;
     // forces the update, fixes begin/add pair error or if immediate update is needed.
     procedure forceUpdate;
     // entities will be added in bulk, must be followed by an enUpdate().
@@ -80,8 +80,8 @@ type
     function getObserversCount: Integer;
     function getObserver(index: Integer): TObject;
   public
-    constructor create; virtual;
-    destructor destroy; override;
+    constructor Create; virtual;
+    destructor Destroy; override;
     //
     procedure addObserver(anObserver: TObject);
     procedure removeObserver(anObserver: TObject);
@@ -100,14 +100,14 @@ uses
   LCLProc;
 
 {$REGION TCEEntitiesConnector --------------------------------------------------}
-constructor TCEEntitiesConnector.create;
+constructor TCEEntitiesConnector.Create;
 begin
-  fObservers  := TObjectList.create(false);
-  fSubjects   := TObjectList.create(false);
-  fServices   := TObjectList.create(false);
+  fObservers := TObjectList.Create(False);
+  fSubjects := TObjectList.Create(False);
+  fServices := TObjectList.Create(False);
 end;
 
-destructor TCEEntitiesConnector.destroy;
+destructor TCEEntitiesConnector.Destroy;
 begin
   fObservers.Free;
   fSubjects.Free;
@@ -139,14 +139,14 @@ end;
 
 procedure TCEEntitiesConnector.updateEntities;
 var
-  i,j: Integer;
+  i, j: Integer;
 begin
   fUpdatesCount := 0;
-  for i := 0 to fSubjects.Count-1 do
+  for i := 0 to fSubjects.Count - 1 do
   begin
     if not (fSubjects[i] is ICESubject) then
       continue;
-    for j := 0 to fObservers.Count-1 do
+    for j := 0 to fObservers.Count - 1 do
     begin
       if fSubjects[i] <> fObservers[j] then
         (fSubjects[i] as ICESubject).addObserver(fObservers[j]);
@@ -188,7 +188,7 @@ var
   i: Integer;
 begin
   fObservers.Remove(anObserver);
-  for i := 0 to fSubjects.Count-1 do
+  for i := 0 to fSubjects.Count - 1 do
     if fSubjects[i] <> nil then
       (fSubjects[i] as ICESubject).removeObserver(anObserver);
   tryUpdate;
@@ -215,24 +215,25 @@ var
   i: Integer;
   serv: ICESingleService;
 begin
-  result := nil;
-  for i := 0 to fServices.Count-1 do
+  Result := nil;
+  for i := 0 to fServices.Count - 1 do
   begin
     serv := fServices[i] as ICESingleService;
     if serv.singleServiceName = aName then
       exit(fServices[i]);
   end;
 end;
+
 {$ENDREGION}
 
 {$REGION TCECustomSubject ------------------------------------------------------}
-constructor TCECustomSubject.create;
+constructor TCECustomSubject.Create;
 begin
-  fObservers := TObjectList.create(false);
+  fObservers := TObjectList.Create(False);
   EntitiesConnector.addSubject(Self);
 end;
 
-destructor TCECustomSubject.destroy;
+destructor TCECustomSubject.Destroy;
 begin
   EntitiesConnector.removeSubject(Self);
   fObservers.Free;
@@ -241,7 +242,7 @@ end;
 
 function TCECustomSubject.acceptObserver(aObject: TObject): boolean;
 begin
-  exit(false);
+  exit(False);
 end;
 
 function TCECustomSubject.getObserversCount: Integer;
@@ -271,13 +272,14 @@ end;
 procedure TCECustomSubject.updateObservers;
 begin
 end;
+
 {$ENDREGION}
 
 initialization
-  EntitiesConnector := TCEEntitiesConnector.create;
+  EntitiesConnector := TCEEntitiesConnector.Create;
   EntitiesConnector.beginUpdate;
+
 finalization
   EntitiesConnector.Free;
   EntitiesConnector := nil;
 end.
-

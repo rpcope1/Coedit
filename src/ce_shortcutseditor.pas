@@ -19,7 +19,7 @@ type
     property declarator: ICEEditableShortCut read fDeclarator write fDeclarator;
   published
     property identifier: string read fIdentifier write fIdentifier;
-    property data: TShortcut read fData write fData;
+    property Data: TShortcut read fData write fData;
   public
     function combination: string;
   end;
@@ -33,13 +33,13 @@ type
   published
     property items: TCollection read fItems write setItems;
   public
-    constructor create(AOwner: TComponent); override;
-    destructor destroy; override;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     //
     function findIdentifier(const identifier: string): boolean;
     function findShortcut(aShortcut: Word): boolean;
     //
-    property count: Integer read getCount;
+    property Count: Integer read getCount;
     property item[index: Integer]: TShortcutItem read getItem; default;
   end;
 
@@ -52,7 +52,7 @@ type
     btnActivate: TSpeedButton;
     tree: TTreeView;
     procedure btnActivateClick(Sender: TObject);
-    procedure LabeledEdit1KeyDown(Sender: TObject; var Key: Word;Shift: TShiftState);
+    procedure LabeledEdit1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure shortcutCatcherExit(Sender: TObject);
     procedure shortcutCatcherMouseLeave(Sender: TObject);
     procedure treeSelectionChanged(Sender: TObject);
@@ -73,11 +73,12 @@ type
   protected
     procedure UpdateShowing; override;
   public
-    constructor create(TheOwner: TComponent); override;
-    destructor destroy; override;
+    constructor Create(TheOwner: TComponent); override;
+    destructor Destroy; override;
   end;
 
 implementation
+
 {$R *.lfm}
 
 var
@@ -86,16 +87,16 @@ var
 {$REGION TShortCutCollection ---------------------------------------------------}
 function TShortcutItem.combination: string;
 begin
-  result := ShortCutToText(fData);
+  Result := ShortCutToText(fData);
 end;
 
-constructor TShortCutCollection.create(AOwner: TComponent);
+constructor TShortCutCollection.Create(AOwner: TComponent);
 begin
   inherited;
   fItems := TCollection.Create(TShortcutItem);
 end;
 
-destructor TShortCutCollection.destroy;
+destructor TShortCutCollection.Destroy;
 begin
   fItems.Free;
   inherited;
@@ -120,35 +121,36 @@ function TShortCutCollection.findIdentifier(const identifier: string): boolean;
 var
   i: Integer;
 begin
-  result := false;
-  for i := 0 to count-1 do
+  Result := False;
+  for i := 0 to Count - 1 do
     if item[i].identifier = identifier then
-      exit(true);
+      exit(True);
 end;
 
 function TShortCutCollection.findShortcut(aShortcut: Word): boolean;
 var
   i: Integer;
 begin
-  result := false;
-  for i := 0 to count-1 do
-    if item[i].data = aShortcut then
-      exit(true);
+  Result := False;
+  for i := 0 to Count - 1 do
+    if item[i].Data = aShortcut then
+      exit(True);
 end;
+
 {$ENDREGION}
 
 {$REGION Standard Comp/Object things -------------------------------------------}
-constructor TCEShortcutEditor.create(TheOwner: TComponent);
+constructor TCEShortcutEditor.Create(TheOwner: TComponent);
 begin
   inherited;
-  fObservers := TCEEditableShortCutSubject.create;
-  fShortcuts := TShortCutCollection.create(self);
-  fBackup := TShortCutCollection.create(self);
+  fObservers := TCEEditableShortCutSubject.Create;
+  fShortcuts := TShortCutCollection.Create(self);
+  fBackup := TShortCutCollection.Create(self);
   //
   EntitiesConnector.addObserver(self);
 end;
 
-destructor TCEShortcutEditor.destroy;
+destructor TCEShortcutEditor.Destroy;
 begin
   fObservers.Free;
   inherited;
@@ -156,19 +158,21 @@ end;
 
 procedure TCEShortcutEditor.UpdateShowing;
 var
-  png : TPortableNetworkGraphic;
+  png: TPortableNetworkGraphic;
 begin
   inherited;
-  if not visible then exit;
+  if not Visible then
+    exit;
   //
   png := TPortableNetworkGraphic.Create;
   try
     png.LoadFromLazarusResource('keyboard_pencil');
     btnActivate.Glyph.Assign(png);
   finally
-    png.free;
+    png.Free;
   end;
 end;
+
 {$ENDREGION}
 
 {$REGION ICEEditableOptions ----------------------------------------------------}
@@ -192,6 +196,7 @@ procedure TCEShortcutEditor.optionedEvent(anEvent: TOptionEditorEvent);
 begin
   // TODO-cfeature: pass new shortcut to observer
 end;
+
 {$ENDREGION}
 
 {$REGION shortcut editor things ------------------------------------------------}
@@ -202,21 +207,24 @@ end;
 
 procedure TCEShortcutEditor.shortcutCatcherExit(Sender: TObject);
 begin
-  shortcutCatcher.Enabled := false;
+  shortcutCatcher.Enabled := False;
   updateEditCtrls;
 end;
 
 procedure TCEShortcutEditor.shortcutCatcherMouseLeave(Sender: TObject);
 begin
-  shortcutCatcher.Enabled := false;
+  shortcutCatcher.Enabled := False;
   updateEditCtrls;
 end;
 
 procedure TCEShortcutEditor.btnActivateClick(Sender: TObject);
 begin
-  if tree.Selected = nil then exit;
-  if tree.Selected.Level = 0 then exit;
-  if tree.Selected.Data = nil then exit;
+  if tree.Selected = nil then
+    exit;
+  if tree.Selected.Level = 0 then
+    exit;
+  if tree.Selected.Data = nil then
+    exit;
   //
   shortcutCatcher.Enabled := not shortcutCatcher.Enabled;
 end;
@@ -225,19 +233,22 @@ procedure TCEShortcutEditor.LabeledEdit1KeyDown(Sender: TObject; var Key: Word; 
 var
   sh: TShortCut;
 begin
-  if tree.Selected = nil then exit;
-  if tree.Selected.Level = 0 then exit;
-  if tree.Selected.Data = nil then exit;
+  if tree.Selected = nil then
+    exit;
+  if tree.Selected.Level = 0 then
+    exit;
+  if tree.Selected.Data = nil then
+    exit;
   //
   if Key = VK_RETURN then
-    shortcutCatcher.Enabled := false
+    shortcutCatcher.Enabled := False
   else
   begin
     sh := Shortcut(Key, Shift);
-    TShortcutItem(tree.Selected.Data).data := sh;
+    TShortcutItem(tree.Selected.Data).Data := sh;
     TShortcutItem(tree.Selected.Data).declarator.scedSendItem(
       tree.Selected.Parent.Text,
-      tree.Selected.Text, sh );
+      tree.Selected.Text, sh);
   end;
   //
   updateEditCtrls;
@@ -247,9 +258,12 @@ procedure TCEShortcutEditor.updateEditCtrls;
 begin
   schrtText.Caption := '';
   //
-  if tree.Selected = nil then exit;
-  if tree.Selected.Level = 0 then exit;
-  if tree.Selected.Data = nil then exit;
+  if tree.Selected = nil then
+    exit;
+  if tree.Selected.Level = 0 then
+    exit;
+  if tree.Selected.Data = nil then
+    exit;
   //
   schrtText.Caption := TShortcutItem(tree.Selected.Data).combination;
   shortcutCatcher.Text := '';
@@ -259,8 +273,8 @@ function TCEShortcutEditor.findCategory(const aName: string; aData: Pointer): TT
 var
   i: Integer;
 begin
-  result := nil;
-  for i:= 0 to tree.Items.Count-1 do
+  Result := nil;
+  for i := 0 to tree.Items.Count - 1 do
     if tree.Items[i].Text = aName then
       if tree.Items[i].Data = aData then
         exit(tree.Items[i]);
@@ -268,7 +282,7 @@ end;
 
 function TCEShortcutEditor.sortCategories(Cat1, Cat2: TTreeNode): integer;
 begin
-  result := CompareText(Cat1.Text, Cat2.Text);
+  Result := CompareText(Cat1.Text, Cat2.Text);
 end;
 
 procedure TCEShortcutEditor.updateFromObservers;
@@ -279,32 +293,36 @@ var
   sht: word;
   idt: string;
   itm: TShortcutItem;
-procedure addItem();
-var
-  prt: TTreeNode;
-begin
-  // root category
-  if cat = '' then exit;
-  if idt = '' then exit;
-  prt := findCategory(cat, obs);
-  if prt = nil then
-    prt := tree.Items.AddObject(nil, cat, obs);
-  // item as child
-  itm := TShortcutItem(fShortcuts.items.Add);
-  itm.identifier := idt;
-  itm.data:= sht;
-  itm.declarator := obs;
-  tree.Items.AddChildObject(prt, idt, itm);
-  cat := '';
-  idt := '';
-end;
+
+  procedure addItem();
+  var
+    prt: TTreeNode;
+  begin
+    // root category
+    if cat = '' then
+      exit;
+    if idt = '' then
+      exit;
+    prt := findCategory(cat, obs);
+    if prt = nil then
+      prt := tree.Items.AddObject(nil, cat, obs);
+    // item as child
+    itm := TShortcutItem(fShortcuts.items.Add);
+    itm.identifier := idt;
+    itm.Data := sht;
+    itm.declarator := obs;
+    tree.Items.AddChildObject(prt, idt, itm);
+    cat := '';
+    idt := '';
+  end;
+
 begin
   tree.Items.Clear;
   fShortcuts.items.Clear;
   fBackup.items.Clear;
   cat := '';
   idt := '';
-  for i:= 0 to fObservers.observersCount-1 do
+  for i := 0 to fObservers.observersCount - 1 do
   begin
     obs := fObservers.observers[i] as ICEEditableShortCut;
     if obs.scedWantFirst then
@@ -316,11 +334,12 @@ begin
   end;
   tree.Items.SortTopLevelNodes(@sortCategories);
 end;
+
 {$ENDREGION}
 
 initialization
   CEShortcutEditor := TCEShortcutEditor.Create(nil);
+
 finalization
   CEShortcutEditor.Free;
 end.
-

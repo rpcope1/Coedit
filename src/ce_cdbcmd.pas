@@ -28,12 +28,12 @@ type
   private
     fCdbProc: TAsyncProcess;
     fProject: TCEProject;
-    procedure cdbOutput(sender: TObject);
-    procedure cdbTerminate(sender: TObject);
+    procedure cdbOutput(Sender: TObject);
+    procedure cdbTerminate(Sender: TObject);
     procedure cdbOutputToGui;
   public
-    constructor create(aOwner: TComponent); override;
-    destructor destroy; override;
+    constructor Create(aOwner: TComponent); override;
+    destructor Destroy; override;
     //
     procedure projNew(aProject: TCEProject);
     procedure projClosing(aProject: TCEProject);
@@ -43,13 +43,14 @@ type
   end;
 
 implementation
+
 {$R *.lfm}
 
 uses
   ce_symstring;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
-constructor TCECdbWidget.create(aOwner: TComponent);
+constructor TCECdbWidget.Create(aOwner: TComponent);
 begin
   inherited;
   Enabled := exeInSysPath('cdb');
@@ -57,14 +58,16 @@ begin
     EntitiesConnector.addObserver(self);
 end;
 
-destructor TCECdbWidget.destroy;
+destructor TCECdbWidget.Destroy;
 begin
-  if Enabled then begin
+  if Enabled then
+  begin
     killProcess(fCdbProc);
     EntitiesConnector.removeObserver(self);
   end;
   inherited;
 end;
+
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION ICEProjectMonitor -----------------------------------------------------}
@@ -92,6 +95,7 @@ end;
 procedure TCECdbWidget.projCompiling(aProject: TCEProject);
 begin
 end;
+
 {$ENDREGION --------------------------------------------------------------------}
 
 procedure TCECdbWidget.btnStartClick(Sender: TObject);
@@ -106,7 +110,7 @@ begin
     exit;
   //
   killProcess(fCdbProc);
-  fCdbProc := TAsyncProcess.create(nil);
+  fCdbProc := TAsyncProcess.Create(nil);
   fCdbProc.Executable := 'cdb';
   fCdbProc.Parameters.Add('-c');
   fCdbProc.Parameters.Add('"l+*;.lines"');
@@ -150,8 +154,7 @@ procedure TCECdbWidget.btnStopClick(Sender: TObject);
 const
   cmd = 'q'#13#10;
 begin
-  if fCdbProc <> nil
-    then
+  if fCdbProc <> nil then
     fCdbProc.Input.Write(cmd[1], length(cmd));
   killProcess(fCdbProc);
 end;
@@ -168,9 +171,9 @@ begin
   inp := cmd + LineEnding;
   fCdbProc.Input.Write(inp[1], length(inp));
   //
-  inp := lstCdbOut.Items.Item[lstCdbOut.Items.Count-1].Caption;
+  inp := lstCdbOut.Items.Item[lstCdbOut.Items.Count - 1].Caption;
   inp += cmd;
-  lstCdbOut.Items.Item[lstCdbOut.Items.Count-1].Caption := inp;
+  lstCdbOut.Items.Item[lstCdbOut.Items.Count - 1].Caption := inp;
   //
   txtCdbCmd.Text := '';
 end;
@@ -188,22 +191,21 @@ begin
     processOutputToStrings(fCdbProc, lst);
     for str in lst do
       lstCdbOut.AddItem(str, nil);
-    lstCdbOut.Items[lstCdbOut.Items.Count-1].MakeVisible(true);
+    lstCdbOut.Items[lstCdbOut.Items.Count - 1].MakeVisible(True);
   finally
     lst.Free;
   end;
 end;
 
-procedure TCECdbWidget.cdbOutput(sender: TObject);
+procedure TCECdbWidget.cdbOutput(Sender: TObject);
 begin
   cdbOutputToGui;
 end;
 
-procedure TCECdbWidget.cdbTerminate(sender: TObject);
+procedure TCECdbWidget.cdbTerminate(Sender: TObject);
 begin
   cdbOutputToGui;
   killProcess(fCdbProc);
 end;
 
 end.
-

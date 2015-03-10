@@ -12,7 +12,7 @@ type
   TTokenKind = (tkSym, tkTxt, tkWhi);
 
   TSynTxtSyn = class(TSynCustomHighlighter)
-	private
+  private
     fSymAttribs: TSynHighlighterAttributes;
     fTxtAttribs: TSynHighlighterAttributes;
     fWhiAttribs: TSynHighlighterAttributes;
@@ -30,10 +30,10 @@ type
     property textAttributes: TSynHighlighterAttributes read fTxtAttribs write setTxtAttribs;
     property whitAttributes: TSynHighlighterAttributes read fWhiAttribs write setWhiAttribs;
   public
-    constructor create(aOwner: TComponent); override;
+    constructor Create(aOwner: TComponent); override;
     //
     procedure setLine(const NewValue: String; LineNumber: Integer); override;
-    procedure next; override;
+    procedure Next; override;
     procedure GetTokenEx(out TokenStart: PChar; out TokenLength: integer); override;
     function GetTokenAttribute: TSynHighlighterAttributes; override;
     function GetDefaultAttribute(Index: integer): TSynHighlighterAttributes; override;
@@ -45,7 +45,8 @@ type
     property CurrIdent: string read fCurrIdent write setCurrIdent;
   end;
 
-  const txtSym : TCharSet = [
+const
+  txtSym: TCharSet = [
     '&', '~', '#', '"', #39, '(', '-', ')', '=',
     '{', '[', '|', '`', '\', '^', '@', ']', '}',
     '+', '$', '*', '%',
@@ -56,10 +57,10 @@ implementation
 uses
   Graphics;
 
-constructor TSynTxtSyn.create(aOwner: TComponent);
+constructor TSynTxtSyn.Create(aOwner: TComponent);
 begin
   inherited;
-  SetSubComponent(true);
+  SetSubComponent(True);
   //
   fSymAttribs := TSynHighlighterAttributes.Create('Symbols', 'Symbols');
   fTxtAttribs := TSynHighlighterAttributes.Create('Text', 'Text');
@@ -99,11 +100,13 @@ end;
 
 procedure TSynTxtSyn.setCurrIdent(const aValue: string);
 begin
-  if aValue = '' then exit;
-  if fCurrIdent = aValue then Exit;
+  if aValue = '' then
+    exit;
+  if fCurrIdent = aValue then
+    Exit;
   fCurrIdent := aValue;
   BeginUpdate;
-    fUpdateChange := true;
+  fUpdateChange := True;
   EndUpdate;
 end;
 
@@ -112,16 +115,17 @@ begin
   inherited;
   fLineBuf := NewValue + #10;
   fTokStop := 1;
-  next;
+  Next;
 end;
 
-procedure TSynTxtSyn.next;
+procedure TSynTxtSyn.Next;
 begin
   fTokStart := fTokStop;
-  fTokStop  := fTokStart;
+  fTokStop := fTokStart;
 
   // EOL
-  if fTokStop > length(fLineBuf) then exit;
+  if fTokStop > length(fLineBuf) then
+    exit;
 
   // spaces
   if (isWhite(fLineBuf[fTokStop])) then
@@ -130,7 +134,8 @@ begin
     while isWhite(fLineBuf[fTokStop]) do
     begin
       Inc(fTokStop);
-      if fTokStop > length(fLineBuf) then exit;
+      if fTokStop > length(fLineBuf) then
+        exit;
     end;
     exit;
   end;
@@ -139,10 +144,11 @@ begin
   if (fLineBuf[fTokStop] in txtSym) then
   begin
     fToken := tkSym;
-    while(fLineBuf[fTokStop] in txtSym) do
+    while (fLineBuf[fTokStop] in txtSym) do
     begin
       Inc(fTokStop);
-      if fLineBuf[fTokStop] = #10 then exit;
+      if fLineBuf[fTokStop] = #10 then
+        exit;
     end;
     exit;
   end;
@@ -152,42 +158,45 @@ begin
   while not ((fLineBuf[fTokStop] in txtSym) or isWhite(fLineBuf[fTokStop])) do
   begin
     Inc(fTokStop);
-    if fLineBuf[fTokStop] = #10 then exit;
+    if fLineBuf[fTokStop] = #10 then
+      exit;
   end;
 
-  if fLineBuf[fTokStop] = #10 then exit;
+  if fLineBuf[fTokStop] = #10 then
+    exit;
 end;
 
 function TSynTxtSyn.GetEol: Boolean;
 begin
-  result := fTokStop > length(fLineBuf);
+  Result := fTokStop > length(fLineBuf);
 end;
 
 function TSynTxtSyn.GetTokenAttribute: TSynHighlighterAttributes;
 begin
-  result := fTokToAttri[fToken];
-  result.FrameEdges := sfeNone;
+  Result := fTokToAttri[fToken];
+  Result.FrameEdges := sfeNone;
   if fCurrIdent <> '' then
-    if GetToken = fCurrIdent then begin
-      result.FrameColor := result.Foreground;
-      result.FrameStyle := slsSolid;
-      result.FrameEdges := sfeAround;
+    if GetToken = fCurrIdent then
+    begin
+      Result.FrameColor := Result.Foreground;
+      Result.FrameStyle := slsSolid;
+      Result.FrameEdges := sfeAround;
     end;
 end;
 
 function TSynTxtSyn.GetTokenPos: Integer;
 begin
-  result := fTokStart - 1;
+  Result := fTokStart - 1;
 end;
 
 function TSynTxtSyn.GetToken: string;
 begin
-  result := copy(fLineBuf, FTokStart, fTokStop - FTokStart);
+  Result := copy(fLineBuf, FTokStart, fTokStop - FTokStart);
 end;
 
 procedure TSynTxtSyn.GetTokenEx(out TokenStart: PChar; out TokenLength: integer);
 begin
-  TokenStart  := @fLineBuf[FTokStart];
+  TokenStart := @fLineBuf[FTokStart];
   TokenLength := fTokStop - FTokStart;
 end;
 
@@ -197,21 +206,27 @@ var
 begin
   Result := SYN_ATTR_IDENTIFIER;
   a := GetTokenAttribute;
-  if a = fTxtAttribs then Result := SYN_ATTR_IDENTIFIER  else
-  if a = fWhiAttribs then Result := SYN_ATTR_WHITESPACE  else
-  if a = fSymAttribs then Result := SYN_ATTR_SYMBOL;
+  if a = fTxtAttribs then
+    Result := SYN_ATTR_IDENTIFIER
+  else
+  if a = fWhiAttribs then
+    Result := SYN_ATTR_WHITESPACE
+  else
+  if a = fSymAttribs then
+    Result := SYN_ATTR_SYMBOL;
 end;
 
 function TSynTxtSyn.GetDefaultAttribute(Index: integer): TSynHighlighterAttributes;
 begin
   case Index of
-    SYN_ATTR_COMMENT: Result    := fTxtAttribs;
+    SYN_ATTR_COMMENT: Result := fTxtAttribs;
     SYN_ATTR_IDENTIFIER: Result := fTxtAttribs;
-    SYN_ATTR_KEYWORD: Result    := fTxtAttribs;
-    SYN_ATTR_STRING: Result     := fTxtAttribs;
+    SYN_ATTR_KEYWORD: Result := fTxtAttribs;
+    SYN_ATTR_STRING: Result := fTxtAttribs;
     SYN_ATTR_WHITESPACE: Result := fWhiAttribs;
-    SYN_ATTR_SYMBOL: Result     := fSymAttribs;
-    else Result := fTxtAttribs;
+    SYN_ATTR_SYMBOL: Result := fSymAttribs;
+    else
+      Result := fTxtAttribs;
   end;
 end;
 

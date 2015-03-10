@@ -194,7 +194,7 @@ type
     fEditWidg: TCEEditorWidget;
     fProjWidg: TCEProjectInspectWidget;
     fPrjCfWidg: TCEProjectConfigurationWidget;
-    fFindWidg:  TCESearchWidget;
+    fFindWidg: TCESearchWidget;
     fExplWidg: TCEMiniExplorerWidget;
     fLibMWidg: TCELibManEditorWidget;
     fTlsEdWidg: TCEToolsEditorWidget;
@@ -256,13 +256,12 @@ type
     procedure FreeRunnableProc;
 
     // widget interfaces subroutines
-    procedure widgetShowFromAction(sender: TObject);
+    procedure widgetShowFromAction(Sender: TObject);
 
     // run & exec sub routines
-    procedure asyncprocOutput(sender: TObject);
-    procedure asyncprocTerminate(sender: TObject);
-    procedure compileAndRunFile(unittest: boolean = false; redirect: boolean = true;
-      const runArgs: string = '');
+    procedure asyncprocOutput(Sender: TObject);
+    procedure asyncprocTerminate(Sender: TObject);
+    procedure compileAndRunFile(unittest: boolean = False; redirect: boolean = True; const runArgs: string = '');
 
     // file sub routines
     procedure newFile;
@@ -285,14 +284,14 @@ type
     procedure mruClearClick(Sender: TObject);
 
     // layout
-    procedure layoutMnuItemClick(sender: TObject);
+    procedure layoutMnuItemClick(Sender: TObject);
     procedure layoutLoadFromFile(const aFilename: string);
     procedure layoutSaveToFile(const aFilename: string);
     procedure layoutUpdateMenu;
 
   public
-    constructor create(aOwner: TComponent); override;
-    destructor destroy; override;
+    constructor Create(aOwner: TComponent); override;
+    destructor Destroy; override;
     procedure UpdateDockCaption(Exclude: TControl = nil); override;
   end;
 
@@ -300,17 +299,18 @@ var
   CEMainForm: TCEMainForm;
 
 implementation
+
 {$R *.lfm}
 
 uses
   SynMacroRecorder, ce_options, ce_symstring;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
-constructor TCEMainForm.create(aOwner: TComponent);
+constructor TCEMainForm.Create(aOwner: TComponent);
 begin
-  inherited create(aOwner);
-  fMainMenuSubj := TCEMainMenuSubject.create;
-  fActionHandler := TCEActionProviderSubject.create;
+  inherited Create(aOwner);
+  fMainMenuSubj := TCEMainMenuSubject.Create;
+  fActionHandler := TCEActionProviderSubject.Create;
   //
   EntitiesConnector.addObserver(self);
   //
@@ -327,7 +327,7 @@ begin
   //
   updateMainMenuProviders;
   EntitiesConnector.forceUpdate;
-  fInitialized := true;
+  fInitialized := True;
 end;
 
 procedure TCEMainForm.checkCompilo;
@@ -338,57 +338,57 @@ begin
   if exeInSysPath('dmd') or exeInSysPath('dub') then
     exit;
   ce_common.dlgOkError(msg);
-  close;
+  Close;
 end;
 
 procedure TCEMainForm.getCMdParams;
 var
-  value: string;
+  Value: string;
   lst: TStringList;
   hdl: THandle;
   str: string;
 begin
   if application.ParamCount > 0 then
   begin
-    value := application.Params[1];
-    if value <> '' then
+    Value := application.Params[1];
+    if Value <> '' then
     begin
       setLength(str, 6);
       lst := TStringList.Create;
       try
-        lst.DelimitedText := value;
-        for value in lst do
+        lst.DelimitedText := Value;
+        for Value in lst do
         begin
-          if not fileExists(value) then
+          if not fileExists(Value) then
             continue;
-          hdl := FileOpen(value, fmOpenRead);
+          hdl := FileOpen(Value, fmOpenRead);
           if hdl = 0 then
             continue;
           FileRead(hdl, str[1], length(str));
           FileClose(hdl);
           if str = 'object' then
-            openProj(value)
+            openProj(Value)
           else
-            openFile(value);
+            openFile(Value);
         end;
       finally
         lst.Free;
       end;
     end;
   end;
-  value := application.GetOptionValue('p', 'project');
-  if (value <> '') and fileExists(value) then
-    openProj(value);
-  value := application.GetOptionValue('f', 'files');
-  if value <> '' then
+  Value := application.GetOptionValue('p', 'project');
+  if (Value <> '') and fileExists(Value) then
+    openProj(Value);
+  Value := application.GetOptionValue('f', 'files');
+  if Value <> '' then
   begin
     lst := TStringList.Create;
     try
-      lst.DelimitedText := value;
-      for value in lst do
+      lst.DelimitedText := Value;
+      for Value in lst do
       begin
-        if fileExists(value) then
-          openFile(value);
+        if fileExists(Value) then
+          openFile(Value);
       end;
     finally
       lst.Free;
@@ -413,23 +413,23 @@ var
   itm: TMenuItem;
 begin
   fWidgList := TCEWidgetList.Create;
-  fMesgWidg := TCEMessagesWidget.create(self);
-  fEditWidg := TCEEditorWidget.create(self);
-  fProjWidg := TCEProjectInspectWidget.create(self);
-  fPrjCfWidg:= TCEProjectConfigurationWidget.create(self);
-  fFindWidg := TCESearchWidget.create(self);
-  fExplWidg := TCEMiniExplorerWidget.create(self);
-  fLibMWidg := TCELibManEditorWidget.create(self);
-  fTlsEdWidg:= TCEToolsEditorWidget.create(self);
-  fPrInpWidg:= TCEProcInputWidget.create(self);
-  fTodolWidg:= TCETodoListWidget.create(self);
-  fOptEdWidg:= TCEOptionEditorWidget.create(self);
-  fSymlWidg := TCESymbolListWidget.create(self);
+  fMesgWidg := TCEMessagesWidget.Create(self);
+  fEditWidg := TCEEditorWidget.Create(self);
+  fProjWidg := TCEProjectInspectWidget.Create(self);
+  fPrjCfWidg := TCEProjectConfigurationWidget.Create(self);
+  fFindWidg := TCESearchWidget.Create(self);
+  fExplWidg := TCEMiniExplorerWidget.Create(self);
+  fLibMWidg := TCELibManEditorWidget.Create(self);
+  fTlsEdWidg := TCEToolsEditorWidget.Create(self);
+  fPrInpWidg := TCEProcInputWidget.Create(self);
+  fTodolWidg := TCETodoListWidget.Create(self);
+  fOptEdWidg := TCEOptionEditorWidget.Create(self);
+  fSymlWidg := TCESymbolListWidget.Create(self);
 
   getMessageDisplay(fMsgs);
 
   {$IFDEF WIN32}
-  fCdbWidg  := TCECdbWidget.create(self);
+  fCdbWidg := TCECdbWidget.Create(self);
   {$ENDIF}
 
   fWidgList.addWidget(@fMesgWidg);
@@ -473,26 +473,30 @@ begin
   DockMaster.MakeDockSite(Self, [akBottom], admrpChild);
   DockMaster.OnShowOptions := @ShowAnchorDockOptions;
   DockMaster.HeaderStyle := adhsPoints;
-  DockMaster.HideHeaderCaptionFloatingControl := true;
+  DockMaster.HideHeaderCaptionFloatingControl := True;
 
   // this is a fix copied from Laz, seems to force the space between the menu and the UI stay 0.
-  if DockManager is TAnchorDockManager then begin
-    aManager:=TAnchorDockManager(DockManager);
-    aManager.PreferredSiteSizeAsSiteMinimum:=false;
+  if DockManager is TAnchorDockManager then
+  begin
+    aManager := TAnchorDockManager(DockManager);
+    aManager.PreferredSiteSizeAsSiteMinimum := False;
   end;
 
   // makes widget dockable
-  for i := 0 to fWidgList.Count-1 do
+  for i := 0 to fWidgList.Count - 1 do
   begin
     widg := fWidgList.widget[i];
-    if not widg.isDockable then continue;
-    DockMaster.MakeDockable(widg, true);
+    if not widg.isDockable then
+      continue;
+    DockMaster.MakeDockable(widg, True);
     DockMaster.GetAnchorSite(widg).Header.HeaderPosition := adlhpTop;
   end;
 
   // load existing or default docking
-  if FileExists(getCoeditDocPath + 'docking.xml') then LoadDocking
-  else begin
+  if FileExists(getCoeditDocPath + 'docking.xml') then
+    LoadDocking
+  else
+  begin
     Height := 0;
     // center
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fEditWidg), DockMaster.GetSite(Self), alBottom);
@@ -509,10 +513,11 @@ begin
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fProjWidg), DockMaster.GetSite(fEditWidg), alRight);
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fPrjCfWidg), DockMaster.GetAnchorSite(fProjWidg), alBottom, fProjWidg);
     // close remaining and header to top
-    for i := 0 to fWidgList.Count-1 do
+    for i := 0 to fWidgList.Count - 1 do
     begin
       widg := fWidgList.widget[i];
-      if not widg.isDockable then continue;
+      if not widg.isDockable then
+        continue;
       DockMaster.GetAnchorSite(widg).Header.HeaderPosition := adlhpTop;
       if not DockMaster.GetAnchorSite(widg).HasParent then
         DockMaster.GetAnchorSite(widg).Close
@@ -528,7 +533,7 @@ var
 begin
   fname1 := getCoeditDocPath + 'options2.txt';
   fname2 := getCoeditDocPath + 'options2.bak';
-  opts := TCEOptions.create(nil);
+  opts := TCEOptions.Create(nil);
   try
     if fileExists(fname1) then
     begin
@@ -536,9 +541,9 @@ begin
       if opts.hasLoaded then
       begin
         if fileExists(fname2) then
-           sysutils.deleteFile(fname2);
+          SysUtils.deleteFile(fname2);
         if not fileExists(fname2) then
-          fileutil.copyFile(fname1, fname2, false);
+          fileutil.copyFile(fname1, fname2, False);
       end;
     end;
   finally
@@ -552,7 +557,7 @@ var
 begin
   if not fInitialized then
     exit;
-  opts := TCEOptions.create(nil);
+  opts := TCEOptions.Create(nil);
   try
     forceDirectory(getCoeditDocPath);
     opts.saveToFile(getCoeditDocPath + 'options2.txt');
@@ -566,14 +571,18 @@ var
   xcfg: TXMLConfigStorage;
   i: NativeInt;
 begin
-  if not fInitialized then exit;
-  if not Visible then exit;
+  if not fInitialized then
+    exit;
+  if not Visible then
+    exit;
   //
-  if WindowState = wsMinimized then WindowState := wsNormal;
+  if WindowState = wsMinimized then
+    WindowState := wsNormal;
   // does not save minimized/undocked windows to prevent bugs
-  for i:= 0 to fWidgList.Count-1 do
+  for i := 0 to fWidgList.Count - 1 do
   begin
-    if not fWidgList.widget[i].isDockable then continue;
+    if not fWidgList.widget[i].isDockable then
+      continue;
     if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then
       DockMaster.GetAnchorSite(fWidgList.widget[i]).Close
     else if not DockMaster.GetAnchorSite(fWidgList.widget[i]).HasParent then
@@ -581,7 +590,7 @@ begin
   end;
   //
   forceDirectory(getCoeditDocPath);
-  xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'docking.xml',false);
+  xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'docking.xml', False);
   try
     DockMaster.SaveLayoutToConfig(xcfg);
     xcfg.WriteToDisk;
@@ -589,7 +598,7 @@ begin
     xcfg.Free;
   end;
   //
-  xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'dockingopts.xml',false);
+  xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'dockingopts.xml', False);
   try
     DockMaster.SaveSettingsToConfig(xcfg);
     xcfg.WriteToDisk;
@@ -605,10 +614,10 @@ var
 begin
   if fileExists(getCoeditDocPath + 'docking.xml') then
   begin
-    xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'docking.xml', true);
+    xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'docking.xml', True);
     try
       try
-        DockMaster.LoadLayoutFromConfig(xcfg, false);
+        DockMaster.LoadLayoutFromConfig(xcfg, False);
       except
         exit;
       end;
@@ -625,7 +634,7 @@ begin
   end;
   if fileExists(getCoeditDocPath + 'dockingopts.xml') then
   begin
-    xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'dockingopts.xml', true);
+    xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'dockingopts.xml', True);
     try
       try
         DockMaster.LoadSettingsFromConfig(xcfg);
@@ -653,14 +662,14 @@ begin
     exit;
   //
   fname := fRunProc.Executable;
-  if ExtractFileDir(fname) <> GetTempDir(false) then
+  if ExtractFileDir(fname) <> GetTempDir(False) then
     exit;
   killProcess(fRunProc);
   if fileExists(fname) then
-    sysutils.DeleteFile(fname);
+    SysUtils.DeleteFile(fname);
 end;
 
-destructor TCEMainForm.destroy;
+destructor TCEMainForm.Destroy;
 begin
   SaveSettings;
   //
@@ -682,7 +691,7 @@ begin
   Caption := 'Coedit';
 end;
 
-procedure TCEMainForm.ApplicationProperties1Exception(Sender: TObject;E: Exception);
+procedure TCEMainForm.ApplicationProperties1Exception(Sender: TObject; E: Exception);
 begin
   if fMesgWidg = nil then
     ce_common.dlgOkError(E.Message)
@@ -694,14 +703,16 @@ procedure TCEMainForm.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 var
   i: Integer;
 begin
-  canClose := false;
-  if fProject <> nil then if fProject.modified then
-    if ce_common.dlgOkCancel(
-      'last project modifications are not saved, quit anyway ?') <> mrOK then
-          exit;
-  for i := fMultidoc.documentCount-1 downto 0 do
-    if not fMultidoc.closeDocument(i) then exit;
-  canClose := true;
+  canClose := False;
+  if fProject <> nil then
+    if fProject.modified then
+      if ce_common.dlgOkCancel(
+        'last project modifications are not saved, quit anyway ?') <> mrOk then
+        exit;
+  for i := fMultidoc.documentCount - 1 downto 0 do
+    if not fMultidoc.closeDocument(i) then
+      exit;
+  canClose := True;
 
   // saving doesnt work when csDestroying in comp.state (in Free)
   SaveDocking;
@@ -712,13 +723,14 @@ var
   hasEd: boolean;
   hasProj: boolean;
 begin
-  Handled := true;
+  Handled := True;
   {$IFDEF LINUX}
   // fixes the error raised when the update is called after docClosing ()
   // looks like a syncro error, needs more investigation.
   Application.DisableIdleHandler;
   {$ENDIF}
-  if fUpdateCount > 0 then exit;
+  if fUpdateCount > 0 then
+    exit;
   Inc(fUpdateCount);
 
 
@@ -739,38 +751,39 @@ begin
       actFileCompAndRunWithArgs.Enabled := fDoc.isDSource;
       actFileUnittest.Enabled := fDoc.isDSource;
       //
-      actEdMacPlay.Enabled := true;
-      actEdMacStartStop.Enabled := true;
-      actEdIndent.Enabled := true;
-      actEdUnIndent.Enabled := true;
+      actEdMacPlay.Enabled := True;
+      actEdMacStartStop.Enabled := True;
+      actEdIndent.Enabled := True;
+      actEdUnIndent.Enabled := True;
       //
-      actFileSave.Enabled := true;
-      actFileSaveAs.Enabled := true;
-      actFileClose.Enabled := true;
-      actFileSaveAll.Enabled := true;
-      actFileOpenContFold.Enabled := true;
-      actFileHtmlExport.Enabled := true;
+      actFileSave.Enabled := True;
+      actFileSaveAs.Enabled := True;
+      actFileClose.Enabled := True;
+      actFileSaveAll.Enabled := True;
+      actFileOpenContFold.Enabled := True;
+      actFileHtmlExport.Enabled := True;
     end
-    else begin
-      actEdCopy.Enabled := false;
-      actEdCut.Enabled := false ;
-      actEdPaste.Enabled := false;
-      actEdUndo.Enabled := false;
-      actEdRedo.Enabled := false;
-      actEdMacPlay.Enabled := false;
-      actEdMacStartStop.Enabled := false;
-      actEdIndent.Enabled := false;
-      actEdUnIndent.Enabled := false;
+    else
+    begin
+      actEdCopy.Enabled := False;
+      actEdCut.Enabled := False;
+      actEdPaste.Enabled := False;
+      actEdUndo.Enabled := False;
+      actEdRedo.Enabled := False;
+      actEdMacPlay.Enabled := False;
+      actEdMacStartStop.Enabled := False;
+      actEdIndent.Enabled := False;
+      actEdUnIndent.Enabled := False;
       //
-      actFileCompAndRun.Enabled := false;
-      actFileCompAndRunWithArgs.Enabled := false;
-      actFileUnittest.Enabled := false;
-      actFileSave.Enabled := false;
-      actFileSaveAs.Enabled := false;
-      actFileClose.Enabled := false;
-      actFileSaveAll.Enabled := false;
-      actFileOpenContFold.Enabled := false;
-      actFileHtmlExport.Enabled := false;
+      actFileCompAndRun.Enabled := False;
+      actFileCompAndRunWithArgs.Enabled := False;
+      actFileUnittest.Enabled := False;
+      actFileSave.Enabled := False;
+      actFileSaveAs.Enabled := False;
+      actFileClose.Enabled := False;
+      actFileSaveAll.Enabled := False;
+      actFileOpenContFold.Enabled := False;
+      actFileHtmlExport.Enabled := False;
     end;
     hasProj := fProject <> nil;
     actProjSave.Enabled := hasProj;
@@ -802,15 +815,15 @@ var
   itm: TMenuItem;
   doneUpdate: boolean;
 begin
-  doneUpdate := false;
-  for j := 0 to fMainMenuSubj.observersCount-1 do
+  doneUpdate := False;
+  for j := 0 to fMainMenuSubj.observersCount - 1 do
   begin
     // try to update existing entry.
-    for i := 0 to mainMenu.Items.Count-1 do
+    for i := 0 to mainMenu.Items.Count - 1 do
       if PtrInt(fMainMenuSubj.observers[j]) = mainMenu.Items[i].Tag then
       begin
         (fMainMenuSubj.observers[j] as ICEMainMenuProvider).menuUpdate(mainMenu.Items[i]);
-        doneUpdate := true;
+        doneUpdate := True;
         break;
       end;
     if doneUpdate then
@@ -818,10 +831,10 @@ begin
     // otherwise propose to create a new entry
     itm := TMenuItem.Create(Self);
     (fMainMenuSubj.observers[j] as ICEMainMenuProvider).menuDeclare(itm);
-    itm.Tag:= PtrInt(fMainMenuSubj.observers[j]);
+    itm.Tag := PtrInt(fMainMenuSubj.observers[j]);
     case itm.Count > 0 of
-      true: mainMenu.Items.Add(itm);
-      false: itm.Free;
+      True: mainMenu.Items.Add(itm);
+      False: itm.Free;
     end;
   end;
 end;
@@ -836,11 +849,14 @@ var
   i: NativeInt;
 begin
   srcLst := TMruFileList(Sender);
-  if srcLst = nil then exit;
+  if srcLst = nil then
+    exit;
   trgMnu := TMenuItem(srcLst.objectTag);
-  if trgMnu = nil then exit;
+  if trgMnu = nil then
+    exit;
 
-  if fUpdateCount > 0 then exit;
+  if fUpdateCount > 0 then
+    exit;
   Inc(fUpdateCount);
   try
     if srcLst = fFileMru then
@@ -850,7 +866,7 @@ begin
 
     trgMnu.Clear;
 
-    for i:= 0 to srcLst.Count-1 do
+    for i := 0 to srcLst.Count - 1 do
     begin
       fname := srcLst.Strings[i];
       itm := TMenuItem.Create(trgMnu);
@@ -877,10 +893,12 @@ var
   srcLst: TMruFileList;
 begin
   srcLst := TMruFileList(TmenuItem(Sender).Tag);
-  if srcLst = nil then exit;
+  if srcLst = nil then
+    exit;
   //
   srcLst.Clear;
 end;
+
 {$ENDREGION}
 
 {$REGION ICEMultiDocMonitor ----------------------------------------------------}
@@ -891,7 +909,8 @@ end;
 
 procedure TCEMainForm.docClosing(aDoc: TCESynMemo);
 begin
-  if aDoc <> fDoc then exit;
+  if aDoc <> fDoc then
+    exit;
   fDoc := nil;
 end;
 
@@ -904,13 +923,14 @@ procedure TCEMainForm.docChanged(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
 end;
+
 {$ENDREGION}
 
 {$REGION ICEEditableShortCut ---------------------------------------------------}
 function TCEMainForm.scedWantFirst: boolean;
 begin
   fScCollectCount := 0;
-  result := true;
+  Result := True;
 end;
 
 function TCEMainForm.scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
@@ -923,13 +943,14 @@ begin
   aShortcut := act.ShortCut;
   //
   fScCollectCount += 1;
-  result := fScCollectCount < actions.ActionCount;
+  Result := fScCollectCount < actions.ActionCount;
 end;
 
 procedure TCEMainForm.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
 begin
 
 end;
+
 {$ENDREGION}
 
 {$REGION TCEActionProviderHandler ----------------------------------------------}
@@ -939,16 +960,19 @@ var
   act: TContainedAction;
   i, j: Integer;
 begin
-  for i:= 0 to fActionHandler.observersCount-1 do
+  for i := 0 to fActionHandler.observersCount - 1 do
   begin
     prov := fActionHandler[i] as ICEActionProvider;
-    if not prov.actHandlerWantRecollect then continue;
+    if not prov.actHandlerWantRecollect then
+      continue;
     //
-    for j := Actions.ActionCount-1 downto 0 do
+    for j := Actions.ActionCount - 1 downto 0 do
     begin
       act := Actions.Actions[j];
-      if act.Owner = Self then continue;
-      if act.Tag <> PtrInt(prov) then continue;
+      if act.Owner = Self then
+        continue;
+      if act.Tag <> PtrInt(prov) then
+        continue;
       //
       act.ActionList := nil;
     end;
@@ -961,6 +985,7 @@ var
   act: TCustomAction;
   cat: string;
   i: Integer;
+
   procedure addAction;
   begin
     act.ActionList := Actions;
@@ -972,10 +997,11 @@ var
   end;
 
 begin
-  for i:= 0 to fActionHandler.observersCount-1 do
+  for i := 0 to fActionHandler.observersCount - 1 do
   begin
     prov := fActionHandler[i] as ICEActionProvider;
-    if not prov.actHandlerWantFirst then continue;
+    if not prov.actHandlerWantFirst then
+      continue;
     //
     act := nil;
     cat := '';
@@ -984,6 +1010,7 @@ begin
     addAction;
   end;
 end;
+
 {$ENDREGION}
 
 {$REGION file ------------------------------------------------------------------}
@@ -996,17 +1023,18 @@ begin
   exp := TSynExporterHTML.Create(nil);
   try
     with TOpenDialog.Create(nil) do
-    try
-      if Execute then begin
-        exp.Highlighter := fDoc.Highlighter;
-        exp.Title := fDoc.fileName;
-        exp.ExportAsText:=true;
-        exp.ExportAll(fDoc.Lines);
-        exp.SaveToFile(filename);
+      try
+        if Execute then
+        begin
+          exp.Highlighter := fDoc.Highlighter;
+          exp.Title := fDoc.fileName;
+          exp.ExportAsText := True;
+          exp.ExportAll(fDoc.Lines);
+          exp.SaveToFile(filename);
+        end;
+      finally
+        Free;
       end;
-    finally
-      Free;
-    end;
   finally
     exp.Free;
   end;
@@ -1038,24 +1066,27 @@ end;
 
 procedure TCEMainForm.actFileOpenExecute(Sender: TObject);
 begin
-  if fEditWidg = nil then exit;
+  if fEditWidg = nil then
+    exit;
   //
   with TOpenDialog.Create(nil) do
-  try
-    filter := DdiagFilter;
-    if execute then
-    begin
-      openFile(filename);
+    try
+      filter := DdiagFilter;
+      if Execute then
+      begin
+        openFile(filename);
+      end;
+    finally
+      Free;
     end;
-  finally
-    free;
-  end;
 end;
 
 procedure TCEMainForm.actProjOpenContFoldExecute(Sender: TObject);
 begin
-  if fProject = nil then exit;
-  if not fileExists(fProject.fileName) then exit;
+  if fProject = nil then
+    exit;
+  if not fileExists(fProject.fileName) then
+    exit;
   //
   DockMaster.GetAnchorSite(fExplWidg).Show;
   fExplWidg.expandPath(extractFilePath(fProject.fileName));
@@ -1064,70 +1095,79 @@ end;
 procedure TCEMainForm.actFileNewExecute(Sender: TObject);
 begin
   newFile;
-  fDoc.setFocus;
+  fDoc.SetFocus;
 end;
 
 procedure TCEMainForm.actFileNewRunExecute(Sender: TObject);
 begin
   newFile;
   fDoc.Text :=
-  'module runnable;' + LineEnding +
-  LineEnding +
-  'import std.stdio;' + LineEnding +
-  LineEnding +
-  'void main(string[] args)' + LineEnding +
-  '{' + LineEnding +
-  '    // this file can be directly executed using menu file/compile & run' + LineEnding +
-  '    // phobos and libman imports are allowed' + LineEnding +
-  '    writeln("hello runnable module");' + LineEnding +
-  '}';
-  fDoc.setFocus;
+    'module runnable;' + LineEnding +
+    LineEnding +
+    'import std.stdio;' + LineEnding +
+    LineEnding +
+    'void main(string[] args)' + LineEnding +
+    '{' + LineEnding +
+    '    // this file can be directly executed using menu file/compile & run' + LineEnding +
+    '    // phobos and libman imports are allowed' + LineEnding +
+    '    writeln("hello runnable module");' + LineEnding +
+    '}';
+  fDoc.SetFocus;
 end;
 
 procedure TCEMainForm.actFileSaveAsExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
+  if fDoc = nil then
+    exit;
   //
   with TSaveDialog.Create(nil) do
-  try
-    Filter := DdiagFilter;
-    if execute then
-      fDoc.saveToFile(filename);
+    try
+      Filter := DdiagFilter;
+      if Execute then
+        fDoc.saveToFile(filename);
       fFileMru.Insert(0, filename);
-  finally
-    free;
-  end;
+    finally
+      Free;
+    end;
 end;
 
 procedure TCEMainForm.actFileSaveExecute(Sender: TObject);
 var
   str: string;
 begin
-  if fDoc = nil then exit;
+  if fDoc = nil then
+    exit;
   //
   str := fDoc.fileName;
   if (str <> fDoc.tempFilename) and (fileExists(str)) then
     saveFile(fDoc)
-  else actFileSaveAs.Execute;
+  else
+    actFileSaveAs.Execute;
 end;
 
 procedure TCEMainForm.actFileAddToProjExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  if fDoc.isProjectSource then exit;
-  if fProject = nil then exit;
+  if fDoc = nil then
+    exit;
+  if fDoc.isProjectSource then
+    exit;
+  if fProject = nil then
+    exit;
   //
   if fileExists(fDoc.fileName) then
     fProject.addSource(fDoc.fileName)
-  else dlgOkInfo('the file has not been added to the project because it does not exist');
+  else
+    dlgOkInfo('the file has not been added to the project because it does not exist');
 end;
 
 procedure TCEMainForm.actFileCloseExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  if fDoc.modified then if dlgOkCancel(
-    'The latest mdofifications are not saved, continue ?') = mrCancel
-      then exit;
+  if fDoc = nil then
+    exit;
+  if fDoc.modified then
+    if dlgOkCancel(
+      'The latest mdofifications are not saved, continue ?') = mrCancel then
+      exit;
   //
   fDoc.Free;
 end;
@@ -1136,17 +1176,18 @@ procedure TCEMainForm.actFileSaveAllExecute(Sender: TObject);
 var
   i: Integer;
 begin
-  for i:= 0 to fMultidoc.documentCount-1 do
+  for i := 0 to fMultidoc.documentCount - 1 do
     saveFile(fMultidoc.document[i]);
 end;
 
-procedure TCEMainForm.FormDropFiles(Sender: TObject;const FileNames: array of String);
+procedure TCEMainForm.FormDropFiles(Sender: TObject; const FileNames: array of String);
 var
   i: NativeInt;
 begin
-  for i:= low(FileNames) to high(FileNames) do
+  for i := low(FileNames) to high(FileNames) do
     openFile(FileNames[i]);
 end;
+
 {$ENDREGION}
 
 {$REGION edit ------------------------------------------------------------------}
@@ -1192,7 +1233,8 @@ begin
   begin
     if fEditWidg.macRecorder.State = msRecording then
       fEditWidg.macRecorder.Stop
-    else fEditWidg.macRecorder.RecordMacro(fDoc);
+    else
+      fEditWidg.macRecorder.RecordMacro(fDoc);
   end;
 end;
 
@@ -1214,14 +1256,17 @@ var
   str: string;
 begin
   win := DockMaster.GetAnchorSite(fFindWidg);
-  if win = nil then exit;
+  if win = nil then
+    exit;
   win.Show;
   win.BringToFront;
-  if fDoc = nil then exit;
+  if fDoc = nil then
+    exit;
   //
   if fDoc.SelAvail then
     str := fDoc.SelText
-  else str := fDoc.Identifier;
+  else
+    str := fDoc.Identifier;
   ffindwidg.cbToFind.Text := str;
   ffindwidg.cbToFindChange(nil);
 end;
@@ -1230,21 +1275,23 @@ procedure TCEMainForm.actEdFindNextExecute(Sender: TObject);
 begin
   ffindwidg.actFindNextExecute(nil);
 end;
+
 {$ENDREGION}
 
 {$REGION run -------------------------------------------------------------------}
-procedure TCEMainForm.asyncprocOutput(sender: TObject);
+procedure TCEMainForm.asyncprocOutput(Sender: TObject);
 var
   proc: TProcess;
   lst: TStringList;
   str: string;
 begin
-  proc := TProcess(sender);
+  proc := TProcess(Sender);
   lst := TStringList.Create;
   try
     processOutputToStrings(proc, lst);
-    if proc = fRunProc then for str in lst do
-      fMsgs.message(str, fDoc, amcEdit, amkBub)
+    if proc = fRunProc then
+      for str in lst do
+        fMsgs.message(str, fDoc, amcEdit, amkBub)
     else if proc.Executable = DCompiler then
       for str in lst do
         fMsgs.message(str, fDoc, amcEdit, amkAuto);
@@ -1253,14 +1300,14 @@ begin
   end;
 end;
 
-procedure TCEMainForm.asyncprocTerminate(sender: TObject);
+procedure TCEMainForm.asyncprocTerminate(Sender: TObject);
 var
   proc: TProcess;
   lst: TStringList;
   str: string;
   inph: TObject;
 begin
-  proc := TProcess(sender);
+  proc := TProcess(Sender);
   lst := TStringList.Create;
   try
     processOutputToStrings(proc, lst);
@@ -1274,30 +1321,32 @@ begin
     lst.Free;
   end;
   //if proc = fPrInpWidg.process then
-    //fPrInpWidg.process := nil;
+  //fPrInpWidg.process := nil;
 
   inph := EntitiesConnector.getSingleService('ICEProcInputHandler');
-  if (inph <> nil) then (inph as ICEProcInputHandler).removeProcess(proc);
+  if (inph <> nil) then
+    (inph as ICEProcInputHandler).removeProcess(proc);
 end;
 
-procedure TCEMainForm.compileAndRunFile(unittest: boolean = false; redirect: boolean = true;
-	const runArgs: string = '');
+procedure TCEMainForm.compileAndRunFile(unittest: boolean = False; redirect: boolean = True; const runArgs: string = '');
 var
   dmdproc: TProcess;
   fname: string;
 begin
 
   FreeRunnableProc;
-  if fDoc = nil then exit;
+  if fDoc = nil then
+    exit;
 
   fRunProc := TCheckedAsyncProcess.Create(nil);
   if redirect then
   begin
-  	fRunProc.Options := [poStderrToOutPut, poUsePipes];
-  	fRunProc.ShowWindow := swoHIDE;
-  	fRunProc.OnReadData := @asyncprocOutput;
-  	fRunProc.OnTerminate:= @asyncprocTerminate;
-  end else
+    fRunProc.Options := [poStderrToOutPut, poUsePipes];
+    fRunProc.ShowWindow := swoHIDE;
+    fRunProc.OnReadData := @asyncprocOutput;
+    fRunProc.OnTerminate := @asyncprocTerminate;
+  end
+  else
   begin
     {$IFDEF LINUX}
     fRunProc.Options := fRunProc.Options + [poNewConsole];
@@ -1310,8 +1359,10 @@ begin
     fMsgs.clearByData(fDoc);
     fMsgs.message('compiling ' + shortenPath(fDoc.fileName, 25), fDoc, amcEdit, amkInf);
 
-    if fileExists(fDoc.fileName) then fDoc.save
-    else fDoc.saveTempFile;
+    if fileExists(fDoc.fileName) then
+      fDoc.save
+    else
+      fDoc.saveTempFile;
     fname := stripFileExt(fDoc.fileName);
 
     if fRunnableSw = '' then
@@ -1328,12 +1379,14 @@ begin
       dmdproc.Parameters.Add('-main');
       dmdproc.Parameters.Add('-unittest');
     end
-    else dmdproc.Parameters.Add('-version=runnable_module');
+    else
+      dmdproc.Parameters.Add('-version=runnable_module');
     dmdproc.Parameters.Add('-of' + fname + exeExt);
     LibMan.getLibFiles(nil, dmdproc.Parameters);
     LibMan.getLibSources(nil, dmdproc.Parameters);
     dmdproc.Execute;
-    while dmdproc.Running do asyncprocOutput(dmdProc);
+    while dmdproc.Running do
+      asyncprocOutput(dmdProc);
 
     if (dmdProc.ExitStatus = 0) then
     begin
@@ -1344,12 +1397,13 @@ begin
         fRunProc.Parameters.DelimitedText := symbolExpander.get(runArgs);
       fRunProc.Executable := fname + exeExt;
       if redirect then
-      	getprocInputHandler.addProcess(fRunProc);
+        getprocInputHandler.addProcess(fRunProc);
       fRunProc.Execute;
-      sysutils.DeleteFile(fname + objExt);
+      SysUtils.DeleteFile(fname + objExt);
     end
-    else begin
-      fMsgs.message(shortenPath(fDoc.fileName,25) + ' has not been compiled',
+    else
+    begin
+      fMsgs.message(shortenPath(fDoc.fileName, 25) + ' has not been compiled',
         fDoc, amcEdit, amkErr);
     end;
 
@@ -1360,36 +1414,42 @@ end;
 
 procedure TCEMainForm.actFileUnittestExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  compileAndRunFile(true);
+  if fDoc = nil then
+    exit;
+  compileAndRunFile(True);
 end;
 
 procedure TCEMainForm.actFileCompAndRunExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  compileAndRunFile(false);
+  if fDoc = nil then
+    exit;
+  compileAndRunFile(False);
 end;
 
 procedure TCEMainForm.actFileCompileAndRunOutExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  compileAndRunFile(false, false);
+  if fDoc = nil then
+    exit;
+  compileAndRunFile(False, False);
 end;
 
 procedure TCEMainForm.actFileCompAndRunWithArgsExecute(Sender: TObject);
 var
   runargs: string;
 begin
-  if fDoc = nil then exit;
+  if fDoc = nil then
+    exit;
   runargs := '';
   if InputQuery('Execution arguments', '', runargs) then
-    compileAndRunFile(false, true, runargs);
+    compileAndRunFile(False, True, runargs);
 end;
 
 procedure TCEMainForm.actFileOpenContFoldExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  if not fileExists(fDoc.fileName) then exit;
+  if fDoc = nil then
+    exit;
+  if not fileExists(fDoc.fileName) then
+    exit;
   //
   DockMaster.GetAnchorSite(fExplWidg).Show;
   fExplWidg.expandPath(extractFilePath(fDoc.fileName));
@@ -1432,15 +1492,15 @@ begin
   end;
   if not fileExists(fProject.outputFilename) then
   begin
-    if dlgOkCancel('The project output is missing, build ?') <> mrOK then
+    if dlgOkCancel('The project output is missing, build ?') <> mrOk then
       exit;
     goto _rbld;
   end;
   dt := fileAge(fProject.outputFilename);
-  for i := 0 to fProject.Sources.Count-1 do
+  for i := 0 to fProject.Sources.Count - 1 do
   begin
     if fileAge(fProject.getAbsoluteSourceName(i)) > dt then
-      if dlgOkCancel('The project sources have changed since last build, rebuild ?') = mrOK then
+      if dlgOkCancel('The project sources have changed since last build, rebuild ?') = mrOk then
         goto _rbld
       else
         break;
@@ -1461,16 +1521,18 @@ begin
   if InputQuery('Execution arguments', '', runargs) then
     fProject.runProject(runargs);
 end;
+
 {$ENDREGION}
 
 {$REGION view ------------------------------------------------------------------}
-procedure TCEMainForm.widgetShowFromAction(sender: TObject);
+procedure TCEMainForm.widgetShowFromAction(Sender: TObject);
 var
   widg: TCEWidget;
   win: TControl;
 begin
-  widg := TCEWidget( TComponent(sender).tag );
-  if widg = nil then exit;
+  widg := TCEWidget(TComponent(Sender).tag);
+  if widg = nil then
+    exit;
   //
   if widg.isDockable then
   begin
@@ -1478,8 +1540,11 @@ begin
     win.Show;
     win.BringToFront;
   end
-  else begin
-    if widg.isModal then widg.ShowModal else
+  else
+  begin
+    if widg.isModal then
+      widg.ShowModal
+    else
     begin
       widg.Show;
       widg.BringToFront;
@@ -1494,9 +1559,9 @@ begin
   if not fileExists(aFilename) then
     exit;
   //
-  xcfg := TXMLConfigStorage.Create(aFilename, true);
+  xcfg := TXMLConfigStorage.Create(aFilename, True);
   try
-    DockMaster.LoadLayoutFromConfig(xcfg, false);
+    DockMaster.LoadLayoutFromConfig(xcfg, False);
   finally
     xcfg.Free;
   end;
@@ -1508,9 +1573,10 @@ var
   i: NativeInt;
 begin
   // TODO-cbugfix: possible loading AV, xml saved after undocking some widgets, xml file abnormal size, seems to be related to Anchordocking itself, not its usage.
-  for i:= 0 to fWidgList.Count-1 do
+  for i := 0 to fWidgList.Count - 1 do
   begin
-    if not fWidgList.widget[i].isDockable then continue;
+    if not fWidgList.widget[i].isDockable then
+      continue;
     if DockMaster.GetAnchorSite(fWidgList.widget[i]).WindowState = wsMinimized then
       DockMaster.GetAnchorSite(fWidgList.widget[i]).Close
     else if not DockMaster.GetAnchorSite(fWidgList.widget[i]).HasParent then
@@ -1518,7 +1584,7 @@ begin
   end;
   //
   forceDirectory(extractFilePath(aFilename));
-  xcfg := TXMLConfigStorage.Create(aFilename, false);
+  xcfg := TXMLConfigStorage.Create(aFilename, False);
   try
     DockMaster.SaveLayoutToConfig(xcfg);
     xcfg.WriteToDisk;
@@ -1543,7 +1609,7 @@ begin
   lst := TStringList.Create;
   try
     listFiles(lst, getCoeditDocPath + 'layouts' + DirectorySeparator);
-    for i := 0 to lst.Count-1 do
+    for i := 0 to lst.Count - 1 do
     begin
       itm := TMenuItem.Create(self);
       itm.Caption := extractFileName(lst.Strings[i]);
@@ -1557,10 +1623,10 @@ begin
   end;
 end;
 
-procedure TCEMainForm.layoutMnuItemClick(sender: TObject);
+procedure TCEMainForm.layoutMnuItemClick(Sender: TObject);
 begin
   layoutLoadFromFile(getCoeditDocPath + 'layouts' + DirectorySeparator +
-    TMenuItem(sender).Caption + '.xml');
+    TMenuItem(Sender).Caption + '.xml');
 end;
 
 procedure TCEMainForm.actLayoutSaveExecute(Sender: TObject);
@@ -1577,13 +1643,16 @@ begin
   layoutSaveToFile(getCoeditDocPath + 'layouts' + DirectorySeparator + fname);
   layoutUpdateMenu;
 end;
+
 {$ENDREGION}
 
 {$REGION project ---------------------------------------------------------------}
 procedure TCEMainForm.saveProjSource(const aEditor: TCESynMemo);
 begin
-  if fProject = nil then exit;
-  if fProject.fileName <> aEditor.fileName then exit;
+  if fProject = nil then
+    exit;
+  if fProject.fileName <> aEditor.fileName then
+    exit;
   //
   aEditor.saveToFile(fProject.fileName);
   openProj(fProject.fileName);
@@ -1610,7 +1679,7 @@ procedure TCEMainForm.saveProjAs(const aFilename: string);
 begin
   fProject.fileName := aFilename;
   fProject.saveToFile(fProject.fileName);
-  fProjMru.Insert(0,fProject.fileName);
+  fProjMru.Insert(0, fProject.fileName);
 end;
 
 procedure TCEMainForm.openProj(const aFilename: string);
@@ -1618,69 +1687,82 @@ begin
   closeProj;
   newProj;
   fProject.loadFromFile(aFilename);
-  fProjMru.Insert(0,aFilename);
+  fProjMru.Insert(0, aFilename);
 end;
 
 procedure TCEMainForm.mruProjItemClick(Sender: TObject);
 begin
-  if fProject <> nil then if fProject.modified then if dlgOkCancel(
-    'The latest mdofifications are not saved, continue ?')
-      = mrCancel then exit;
+  if fProject <> nil then
+    if fProject.modified then
+      if dlgOkCancel(
+        'The latest mdofifications are not saved, continue ?') = mrCancel then
+        exit;
   openProj(TMenuItem(Sender).Hint);
 end;
 
 procedure TCEMainForm.actProjNewExecute(Sender: TObject);
 begin
-  if fProject <> nil then if fProject.modified then if dlgOkCancel(
-    'The latest mdofifications are not saved, continue ?')
-      = mrCancel then exit;
+  if fProject <> nil then
+    if fProject.modified then
+      if dlgOkCancel(
+        'The latest mdofifications are not saved, continue ?') = mrCancel then
+        exit;
   closeProj;
   newProj;
 end;
 
 procedure TCEMainForm.actProjCloseExecute(Sender: TObject);
 begin
-  if fProject = nil then exit;
-  if fProject.modified then if dlgOkCancel(
-    'The latest mdofifications are not saved, continue ?')
-      = mrCancel then exit;
+  if fProject = nil then
+    exit;
+  if fProject.modified then
+    if dlgOkCancel(
+      'The latest mdofifications are not saved, continue ?') = mrCancel then
+      exit;
 
   closeProj;
 end;
 
 procedure TCEMainForm.addSource(const aFilename: string);
 begin
-  if fProject.Sources.IndexOf(aFilename) >= 0 then exit;
+  if fProject.Sources.IndexOf(aFilename) >= 0 then
+    exit;
   fProject.addSource(aFilename);
 end;
 
 procedure TCEMainForm.actProjSaveAsExecute(Sender: TObject);
 begin
   with TSaveDialog.Create(nil) do
-  try
-    if execute then saveProjAs(filename);
-  finally
-    Free;
-  end;
+    try
+      if Execute then
+        saveProjAs(filename);
+    finally
+      Free;
+    end;
 end;
 
 procedure TCEMainForm.actProjSaveExecute(Sender: TObject);
 begin
-  if fProject.fileName <> '' then saveProj
-  else actProjSaveAs.Execute;
+  if fProject.fileName <> '' then
+    saveProj
+  else
+    actProjSaveAs.Execute;
 end;
 
 procedure TCEMainForm.actProjOpenExecute(Sender: TObject);
 begin
-  if fProject <> nil then if fProject.modified then if dlgOkCancel(
-    'The latest mdofifications are not saved, continue ?')
-      = mrCancel then exit;
+  if fProject <> nil then
+    if fProject.modified then
+      if dlgOkCancel(
+        'The latest mdofifications are not saved, continue ?') = mrCancel then
+        exit;
   with TOpenDialog.Create(nil) do
-  try
-    if execute then openProj(filename);
-  finally
-    Free;
-  end;
+    try
+      if Execute then
+        openProj(filename);
+    finally
+      Free;
+    end;
 end;
 
 procedure TCEMainForm.actProjOptsExecute(Sender: TObject);
@@ -1688,15 +1770,18 @@ var
   win: TControl;
 begin
   win := DockMaster.GetAnchorSite(fPrjCfWidg);
-  if win = nil then exit;
+  if win = nil then
+    exit;
   win.Show;
   win.BringToFront;
 end;
 
 procedure TCEMainForm.actProjSourceExecute(Sender: TObject);
 begin
-  if fProject = nil then exit;
-  if not fileExists(fProject.fileName) then exit;
+  if fProject = nil then
+    exit;
+  if not fileExists(fProject.fileName) then
+    exit;
   //
   openFile(fProject.fileName);
   fDoc.Highlighter := LfmSyn;
@@ -1714,6 +1799,7 @@ begin
     lst.Free;
   end;
 end;
+
 {$ENDREGION}
 
 {$REGION ICESessionOptionsObserver ---------------------------------------------}
@@ -1723,12 +1809,12 @@ end;
 
 procedure TCEMainForm.sesoptDeclareProperties(aFiler: TFiler);
 begin
-  aFiler.DefineProperty('Menu_FileMRU_Items', @optset_FileMRUItems, @optget_FileMRUItems, true);
-  aFiler.DefineProperty('Menu_FileMRU_Limit', @optset_FileMRULimit, @optget_FileMRULimit, true);
-  aFiler.DefineProperty('Menu_ProjMRU_Items', @optset_ProjMRUItems, @optget_ProjMRUItems, true);
-  aFiler.DefineProperty('Menu_ProjMRU_Limit', @optset_ProjMRULimit, @optget_ProjMRULimit, true);
+  aFiler.DefineProperty('Menu_FileMRU_Items', @optset_FileMRUItems, @optget_FileMRUItems, True);
+  aFiler.DefineProperty('Menu_FileMRU_Limit', @optset_FileMRULimit, @optget_FileMRULimit, True);
+  aFiler.DefineProperty('Menu_ProjMRU_Items', @optset_ProjMRUItems, @optget_ProjMRUItems, True);
+  aFiler.DefineProperty('Menu_ProjMRU_Limit', @optset_ProjMRULimit, @optget_ProjMRULimit, True);
   //
-  aFiler.DefineProperty('Runnable_Switches', @optset_RunnableSw, @optget_RunnableSw, true);
+  aFiler.DefineProperty('Runnable_Switches', @optset_RunnableSw, @optget_RunnableSw, True);
 end;
 
 procedure TCEMainForm.sesoptAfterLoad;
@@ -1784,6 +1870,7 @@ procedure TCEMainForm.optget_RunnableSw(aWriter: Twriter);
 begin
   aWriter.WriteString(fRunnableSw);
 end;
+
 {$ENDREGION}
 
 initialization

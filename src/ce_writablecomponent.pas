@@ -48,10 +48,8 @@ type
   protected
     procedure customLoadFromFile(const aFilename: string); override;
     procedure customSaveToFile(const aFilename: string); override;
-    procedure readerPropNoFound(Reader: TReader; Instance: TPersistent;
-      var PropName: string; IsPath: boolean; var Handled, Skip: Boolean); virtual;
-    procedure readerError(Reader: TReader; const Message: string;
-      var Handled: Boolean); virtual;
+    procedure readerPropNoFound(Reader: TReader; Instance: TPersistent; var PropName: string; IsPath: boolean; var Handled, Skip: Boolean); virtual;
+    procedure readerError(Reader: TReader; const Message: string; var Handled: Boolean); virtual;
   end;
 
   (**
@@ -61,10 +59,8 @@ type
    *)
   TWritableJsonComponent = class(TCustomWritableComponent)
   protected
-    procedure propertyError(Sender : TObject; AObject : TObject; Info : PPropInfo;
-      AValue : TJSONData; Error : Exception; Var doContinue : Boolean); virtual;
-    procedure restoreProperty(Sender : TObject; AObject : TObject; Info : PPropInfo;
-      AValue : TJSONData; Var Handled : Boolean); virtual;
+    procedure propertyError(Sender: TObject; AObject: TObject; Info: PPropInfo; AValue: TJSONData; Error: Exception; Var doContinue: Boolean); virtual;
+    procedure restoreProperty(Sender: TObject; AObject: TObject; Info: PPropInfo; AValue: TJSONData; Var Handled: Boolean); virtual;
     procedure customLoadFromFile(const aFilename: string); override;
     procedure customSaveToFile(const aFilename: string); override;
   end;
@@ -95,12 +91,12 @@ end;
 
 procedure TCustomWritableComponent.saveToFile(const aFilename: string);
 begin
-  fHasSaved := true;
+  fHasSaved := True;
   beforeSave;
   try
     customSaveToFile(aFilename);
   except
-    fHasSaved := false;
+    fHasSaved := False;
   end;
   setFilename(aFilename);
   afterSave;
@@ -108,12 +104,13 @@ end;
 
 procedure TCustomWritableComponent.loadFromFile(const aFilename: string);
 begin
-  fHasLoaded := true;
+  fHasLoaded := True;
   beforeLoad;
   setFilename(aFilename);
   customLoadFromFile(aFilename);
   afterLoad;
 end;
+
 {$ENDREGION}
 
 {$REGION TWritableLfmTextComponent ---------------------------------------------}
@@ -127,32 +124,29 @@ begin
   loadCompFromTxtFile(self, aFilename, @readerPropNoFound, @readerError);
 end;
 
-procedure TWritableLfmTextComponent.readerPropNoFound(Reader: TReader; Instance: TPersistent;
-      var PropName: string; IsPath: boolean; var Handled, Skip: Boolean);
+procedure TWritableLfmTextComponent.readerPropNoFound(Reader: TReader; Instance: TPersistent; var PropName: string; IsPath: boolean; var Handled, Skip: Boolean);
 begin
-  Handled := true;
-  Skip := true;
+  Handled := True;
+  Skip := True;
 end;
 
-procedure TWritableLfmTextComponent.readerError(Reader: TReader; const Message: string;
-      var Handled: Boolean);
+procedure TWritableLfmTextComponent.readerError(Reader: TReader; const Message: string; var Handled: Boolean);
 begin
-  Handled := true;
-  fHasLoaded := false;
+  Handled := True;
+  fHasLoaded := False;
 end;
+
 {$ENDREGION}
 
 {$REGION TWritableJsonComponent ------------------------------------------------}
-procedure TWritableJsonComponent.propertyError(Sender : TObject; AObject : TObject; Info : PPropInfo;
-      AValue : TJSONData; Error : Exception; Var doContinue : Boolean);
+procedure TWritableJsonComponent.propertyError(Sender: TObject; AObject: TObject; Info: PPropInfo; AValue: TJSONData; Error: Exception; Var doContinue: Boolean);
 begin
-  doContinue := true;
+  doContinue := True;
 end;
 
-procedure TWritableJsonComponent.restoreProperty(Sender : TObject; AObject : TObject; Info : PPropInfo;
-      AValue : TJSONData; Var Handled : Boolean);
+procedure TWritableJsonComponent.restoreProperty(Sender: TObject; AObject: TObject; Info: PPropInfo; AValue: TJSONData; Var Handled: Boolean);
 begin
-  Handled := true;
+  Handled := True;
 end;
 
 procedure TWritableJsonComponent.customSaveToFile(const aFilename: string);
@@ -182,7 +176,7 @@ begin
   file_str := TMemoryStream.Create;
   json_str := TJSONDeStreamer.Create(nil);
   try
-    json_str.OnPropertyError:= @propertyError;
+    json_str.OnPropertyError := @propertyError;
     json_str.OnRestoreProperty := @restoreProperty;
     file_str.LoadFromFile(aFilename);
     setLength(json_dat, file_str.Size);
@@ -193,6 +187,7 @@ begin
     json_str.Free;
   end;
 end;
+
 {$ENDREGION}
 
 initialization

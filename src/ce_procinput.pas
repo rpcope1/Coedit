@@ -28,20 +28,21 @@ type
     procedure addProcess(aProcess: TProcess);
     procedure removeProcess(aProcess: TProcess);
   public
-    constructor create(aOwner: TComponent); override;
-    destructor destroy; override;
+    constructor Create(aOwner: TComponent); override;
+    destructor Destroy; override;
     //
     procedure sesoptDeclareProperties(aFiler: TFiler); override;
   end;
 
 implementation
+
 {$R *.lfm}
 
 uses
   ce_symstring, LCLType;
 
 {$REGION Standard Comp/Obj -----------------------------------------------------}
-constructor TCEProcInputWidget.create(aOwner: TComponent);
+constructor TCEProcInputWidget.Create(aOwner: TComponent);
 begin
   inherited;
   fMru := TMRUList.Create;
@@ -49,18 +50,19 @@ begin
   EntitiesConnector.addSingleService(self);
 end;
 
-destructor TCEProcInputWidget.destroy;
+destructor TCEProcInputWidget.Destroy;
 begin
   fMru.Free;
   inherited;
 end;
+
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION ICESessionOptionsObserver ---------------------------------------------}
 procedure TCEProcInputWidget.sesoptDeclareProperties(aFiler: TFiler);
 begin
   inherited;
-  aFiler.DefineProperty(Name + '_inputMru', @optset_InputMru, @optget_InputMru, true);
+  aFiler.DefineProperty(Name + '_inputMru', @optset_InputMru, @optget_InputMru, True);
 end;
 
 procedure TCEProcInputWidget.optset_InputMru(aReader: TReader);
@@ -72,6 +74,7 @@ procedure TCEProcInputWidget.optget_InputMru(aWriter: TWriter);
 begin
   aWriter.WriteString(fMru.DelimitedText);
 end;
+
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION ICEProcInputHandler ---------------------------------------------------}
@@ -102,6 +105,7 @@ begin
   if fProc = aProcess then
     addProcess(nil);
 end;
+
 {$ENDREGION}
 
 {$REGION Process input things --------------------------------------------------}
@@ -109,7 +113,7 @@ procedure TCEProcInputWidget.sendInput;
 var
   inp: string;
 begin
-  fMru.Insert(0,txtInp.Text);
+  fMru.Insert(0, txtInp.Text);
   fMruPos := 0;
   if txtInp.Text <> '' then
     inp := symbolExpander.get(txtInp.Text) + lineEnding
@@ -126,24 +130,29 @@ begin
   sendInput;
 end;
 
-procedure TCEProcInputWidget.txtInpKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TCEProcInputWidget.txtInpKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   case Key of
     VK_RETURN:
-      if fProc <> nil then sendInput;
-    VK_UP: begin
+      if fProc <> nil then
+        sendInput;
+    VK_UP:
+    begin
       fMruPos += 1;
-      if fMruPos > fMru.Count-1 then fMruPos := 0;
+      if fMruPos > fMru.Count - 1 then
+        fMruPos := 0;
       txtInp.Text := fMru.Strings[fMruPos];
     end;
-    VK_DOWN: begin
+    VK_DOWN:
+    begin
       fMruPos -= 1;
-      if fMruPos < 0 then fMruPos := fMru.Count-1;
+      if fMruPos < 0 then
+        fMruPos := fMru.Count - 1;
       txtInp.Text := fMru.Strings[fMruPos];
     end;
   end;
 end;
+
 {$ENDREGION --------------------------------------------------------------------}
 
 end.

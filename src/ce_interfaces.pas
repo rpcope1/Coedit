@@ -5,7 +5,7 @@ unit ce_interfaces;
 interface
 
 uses
-  Classes, SysUtils, actnList, menus, process,
+  Classes, SysUtils, ActnList, Menus, process,
   ce_synmemo, ce_project, ce_observer;
 
 type
@@ -14,7 +14,7 @@ type
    * An implementer can save and load some stuffs when Coedit starts/quits
    *)
   ICESessionOptionsObserver = interface
-  ['ICESessionOptionsObserver']
+    ['ICESessionOptionsObserver']
     // persistent things are about to be saved.
     procedure sesoptBeforeSave;
     // persistent things can be declared to aFiler.
@@ -22,6 +22,7 @@ type
     // persistent things have just been reloaded.
     procedure sesoptAfterLoad;
   end;
+
   (**
    * An implementer gets and gives back some things
    *)
@@ -36,7 +37,7 @@ type
    * An implementer declares some actions on demand.
    *)
   ICEContextualActions = interface
-  ['ICEContextualActions']
+    ['ICEContextualActions']
     // declares a context name for the actions
     function contextName: string;
     // action count, called before contextAction()
@@ -51,7 +52,7 @@ type
    * An implementer is informed about the current file(s).
    *)
   ICEMultiDocObserver = interface
-  ['ICEMultiDocObserver']
+    ['ICEMultiDocObserver']
     // aDoc has been created (empty, runnable, project source, ...).
     procedure docNew(aDoc: TCESynMemo);
     // aDoc is the document being edited.
@@ -61,6 +62,7 @@ type
     // aDoc is about to be closed.
     procedure docClosing(aDoc: TCESynMemo);
   end;
+
   (**
    * An implementer informs some ICEMultiDocObserver about the current file(s)
    *)
@@ -75,7 +77,7 @@ type
    * An implementer is informed about the current project(s).
    *)
   ICEProjectObserver = interface
-  ['ICEProjectObserver']
+    ['ICEProjectObserver']
     // aProject has been created/opened
     procedure projNew(aProject: TCEProject);
     // aProject has been modified: switches, source name, ...
@@ -87,6 +89,7 @@ type
     // aProject is about to be compiled
     procedure projCompiling(aProject: TCEProject);
   end;
+
   (**
    * An implementer informs some ICEProjectObserver about the current project(s)
    *)
@@ -101,12 +104,13 @@ type
    * An implementer can add a main menu entry.
    *)
   ICEMainMenuProvider = interface
-  ['ICEMainMenuProvider']
+    ['ICEMainMenuProvider']
     // item is a new mainMenu entry. item must be filled with the sub-items to be added.
     procedure menuDeclare(item: TMenuItem);
     // item is the mainMenu entry declared previously. the sub items can be updated, deleted.
     procedure menuUpdate(item: TMenuItem);
   end;
+
   (**
    * An implementer collects and updates its observers menus.
    *)
@@ -122,7 +126,7 @@ type
    * whose shortcuts are automatically handled
    *)
   ICEActionProvider = interface
-  ['ICEActionProvider']
+    ['ICEActionProvider']
     // the action handler will clear the references to the actions collected previously and start collecting if result.
     function actHandlerWantRecollect: boolean;
     // the action handler starts to collect the actions if result.
@@ -132,6 +136,7 @@ type
     // the handler update the state of a particular action.
     procedure actHandleUpdater(action: TCustomAction);
   end;
+
   (**
    * An implementer handles its observers actions.
    *)
@@ -146,7 +151,7 @@ type
    * An implementer can expose some customizable shortcuts to be edited in a dedicated widget.
    *)
   ICEEditableShortCut = interface
-  ['ICEEditableShortCut']
+    ['ICEEditableShortCut']
     // a TCEEditableShortCutSubject will start to collect shortcuts if result
     function scedWantFirst: boolean;
     // a TCEEditableShortCutSubject collects the information on the shortcuts while result
@@ -154,6 +159,7 @@ type
     // a TCEEditableShortCutSubject sends the possibly modified shortcut
     procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
   end;
+
   (**
    * An implementer manages its observers shortcuts.
    *)
@@ -173,7 +179,7 @@ type
    * An implementer can expose some options to be edited in a dedicated widget.
    *)
   ICEEditableOptions = interface
-  ['ICEEditableOptions']
+    ['ICEEditableOptions']
     // the widget wants the category.
     function optionedWantCategory(): string;
     // the widget wants to know if the options will use a generic editor or a custom form.
@@ -183,6 +189,7 @@ type
     // the option editor informs that something has happened.
     procedure optionedEvent(anEvent: TOptionEditorEvent);
   end;
+
   (**
    * An implementer displays its observers editable options.
    *)
@@ -274,13 +281,13 @@ type
   procedure subjSesOptsAfterLoad(aSubject: TCESessionOptionsSubject);                        {$IFDEF RELEASE}inline;{$ENDIF}
 
 
-{
-  Service getters:
+  {
+    Service getters:
 
-  The first overload assign the variable only when not yet set, the second is
-  designed for a punctual usage, for example if a widget needs the service in
-  a single and rarely called method.
-}
+    The first overload assign the variable only when not yet set, the second is
+    designed for a punctual usage, for example if a widget needs the service in
+    a single and rarely called method.
+  }
 
   function getMessageDisplay(var obj: ICEMessagesDisplay): ICEMessagesDisplay; overload;
   function getMessageDisplay: ICEMessagesDisplay; overload;
@@ -303,33 +310,38 @@ procedure subjDocNew(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);
 var
   i: Integer;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEMultiDocObserver).docNew(aDoc);
+  with aSubject do
+    for i := 0 to fObservers.Count - 1 do
+      (fObservers.Items[i] as ICEMultiDocObserver).docNew(aDoc);
 end;
 
 procedure subjDocClosing(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);
 var
   i: Integer;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEMultiDocObserver).docClosing(aDoc);
+  with aSubject do
+    for i := 0 to fObservers.Count - 1 do
+      (fObservers.Items[i] as ICEMultiDocObserver).docClosing(aDoc);
 end;
 
 procedure subjDocFocused(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);
 var
   i: Integer;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEMultiDocObserver).docFocused(aDoc);
+  with aSubject do
+    for i := 0 to fObservers.Count - 1 do
+      (fObservers.Items[i] as ICEMultiDocObserver).docFocused(aDoc);
 end;
 
 procedure subjDocChanged(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);
 var
   i: Integer;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEMultiDocObserver).docChanged(aDoc);
+  with aSubject do
+    for i := 0 to fObservers.Count - 1 do
+      (fObservers.Items[i] as ICEMultiDocObserver).docChanged(aDoc);
 end;
+
 {$ENDREGION}
 
 {$REGION TCEProjectSubject -----------------------------------------------------}
@@ -342,41 +354,47 @@ procedure subjProjNew(aSubject: TCEProjectSubject; aProj: TCEProject);
 var
   i: Integer;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEProjectObserver).ProjNew(aProj);
+  with aSubject do
+    for i := 0 to fObservers.Count - 1 do
+      (fObservers.Items[i] as ICEProjectObserver).ProjNew(aProj);
 end;
 
 procedure subjProjClosing(aSubject: TCEProjectSubject; aProj: TCEProject);
 var
   i: Integer;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEProjectObserver).projClosing(aProj);
+  with aSubject do
+    for i := 0 to fObservers.Count - 1 do
+      (fObservers.Items[i] as ICEProjectObserver).projClosing(aProj);
 end;
 
 procedure subjProjFocused(aSubject: TCEProjectSubject; aProj: TCEProject);
 var
   i: Integer;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEProjectObserver).projFocused(aProj);
+  with aSubject do
+    for i := 0 to fObservers.Count - 1 do
+      (fObservers.Items[i] as ICEProjectObserver).projFocused(aProj);
 end;
 
 procedure subjProjChanged(aSubject: TCEProjectSubject; aProj: TCEProject);
 var
   i: Integer;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEProjectObserver).projChanged(aProj);
+  with aSubject do
+    for i := 0 to fObservers.Count - 1 do
+      (fObservers.Items[i] as ICEProjectObserver).projChanged(aProj);
 end;
 
 procedure subjProjCompiling(aSubject: TCEProjectSubject; aProj: TCEProject);
 var
   i: Integer;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEProjectObserver).projCompiling(aProj);
+  with aSubject do
+    for i := 0 to fObservers.Count - 1 do
+      (fObservers.Items[i] as ICEProjectObserver).projCompiling(aProj);
 end;
+
 {$ENDREGION}
 
 {$REGION TCESessionOptionsSubject ----------------------------------------------}
@@ -389,25 +407,29 @@ procedure subjSesOptsBeforeSave(aSubject: TCESessionOptionsSubject);
 var
   i: Integer;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICESessionOptionsObserver).sesoptBeforeSave;
+  with aSubject do
+    for i := 0 to fObservers.Count - 1 do
+      (fObservers.Items[i] as ICESessionOptionsObserver).sesoptBeforeSave;
 end;
 
 procedure subjSesOptsDeclareProperties(aSubject: TCESessionOptionsSubject; aFiler: TFiler);
 var
   i: Integer;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICESessionOptionsObserver).sesoptDeclareProperties(aFiler);
+  with aSubject do
+    for i := 0 to fObservers.Count - 1 do
+      (fObservers.Items[i] as ICESessionOptionsObserver).sesoptDeclareProperties(aFiler);
 end;
 
 procedure subjSesOptsAfterLoad(aSubject: TCESessionOptionsSubject);
 var
   i: Integer;
 begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICESessionOptionsObserver).sesoptAfterLoad;
+  with aSubject do
+    for i := 0 to fObservers.Count - 1 do
+      (fObservers.Items[i] as ICESessionOptionsObserver).sesoptAfterLoad;
 end;
+
 {$ENDREGION}
 
 {$REGION Misc subjects ---------------------------------------------------------}
@@ -430,6 +452,7 @@ function TCEActionProviderSubject.acceptObserver(aObject: TObject): boolean;
 begin
   exit(aObject is ICEActionProvider);
 end;
+
 {$ENDREGION}
 
 {$REGION ICESingleService getters ----------------------------------------------}
@@ -468,6 +491,7 @@ function getMultiDocHandler: ICEMultiDocHandler;
 begin
   exit(EntitiesConnector.getSingleService('ICEMultiDocHandler') as ICEMultiDocHandler);
 end;
+
 {$ENDREGION}
 
 end.
