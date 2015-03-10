@@ -74,7 +74,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     //
-    procedure Assign(src: TPersistent); override;
+    procedure assign(src: TPersistent); override;
   end;
 
   (**
@@ -121,11 +121,11 @@ begin
   fFont.Name := 'Courier New';
   fFont.Quality := fqProof;
   fFont.Pitch := fpFixed;
-  fFont.Size := 10;
+  fFont.Size:= 10;
   //
-  fD2Syn := TSynD2Syn.Create(self);
+  fD2Syn := TSynD2Syn.create(self);
   fD2Syn.Assign(D2Syn);
-  fTxtSyn := TSynTxtSyn.Create(self);
+  fTxtSyn := TSynTxtSyn.create(self);
   fTxtSyn.Assign(TxtSyn);
   //
   fSelCol := TSynSelectedColor.Create;
@@ -143,8 +143,8 @@ begin
   fMouseLinkColor.Foreground := clNone;
   fMouseLinkColor.Background := clNone;
   //
-  fBracketMatchColor.Foreground := clRed;
-  fBracketMatchColor.Background := clNone;
+  fBracketMatchColor.Foreground:= clRed;
+  fBracketMatchColor.Background:= clNone;
   //
   rightEdge := 80;
   tabulationWidth := 4;
@@ -172,7 +172,7 @@ begin
   inherited;
 end;
 
-procedure TCEEditorOptionsBase.Assign(src: TPersistent);
+procedure TCEEditorOptionsBase.assign(src: TPersistent);
 var
   srcopt: TCEEditorOptionsBase;
 begin
@@ -187,19 +187,18 @@ begin
     fBracketMatchColor.Assign(srcopt.fBracketMatchColor);
     fD2Syn.Assign(srcopt.fD2Syn);
     fTxtSyn.Assign(srcopt.fTxtSyn);
-    background := srcopt.background;
+    background      := srcopt.background;
     tabulationWidth := srcopt.tabulationWidth;
     blockIdentation := srcopt.blockIdentation;
-    lineSpacing := srcopt.lineSpacing;
-    characterSpacing := srcopt.characterSpacing;
-    options1 := srcopt.options1;
-    options2 := srcopt.options2;
-    mouseOptions := srcopt.mouseOptions;
-    rightEdge := srcopt.rightEdge;
-    rightEdgeColor := srcopt.rightEdgeColor;
+    lineSpacing     := srcopt.lineSpacing;
+    characterSpacing:= srcopt.characterSpacing;
+    options1        := srcopt.options1;
+    options2        := srcopt.options2;
+    mouseOptions    := srcopt.mouseOptions;
+    rightEdge       := srcopt.rightEdge;
+    rightEdgeColor  := srcopt.rightEdgeColor;
   end
-  else
-    inherited;
+  else inherited;
 end;
 
 procedure TCEEditorOptionsBase.setFont(aValue: TFont);
@@ -246,8 +245,7 @@ begin
   EntitiesConnector.addObserver(self);
   //
   fname := getCoeditDocPath + edoptFname;
-  if fileExists(fname) then
-    loadFromFile(fname);
+  if fileExists(fname) then loadFromFile(fname);
 end;
 
 destructor TCEEditorOptions.Destroy;
@@ -264,7 +262,6 @@ begin
   D2Syn.Assign(fD2Syn);
   TxtSyn.Assign(fTxtSyn);
 end;
-
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ----------------------------------------------------}
@@ -284,7 +281,6 @@ end;
 procedure TCEEditorOptions.docClosing(aDoc: TCESynMemo);
 begin
 end;
-
 {$ENDREGION}
 
 {$REGION ICEEditableOptions ----------------------------------------------------}
@@ -313,7 +309,7 @@ begin
   // restores
   if anEvent = oeeCancel then
   begin
-    self.Assign(fBackup);
+    self.assign(fBackup);
     D2Syn.Assign(fBackup.fD2Syn);
     TxtSyn.Assign(fBackup.fTxtSyn);
   end;
@@ -323,12 +319,11 @@ begin
   // new backup values based on accepted values.
   if anEvent = oeeAccept then
   begin
-    fBackup.Assign(self);
+    fBackup.assign(self);
     fBackup.fD2Syn.Assign(D2Syn);
     fBackup.fTxtSyn.Assign(TxtSyn);
   end;
 end;
-
 {$ENDREGION}
 
 {$REGION ICEEditableOptions ----------------------------------------------------}
@@ -338,7 +333,7 @@ var
   i: Integer;
 begin
   multied := getMultiDocHandler;
-  for i := 0 to multied.documentCount - 1 do
+  for i := 0 to multied.documentCount-1 do
     applyChangeToEditor(multied.document[i]);
 end;
 
@@ -357,17 +352,16 @@ begin
   anEditor.Options := options1;
   anEditor.Options2 := options2;
   anEditor.MouseOptions := mouseOptions;
-  anEditor.Color := background;
+  anEditor.Color:= background;
   anEditor.RightEdge := rightEdge;
   anEditor.RightEdgeColor := rightEdgeColor;
 end;
-
 {$ENDREGION}
 
 
 initialization
   EditorOptions := TCEEditorOptions.Create(nil);
-
 finalization
   EditorOptions.Free;
 end.
+

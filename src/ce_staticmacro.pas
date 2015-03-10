@@ -5,7 +5,7 @@ unit ce_staticmacro;
 interface
 
 uses
-  Classes, SysUtils, SynEdit, SynCompletion,
+  Classes, Sysutils, SynEdit, SynCompletion,
   ce_interfaces, ce_writableComponent, ce_synmemo;
 
 type
@@ -24,9 +24,9 @@ type
     property autoInsert: boolean read fAutoInsert write fAutoInsert;
     property macros: TStringList read fMacros write setMacros;
     property shortcut: TShortCut read fShortCut write fShortCut;
-  public
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
+	public
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
     procedure Assign(Source: TPersistent); override;
     procedure AssignTo(Dest: TPersistent); override;
   end;
@@ -71,8 +71,8 @@ type
     property macros: TStringList read fMacros write setMacros;
     property automatic: boolean read fAutomatic write fAutomatic;
   public
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
     // execute using the editor
     procedure Execute; overload;
     // execute in aEditor, according to aToken
@@ -106,17 +106,17 @@ const
     '$fo=for(auto i = 0; ; )',
     '$fe=foreach(elem; )',
     '$v=void (){}'
-    );
+  );
 
 {$REGION TStaticMacrosOptions --------------------------------------------------}
 
-constructor TStaticMacrosOptions.Create(aOwner: TComponent);
+constructor TStaticMacrosOptions.create(aOwner: TComponent);
 begin
-  inherited;
+	inherited;
   fMacros := TStringList.Create;
 end;
 
-destructor TStaticMacrosOptions.Destroy;
+destructor TStaticMacrosOptions.destroy;
 begin
   fMacros.Free;
   inherited;
@@ -127,7 +127,7 @@ var
   edmac: TCEStaticEditorMacro;
   opt: TStaticMacrosOptions;
 begin
-  if Source is TCEStaticEditorMacro then
+	if Source is TCEStaticEditorMacro then
   begin
     edmac := TCEStaticEditorMacro(Source);
     //
@@ -135,7 +135,7 @@ begin
     fMacros.Assign(edmac.fMacros);
     fShortCut := edmac.fCompletor.ShortCut;
   end
-  else if Source is TStaticMacrosOptions then
+  else if Source is  TStaticMacrosOptions then
   begin
     opt := TStaticMacrosOptions(Source);
     //
@@ -143,8 +143,7 @@ begin
     macros.Assign(opt.fMacros);
     shortcut := opt.shortcut;
   end
-  else
-    inherited;
+  else inherited;
 end;
 
 procedure TStaticMacrosOptions.AssignTo(Dest: TPersistent);
@@ -152,7 +151,7 @@ var
   edmac: TCEStaticEditorMacro;
   opt: TStaticMacrosOptions;
 begin
-  if Dest is TCEStaticEditorMacro then
+	if Dest is TCEStaticEditorMacro then
   begin
     edmac := TCEStaticEditorMacro(Dest);
     //
@@ -163,7 +162,7 @@ begin
     //
     edmac.fCompletor.ShortCut := fShortCut;
   end
-  else if Dest is TStaticMacrosOptions then
+  else if Dest is  TStaticMacrosOptions then
   begin
     opt := TStaticMacrosOptions(Dest);
     //
@@ -171,45 +170,42 @@ begin
     opt.macros.Assign(fMacros);
     opt.shortcut := shortcut;
   end
-  else
-    inherited;
+  else inherited;
 end;
 
 procedure TStaticMacrosOptions.setMacros(aValue: TStringList);
 begin
   fMacros.Assign(aValue);
 end;
-
 {$ENDREGION}
 
 
 {$REGION Standard Comp/Obj -----------------------------------------------------}
-constructor TCEStaticEditorMacro.Create(aOwner: TComponent);
+constructor TCEStaticEditorMacro.create(aOwner: TComponent);
 var
   fname: string;
 begin
   inherited;
-  fAutomatic := True;
+  fAutomatic := true;
   fCompletor := TSynAutoComplete.Create(self);
   fCompletor.ShortCut := 8224; // SHIFT + SPACE
   fMacros := TStringList.Create;
   fMacros.Delimiter := '=';
   addDefaults;
   //
-  fOptions := TStaticMacrosOptions.Create(self);
-  fOptionBackup := TStaticMacrosOptions.Create(self);
+  fOptions := TStaticMacrosOptions.create(self);
+  fOptionBackup := TStaticMacrosOptions.create(self);
   fname := getCoeditDocPath + OptFname;
   if fileExists(fname) then
   begin
     fOptions.loadFromFile(fname);
     // old option file will create a streaming error.
     if fOptions.hasLoaded then
-      fOptions.AssignTo(self)
+    	fOptions.AssignTo(self)
     else
-      fOptions.Assign(self);
+    	fOptions.Assign(self);
   end
-  else
-    fOptions.Assign(self);
+  else fOptions.Assign(self);
   //
   sanitize;
   updateCompletor;
@@ -217,7 +213,7 @@ begin
   EntitiesConnector.addObserver(Self);
 end;
 
-destructor TCEStaticEditorMacro.Destroy;
+destructor TCEStaticEditorMacro.destroy;
 begin
   fOptions.saveToFile(getCoeditDocPath + OptFname);
   EntitiesConnector.removeObserver(Self);
@@ -233,7 +229,6 @@ begin
   sanitize;
   updateCompletor;
 end;
-
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
@@ -245,8 +240,7 @@ end;
 
 procedure TCEStaticEditorMacro.docFocused(aDoc: TCESynMemo);
 begin
-  if fDoc = aDoc then
-    exit;
+  if fDoc = aDoc then exit;
   fDoc := aDoc;
   fCompletor.Editor := fDoc;
 end;
@@ -263,30 +257,29 @@ begin
     exit;
   fDoc := nil;
 end;
-
 {$ENDREGION}
 
 {$REGION ICEEditableOptions ----------------------------------------------------}
 function TCEStaticEditorMacro.optionedWantCategory(): string;
 begin
-  exit('Static macros');
+	exit('Static macros');
 end;
 
 function TCEStaticEditorMacro.optionedWantEditorKind: TOptionEditorKind;
 begin
-  exit(oekGeneric);
+	exit(oekGeneric);
 end;
 
 function TCEStaticEditorMacro.optionedWantContainer: TPersistent;
 begin
-  fOptions.Assign(self);
+	fOptions.Assign(self);
   fOptionBackup.Assign(fOptions);
   exit(fOptions);
 end;
 
 procedure TCEStaticEditorMacro.optionedEvent(anEvent: TOptionEditorEvent);
 begin
-  case anEvent of
+	case anEvent of
     oeeAccept:
     begin
       fOptions.AssignTo(self);
@@ -300,22 +293,21 @@ begin
     oeeChange: fOptions.AssignTo(self);
   end;
 end;
-
 {$ENDREGION}
 
 {$REGION Macros things ---------------------------------------------------------}
 procedure TCEStaticEditorMacro.sanitize;
 var
   i: Integer;
-  Text: string;
+  text: string;
   macro: string;
 begin
-  for i := fMacros.Count - 1 downto 0 do
+  for i := fMacros.Count-1 downto 0 do
   begin
-    Text := fMacros.Strings[i];
-    if length(Text) >= 4 then
-      if Text[1] = '$' then
-        if Pos('=', Text) > 2 then
+    text := fMacros.Strings[i];
+    if length(text) >= 4 then
+      if text[1] = '$' then
+        if Pos('=', text) > 2 then
         begin
           macro := fMacros.Names[i];
           if (macro[length(macro)] in ['a'..'z', 'A'..'Z', '0'..'9']) then
@@ -340,7 +332,7 @@ var
   tok, val: string;
 begin
   fCompletor.AutoCompleteList.Clear;
-  for i := 0 to fMacros.Count - 1 do
+  for i := 0 to fMacros.Count-1 do
   begin
     tok := fMacros.Names[i];
     val := fMacros.ValueFromIndex[i];
@@ -360,13 +352,11 @@ begin
   if aEditor <> nil then
     fCompletor.Execute(aToken, aEditor);
 end;
-
 {$ENDREGION}
 
 initialization
-  StaticEditorMacro := TCEStaticEditorMacro.Create(nil);
-
+  StaticEditorMacro := TCEStaticEditorMacro.create(nil);
 finalization
-  StaticEditorMacro.Free;
-  ;
+  StaticEditorMacro.Free;;
 end.
+

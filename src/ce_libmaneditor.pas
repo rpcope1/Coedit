@@ -36,11 +36,10 @@ type
   protected
     procedure DoShow; override;
   public
-    constructor Create(aOwner: TComponent); override;
+    constructor create(aOwner: TComponent); override;
   end;
 
 implementation
-
 {$R *.lfm}
 
 uses
@@ -49,7 +48,7 @@ uses
 const
   notav: string = '< n/a >';
 
-constructor TCELibManEditorWidget.Create(aOwner: TComponent);
+constructor TCELibManEditorWidget.create(aOwner: TComponent);
 var
   png: TPortableNetworkGraphic;
 begin
@@ -73,11 +72,12 @@ begin
     png.LoadFromLazarusResource('folder_add');
     btnSelRoot.Glyph.Assign(png);
   finally
-    png.Free;
+    png.free;
   end;
 end;
 
-procedure TCELibManEditorWidget.ListEdited(Sender: TObject; Item: TListItem; var AValue: string);
+procedure TCELibManEditorWidget.ListEdited(Sender: TObject; Item: TListItem;
+  var AValue: string);
 begin
   gridToData;
 end;
@@ -91,15 +91,14 @@ begin
   itm.SubItems.Add(notav);
   itm.SubItems.Add(notav);
   SetFocus;
-  itm.Selected := True;
+  itm.Selected := true;
 end;
 
 procedure TCELibManEditorWidget.btnEditAliasClick(Sender: TObject);
 var
   al: string;
 begin
-  if List.Selected = nil then
-    exit;
+  if List.Selected = nil then exit;
   al := List.Selected.Caption;
   if inputQuery('library alias', '', al) then
     List.Selected.Caption := al;
@@ -108,8 +107,7 @@ end;
 
 procedure TCELibManEditorWidget.btnRemLibClick(Sender: TObject);
 begin
-  if List.Selected = nil then
-    exit;
+  if List.Selected = nil then exit;
   List.Items.Delete(List.Selected.Index);
   gridToData;
 end;
@@ -118,8 +116,7 @@ procedure TCELibManEditorWidget.btnSelFileClick(Sender: TObject);
 var
   ini: string;
 begin
-  if List.Selected = nil then
-    exit;
+  if List.Selected = nil then exit;
   if List.Selected.SubItems.Count > 0 then
     ini := List.Selected.SubItems[0]
   else
@@ -128,22 +125,21 @@ begin
     List.Selected.SubItems.Add(ini);
   end;
   with TOpenDialog.Create(nil) do
-    try
-      filename := ini;
-      if Execute then
-      begin
-        if not fileExists(filename) then
-          List.Selected.SubItems[0] := extractFilePath(filename)
-        else
-        begin
-          List.Selected.SubItems[0] := filename;
-          if (List.Selected.Caption = '') or (List.Selected.Caption = notav) then
-            List.Selected.Caption := ChangeFileExt(extractFileName(filename), '');
-        end;
+  try
+    filename := ini;
+    if execute then
+    begin
+      if not fileExists(filename) then
+        List.Selected.SubItems[0] := extractFilePath(filename)
+      else begin
+        List.Selected.SubItems[0] := filename;
+        if (List.Selected.Caption = '') or (List.Selected.Caption = notav) then
+          List.Selected.Caption := ChangeFileExt(extractFileName(filename), '');
       end;
-    finally
-      Free;
     end;
+  finally
+    Free;
+  end;
   gridToData;
 end;
 
@@ -151,8 +147,7 @@ procedure TCELibManEditorWidget.btnSelfoldOfFilesClick(Sender: TObject);
 var
   dir, outdir: string;
 begin
-  if List.Selected = nil then
-    exit;
+  if List.Selected = nil then exit;
   if List.Selected.SubItems.Count > 0 then
     dir := List.Selected.SubItems[0]
   else
@@ -160,7 +155,7 @@ begin
     dir := '';
     List.Selected.SubItems.Add(dir);
   end;
-  if selectDirectory('folder of static libraries', dir, outdir, True, 0) then
+  if selectDirectory('folder of static libraries', dir, outdir, true, 0) then
     List.Selected.SubItems[0] := outdir;
   gridToData;
 end;
@@ -169,8 +164,7 @@ procedure TCELibManEditorWidget.btnSelRootClick(Sender: TObject);
 var
   dir, outdir: string;
 begin
-  if List.Selected = nil then
-    exit;
+  if List.Selected = nil then exit;
   if List.Selected.SubItems.Count > 1 then
     dir := List.Selected.SubItems[1]
   else
@@ -179,17 +173,15 @@ begin
     while List.Selected.SubItems.Count < 2 do
       List.Selected.SubItems.Add(dir);
   end;
-  if selectDirectory('sources root', dir, outdir, True, 0) then
+  if selectDirectory('sources root', dir, outdir, true, 0) then
     List.Selected.SubItems[1] := outdir;
   gridToData;
 end;
 
 procedure TCELibManEditorWidget.btnMoveUpClick(Sender: TObject);
 begin
-  if list.Selected = nil then
-    exit;
-  if list.Selected.Index = 0 then
-    exit;
+  if list.Selected = nil then exit;
+  if list.Selected.Index = 0 then exit;
   //
   list.Items.Exchange(list.Selected.Index, list.Selected.Index - 1);
   gridToData;
@@ -197,10 +189,8 @@ end;
 
 procedure TCELibManEditorWidget.btnMoveDownClick(Sender: TObject);
 begin
-  if list.Selected = nil then
-    exit;
-  if list.Selected.Index = list.Items.Count - 1 then
-    exit;
+  if list.Selected = nil then exit;
+  if list.Selected.Index = list.Items.Count-1 then exit;
   //
   list.Items.Exchange(list.Selected.Index, list.Selected.Index + 1);
   gridToData;
@@ -219,9 +209,8 @@ var
   i: NativeInt;
 begin
   List.Clear;
-  if LibMan = nil then
-    exit;
-  for i := 0 to LibMan.libraries.Count - 1 do
+  if LibMan = nil then exit;
+  for i:= 0 to LibMan.libraries.Count-1 do
   begin
     itm := TLibraryItem(LibMan.libraries.Items[i]);
     row := List.Items.Add;
@@ -236,8 +225,7 @@ var
   itm: TLibraryItem;
   row: TListItem;
 begin
-  if LibMan = nil then
-    exit;
+  if LibMan = nil then exit;
   LibMan.libraries.Clear;
   for row in List.Items do
   begin

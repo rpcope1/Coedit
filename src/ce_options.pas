@@ -5,7 +5,7 @@ unit ce_options;
 interface
 
 uses
-  Classes, SysUtils, ce_common, ce_writableComponent, ce_observer;
+  classes, sysutils, ce_common, ce_writableComponent, ce_observer;
 
 type
   TCEOptions = class(TWritableLfmTextComponent)
@@ -17,8 +17,8 @@ type
     procedure beforeSave; override;
     procedure afterLoad; override;
   public
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
   end;
 
 implementation
@@ -26,15 +26,15 @@ implementation
 uses
   ce_interfaces;
 
-constructor TCEOptions.Create(aOwner: TComponent);
+constructor TCEOptions.create(aOwner: TComponent);
 begin
   inherited;
-  fSubjPersObservers := TCESessionOptionsSubject.Create;
+  fSubjPersObservers := TCESessionOptionsSubject.create;
   //
   EntitiesConnector.addSubject(fSubjPersObservers);
 end;
 
-destructor TCEOptions.Destroy;
+destructor TCEOptions.destroy;
 begin
   EntitiesConnector.removeSubject(fSubjPersObservers);
   EntitiesConnector.endUpdate;

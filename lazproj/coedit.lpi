@@ -302,7 +302,6 @@
       <Unit29>
         <Filename Value="..\src\ce_writablecomponent.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_writableComponent"/>
       </Unit29>
       <Unit30>
         <Filename Value="..\src\ce_todolist.pas"/>
@@ -322,7 +321,6 @@
         <ComponentName Value="CEOptionEditorWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_optionseditor"/>
       </Unit32>
       <Unit33>
         <Filename Value="..\src\ce_editoroptions.pas"/>

@@ -36,8 +36,8 @@ type
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
   public
-    constructor Create;
-    destructor Destroy; override;
+    constructor create;
+    destructor destroy; override;
     // expands the symbols contained in symString
     function get(const symString: string): string;
   end;
@@ -48,20 +48,19 @@ var
 implementation
 
 uses
-  Forms, SysUtils, Classes;
+  Forms, sysutils, classes;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
-constructor TCESymbolExpander.Create;
+constructor TCESymbolExpander.create;
 begin
   EntitiesConnector.addObserver(self);
 end;
 
-destructor TCESymbolExpander.Destroy;
+destructor TCESymbolExpander.destroy;
 begin
   EntitiesConnector.removeObserver(self);
   inherited;
 end;
-
 {$ENDREGION}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
@@ -72,8 +71,7 @@ end;
 
 procedure TCESymbolExpander.projClosing(aProject: TCEProject);
 begin
-  if fProj <> aProject then
-    exit;
+  if fProj <> aProject then exit;
   fProj := nil;
 end;
 
@@ -84,14 +82,12 @@ end;
 
 procedure TCESymbolExpander.projChanged(aProject: TCEProject);
 begin
-  if fProj <> aProject then
-    exit;
+  if fProj <> aProject then exit;
 end;
 
 procedure TCESymbolExpander.projCompiling(aProject: TCEProject);
 begin
 end;
-
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
@@ -102,8 +98,7 @@ end;
 
 procedure TCESymbolExpander.docClosing(aDoc: TCESynMemo);
 begin
-  if aDoc <> fDoc then
-    exit;
+  if aDoc <> fDoc then exit;
   fDoc := nil;
 end;
 
@@ -114,10 +109,8 @@ end;
 
 procedure TCESymbolExpander.docChanged(aDoc: TCESynMemo);
 begin
-  if aDoc <> fDoc then
-    exit;
+  if aDoc <> fDoc then exit;
 end;
-
 {$ENDREGION}
 
 {$REGION Symbol things ---------------------------------------------------------}
@@ -131,49 +124,40 @@ const
   na = '``';
 begin
   hasProj := fProj <> nil;
-  hasDoc := fDoc <> nil;
+  hasDoc  := fDoc <> nil;
   // application
   fSymbols[CAF] := Application.ExeName;
   fSymbols[CAP] := ExtractFilePath(Application.ExeName);
   // document
   if hasDoc then
   begin
-    if fileExists(fDoc.fileName) then
-    begin
+    if fileExists(fDoc.fileName) then begin
       fSymbols[CFF] := fDoc.fileName;
       fSymbols[CFP] := ExtractFilePath(fDoc.fileName);
     end
-    else
-    begin
+    else begin
       fSymbols[CFF] := na;
       fSymbols[CFP] := na;
     end;
     if fDoc.Identifier <> '' then
       fSymbols[CI] := fDoc.Identifier
-    else
-      fSymbols[CI] := na;
-  end
-  else
-  begin
+    else fSymbols[CI] := na;
+  end else begin
     fSymbols[CFF] := na;
     fSymbols[CFP] := na;
-    fSymbols[CI] := na;
+    fSymbols[CI ] := na;
   end;
   // project
   if hasProj then
   begin
-    if fileExists(fProj.fileName) then
-    begin
+    if fileExists(fProj.fileName) then begin
       fSymbols[CPF] := fProj.fileName;
       fSymbols[CPP] := ExtractFilePath(fProj.fileName);
       fSymbols[CPR] := fProj.getAbsoluteFilename(fProj.RootFolder);
       fSymbols[CPN] := stripFileExt(extractFileName(fProj.fileName));
       fSymbols[CPO] := fProj.outputFilename;
-      if fSymbols[CPR] = '' then
-        fSymbols[CPR] := fSymbols[CPP];
-    end
-    else
-    begin
+      if fSymbols[CPR] = '' then fSymbols[CPR] := fSymbols[CPP];
+    end else begin
       fSymbols[CPF] := na;
       fSymbols[CPP] := na;
       fSymbols[CPR] := na;
@@ -181,27 +165,24 @@ begin
       fSymbols[CPO] := na;
     end;
     fSymbols[CPFS] := '';
-    for i := 0 to fProj.Sources.Count - 1 do
+    for i := 0 to fProj.Sources.Count-1 do
     begin
       fname := fProj.getAbsoluteSourceName(i);
       if dExtList.IndexOf(ExtractFileExt(fname)) = -1 then
         continue;
       fSymbols[CPFS] += fname;
       if fProj.Sources.Count > 1 then
-        if i <> fProj.Sources.Count - 1 then
+        if i <> fProj.Sources.Count-1 then
           fSymbols[CPFS] += LineEnding;
     end;
-    if fProj.Sources.Count = 0 then
-      fSymbols[CPFS] := na;
-  end
-  else
-  begin
+    if fProj.Sources.Count = 0 then fSymbols[CPFS] := na;
+  end else begin
     fSymbols[CPF] := na;
     fSymbols[CPP] := na;
     fSymbols[CPR] := na;
     fSymbols[CPN] := na;
     fSymbols[CPO] := na;
-    fSymbols[CPFS] := na;
+    fSymbols[CPFS]:= na;
   end;
 end;
 
@@ -212,9 +193,8 @@ var
   begs, ends: boolean;
   i: integer;
 begin
-  Result := '';
-  if symString = '' then
-    exit;
+  result := '';
+  if symString = '' then exit;
   updateSymbols;
   //
   elems := TStringList.Create;
@@ -222,60 +202,58 @@ begin
     i := 0;
     elem := '';
     repeat
-      Inc(i);
+      inc(i);
       if not (symString[i] in ['<', '>']) then
         elem += symString[i]
       else
       begin
         if symString[i] = '<' then
-          begs := True;
+          begs := true;
         ends := symString[i] = '>';
         elems.Add(elem);
         elem := '';
         if begs and ends then
         begin
-          begs := False;
-          ends := False;
+          begs := false;
+          ends := false;
           // elem.obj is a flag to diferenciate symbols from elements
-          elems.Objects[elems.Count - 1] := Self;
+          elems.Objects[elems.Count-1] := Self;
         end;
       end;
     until
       i = length(symString);
     elems.Add(elem);
     elem := '';
-    for i := 0 to elems.Count - 1 do
+    for i:= 0 to elems.Count-1 do
     begin
       if elems.Objects[i] = nil then
-        Result += elems.Strings[i]
-      else
-        case elems.Strings[i] of
-          '<', '>': continue;
-          'CAF', 'CoeditApplicationFile': Result += fSymbols[CAF];
-          'CAP', 'CoeditApplicationPath': Result += fSymbols[CAP];
-          //
-          'CFF', 'CurrentFileFile': Result += fSymbols[CFF];
-          'CFP', 'CurrentFilePath': Result += fSymbols[CFP];
-          'CI', 'CurrentIdentifier': Result += fSymbols[CI];
-          //
-          'CPF', 'CurrentProjectFile': Result += fSymbols[CPF];
-          'CPFS', 'CurrentProjectFiles': Result += fSymbols[CPFS];
-          'CPN', 'CurrentProjectName': Result += fSymbols[CPN];
-          'CPO', 'CurrentProjectOutput': Result += fSymbols[CPO];
-          'CPP', 'CurrentProjectPath': Result += fSymbols[CPP];
-          'CPR', 'CurrentProjectRoot': Result += fSymbols[CPR];
-        end;
+        result += elems.Strings[i]
+      else case elems.Strings[i] of
+        '<','>': continue;
+        'CAF',  'CoeditApplicationFile':result += fSymbols[CAF];
+        'CAP',  'CoeditApplicationPath':result += fSymbols[CAP];
+        //
+        'CFF',  'CurrentFileFile':      result += fSymbols[CFF];
+        'CFP',  'CurrentFilePath':      result += fSymbols[CFP];
+        'CI',   'CurrentIdentifier':    result += fSymbols[CI];
+        //
+        'CPF',  'CurrentProjectFile':   result += fSymbols[CPF];
+        'CPFS', 'CurrentProjectFiles':  result += fSymbols[CPFS];
+        'CPN',  'CurrentProjectName':   result += fSymbols[CPN];
+        'CPO',  'CurrentProjectOutput': result += fSymbols[CPO];
+        'CPP',  'CurrentProjectPath':   result += fSymbols[CPP];
+        'CPR',  'CurrentProjectRoot':   result += fSymbols[CPR];
+      end;
     end;
   finally
     elems.Free;
   end;
 end;
-
 {$ENDREGION}
 
 initialization
-  symbolExpander := TCESymbolExpander.Create;
-
+  symbolExpander := TCESymbolExpander.create;
 finalization
   symbolExpander.Free;
 end.
+
