@@ -339,6 +339,9 @@ begin
   Gutter.CodeFoldPart.MarkupInfo.Foreground := clGray;
   BracketMatchColor.Foreground:=clRed;
   //
+	self.BookMarkOptions.GlyphsVisible:= true;
+  self.BookMarkOptions.BookmarkImages;
+  //
   MouseLinkColor.Style:= [fsUnderline];
   with MouseActions.Add do begin
     Command := emcMouseLink;
