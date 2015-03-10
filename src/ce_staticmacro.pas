@@ -10,6 +10,27 @@ uses
 
 type
 
+
+  (**
+   * Static macros options containers
+   *)
+  TStaticMacrosOptions = class(TWritableLfmTextComponent)
+  private
+    fAutoInsert: boolean;
+    fShortCut: TShortCut;
+    fMacros: TStringList;
+    procedure setMacros(aValue: TStringList);
+  published
+    property autoInsert: boolean read fAutoInsert write fAutoInsert;
+    property macros: TStringList read fMacros write setMacros;
+    property shortcut: TShortCut read fShortCut write fShortCut;
+	public
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
+    procedure Assign(Source: TPersistent); override;
+    procedure AssignTo(Dest: TPersistent); override;
+  end;
+
   (**
    * TCEStaticEditorMacro is used to insert static macros (parameter-less code snippets)
    * in an editor. A macro begins with the dollar symbol and ends with an alphanum.
@@ -22,12 +43,15 @@ type
    * Shift + SPACE works automatically on the right editor (ICEMultiDocObserver)
    * Automatic insertion is handled in TCESynMemo.KeyUp()
    *)
-  TCEStaticEditorMacro = class(TWritableLfmTextComponent, ICEMultiDocObserver)
+  TCEStaticEditorMacro = class(TWritableLfmTextComponent, ICEMultiDocObserver, ICEEditableOptions)
   private
+    //TODO-cfeature: exposes fCompletor shortcut with ICEEDItableShortcut
     fCompletor: TSynAutoComplete;
     fMacros: TStringList;
     fDoc: TCESynMemo;
     fAutomatic: boolean;
+    fOptions: TStaticMacrosOptions;
+    fOptionBackup: TStaticMacrosOptions;
     procedure sanitize;
     procedure addDefaults;
     procedure updateCompletor;
@@ -37,6 +61,11 @@ type
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
+    // ICEEditableOptions
+    function optionedWantCategory(): string;
+    function optionedWantEditorKind: TOptionEditorKind;
+    function optionedWantContainer: TPersistent;
+    procedure optionedEvent(anEvent: TOptionEditorEvent);
   published
     // list of string with the format $<..>alnum=<..>
     property macros: TStringList read fMacros write setMacros;
@@ -50,8 +79,16 @@ type
     procedure Execute(aEditor: TCustomSynEdit; const aToken: string); overload;
   end;
 
+var
+  StaticEditorMacro: TCEStaticEditorMacro = nil;
+
+implementation
+
+uses
+  ce_observer, ce_common;
+
 const
-  macFname = 'staticMacros.txt';
+  OptFname = 'staticmacros.txt';
 
   defMacros: array[0..14] of string = (
     '$a=auto',
@@ -71,13 +108,77 @@ const
     '$v=void (){}'
   );
 
+{$REGION TStaticMacrosOptions --------------------------------------------------}
+
+constructor TStaticMacrosOptions.create(aOwner: TComponent);
+begin
+	inherited;
+  fMacros := TStringList.Create;
+end;
+
+destructor TStaticMacrosOptions.destroy;
+begin
+  fMacros.Free;
+  inherited;
+end;
+
+procedure TStaticMacrosOptions.Assign(Source: TPersistent);
 var
-  StaticEditorMacro: TCEStaticEditorMacro = nil;
+  edmac: TCEStaticEditorMacro;
+  opt: TStaticMacrosOptions;
+begin
+	if Source is TCEStaticEditorMacro then
+  begin
+    edmac := TCEStaticEditorMacro(Source);
+    //
+    fAutoInsert := edmac.automatic;
+    fMacros.Assign(edmac.fMacros);
+    fShortCut := edmac.fCompletor.ShortCut;
+  end
+  else if Source is  TStaticMacrosOptions then
+  begin
+    opt := TStaticMacrosOptions(Source);
+    //
+    autoInsert := opt.autoInsert;
+    macros.Assign(opt.fMacros);
+    shortcut := opt.shortcut;
+  end
+  else inherited;
+end;
 
-implementation
+procedure TStaticMacrosOptions.AssignTo(Dest: TPersistent);
+var
+  edmac: TCEStaticEditorMacro;
+  opt: TStaticMacrosOptions;
+begin
+	if Dest is TCEStaticEditorMacro then
+  begin
+    edmac := TCEStaticEditorMacro(Dest);
+    //
+    edmac.automatic := fAutoInsert;
+    // setMacros sanitizes the macros
+    edmac.setMacros(fMacros);
+    fMacros.Assign(edmac.fMacros);
+    //
+    edmac.fCompletor.ShortCut := fShortCut;
+  end
+  else if Dest is  TStaticMacrosOptions then
+  begin
+    opt := TStaticMacrosOptions(Dest);
+    //
+    opt.autoInsert := autoInsert;
+    opt.macros.Assign(fMacros);
+    opt.shortcut := shortcut;
+  end
+  else inherited;
+end;
 
-uses
-  ce_observer, ce_common;
+procedure TStaticMacrosOptions.setMacros(aValue: TStringList);
+begin
+  fMacros.Assign(aValue);
+end;
+{$ENDREGION}
+
 
 {$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCEStaticEditorMacro.create(aOwner: TComponent);
@@ -87,13 +188,24 @@ begin
   inherited;
   fAutomatic := true;
   fCompletor := TSynAutoComplete.Create(self);
+  fCompletor.ShortCut := 8224; // SHIFT + SPACE
   fMacros := TStringList.Create;
   fMacros.Delimiter := '=';
-  assert(fCompletor.ShortCut <> 0);
-  //
-  fname := getCoeditDocPath + macFname;
-  if fileExists(fname) then loadFromFile(fname);
   addDefaults;
+  //
+  fOptions := TStaticMacrosOptions.create(self);
+  fOptionBackup := TStaticMacrosOptions.create(self);
+  fname := getCoeditDocPath + OptFname;
+  if fileExists(fname) then
+  begin
+    fOptions.loadFromFile(fname);
+    // old option file will create a streaming error.
+    if fOptions.hasLoaded then
+    	fOptions.AssignTo(self)
+    else
+    	fOptions.Assign(self);
+  end
+  else fOptions.Assign(self);
   //
   sanitize;
   updateCompletor;
@@ -103,7 +215,7 @@ end;
 
 destructor TCEStaticEditorMacro.destroy;
 begin
-  saveToFile(getCoeditDocPath + macFname);
+  fOptions.saveToFile(getCoeditDocPath + OptFname);
   EntitiesConnector.removeObserver(Self);
   //
   fMacros.Free;
@@ -144,6 +256,42 @@ begin
   if aDoc <> fDoc then
     exit;
   fDoc := nil;
+end;
+{$ENDREGION}
+
+{$REGION ICEEditableOptions ----------------------------------------------------}
+function TCEStaticEditorMacro.optionedWantCategory(): string;
+begin
+	exit('Static macros');
+end;
+
+function TCEStaticEditorMacro.optionedWantEditorKind: TOptionEditorKind;
+begin
+	exit(oekGeneric);
+end;
+
+function TCEStaticEditorMacro.optionedWantContainer: TPersistent;
+begin
+	fOptions.Assign(self);
+  fOptionBackup.Assign(fOptions);
+  exit(fOptions);
+end;
+
+procedure TCEStaticEditorMacro.optionedEvent(anEvent: TOptionEditorEvent);
+begin
+	case anEvent of
+    oeeAccept:
+    begin
+      fOptions.AssignTo(self);
+      fOptionBackup.Assign(self);
+    end;
+    oeeCancel:
+    begin
+      fOptionBackup.AssignTo(self);
+      fOptionBackup.AssignTo(fOptions);
+    end;
+    oeeChange: fOptions.AssignTo(self);
+  end;
 end;
 {$ENDREGION}
 
