@@ -5,7 +5,7 @@ unit ce_projinspect;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Graphics, actnlist,
+  Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Graphics, ActnList,
   Dialogs, ExtCtrls, ComCtrls, Menus, Buttons, lcltype, ce_project, ce_interfaces,
   ce_common, ce_widget, ce_observer;
 
@@ -38,9 +38,9 @@ type
     fFileNode, fConfNode: TTreeNode;
     fImpsNode, fInclNode: TTreeNode;
     fXtraNode: TTreeNode;
-    procedure actUpdate(sender: TObject);
-    procedure TreeDblClick(sender: TObject);
-    procedure actOpenFileExecute(sender: TObject);
+    procedure actUpdate(Sender: TObject);
+    procedure TreeDblClick(Sender: TObject);
+    procedure actOpenFileExecute(Sender: TObject);
     //
     procedure projNew(aProject: TCEProject);
     procedure projClosing(aProject: TCEProject);
@@ -52,18 +52,19 @@ type
     function contextActionCount: integer; override;
     function contextAction(index: integer): TAction; override;
   public
-    constructor create(aOwner: TComponent); override;
-    destructor destroy; override;
+    constructor Create(aOwner: TComponent); override;
+    destructor Destroy; override;
   end;
 
 implementation
+
 {$R *.lfm}
 
 uses
   ce_symstring;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
-constructor TCEProjectInspectWidget.create(aOwner: TComponent);
+constructor TCEProjectInspectWidget.Create(aOwner: TComponent);
 var
   png: TPortableNetworkGraphic;
 begin
@@ -105,7 +106,7 @@ begin
   EntitiesConnector.addObserver(self);
 end;
 
-destructor TCEProjectInspectWidget.destroy;
+destructor TCEProjectInspectWidget.Destroy;
 begin
   EntitiesConnector.removeObserver(self);
   inherited;
@@ -114,8 +115,10 @@ end;
 procedure TCEProjectInspectWidget.SetVisible(Value: boolean);
 begin
   inherited;
-  if Value then updateImperative;
+  if Value then
+    updateImperative;
 end;
+
 {$ENDREGION}
 
 {$REGION ICEContextualActions---------------------------------------------------}
@@ -134,21 +137,24 @@ begin
   case index of
     0: exit(fActOpenFile);
     1: exit(fActSelConf);
-    else exit(nil);
+    else
+      exit(nil);
   end;
 end;
 
-procedure TCEProjectInspectWidget.actOpenFileExecute(sender: TObject);
+procedure TCEProjectInspectWidget.actOpenFileExecute(Sender: TObject);
 begin
-  TreeDblClick(sender);
+  TreeDblClick(Sender);
 end;
+
 {$ENDREGION}
 
 {$REGION ICEProjectMonitor -----------------------------------------------------}
 procedure TCEProjectInspectWidget.projNew(aProject: TCEProject);
 begin
   fProject := aProject;
-  if Visible then updateImperative;
+  if Visible then
+    updateImperative;
 end;
 
 procedure TCEProjectInspectWidget.projClosing(aProject: TCEProject);
@@ -162,18 +168,22 @@ end;
 procedure TCEProjectInspectWidget.projFocused(aProject: TCEProject);
 begin
   fProject := aProject;
-  if Visible then beginDelayedUpdate;
+  if Visible then
+    beginDelayedUpdate;
 end;
 
 procedure TCEProjectInspectWidget.projChanged(aProject: TCEProject);
 begin
-  if fProject <> aProject then exit;
-  if Visible then beginDelayedUpdate;
+  if fProject <> aProject then
+    exit;
+  if Visible then
+    beginDelayedUpdate;
 end;
 
 procedure TCEProjectInspectWidget.projCompiling(aProject: TCEProject);
 begin
 end;
+
 {$ENDREGION}
 
 {$REGION Inspector things -------------------------------------------------------}
@@ -185,16 +195,18 @@ end;
 
 procedure TCEProjectInspectWidget.TreeSelectionChanged(Sender: TObject);
 begin
-  actUpdate(sender);
+  actUpdate(Sender);
 end;
 
-procedure TCEProjectInspectWidget.TreeDblClick(sender: TObject);
+procedure TCEProjectInspectWidget.TreeDblClick(Sender: TObject);
 var
   fname: string;
   i: NativeInt;
 begin
-  if fProject = nil then exit;
-  if Tree.Selected = nil then exit;
+  if fProject = nil then
+    exit;
+  if Tree.Selected = nil then
+    exit;
   //
   if (Tree.Selected.Parent = fFileNode) or (Tree.Selected.Parent = fXtraNode) then
   begin
@@ -214,30 +226,33 @@ begin
   end;
 end;
 
-procedure TCEProjectInspectWidget.actUpdate(sender: TObject);
+procedure TCEProjectInspectWidget.actUpdate(Sender: TObject);
 begin
-  fActSelConf.Enabled := false;
-  fActOpenFile.Enabled := false;
-  if Tree.Selected = nil then exit;
+  fActSelConf.Enabled := False;
+  fActOpenFile.Enabled := False;
+  if Tree.Selected = nil then
+    exit;
   fActSelConf.Enabled := Tree.Selected.Parent = fConfNode;
   fActOpenFile.Enabled := Tree.Selected.Parent = fFileNode;
 end;
 
 procedure TCEProjectInspectWidget.btnAddFileClick(Sender: TObject);
 begin
-  if fProject = nil then exit;
+  if fProject = nil then
+    exit;
   //
   with TOpenDialog.Create(nil) do
-  try
-    filter := DdiagFilter;
-    if execute then begin
-      fProject.beginUpdate;
-      fProject.addSource(filename);
-      fProject.endUpdate;
+    try
+      filter := DdiagFilter;
+      if Execute then
+      begin
+        fProject.beginUpdate;
+        fProject.addSource(filename);
+        fProject.endUpdate;
+      end;
+    finally
+      Free;
     end;
-  finally
-    free;
-  end;
 end;
 
 procedure TCEProjectInspectWidget.btnAddFoldClick(Sender: TObject);
@@ -246,18 +261,20 @@ var
   lst: TStringList;
   i: NativeInt;
 begin
-  if fProject = nil then exit;
+  if fProject = nil then
+    exit;
   //
   if fileExists(fProject.fileName) then
     dir := extractFilePath(fProject.fileName)
-  else dir := '';
-  if selectDirectory('sources', dir, dir, true, 0) then
+  else
+    dir := '';
+  if selectDirectory('sources', dir, dir, True, 0) then
   begin
     fProject.beginUpdate;
     lst := TStringList.Create;
     try
-      listFiles(lst, dir, true);
-      for i := 0 to lst.Count-1 do
+      listFiles(lst, dir, True);
+      for i := 0 to lst.Count - 1 do
       begin
         fname := lst.Strings[i];
         ext := extractFileExt(fname);
@@ -276,19 +293,24 @@ var
   dir, fname: string;
   i: Integer;
 begin
-  if fProject = nil then exit;
-  if Tree.Selected = nil then exit;
-  if Tree.Selected.Parent <> fFileNode then exit;
+  if fProject = nil then
+    exit;
+  if Tree.Selected = nil then
+    exit;
+  if Tree.Selected.Parent <> fFileNode then
+    exit;
   //
   fname := Tree.Selected.Text;
   i := fProject.Sources.IndexOf(fname);
-  if i = -1 then exit;
+  if i = -1 then
+    exit;
   fname := fProject.getAbsoluteSourceName(i);
   dir := extractFilePath(fname);
-  if not DirectoryExists(dir) then exit;
+  if not DirectoryExists(dir) then
+    exit;
   //
   fProject.beginUpdate;
-  for i:= fProject.Sources.Count-1 downto 0 do
+  for i := fProject.Sources.Count - 1 downto 0 do
     if extractFilePath(fProject.getAbsoluteSourceName(i)) = dir then
       fProject.Sources.Delete(i);
   fProject.endUpdate;
@@ -299,14 +321,17 @@ var
   fname: string;
   i: NativeInt;
 begin
-  if fProject = nil then exit;
-  if Tree.Selected = nil then exit;
+  if fProject = nil then
+    exit;
+  if Tree.Selected = nil then
+    exit;
   //
   if Tree.Selected.Parent = fFileNode then
   begin
     fname := Tree.Selected.Text;
     i := fProject.Sources.IndexOf(fname);
-    if i > -1 then begin
+    if i > -1 then
+    begin
       fProject.beginUpdate;
       fProject.Sources.Delete(i);
       fProject.endUpdate;
@@ -319,7 +344,8 @@ var
   fname: string;
   multidoc: ICEMultiDocHandler;
 begin
-  if fProject = nil then exit;
+  if fProject = nil then
+    exit;
   multidoc := getMultiDocHandler;
   for fname in Filenames do
     if FileExists(fname) then
@@ -348,7 +374,8 @@ begin
   fImpsNode.DeleteChildren;
   fInclNode.DeleteChildren;
   fXtraNode.DeleteChildren;
-  if fProject = nil then exit;
+  if fProject = nil then
+    exit;
   Tree.BeginUpdate;
   // display main sources
   for src in fProject.Sources do
@@ -358,13 +385,14 @@ begin
     itm.SelectedIndex := 2;
   end;
   // display configurations
-  for i := 0 to fProject.OptionsCollection.Count-1 do
+  for i := 0 to fProject.OptionsCollection.Count - 1 do
   begin
-    conf := fProject.configuration[i].name;
-    if i = fProject.ConfigurationIndex then conf += ' (active)';
+    conf := fProject.configuration[i].Name;
+    if i = fProject.ConfigurationIndex then
+      conf += ' (active)';
     itm := Tree.Items.AddChild(fConfNode, conf);
     itm.ImageIndex := 3;
-    itm.SelectedIndex:= 3;
+    itm.SelectedIndex := 3;
   end;
   // display Imports (-J)
   for fold in FProject.currentConfiguration.pathsOptions.importStringPaths do
@@ -377,7 +405,7 @@ begin
     itm.ImageIndex := 5;
     itm.SelectedIndex := 5;
   end;
-  fImpsNode.Collapse(false);
+  fImpsNode.Collapse(False);
   // display Includes (-I)
   for fold in FProject.currentConfiguration.pathsOptions.importModulePaths do
   begin
@@ -389,7 +417,7 @@ begin
     itm.ImageIndex := 5;
     itm.SelectedIndex := 5;
   end;
-  fInclNode.Collapse(false);
+  fInclNode.Collapse(False);
   // display extra sources (external .lib, *.a, *.d)
   for src in FProject.currentConfiguration.pathsOptions.extraSources do
   begin
@@ -399,11 +427,15 @@ begin
     src := symbolExpander.get(src);
     lst := TStringList.Create;
     try
-      if listAsteriskPath(src, lst) then for src in lst do begin
-        itm := Tree.Items.AddChild(fXtraNode, src);
-        itm.ImageIndex := 2;
-        itm.SelectedIndex := 2;
-      end else begin
+      if listAsteriskPath(src, lst) then
+        for src in lst do
+        begin
+          itm := Tree.Items.AddChild(fXtraNode, src);
+          itm.ImageIndex := 2;
+          itm.SelectedIndex := 2;
+        end
+      else
+      begin
         itm := Tree.Items.AddChild(fXtraNode, src);
         itm.ImageIndex := 2;
         itm.SelectedIndex := 2;
@@ -412,9 +444,10 @@ begin
       lst.Free;
     end;
   end;
-  fXtraNode.Collapse(false);
+  fXtraNode.Collapse(False);
   Tree.EndUpdate;
 end;
+
 {$ENDREGION --------------------------------------------------------------------}
 
 end.

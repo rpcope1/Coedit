@@ -5,7 +5,7 @@ unit ce_tools;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, process, menus,
+  Classes, SysUtils, FileUtil, process, Menus,
   ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_inspectors;
 
 type
@@ -28,8 +28,8 @@ type
     procedure setParameters(aValue: TStringList);
     procedure setChainBefore(aValue: TStringList);
     procedure setChainAfter(aValue: TStringList);
-    procedure processOutput(sender: TObject);
-    procedure execute;
+    procedure processOutput(Sender: TObject);
+    procedure Execute;
   published
     property toolAlias: string read fToolAlias write fToolAlias;
     property options: TProcessOptions read fOpts write fOpts;
@@ -43,8 +43,8 @@ type
     property chainAfter: TStringList read fChainAfter write setChainAfter;
     property shortcut: TShortcut read fShortcut write fShortcut;
   public
-    constructor create(ACollection: TCollection); override;
-    destructor destroy; override;
+    constructor Create(ACollection: TCollection); override;
+    destructor Destroy; override;
   end;
 
   TCETools = class(TWritableLfmTextComponent, ICEMainMenuProvider, ICEEditableShortcut)
@@ -56,7 +56,7 @@ type
     //
     procedure menuDeclare(item: TMenuItem);
     procedure menuUpdate(item: TMenuItem);
-    procedure executeToolFromMenu(sender: TObject);
+    procedure executeToolFromMenu(Sender: TObject);
     //
     function scedWantFirst: boolean;
     function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
@@ -64,8 +64,8 @@ type
   published
     property tools: TCollection read fTools write setTools;
   public
-    constructor create(aOwner: TComponent); override;
-    destructor destroy; override;
+    constructor Create(aOwner: TComponent); override;
+    destructor Destroy; override;
     //
     function addTool: TCEToolItem;
     procedure executeTool(aTool: TCEToolItem); overload;
@@ -81,22 +81,22 @@ var
 implementation
 
 uses
-  ce_symstring, dialogs;
+  ce_symstring, Dialogs;
 
 const
   toolsFname = 'tools.txt';
 
 {$REGION TCEToolItem -----------------------------------------------------------}
-constructor TCEToolItem.create(ACollection: TCollection);
+constructor TCEToolItem.Create(ACollection: TCollection);
 begin
   inherited;
   fToolAlias := format('<tool %d>', [ID]);
-  fParameters := TStringList.create;
+  fParameters := TStringList.Create;
   fChainBefore := TStringList.Create;
   fChainAfter := TStringList.Create;
 end;
 
-destructor TCEToolItem.destroy;
+destructor TCEToolItem.Destroy;
 begin
   fParameters.Free;
   fChainAfter.Free;
@@ -130,7 +130,7 @@ begin
     fChainAfter.Delete(i);
 end;
 
-procedure TCEToolItem.execute;
+procedure TCEToolItem.Execute;
 var
   i: Integer;
   prms: string;
@@ -141,8 +141,8 @@ begin
     getMessageDisplay(fMsgs).clearByContext(amcMisc);
   //
   fProcess := TCheckedAsyncProcess.Create(nil);
-  fProcess.OnReadData:= @processOutput;
-  fProcess.OnTerminate:= @processOutput;
+  fProcess.OnReadData := @processOutput;
+  fProcess.OnTerminate := @processOutput;
   fProcess.Options := fOpts;
   fProcess.Executable := symbolExpander.get(fExecutable);
   fProcess.ShowWindow := fShowWin;
@@ -151,14 +151,15 @@ begin
   begin
     prms := '';
     if InputQuery('Parameters', '', prms) then
-      if prms <> '' then fProcess.Parameters.DelimitedText := symbolExpander.get(prms);
+      if prms <> '' then
+        fProcess.Parameters.DelimitedText := symbolExpander.get(prms);
   end;
-  for i:= 0 to fParameters.Count-1 do
-      fProcess.Parameters.AddText(symbolExpander.get(fParameters.Strings[i]));
+  for i := 0 to fParameters.Count - 1 do
+    fProcess.Parameters.AddText(symbolExpander.get(fParameters.Strings[i]));
   fProcess.Execute;
 end;
 
-procedure TCEToolItem.processOutput(sender: TObject);
+procedure TCEToolItem.processOutput(Sender: TObject);
 var
   lst: TStringList;
   str: string;
@@ -173,22 +174,24 @@ begin
     lst.Free;
   end;
 end;
+
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION Standard Comp/Obj -----------------------------------------------------}
-constructor TCETools.create(aOwner: TComponent);
+constructor TCETools.Create(aOwner: TComponent);
 var
   fname: string;
 begin
   inherited;
   fTools := TCollection.Create(TCEToolItem);
   fname := getCoeditDocPath + toolsFname;
-  if fileExists(fname) then loadFromFile(fname);
+  if fileExists(fname) then
+    loadFromFile(fname);
   //
   EntitiesConnector.addObserver(self);
 end;
 
-destructor TCETools.destroy;
+destructor TCETools.Destroy;
 begin
   EntitiesConnector.removeObserver(self);
   //
@@ -197,12 +200,13 @@ begin
   fTools.Free;
   inherited;
 end;
+
 {$ENDREGION}
 
 {$REGION ICEMainMenuProvider ---------------------------------------------------}
-procedure TCETools.executeToolFromMenu(sender: TObject);
+procedure TCETools.executeToolFromMenu(Sender: TObject);
 begin
-  executeTool(TCEToolItem(TMenuItem(sender).tag));
+  executeTool(TCEToolItem(TMenuItem(Sender).tag));
 end;
 
 procedure TCETools.menuDeclare(item: TMenuItem);
@@ -211,16 +215,17 @@ var
   itm: TMenuItem;
   colitm: TCEToolItem;
 begin
-  if tools.Count = 0 then exit;
+  if tools.Count = 0 then
+    exit;
   //
   item.Caption := 'Custom tools';
   item.Clear;
-  for i := 0 to tools.Count-1 do
+  for i := 0 to tools.Count - 1 do
   begin
     colitm := tool[i];
     //
     itm := TMenuItem.Create(item);
-    itm.ShortCut:= colitm.shortcut;
+    itm.ShortCut := colitm.shortcut;
     itm.Caption := colitm.toolAlias;
     itm.tag := ptrInt(colitm);
     itm.onClick := @executeToolFromMenu;
@@ -234,53 +239,59 @@ var
   colitm: TCEToolItem;
   mnuitm: TMenuItem;
 begin
-  if item = nil then exit;
+  if item = nil then
+    exit;
   if item.Count <> tools.Count then
     menuDeclare(item)
-  else for i:= 0 to tools.Count-1 do
-  begin
-    colitm := tool[i];
-    mnuitm := item.Items[i];
-    //
-    if mnuitm.Tag <> ptrInt(colitm) then
-      mnuitm.Tag := ptrInt(colitm);
-    if mnuitm.Caption <> colitm.toolAlias then
-      mnuitm.Caption := colitm.toolAlias;
-    if mnuitm.shortcut <> colitm.shortcut then
-      mnuitm.shortcut := colitm.shortcut;
-  end;
+  else
+    for i := 0 to tools.Count - 1 do
+    begin
+      colitm := tool[i];
+      mnuitm := item.Items[i];
+      //
+      if mnuitm.Tag <> ptrInt(colitm) then
+        mnuitm.Tag := ptrInt(colitm);
+      if mnuitm.Caption <> colitm.toolAlias then
+        mnuitm.Caption := colitm.toolAlias;
+      if mnuitm.shortcut <> colitm.shortcut then
+        mnuitm.shortcut := colitm.shortcut;
+    end;
 end;
+
 {$ENDREGION}
 
 {$REGION ICEEditableShortcut ---------------------------------------------------}
 function TCETools.scedWantFirst: boolean;
 begin
-  result := fTools.Count > 0;
+  Result := fTools.Count > 0;
   fShctCount := 0;
 end;
 
 function TCETools.scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
 begin
-  category  := 'Tools';
-  identifier:= tool[fShctCount].toolAlias;
+  category := 'Tools';
+  identifier := tool[fShctCount].toolAlias;
   aShortcut := tool[fShctCount].shortcut;
   //
   fShctCount += 1;
-  result := fShctCount < fTools.Count;
+  Result := fShctCount < fTools.Count;
 end;
 
 procedure TCETools.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
 var
   i: Integer;
 begin
- if category <> 'Tools' then exit;
- //
- for i := 0 to tools.Count-1 do if tool[i].toolAlias = identifier then
- begin
-   tool[i].shortcut := aShortcut;
-   break;
- end;
+  if category <> 'Tools' then
+    exit;
+  //
+  for i := 0 to tools.Count - 1 do
+    if tool[i].toolAlias = identifier then
+    begin
+      tool[i].shortcut := aShortcut;
+      break;
+    end;
 end;
+
 {$ENDREGION}
 
 {$REGION Tools things ----------------------------------------------------------}
@@ -291,12 +302,12 @@ end;
 
 function TCETools.getTool(index: Integer): TCEToolItem;
 begin
-  result := TCEToolItem(fTools.Items[index]);
+  Result := TCEToolItem(fTools.Items[index]);
 end;
 
 function TCETools.addTool: TCEToolItem;
 begin
-  result := TCEToolItem(fTools.Add);
+  Result := TCEToolItem(fTools.Add);
 end;
 
 procedure TCETools.executeTool(aTool: TCEToolItem);
@@ -304,7 +315,8 @@ var
   nme: string;
   chained: TCollectionItem;
 begin
-  if aTool = nil then exit;
+  if aTool = nil then
+    exit;
   if not exeInSysPath(aTool.executable) then
     if (aTool.chainAfter.Count = 0) and (aTool.chainBefore.Count = 0) then
       exit;
@@ -312,28 +324,32 @@ begin
     for chained in fTools do
       if TCEToolItem(chained).toolAlias = nme then
         if TCEToolItem(chained).toolAlias <> aTool.toolAlias then
-          TCEToolItem(chained).execute;
+          TCEToolItem(chained).Execute;
   if exeInSysPath(aTool.executable) then
-    aTool.execute;
+    aTool.Execute;
   for nme in aTool.chainAfter do
     for chained in fTools do
       if TCEToolItem(chained).toolAlias = nme then
         if TCEToolItem(chained).toolAlias <> aTool.toolAlias then
-          TCEToolItem(chained).execute;
+          TCEToolItem(chained).Execute;
 end;
 
 procedure TCETools.executeTool(aToolIndex: Integer);
 begin
-  if aToolIndex < 0 then exit;
-  if aToolIndex > fTools.Count-1 then exit;
+  if aToolIndex < 0 then
+    exit;
+  if aToolIndex > fTools.Count - 1 then
+    exit;
   //
   executeTool(tool[aToolIndex]);
 end;
+
 {$ENDREGION}
 
 initialization
   RegisterClasses([TCEToolItem, TCETools]);
-  CustomTools := TCETools.create(nil);
+  CustomTools := TCETools.Create(nil);
+
 finalization
   CustomTools.Free;
 end.
