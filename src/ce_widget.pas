@@ -14,7 +14,6 @@ type
    * Base type for an UI module.
    *)
   PTCEWidget = ^TCEWidget;
-
   TCEWidget = class(TForm, ICEContextualActions, ICESessionOptionsObserver)
     Content: TPanel;
     Back: TPanel;
@@ -60,8 +59,8 @@ type
     property updaterByLoopInterval: Integer read fLoopInter write setLoopInt;
     property updaterByDelayDuration: Integer read fDelayDur write setDelayDur;
   public
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
     // restarts the wait period to the delayed update event.
     // if not re-called during 'updaterByDelayDuration' ms then
     // 'UpdateByDelay' is called once.
@@ -109,23 +108,22 @@ type
     property current: TCEWidget read getCurrent;
   end;
 
-operator enumerator(aWidgetList: TCEWidgetList): TWidgetEnumerator;
+  operator enumerator(aWidgetList: TCEWidgetList): TWidgetEnumerator;
 
 implementation
-
 {$R *.lfm}
 
 uses
   ce_observer;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
-constructor TCEWidget.Create(aOwner: TComponent);
+constructor TCEWidget.create(aOwner: TComponent);
 var
   i: Integer;
   itm: TmenuItem;
 begin
   inherited;
-  fDockable := True;
+  fDockable := true;
   fUpdaterAuto := TTimer.Create(self);
   fUpdaterAuto.Interval := 70;
   fUpdaterAuto.OnTimer := @updaterAutoProc;
@@ -134,7 +132,7 @@ begin
   updaterByLoopInterval := 70;
   updaterByDelayDuration := 500;
 
-  for i := 0 to contextActionCount - 1 do
+  for i := 0 to contextActionCount-1 do
   begin
     itm := TMenuItem.Create(self);
     itm.Action := contextAction(i);
@@ -145,7 +143,7 @@ begin
   EntitiesConnector.addObserver(self);
 end;
 
-destructor TCEWidget.Destroy;
+destructor TCEWidget.destroy;
 begin
   EntitiesConnector.removeObserver(self);
   inherited;
@@ -153,10 +151,8 @@ end;
 
 function TCEWidget.getIfModal: boolean;
 begin
-  if isDockable then
-    Result := False
-  else
-    Result := fModal;
+  if isDockable then result := false
+  else result := fModal;
 end;
 
 {$ENDREGION}
@@ -169,8 +165,8 @@ end;
 procedure TCEWidget.sesoptDeclareProperties(aFiler: TFiler);
 begin
   // override rules: inherited must be called. No dots in the property name, property name prefixed with the widget Name
-  aFiler.DefineProperty(Name + '_updaterByLoopInterval', @optset_LoopInterval, @optget_LoopInterval, True);
-  aFiler.DefineProperty(Name + '_updaterByDelayDuration', @optset_UpdaterDelay, @optget_UpdaterDelay, True);
+  aFiler.DefineProperty(Name + '_updaterByLoopInterval', @optset_LoopInterval, @optget_LoopInterval, true);
+  aFiler.DefineProperty(Name + '_updaterByDelayDuration', @optset_UpdaterDelay, @optget_UpdaterDelay, true);
 end;
 
 procedure TCEWidget.sesoptAfterLoad;
@@ -196,51 +192,45 @@ procedure TCEWidget.optset_UpdaterDelay(aReader: TReader);
 begin
   updaterByDelayDuration := aReader.ReadInteger;
 end;
-
 {$ENDREGION}
 
 {$REGION ICEContextualActions---------------------------------------------------}
 function TCEWidget.contextName: string;
 begin
-  Result := '';
+  result := '';
 end;
 
 function TCEWidget.contextActionCount: integer;
 begin
-  Result := 0;
+  result := 0;
 end;
 
 function TCEWidget.contextAction(index: integer): TAction;
 begin
-  Result := nil;
+  result := nil;
 end;
-
 {$ENDREGION}
 
 {$REGION Updaters---------------------------------------------------------------}
 procedure TCEWidget.setDelayDur(aValue: Integer);
 begin
-  if aValue < 100 then
-    aValue := 100;
-  if fDelayDur = aValue then
-    exit;
+  if aValue < 100 then aValue := 100;
+  if fDelayDur = aValue then exit;
   fDelayDur := aValue;
   fUpdaterDelay.Interval := fDelayDur;
 end;
 
 procedure TCEWidget.setLoopInt(aValue: Integer);
 begin
-  if aValue < 30 then
-    aValue := 30;
-  if fLoopInter = aValue then
-    exit;
+  if aValue < 30 then aValue := 30;
+  if fLoopInter = aValue then exit;
   fLoopInter := aValue;
   fUpdaterAuto.Interval := fLoopInter;
 end;
 
 procedure TCEWidget.IncLoopUpdate;
 begin
-  Inc(fLoopUpdateCount);
+  inc(fLoopUpdateCount);
 end;
 
 procedure TCEWidget.beginImperativeUpdate;
@@ -251,26 +241,25 @@ end;
 procedure TCEWidget.endImperativeUpdate;
 begin
   Dec(fImperativeUpdateCount);
-  if fImperativeUpdateCount > 0 then
-    exit;
-  fUpdating := True;
+  if fImperativeUpdateCount > 0 then exit;
+  fUpdating := true;
   updateImperative;
-  fUpdating := False;
+  fUpdating := false;
   fImperativeUpdateCount := 0;
 end;
 
 procedure TCEWidget.forceImperativeUpdate;
 begin
-  fUpdating := True;
+  fUpdating := true;
   updateImperative;
-  fUpdating := False;
+  fUpdating := false;
   fImperativeUpdateCount := 0;
 end;
 
 procedure TCEWidget.beginDelayedUpdate;
 begin
-  fUpdaterDelay.Enabled := False;
-  fUpdaterDelay.Enabled := True;
+  fUpdaterDelay.Enabled := false;
+  fUpdaterDelay.Enabled := true;
   fUpdaterDelay.OnTimer := @updaterLatchProc;
 end;
 
@@ -286,18 +275,18 @@ end;
 
 procedure TCEWidget.updaterAutoProc(Sender: TObject);
 begin
-  fUpdating := True;
+  fUpdating := true;
   if fLoopUpdateCount > 0 then
-    updateLoop;
+  	updateLoop;
   fLoopUpdateCount := 0;
-  fUpdating := False;
+  fUpdating := false;
 end;
 
 procedure TCEWidget.updaterLatchProc(Sender: TObject);
 begin
-  fUpdating := True;
+  fUpdating := true;
   updateDelayed;
-  fUpdating := False;
+  fUpdating := false;
   fUpdaterDelay.OnTimer := nil;
 end;
 
@@ -312,13 +301,12 @@ end;
 procedure TCEWidget.updateDelayed;
 begin
 end;
-
 {$ENDREGION}
 
 {$REGION TCEWidgetList----------------------------------------------------------}
 function TCEWidgetList.getWidget(index: integer): TCEWidget;
 begin
-  Result := PTCEWidget(Items[index])^;
+  result := PTCEWidget(Items[index])^;
 end;
 
 procedure TCEWidgetList.addWidget(aValue: PTCEWidget);
@@ -326,24 +314,23 @@ begin
   add(Pointer(aValue));
 end;
 
-function TWidgetEnumerator.getCurrent: TCEWidget;
+function TWidgetEnumerator.getCurrent:TCEWidget;
 begin
-  Result := fList.widget[fIndex];
+  result := fList.widget[fIndex];
 end;
 
 function TWidgetEnumerator.moveNext: boolean;
 begin
   Inc(fIndex);
-  Result := fIndex < fList.Count;
+  result := fIndex < fList.Count;
 end;
 
 operator enumerator(aWidgetList: TCEWidgetList): TWidgetEnumerator;
 begin
-  Result := TWidgetEnumerator.Create;
-  Result.fList := aWidgetList;
-  Result.fIndex := -1;
+  result := TWidgetEnumerator.Create;
+  result.fList := aWidgetList;
+  result.fIndex := -1;
 end;
-
 {$ENDREGION}
 
 end.

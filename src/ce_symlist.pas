@@ -6,25 +6,25 @@ interface
 
 uses
   Classes, SysUtils, TreeFilterEdit, Forms, Controls, Graphics, ExtCtrls, Menus,
-  ComCtrls, ce_widget, jsonparser, process, ActnList, Buttons, Clipbrd, LCLProc,
+  ComCtrls, ce_widget, jsonparser, process, actnlist, Buttons, Clipbrd, LCLProc,
   ce_common, ce_observer, ce_synmemo, ce_interfaces, ce_writableComponent, EditBtn;
 
 type
 
   // Enumerates the possible symbol kind. To be kept in sync with the tool declaration.
   TSymbolType = (
-    _alias,
-    _class,
-    _enum,
-    _function,
-    _interface,
-    _import,
-    _mixin,
-    _struct,
-    _template,
-    _union,
-    _variable
-    );
+      _alias,
+      _class,
+      _enum,
+      _function,
+      _interface,
+      _import,
+      _mixin,
+      _struct,
+      _template,
+      _union,
+      _variable
+  );
 
   TSymbolCollection = class;
 
@@ -39,12 +39,12 @@ type
   published
     property line: Integer read fline write fLine;
     property col: Integer read fCol write fCol;
-    property Name: string read fName write fName;
+    property name: string read fName write fName;
     property symType: TSymbolType read fType write fType;
     property subs: TSymbolCollection read fSubs write setSubs;
   public
     constructor Create(ACollection: TCollection); override;
-    destructor Destroy; override;
+    destructor destroy; override;
   end;
 
   // Encapsulates a ssymbol ub symbols.
@@ -52,7 +52,7 @@ type
   private
     function getSub(index: Integer): TSymbol;
   public
-    constructor Create;
+    constructor create;
     property sub[index: Integer]: TSymbol read getSub; default;
   end;
 
@@ -64,8 +64,8 @@ type
   published
     property symbols: TSymbolCollection read fSymbols write setSymbols;
   public
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
+    constructor create(aOwner: TCOmponent); override;
+    destructor destroy; override;
     //
     procedure LoadFromTool(str: TStream);
   end;
@@ -135,8 +135,8 @@ type
     procedure clearTree;
     //
     procedure callToolProc;
-    procedure toolOutputData(Sender: TObject);
-    procedure toolTerminated(Sender: TObject);
+    procedure toolOutputData(sender: TObject);
+    procedure toolTerminated(sender: TObject);
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
@@ -160,25 +160,24 @@ type
     property refreshOnChange: boolean read fRefreshOnChange write fRefreshOnChange;
     property refreshOnFocus: boolean read fRefreshOnFocus write fRefreshOnFocus;
   public
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
   end;
 
 implementation
-
 {$R *.lfm}
 
 const
   OptsFname = 'symbollist.txt';
 
 {$REGION Serializable symbols---------------------------------------------------}
-constructor TSymbol.Create(ACollection: TCollection);
+constructor TSymbol.create(ACollection: TCollection);
 begin
-  inherited Create(ACollection);
-  fSubs := TSymbolCollection.Create;
+  inherited create(ACollection);
+  fSubs := TSymbolCollection.create;
 end;
 
-destructor TSymbol.Destroy;
+destructor TSymbol.destroy;
 begin
   fSubs.Free;
   inherited;
@@ -189,9 +188,9 @@ begin
   fSubs.Assign(aValue);
 end;
 
-constructor TSymbolCollection.Create;
+constructor TSymbolCollection.create;
 begin
-  inherited Create(TSymbol);
+  inherited create(TSymbol);
 end;
 
 function TSymbolCollection.getSub(index: Integer): TSymbol;
@@ -199,15 +198,15 @@ begin
   exit(TSymbol(self.Items[index]));
 end;
 
-constructor TSymbolList.Create(aOwner: TComponent);
+constructor TSymbolList.create(aOwner: TCOmponent);
 begin
   inherited;
-  fSymbols := TSymbolCollection.Create;
+  fSymbols := TSymbolCollection.create;
 end;
 
-destructor TSymbolList.Destroy;
+destructor TSymbolList.destroy;
 begin
-  fSymbols.Free;
+  fSymbols.free;
   inherited;
 end;
 
@@ -222,24 +221,23 @@ var
 begin
   bin := TMemoryStream.Create;
   try
-    str.Position := 0;
+    str.Position:=0;
     ObjectTextToBinary(str, bin);
-    bin.Position := 0;
+    bin.Position:=0;
     bin.ReadComponent(self);
   finally
     bin.Free;
   end;
 end;
-
 {$ENDREGION}
 
 {$REGION TCESymbolListOptions --------------------------------------------------}
-constructor TCESymbolListOptions.Create(AOwner: TComponent);
+constructor  TCESymbolListOptions.Create(AOwner: TComponent);
 begin
   inherited;
-  fRefreshOnFocus := True;
-  fShowChildCategories := True;
-  fSmartFilter := True;
+  fRefreshOnFocus := true;
+  fShowChildCategories := true;
+  fSmartFilter := true;
   fAutoRefreshDelay := 1500;
 end;
 
@@ -251,15 +249,14 @@ begin
   begin
     widg := TCESymbolListWidget(Source);
     //
-    fAutoRefreshDelay := widg.updaterByDelayDuration;
-    fRefreshOnFocus := widg.fRefreshOnFocus;
-    fRefreshOnChange := widg.fRefreshOnChange;
-    fAutoRefresh := widg.fAutoRefresh;
-    fShowChildCategories := widg.fShowChildCategories;
-    fSmartFilter := widg.fSmartFilter;
+    fAutoRefreshDelay     := widg.updaterByDelayDuration;
+    fRefreshOnFocus       := widg.fRefreshOnFocus;
+    fRefreshOnChange      := widg.fRefreshOnChange;
+    fAutoRefresh          := widg.fAutoRefresh;
+    fShowChildCategories  := widg.fShowChildCategories;
+    fSmartFilter          := widg.fSmartFilter;
   end
-  else
-    inherited;
+  else inherited;
 end;
 
 procedure TCESymbolListOptions.AssignTo(Dest: TPersistent);
@@ -271,34 +268,32 @@ begin
     widg := TCESymbolListWidget(Dest);
     //
     widg.updaterByDelayDuration := fAutoRefreshDelay;
-    widg.fRefreshOnFocus := fRefreshOnFocus;
-    widg.fRefreshOnChange := fRefreshOnChange;
-    widg.fAutoRefresh := fAutoRefresh;
-    widg.fShowChildCategories := fShowChildCategories;
-    widg.fSmartFilter := fSmartFilter;
+    widg.fRefreshOnFocus        := fRefreshOnFocus;
+    widg.fRefreshOnChange       := fRefreshOnChange;
+    widg.fAutoRefresh           := fAutoRefresh;
+    widg.fShowChildCategories   := fShowChildCategories;
+    widg.fSmartFilter           := fSmartFilter;
     //
-    widg.fActAutoRefresh.Checked := fAutoRefresh;
-    widg.fActRefreshOnChange.Checked := fRefreshOnChange;
+    widg.fActAutoRefresh.Checked    := fAutoRefresh;
+    widg.fActRefreshOnChange.Checked:= fRefreshOnChange;
     widg.fActRefreshOnFocus.Checked := fRefreshOnFocus;
   end
-  else
-    inherited;
+  else inherited;
 end;
-
 {$ENDREGIOn}
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
-constructor TCESymbolListWidget.Create(aOwner: TComponent);
+constructor TCESymbolListWidget.create(aOwner: TComponent);
 var
   png: TPortableNetworkGraphic;
   fname: string;
 begin
-  fAutoRefresh := False;
-  fRefreshOnFocus := True;
-  fRefreshOnChange := False;
+  fAutoRefresh := false;
+  fRefreshOnFocus := true;
+  fRefreshOnChange := false;
   //
   fActCopyIdent := TAction.Create(self);
-  fActCopyIdent.OnExecute := @actCopyIdentExecute;
+  fActCopyIdent.OnExecute:=@actCopyIdentExecute;
   fActCopyIdent.Caption := 'Copy identifier';
   fActRefresh := TAction.Create(self);
   fActRefresh.OnExecute := @actRefreshExecute;
@@ -306,17 +301,17 @@ begin
   fActAutoRefresh := TAction.Create(self);
   fActAutoRefresh.OnExecute := @actAutoRefreshExecute;
   fActAutoRefresh.Caption := 'Auto-refresh';
-  fActAutoRefresh.AutoCheck := True;
+  fActAutoRefresh.AutoCheck := true;
   fActAutoRefresh.Checked := fAutoRefresh;
   fActRefreshOnChange := TAction.Create(self);
   fActRefreshOnChange.OnExecute := @actRefreshOnChangeExecute;
   fActRefreshOnChange.Caption := 'Refresh on change';
-  fActRefreshOnChange.AutoCheck := True;
+  fActRefreshOnChange.AutoCheck := true;
   fActRefreshOnChange.Checked := fRefreshOnChange;
   fActRefreshOnFocus := TAction.Create(self);
   fActRefreshOnFocus.OnExecute := @actRefreshOnFocusExecute;
   fActRefreshOnFocus.Caption := 'Refresh on focused';
-  fActRefreshOnFocus.AutoCheck := True;
+  fActRefreshOnFocus.AutoCheck := true;
   fActRefreshOnFocus.Checked := fRefreshOnFocus;
   fActSelectInSource := TAction.Create(self);
   fActSelectInSource.OnExecute := @TreeDblClick;
@@ -324,27 +319,27 @@ begin
   //
   inherited;
   // allow empty name if owner is nil
-  fSyms := TSymbolList.Create(nil);
-  fToolOutput := TMemoryStream.Create;
+  fSyms := TSymbolList.create(nil);
+  fToolOutput := TMemoryStream.create;
   //
   fOptions := TCESymbolListOptions.Create(self);
-  fOptions.Name := 'symbolListOptions';
+  fOptions.Name:= 'symbolListOptions';
   fname := getCoeditDocPath + OptsFname;
   if FileExists(fname) then
-    fOptions.loadFromFile(fname);
+  fOptions.loadFromFile(fname);
   fOptions.AssignTo(self);
   //
-  ndAlias := Tree.Items[0];
-  ndClass := Tree.Items[1];
-  ndEnum := Tree.Items[2];
-  ndFunc := Tree.Items[3];
-  ndImp := Tree.Items[4];
-  ndIntf := Tree.Items[5];
-  ndMix := Tree.Items[6];
-  ndStruct := Tree.Items[7];
-  ndTmp := Tree.Items[8];
-  ndUni := Tree.Items[9];
-  ndVar := Tree.Items[10];
+  ndAlias   := Tree.Items[0];
+  ndClass   := Tree.Items[1];
+  ndEnum    := Tree.Items[2];
+  ndFunc    := Tree.Items[3];
+  ndImp     := Tree.Items[4];
+  ndIntf    := Tree.Items[5];
+  ndMix     := Tree.Items[6];
+  ndStruct  := Tree.Items[7];
+  ndTmp     := Tree.Items[8];
+  ndUni     := Tree.Items[9];
+  ndVar     := Tree.Items[10];
   //
   png := TPortableNetworkGraphic.Create;
   try
@@ -360,12 +355,12 @@ begin
   EntitiesConnector.addObserver(self);
 end;
 
-destructor TCESymbolListWidget.Destroy;
+destructor TCESymbolListWidget.destroy;
 begin
   EntitiesConnector.removeObserver(self);
   //
   killProcess(fToolProc);
-  fToolOutput.Free;
+  fToolOutput.free;
   fSyms.Free;
   //
   fOptions.saveToFile(getCoeditDocPath + OptsFname);
@@ -381,18 +376,17 @@ begin
   if Value then
     callToolProc;
 end;
-
 {$ENDREGION}
 
 {$REGION ICEContextualActions---------------------------------------------------}
 function TCESymbolListWidget.contextName: string;
 begin
-  Result := 'Static explorer';
+  result := 'Static explorer';
 end;
 
 function TCESymbolListWidget.contextActionCount: integer;
 begin
-  Result := 6;
+  result := 6;
 end;
 
 function TCESymbolListWidget.contextAction(index: integer): TAction;
@@ -404,15 +398,13 @@ begin
     3: exit(fActAutoRefresh);
     4: exit(fActRefreshOnChange);
     5: exit(fActRefreshOnFocus);
-    else
-      Result := nil;
+    else result := nil;
   end;
 end;
 
 procedure TCESymbolListWidget.actRefreshExecute(Sender: TObject);
 begin
-  if Updating then
-    exit;
+  if Updating then exit;
   callToolProc;
 end;
 
@@ -436,11 +428,9 @@ end;
 
 procedure TCESymbolListWidget.actCopyIdentExecute(Sender: TObject);
 begin
-  if Tree.Selected = nil then
-    exit;
-  Clipboard.AsText := Tree.Selected.Text;
+  if Tree.Selected = nil then exit;
+  Clipboard.AsText:= Tree.Selected.Text;
 end;
-
 {$ENDREGION}
 
 {$REGION ICEEditableOptions ----------------------------------------------------}
@@ -462,12 +452,10 @@ end;
 
 procedure TCESymbolListWidget.optionedEvent(anEvent: TOptionEditorEvent);
 begin
-  if anEvent <> oeeAccept then
-    exit;
+  if anEvent <> oeeAccept then exit;
   fOptions.AssignTo(self);
   callToolProc;
 end;
-
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
@@ -479,8 +467,7 @@ end;
 
 procedure TCESymbolListWidget.docClosing(aDoc: TCESynMemo);
 begin
-  if fDoc <> aDoc then
-    exit;
+  if fDoc <> aDoc then exit;
   fDoc := nil;
   clearTree;
   updateVisibleCat;
@@ -488,38 +475,28 @@ end;
 
 procedure TCESymbolListWidget.docFocused(aDoc: TCESynMemo);
 begin
-  if fDoc = aDoc then
-    exit;
+  if fDoc = aDoc then exit;
   fDoc := aDoc;
-  if not Visible then
-    exit;
+  if not Visible then exit;
   //
-  if fAutoRefresh then
-    beginDelayedUpdate
-  else if fRefreshOnFocus then
-    callToolProc;
+  if fAutoRefresh then beginDelayedUpdate
+  else if fRefreshOnFocus then callToolProc;
 end;
 
 procedure TCESymbolListWidget.docChanged(aDoc: TCESynMemo);
 begin
-  if fDoc <> aDoc then
-    exit;
-  if not Visible then
-    exit;
+  if fDoc <> aDoc then exit;
+  if not Visible then exit;
   //
-  if fAutoRefresh then
-    beginDelayedUpdate
-  else if fRefreshOnChange then
-    callToolProc;
+  if fAutoRefresh then beginDelayedUpdate
+  else if fRefreshOnChange then callToolProc;
 end;
-
 {$ENDREGION}
 
 {$REGION Symbol-tree things ----------------------------------------------------}
 procedure TCESymbolListWidget.updateDelayed;
 begin
-  if not fAutoRefresh then
-    exit;
+  if not fAutoRefresh then exit;
   callToolProc;
 end;
 
@@ -540,29 +517,28 @@ begin
   begin
     ndAlias.Visible := ndAlias.Count > 0;
     ndClass.Visible := ndClass.Count > 0;
-    ndEnum.Visible := ndEnum.Count > 0;
-    ndFunc.Visible := ndFunc.Count > 0;
-    ndImp.Visible := ndImp.Count > 0;
-    ndIntf.Visible := ndIntf.Count > 0;
-    ndMix.Visible := ndMix.Count > 0;
-    ndStruct.Visible := ndStruct.Count > 0;
-    ndTmp.Visible := ndTmp.Count > 0;
-    ndUni.Visible := ndUni.Count > 0;
-    ndVar.Visible := ndVar.Count > 0;
-  end
-  else
+    ndEnum.Visible  := ndEnum.Count > 0;
+    ndFunc.Visible  := ndFunc.Count > 0;
+    ndImp.Visible   := ndImp.Count > 0;
+    ndIntf.Visible  := ndIntf.Count > 0;
+    ndMix.Visible   := ndMix.Count > 0;
+    ndStruct.Visible:= ndStruct.Count > 0;
+    ndTmp.Visible   := ndTmp.Count > 0;
+    ndUni.Visible   := ndUni.Count > 0;
+    ndVar.Visible   := ndVar.Count > 0;
+  end else
   begin
-    ndAlias.Visible := True;
-    ndClass.Visible := True;
-    ndEnum.Visible := True;
-    ndFunc.Visible := True;
-    ndImp.Visible := True;
-    ndIntf.Visible := True;
-    ndMix.Visible := True;
-    ndStruct.Visible := True;
-    ndTmp.Visible := True;
-    ndUni.Visible := True;
-    ndVar.Visible := True;
+    ndAlias.Visible := true;
+    ndClass.Visible := true;
+    ndEnum.Visible  := true;
+    ndFunc.Visible  := true;
+    ndImp.Visible   := true;
+    ndIntf.Visible  := true;
+    ndMix.Visible   := true;
+    ndStruct.Visible:= true;
+    ndTmp.Visible   := true;
+    ndUni.Visible   := true;
+    ndVar.Visible   := true;
   end;
 end;
 
@@ -583,48 +559,42 @@ end;
 
 procedure TCESymbolListWidget.TreeFilterEdit1AfterFilter(Sender: TObject);
 begin
-  if TreeFilterEdit1.Filter = '' then
+  if TreeFilterEdit1.Filter ='' then
     updateVisibleCat;
 end;
 
-function TCESymbolListWidget.TreeFilterEdit1FilterItem(Item: TObject; out Done: Boolean): Boolean;
+function TCESymbolListWidget.TreeFilterEdit1FilterItem(Item: TObject; out
+  Done: Boolean): Boolean;
 begin
-  if not fSmartFilter then
-    exit;
+  if not fSmartFilter then exit;
   //
   if TreeFilterEdit1.Filter <> '' then
     tree.FullExpand
   else if tree.Selected = nil then
     tree.FullCollapse
-  else
-    tree.MakeSelectionVisible;
-  Result := False;
+  else tree.MakeSelectionVisible;
+  result := false;
 end;
 
 procedure TCESymbolListWidget.TreeFilterEdit1MouseEnter(Sender: TObject);
 begin
-  if not fSmartFilter then
-    exit;
+  if not fSmartFilter then exit;
   //
   tree.Selected := nil;
 end;
 
 procedure TCESymbolListWidget.TreeKeyPress(Sender: TObject; var Key: char);
 begin
-  if Key = #13 then
-    TreeDblClick(nil);
+  if Key = #13 then TreeDblClick(nil);
 end;
 
 procedure TCESymbolListWidget.TreeDblClick(Sender: TObject);
 var
   line: Int64;
 begin
-  if fDoc = nil then
-    exit;
-  if Tree.Selected = nil then
-    exit;
-  if Tree.Selected.Data = nil then
-    exit;
+  if fDoc = nil then exit;
+  if Tree.Selected = nil then exit;
+  if Tree.Selected.Data = nil then exit;
   //
   line := PInt64(Tree.Selected.Data)^;
   fDoc.CaretY := line;
@@ -635,10 +605,8 @@ procedure TCESymbolListWidget.callToolProc;
 var
   srcFname: string;
 begin
-  if fDoc = nil then
-    exit;
-  if fDoc.Lines.Count = 0 then
-    exit;
+  if fDoc = nil then exit;
+  if fDoc.Lines.Count = 0 then exit;
 
   // standard process options
   killProcess(fToolProc);
@@ -647,7 +615,7 @@ begin
   fToolProc.Options := [poUsePipes];
   fToolProc.Executable := 'cesyms';
   fToolProc.OnTerminate := @toolTerminated;
-  fToolProc.OnReadData := @toolOutputData;
+  fToolProc.OnReadData  := @toolOutputData;
   fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);
 
   // focused source
@@ -660,141 +628,123 @@ begin
   fToolProc.Execute;
 end;
 
-procedure TCESymbolListWidget.toolOutputData(Sender: TObject);
+procedure TCESymbolListWidget.toolOutputData(sender: TObject);
 begin
-  processOutputToStream(TProcess(Sender), fToolOutput);
+  processOutputToStream(TProcess(sender), fToolOutput);
 end;
 
-procedure TCESymbolListWidget.toolTerminated(Sender: TObject);
+procedure TCESymbolListWidget.toolTerminated(sender: TObject);
 //
-  function getCatNode(node: TTreeNode; stype: TSymbolType): TTreeNode;
-  begin
-    if node = nil then
-      case stype of
-        _alias: exit(ndAlias);
-        _class: exit(ndClass);
-        _enum: exit(ndEnum);
-        _function: exit(ndFunc);
-        _import: exit(ndImp);
-        _interface: exit(ndIntf);
-        _mixin: exit(ndMix);
-        _struct: exit(ndStruct);
-        _template: exit(ndTmp);
-        _union: exit(ndUni);
-        _variable: exit(ndVar);
-      end
-    else
-      case stype of
-        _alias:
-        begin
-          Result := node.FindNode('Alias');
-          if Result = nil then
-            Result := node.TreeNodes.AddChild(node, 'Alias');
-        end;
-        _class:
-        begin
-          Result := node.FindNode('Class');
-          if Result = nil then
-            Result := node.TreeNodes.AddChild(node, 'Class');
-        end;
-        _enum:
-        begin
-          Result := node.FindNode('Enum');
-          if Result = nil then
-            Result := node.TreeNodes.AddChild(node, 'Enum');
-        end;
-        _function:
-        begin
-          Result := node.FindNode('Function');
-          if Result = nil then
-            Result := node.TreeNodes.AddChild(node, 'Function');
-        end;
-        _import:
-        begin
-          Result := node.FindNode('Import');
-          if Result = nil then
-            Result := node.TreeNodes.AddChild(node, 'Import');
-        end;
-        _interface:
-        begin
-          Result := node.FindNode('Interface');
-          if Result = nil then
-            Result := node.TreeNodes.AddChild(node, 'Interface');
-        end;
-        _mixin:
-        begin
-          Result := node.FindNode('Mixin');
-          if Result = nil then
-            Result := node.TreeNodes.AddChild(node, 'Mixin');
-        end;
-        _struct:
-        begin
-          Result := node.FindNode('Struct');
-          if Result = nil then
-            Result := node.TreeNodes.AddChild(node, 'Struct');
-        end;
-        _template:
-        begin
-          Result := node.FindNode('Template');
-          if Result = nil then
-            Result := node.TreeNodes.AddChild(node, 'Template');
-        end;
-        _union:
-        begin
-          Result := node.FindNode('Union');
-          if Result = nil then
-            Result := node.TreeNodes.AddChild(node, 'Union');
-        end;
-        _variable:
-        begin
-          Result := node.FindNode('Variable');
-          if Result = nil then
-            Result := node.TreeNodes.AddChild(node, 'Variable');
-        end;
+function getCatNode(node: TTreeNode; stype: TSymbolType ): TTreeNode;
+begin
+  if node = nil then case stype of
+    _alias    : exit(ndAlias);
+    _class    : exit(ndClass);
+    _enum     : exit(ndEnum);
+    _function : exit(ndFunc);
+    _import   : exit(ndImp);
+    _interface: exit(ndIntf);
+    _mixin    : exit(ndMix);
+    _struct   : exit(ndStruct);
+    _template : exit(ndTmp);
+    _union    : exit(ndUni);
+    _variable : exit(ndVar);
+  end else case stype of
+    _alias:
+      begin
+        result := node.FindNode('Alias');
+        if result = nil then result := node.TreeNodes.AddChild(node, 'Alias');
       end;
-  end;
-  //
-  procedure symbolToTreeNode(origin: TTreenode; sym: TSymbol);
-  var
-    Data: PInt64;
-    cat: TTreeNode;
-    node: TTreeNode;
-    i: Integer;
-  begin
-    cat := getCatNode(origin, sym.symType);
-    Data := new(PInt64);
-    Data^ := sym.fline;
-    node := tree.Items.AddChildObject(cat, sym.Name, Data);
-    if not fShowChildCategories then
-      node := nil;
-    cat.Visible := True;
-    for i := 0 to sym.subs.Count - 1 do
-      symbolToTreeNode(node, sym.subs[i]);
-  end;
-  //
+    _class:
+      begin
+        result := node.FindNode('Class');
+        if result = nil then result := node.TreeNodes.AddChild(node, 'Class');
+      end;
+    _enum:
+      begin
+        result := node.FindNode('Enum');
+        if result = nil then result := node.TreeNodes.AddChild(node, 'Enum');
+      end;
+    _function:
+      begin
+        result := node.FindNode('Function');
+        if result = nil then result := node.TreeNodes.AddChild(node, 'Function');
+      end;
+    _import:
+      begin
+        result := node.FindNode('Import');
+        if result = nil then result := node.TreeNodes.AddChild(node, 'Import');
+      end;
+    _interface:
+      begin
+        result := node.FindNode('Interface');
+        if result = nil then result := node.TreeNodes.AddChild(node, 'Interface');
+      end;
+    _mixin:
+      begin
+        result := node.FindNode('Mixin');
+        if result = nil then result := node.TreeNodes.AddChild(node, 'Mixin');
+      end;
+    _struct:
+      begin
+        result := node.FindNode('Struct');
+        if result = nil then result := node.TreeNodes.AddChild(node, 'Struct');
+      end;
+    _template:
+      begin
+        result := node.FindNode('Template');
+        if result = nil then result := node.TreeNodes.AddChild(node, 'Template');
+      end;
+    _union:
+      begin
+        result := node.FindNode('Union');
+        if result = nil then result := node.TreeNodes.AddChild(node, 'Union');
+      end;
+    _variable:
+      begin
+        result := node.FindNode('Variable');
+        if result = nil then result := node.TreeNodes.AddChild(node, 'Variable');
+      end;
+    end;
+end;
+//
+procedure symbolToTreeNode(origin: TTreenode; sym: TSymbol);
+var
+  data: PInt64;
+  cat: TTreeNode;
+  node: TTreeNode;
+  i: Integer;
+begin
+  cat   := getCatNode(origin, sym.symType);
+  data  := new(PInt64);
+  data^ := sym.fline;
+  node  := tree.Items.AddChildObject(cat, sym.name, data);
+  if not fShowChildCategories then node := nil;
+  cat.Visible:=true;
+  for i := 0 to sym.subs.Count-1 do
+    symbolToTreeNode(node, sym.subs[i]);
+end;
+//
 var
   i: Integer;
 begin
-  if ndAlias = nil then
-    exit;
+  if ndAlias = nil then exit;
   clearTree;
   updateVisibleCat;
-  if fDoc = nil then
-    exit;
+  if fDoc = nil then exit;
   //
-  processOutputToStream(TProcess(Sender), fToolOutput);
+  processOutputToStream(TProcess(sender), fToolOutput);
   fToolOutput.Position := 0;
   fSyms.LoadFromTool(fToolOutput);
   fToolProc.OnTerminate := nil;
-  fToolProc.OnReadData := nil;
+  fToolProc.OnReadData  := nil;
   fToolOutput.Clear;
   //
   tree.BeginUpdate;
-  for i := 0 to fSyms.symbols.Count - 1 do
+  for i := 0 to fSyms.symbols.Count-1 do
     symbolToTreeNode(nil, fSyms.symbols[i]);
   tree.EndUpdate;
 end;
-
 {$ENDREGION --------------------------------------------------------------------}
 
 end.

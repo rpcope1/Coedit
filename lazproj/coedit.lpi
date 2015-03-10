@@ -230,6 +230,7 @@
         <ComponentName Value="CEProcInputWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_procinput"/>
       </Unit17>
       <Unit18>
         <Filename Value="..\src\ce_projconf.pas"/>

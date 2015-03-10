@@ -14,7 +14,6 @@ type
   // store the information about the obsever
   // exposing some editable options.
   PCategoryData = ^TCategoryData;
-
   TCategoryData = record
     kind: TOptionEditorKind;
     container: TPersistent;
@@ -36,7 +35,8 @@ type
     selCat: TTreeView;
     procedure btnAcceptClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
-    procedure inspectorEditorFilter(Sender: TObject; aEditor: TPropertyEditor; var aShow: boolean);
+    procedure inspectorEditorFilter(Sender: TObject; aEditor: TPropertyEditor;
+      var aShow: boolean);
     procedure inspectorModified(Sender: TObject);
     procedure selCatDeletion(Sender: TObject; Node: TTreeNode);
     procedure selCatSelectionChanged(Sender: TObject);
@@ -47,24 +47,23 @@ type
     procedure updateCategories;
     function sortCategories(Cat1, Cat2: TTreeNode): integer;
   public
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
   end;
 
 implementation
-
 {$R *.lfm}
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
-constructor TCEOptionEditorWidget.Create(aOwner: TComponent);
+constructor TCEOptionEditorWidget.create(aOwner: TComponent);
 var
   png: TPortableNetworkGraphic;
 begin
   inherited;
-  fDockable := False;
-  fModal := True;
-  fEdOptsSubj := TCEEditableOptionsSubject.Create;
-  inspector.CheckboxForBoolean := True;
+  fDockable := false;
+  fModal:= true;
+  fEdOptsSubj := TCEEditableOptionsSubject.create;
+  inspector.CheckboxForBoolean := true;
   //
   png := TPortableNetworkGraphic.Create;
   try
@@ -77,7 +76,7 @@ begin
   end;
 end;
 
-destructor TCEOptionEditorWidget.Destroy;
+destructor TCEOptionEditorWidget.destroy;
 begin
   fEdOptsSubj.Free;
   inherited;
@@ -86,10 +85,8 @@ end;
 procedure TCEOptionEditorWidget.UpdateShowing;
 begin
   inherited;
-  if Visible then
-    updateCategories;
+  if Visible then updateCategories;
 end;
-
 {$ENDREGION}
 
 {$REGION Option editor things --------------------------------------------------}
@@ -101,7 +98,7 @@ var
 begin
   inspector.TIObject := nil;
   selCat.Items.Clear;
-  for i := 0 to fEdOptsSubj.observersCount - 1 do
+  for i:= 0 to fEdOptsSubj.observersCount-1 do
   begin
     dt := new(PCategoryData);
     ed := fEdOptsSubj.observers[i] as ICEEditableOptions;
@@ -115,7 +112,7 @@ end;
 
 function TCEOptionEditorWidget.sortCategories(Cat1, Cat2: TTreeNode): integer;
 begin
-  Result := CompareText(Cat1.Text, Cat2.Text);
+  result := CompareText(Cat1.Text, Cat2.Text);
 end;
 
 procedure TCEOptionEditorWidget.selCatDeletion(Sender: TObject; Node: TTreeNode);
@@ -134,42 +131,37 @@ begin
   if pnlEd.ControlCount > 0 then
     pnlEd.Controls[0].Parent := nil;
   //
-  if selCat.Selected = nil then
-    exit;
-  if selCat.Selected.Data = nil then
-    exit;
+  if selCat.Selected = nil then exit;
+  if selCat.Selected.Data = nil then exit;
   //
   dt := PCategoryData(selCat.Selected.Data);
-  if dt^.container = nil then
-    exit;
+  if dt^.container = nil then exit;
   case dt^.kind of
     oekControl:
-    begin
-      TWinControl(dt^.container).Parent := pnlEd;
-      TWinControl(dt^.container).Align := alClient;
-    end;
+      begin
+        TWinControl(dt^.container).Parent := pnlEd;
+        TWinControl(dt^.container).Align := alClient;
+      end;
     oekForm:
-    begin
-      TCustomForm(dt^.container).Parent := pnlEd;
-      TCustomForm(dt^.container).Align := alClient;
-      TCustomForm(dt^.container).BorderIcons := [];
-      TCustomForm(dt^.container).BorderStyle := bsNone;
-    end;
+      begin
+        TCustomForm(dt^.container).Parent := pnlEd;
+        TCustomForm(dt^.container).Align := alClient;
+        TCustomForm(dt^.container).BorderIcons:= [];
+        TCustomForm(dt^.container).BorderStyle:= bsNone;
+      end;
     oekGeneric:
-    begin
-      inspector.Parent := pnlEd;
-      inspector.Align := alClient;
-      inspector.TIObject := dt^.container;
-    end;
+      begin
+        inspector.Parent := pnlEd;
+        inspector.Align := alClient;
+        inspector.TIObject := dt^.container;
+      end;
   end;
 end;
 
 procedure TCEOptionEditorWidget.inspectorModified(Sender: TObject);
 begin
-  if selCat.Selected = nil then
-    exit;
-  if selcat.Selected.Data = nil then
-    exit;
+  if selCat.Selected = nil then exit;
+  if selcat.Selected.Data = nil then exit;
   //
   PCategoryData(selCat.Selected.Data)^
     .observer
@@ -178,10 +170,8 @@ end;
 
 procedure TCEOptionEditorWidget.btnCancelClick(Sender: TObject);
 begin
-  if selCat.Selected = nil then
-    exit;
-  if selcat.Selected.Data = nil then
-    exit;
+  if selCat.Selected = nil then exit;
+  if selcat.Selected.Data = nil then exit;
   //
   if inspector.Parent <> nil then
     inspector.ItemIndex := -1;
@@ -190,23 +180,22 @@ begin
     .optionedEvent(oeeCancel);
 end;
 
-procedure TCEOptionEditorWidget.inspectorEditorFilter(Sender: TObject; aEditor: TPropertyEditor; var aShow: boolean);
+procedure TCEOptionEditorWidget.inspectorEditorFilter(Sender: TObject;aEditor:
+  TPropertyEditor; var aShow: boolean);
 begin
   if aEditor.GetComponent(0) is TComponent then
   begin
     if aEditor.GetPropInfo^.Name = 'Tag' then
-      aSHow := False;
+      aSHow := false;
     if aEditor.GetPropInfo^.Name = 'Name' then
-      aSHow := False;
+      aSHow := false;
   end;
 end;
 
 procedure TCEOptionEditorWidget.btnAcceptClick(Sender: TObject);
 begin
-  if selCat.Selected = nil then
-    exit;
-  if selcat.Selected.Data = nil then
-    exit;
+  if selCat.Selected = nil then exit;
+  if selcat.Selected.Data = nil then exit;
   //
   if inspector.Parent <> nil then
     inspector.ItemIndex := -1;
@@ -214,7 +203,7 @@ begin
     .observer
     .optionedEvent(oeeAccept);
 end;
-
 {$ENDREGION}
 
 end.
+

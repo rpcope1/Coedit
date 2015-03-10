@@ -37,7 +37,7 @@ implementation
 
 function TCECustomPathEditor.GetAttributes: TPropertyAttributes;
 begin
-  exit(inherited GetAttributes() + [paDialog]);
+  exit( inherited GetAttributes() + [paDialog]);
 end;
 
 procedure TCECustomPathEditor.Edit;
@@ -46,15 +46,13 @@ var
 begin
   case fType of
     ptFile:
-      with TOpenDialog.Create(nil) do
-        try
-          InitialDir := ExtractFileName(GetValue);
-          FileName := GetValue;
-          if Execute then
-            SetValue(FileName);
-        finally
-          Free;
-        end;
+      with TOpenDialog.create(nil) do try
+        InitialDir := ExtractFileName(GetValue);
+        FileName := GetValue;
+        if Execute then SetValue(FileName);
+      finally
+        free;
+      end;
     ptFolder:
       if SelectDirectory(GetPropInfo^.Name, GetValue, newValue) then
         SetValue(newValue);
@@ -77,3 +75,4 @@ initialization
   RegisterPropertyEditor(TypeInfo(TCEPathname), nil, '', TCEPathnameEditor);
   RegisterPropertyEditor(TypeInfo(TCEFilename), nil, '', TCEfilenameEditor);
 end.
+

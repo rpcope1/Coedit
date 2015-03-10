@@ -34,19 +34,18 @@ type
     procedure rebuildToolList;
     procedure updateToolList;
   public
-    constructor Create(aOwner: TComponent); override;
+    constructor create(aOwner: TComponent); override;
   end;
 
 implementation
-
 {$R *.lfm}
 
-constructor TCEToolsEditorWidget.Create(aOwner: TComponent);
+constructor TCEToolsEditorWidget.create(aOwner: TComponent);
 var
   png: TPortableNetworkGraphic;
 begin
   inherited;
-  propsEd.CheckboxForBoolean := True;
+  propsEd.CheckboxForBoolean := true;
   png := TPortableNetworkGraphic.Create;
   try
     png.LoadFromLazarusResource('arrow_up');
@@ -60,7 +59,7 @@ begin
     png.LoadFromLazarusResource('application_flash');
     btnRun.Glyph.Assign(png);
   finally
-    png.Free;
+    png.free;
   end;
   rebuildToolList;
 end;
@@ -78,7 +77,7 @@ begin
   clearInspector;
   lstTools.Clear;
   //
-  for i := 0 to CustomTools.tools.Count - 1 do
+  for i := 0 to CustomTools.tools.Count-1 do
     lstTools.AddItem(CustomTools[i].toolAlias, nil);
   if lstTools.Count > 0 then
     lstTools.ItemIndex := 0;
@@ -88,11 +87,12 @@ procedure TCEToolsEditorWidget.updateToolList;
 var
   i: Integer;
 begin
-  for i := 0 to CustomTools.tools.Count - 1 do
+  for i := 0 to CustomTools.tools.Count-1 do
     lstTools.Items.Strings[i] := CustomTools[i].toolAlias;
 end;
 
-procedure TCEToolsEditorWidget.lstToolsSelectionChange(Sender: TObject; User: boolean);
+procedure TCEToolsEditorWidget.lstToolsSelectionChange(Sender: TObject;
+  User: boolean);
 begin
   if lstTools.ItemIndex = -1 then
     exit;
@@ -124,10 +124,8 @@ end;
 
 procedure TCEToolsEditorWidget.btnMoveUpClick(Sender: TObject);
 begin
-  if lstTools.ItemIndex = -1 then
-    exit;
-  if lstTools.ItemIndex = 0 then
-    exit;
+  if lstTools.ItemIndex = -1 then exit;
+  if lstTools.ItemIndex = 0 then exit;
   //
   CustomTools.tools.Exchange(lstTools.ItemIndex, lstTools.ItemIndex - 1);
   lstTools.ItemIndex := lstTools.ItemIndex - 1;
@@ -136,10 +134,8 @@ end;
 
 procedure TCEToolsEditorWidget.btnMoveDownClick(Sender: TObject);
 begin
-  if lstTools.ItemIndex = -1 then
-    exit;
-  if lstTools.ItemIndex = lstTools.Items.Count - 1 then
-    exit;
+  if lstTools.ItemIndex = -1 then exit;
+  if lstTools.ItemIndex = lstTools.Items.Count-1 then exit;
   //
   CustomTools.tools.Exchange(lstTools.ItemIndex, lstTools.ItemIndex + 1);
   lstTools.ItemIndex := lstTools.ItemIndex + 1;
@@ -164,3 +160,4 @@ begin
 end;
 
 end.
+
