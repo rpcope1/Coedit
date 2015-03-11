@@ -10,7 +10,7 @@ import std.process;
 void main(string[] args)
 {
     auto path = args[0].dirName;
-    string cmd[];
+    string[] cmd;
     // resource compiler
     cmd ~= "lazres";
     // pascal source to include
