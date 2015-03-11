@@ -546,6 +546,7 @@ end;
 procedure TCESynMemo.checkFileDate;
 var
   newDate: double;
+  str: TStringList;
 begin
   if fFilename = fTempFileName then exit;
   if not FileAge(fFilename, newDate) then exit;
@@ -555,8 +556,16 @@ begin
     if dlgOkCancel(format('"%s" has been modified by another program, load the new version ?',
       [shortenPath(fFilename, 25)])) = mrOk then
     begin
-      Lines.LoadFromFile(fFilename);
-      fModified := false;
+      str := TStringList.Create;
+      try
+        str.LoadFromFile(fFilename);
+        DoCopyToClipboard(str.Text);
+        ClearAll;
+        PasteFromClipboard;
+        fModified := true;
+      finally
+        str.Free;
+      end;
     end;
   end;
   fFileDate := newDate;
