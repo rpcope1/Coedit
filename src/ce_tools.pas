@@ -45,6 +45,7 @@ type
   public
     constructor create(ACollection: TCollection); override;
     destructor destroy; override;
+    procedure assign(Source: TPersistent); override;
   end;
 
   TCETools = class(TWritableLfmTextComponent, ICEMainMenuProvider, ICEEditableShortcut)
@@ -103,6 +104,27 @@ begin
   fChainBefore.Free;
   killProcess(fProcess);
   inherited;
+end;
+
+procedure TCEToolItem.assign(Source: TPersistent);
+var
+  tool: TCEToolItem;
+begin
+  if Source is TCEToolItem then
+  begin
+    tool := TCEToolItem(Source);
+    //
+    toolAlias := tool.toolAlias;
+    chainAfter.Assign(tool.chainAfter);
+    chainBefore.Assign(tool.chainBefore);
+    queryParameters := tool.queryParameters;
+    clearMessages := tool.clearMessages;
+    fOpts := tool.fOpts;
+    parameters.Assign(tool.parameters);
+    executable := tool.executable;
+    workingDirectory := tool.workingDirectory;
+  end
+  else inherited;
 end;
 
 procedure TCEToolItem.setParameters(aValue: TStringList);

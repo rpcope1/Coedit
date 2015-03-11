@@ -9,10 +9,14 @@ uses
   ExtCtrls, Menus, Buttons, StdCtrls, ce_widget, ce_tools;
 
 type
+
+  { TCEToolsEditorWidget }
+
   TCEToolsEditorWidget = class(TCEWidget)
     BtnAddTool: TBitBtn;
     btnMoveDown: TBitBtn;
     btnMoveUp: TBitBtn;
+    btnClone: TBitBtn;
     btnRemTool: TBitBtn;
     btnRun: TBitBtn;
     lstTools: TListBox;
@@ -21,6 +25,7 @@ type
     Splitter1: TSplitter;
     propsEd: TTIPropertyGrid;
     procedure BtnAddToolClick(Sender: TObject);
+    procedure btnCloneClick(Sender: TObject);
     procedure btnRemToolClick(Sender: TObject);
     procedure btnMoveUpClick(Sender: TObject);
     procedure btnMoveDownClick(Sender: TObject);
@@ -58,6 +63,8 @@ begin
     btnRemTool.Glyph.Assign(png);
     png.LoadFromLazarusResource('application_flash');
     btnRun.Glyph.Assign(png);
+    png.LoadFromLazarusResource('application_double');
+    btnClone.Glyph.Assign(png);
   finally
     png.free;
   end;
@@ -110,6 +117,18 @@ end;
 procedure TCEToolsEditorWidget.BtnAddToolClick(Sender: TObject);
 begin
   CustomTools.addTool;
+  rebuildToolList;
+end;
+
+procedure TCEToolsEditorWidget.btnCloneClick(Sender: TObject);
+var
+  itm: TCEToolItem;
+begin
+  if lstTools.ItemIndex = -1 then
+    exit;
+  itm := CustomTools.addTool;
+  itm.Assign(CustomTools[lstTools.ItemIndex]);
+  itm.toolAlias := itm.toolAlias + ' (copy)';
   rebuildToolList;
 end;
 
