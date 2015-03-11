@@ -43,9 +43,8 @@ type
    * Shift + SPACE works automatically on the right editor (ICEMultiDocObserver)
    * Automatic insertion is handled in TCESynMemo.KeyUp()
    *)
-  TCEStaticEditorMacro = class(TWritableLfmTextComponent, ICEMultiDocObserver, ICEEditableOptions)
+  TCEStaticEditorMacro = class(TWritableLfmTextComponent, ICEMultiDocObserver, ICEEditableOptions, ICEEditableShortCut)
   private
-    //TODO-cfeature: exposes fCompletor shortcut with ICEEDItableShortcut
     fCompletor: TSynAutoComplete;
     fMacros: TStringList;
     fDoc: TCESynMemo;
@@ -66,6 +65,10 @@ type
     function optionedWantEditorKind: TOptionEditorKind;
     function optionedWantContainer: TPersistent;
     procedure optionedEvent(anEvent: TOptionEditorEvent);
+    // ICEEditableShortcut
+    function scedWantFirst: boolean;
+    function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
+    procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
   published
     // list of string with the format $<..>alnum=<..>
     property macros: TStringList read fMacros write setMacros;
@@ -292,6 +295,28 @@ begin
     end;
     oeeChange: fOptions.AssignTo(self);
   end;
+end;
+{$ENDREGION}
+
+{$REGION Macros things ---------------------------------------------------------}
+function TCEStaticEditorMacro.scedWantFirst: boolean;
+begin
+  exit(true);
+end;
+
+function TCEStaticEditorMacro.scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
+begin
+  category := 'Static macros';
+  identifier := 'invoke';
+  aShortcut := fCompletor.ShortCut;
+  exit(false);
+end;
+
+procedure TCEStaticEditorMacro.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+begin
+  if category = 'Static macros' then
+    if identifier = 'invoke' then
+      fCompletor.ShortCut := aShortcut;
 end;
 {$ENDREGION}
 
