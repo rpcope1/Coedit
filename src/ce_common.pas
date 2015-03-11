@@ -380,7 +380,7 @@ end;
 
 procedure TMRUFileList.assign(src: TPersistent);
 var
-  i: NativeInt;
+  i: Integer;
 begin
   inherited;
   for i := Count-1 downto 0 do

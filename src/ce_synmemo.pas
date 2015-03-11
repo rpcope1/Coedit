@@ -14,7 +14,7 @@ type
 
   TCESynMemo = class;
 
-  // SImple THintWindow descendant allowing the font size to be in sync with the editor.
+  // Simple THintWindow descendant allowing the font size to be in sync with the editor.
   TCEEditorHintWindow = class(THintWindow)
   public
     class var FontSize: Integer;
