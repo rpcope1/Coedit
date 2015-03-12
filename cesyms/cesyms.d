@@ -162,8 +162,8 @@ class SymbolListBuilder : ASTVisitor
     static void astError(string fname, size_t line, size_t col, string msg, bool isErr)
     {
         Symbol * newSym = construct!Symbol;
-        newSym.col = col;
-        newSym.line = line;
+        newSym.col = cast(int) col;
+        newSym.line = cast(int) line;
         newSym.name = msg;
         isErr ? newSym.type = SymbolType._error : newSym.type = SymbolType._warning; 
         illFormed ~= newSym;
