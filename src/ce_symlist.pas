@@ -16,6 +16,7 @@ type
       _alias,
       _class,
       _enum,
+      _error,
       _function,
       _interface,
       _import,
@@ -24,7 +25,6 @@ type
       _template,
       _union,
       _variable,
-      _error,
       _warning
   );
 
@@ -33,14 +33,14 @@ type
   // Encapsulates a symbol to enable structured serialization
   TSymbol = class(TCollectionItem)
   private
-    fline, fCol: integer;
+    fline, fCol: nativeUint;
     fName: string;
     fType: TSymbolType;
     fSubs: TSymbolCollection;
     procedure setSubs(aValue: TSymbolCollection);
   published
-    property line: Integer read fline write fLine;
-    property col: Integer read fCol write fCol;
+    property line: nativeUint read fline write fLine;
+    property col: nativeUint read fCol write fCol;
     property name: string read fName write fName;
     property symType: TSymbolType read fType write fType;
     property subs: TSymbolCollection read fSubs write setSubs;
@@ -49,7 +49,7 @@ type
     destructor destroy; override;
   end;
 
-  // Encapsulates a ssymbol ub symbols.
+  // Encapsulates a the sub symbols.
   TSymbolCollection = class(TCollection)
   private
     function getSub(index: Integer): TSymbol;
@@ -58,7 +58,7 @@ type
     property sub[index: Integer]: TSymbol read getSub; default;
   end;
 
-  // Serializable Symbol list
+  // Serializable symbol list
   TSymbolList = class(TComponent)
   private
     fSymbols: TSymbolCollection;
@@ -522,7 +522,7 @@ end;
 procedure TCESymbolListWidget.TreeDeletion(Sender: TObject; Node: TTreeNode);
 begin
   if (node.Data <> nil) then
-    Dispose(PInt64(node.Data));
+    Dispose(PNativeUint(node.Data));
 end;
 
 procedure TCESymbolListWidget.btnRefreshClick(Sender: TObject);
@@ -615,13 +615,13 @@ end;
 
 procedure TCESymbolListWidget.TreeDblClick(Sender: TObject);
 var
-  line: Int64;
+  line: NativeUint;
 begin
   if fDoc = nil then exit;
   if Tree.Selected = nil then exit;
   if Tree.Selected.Data = nil then exit;
   //
-  line := PInt64(Tree.Selected.Data)^;
+  line := PNativeUInt(Tree.Selected.Data)^;
   fDoc.CaretY := line;
   fDoc.SelectLine;
 end;
@@ -684,31 +684,31 @@ begin
     _warning  : exit(ndWarn);
     _error    : exit(ndErr);
   end else case stype of
-    _alias: exit(newCat('Alias'));
-    _class: exit(newCat('Class'));
-    _enum: exit(newCat('Enum'));
-    _function: exit(newCat('Function'));
-    _import: exit(newCat('Import'));
+    _alias:     exit(newCat('Alias'));
+    _class:     exit(newCat('Class'));
+    _enum:      exit(newCat('Enum'));
+    _function:  exit(newCat('Function'));
+    _import:    exit(newCat('Import'));
     _interface: exit(newCat('Interface'));
-    _mixin: exit(newCat('Mixin'));
-    _struct: exit(newCat('Struct'));
-    _template: exit(newCat('Template'));
-    _union: exit(newCat('Union'));
-    _variable: exit(newCat('Variable'));
-    _warning: exit(ndWarn);
-    _error: exit(ndErr);
+    _mixin:     exit(newCat('Mixin'));
+    _struct:    exit(newCat('Struct'));
+    _template:  exit(newCat('Template'));
+    _union:     exit(newCat('Union'));
+    _variable:  exit(newCat('Variable'));
+    _warning:   exit(ndWarn);
+    _error:     exit(ndErr);
     end;
 end;
 //
 procedure symbolToTreeNode(origin: TTreenode; sym: TSymbol);
 var
-  data: PInt64;
+  data: PNativeUint;
   cat: TTreeNode;
   node: TTreeNode;
   i: Integer;
 begin
   cat   := getCatNode(origin, sym.symType);
-  data  := new(PInt64);
+  data  := new(PNativeUint);
   data^ := sym.fline;
   node  := tree.Items.AddChildObject(cat, sym.name, data);
   if not fShowChildCategories then node := nil;

@@ -91,7 +91,8 @@ enum SymbolType
 {
     _alias,
     _class, 
-    _enum,    
+    _enum, 
+    _error,   
     _function, 
     _interface, 
     _import,   
@@ -100,14 +101,13 @@ enum SymbolType
     _template,
     _union,
     _variable,
-    _error,
     _warning
 }
 
 struct Symbol
 {
-    int line;
-    int col;
+    size_t line;
+    size_t col;
     string name;
     SymbolType type; 
     Symbol * [] subs;
@@ -162,8 +162,8 @@ class SymbolListBuilder : ASTVisitor
     static void astError(string fname, size_t line, size_t col, string msg, bool isErr)
     {
         Symbol * newSym = construct!Symbol;
-        newSym.col = cast(int) col;
-        newSym.line = cast(int) line;
+        newSym.col = col;
+        newSym.line = line;
         newSym.name = msg;
         isErr ? newSym.type = SymbolType._error : newSym.type = SymbolType._warning; 
         illFormed ~= newSym;
@@ -205,13 +205,13 @@ class SymbolListBuilder : ASTVisitor
             count++;
             auto result = construct!Symbol;
             result.name = adt.name.text;
-            result.line = cast(int) adt.name.line;
-            result.col  = cast(int) adt.name.column;             
+            result.line = adt.name.line;
+            result.col  = adt.name.column;             
             parent.subs ~= result;  
             return result;
         }
         
-        assert(0, "addDeclaration no implemented for " ~ DT.stringof);
+        version(none) assert(0, "addDeclaration no implemented for " ~ DT.stringof);
     }
     
     /// visitor implementation if the declarator is based on a Token named "name".
@@ -235,15 +235,14 @@ class SymbolListBuilder : ASTVisitor
         count++;
         auto result = construct!Symbol;
         result.name = name;
-        result.line = cast(int) line;
-        result.col  = cast(int) col; 
+        result.line = line;
+        result.col  = col; 
         result.type = st;            
         parent.subs ~= result;     
     }
 
     final override void visit(const AliasDeclaration decl) 
     { 
-        // old alias syntax not supported by this method
         // why is initializers an array ?
         if (decl.initializers.length > 0)
             namedVisitorImpl!(AliasInitializer, SymbolType._alias)(decl.initializers[0]);  
