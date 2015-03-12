@@ -19,6 +19,8 @@ type
     procedure SetVisible(Value: Boolean); override;
   end;
 
+  { TCEEditorWidget }
+
   TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler, ICEEditableShortCut)
     PageControl: TExtendedNotebook;
     macRecorder: TSynMacroRecorder;
@@ -328,11 +330,12 @@ begin
   updateImperative;
   case Byte(Key) of
     VK_CLEAR,VK_RETURN,VK_BACK : fKeyChanged := true;
+    //VK_OEM_PERIOD, VK_DECIMAL: completion.Execute('.', fDoc.ClientToScreen(
+    //  point(fDoc.CaretXPix, top + fDoc.CaretYPix)));
   end;
   if fKeyChanged then
-    beginDelayedUpdate;
-  //
-  if (Key = VK_UP) and (shift = [ssShift,ssCtrl]) then
+    beginDelayedUpdate
+  else if (Key = VK_UP) and (shift = [ssShift,ssCtrl]) then
     getSymbolLoc;
 end;
 
@@ -372,10 +375,7 @@ begin
     openDocument(fname);
   if srcpos <> -1 then
   begin
-    //fDoc.SelStart := srcpos;
-    //fDoc.SelectWord;
-
-    // note: SelStart only matches the srcpos if the target file has the same line ending
+    // note: SelStart only matches srcpos if the target file has the same line ending
     // as the operating system: the pos has to be found manually.
     sum := 0;
     lel := getLineEndingLength(fDoc.fileName);
