@@ -667,7 +667,6 @@ begin
   fWidgList.Free;
   fProjMru.Free;
   fFileMru.Free;
-  fProject.Free;
   FreeRunnableProc;
   //
   fMainMenuSubj.Free;
@@ -702,7 +701,7 @@ begin
   for i := fMultidoc.documentCount-1 downto 0 do
     if not fMultidoc.closeDocument(i) then exit;
   canClose := true;
-
+  closeProj;
   // saving doesnt work when csDestroying in comp.state (in Free)
   SaveDocking;
 end;
