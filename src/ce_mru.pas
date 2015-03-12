@@ -54,6 +54,7 @@ type
     procedure docClosing(aDoc: TCESynMemo);
   public
     constructor create; override;
+    destructor destroy; override;
   end;
 
   (**
@@ -69,6 +70,7 @@ type
     procedure projCompiling(aProject: TCEProject);
   public
     constructor create; override;
+    destructor destroy; override;
   end;
 
 implementation
@@ -154,6 +156,12 @@ begin
   EntitiesConnector.addObserver(self);
 end;
 
+destructor TCEMRUDocumentList.destroy;
+begin
+  EntitiesConnector.removeObserver(self);
+  inherited;
+end;
+
 procedure TCEMRUDocumentList.docNew(aDoc: TCESynMemo);
 begin
 end;
@@ -176,6 +184,12 @@ constructor TCEMRUProjectList.create;
 begin
   inherited;
   EntitiesConnector.addObserver(self);
+end;
+
+destructor TCEMRUProjectList.destroy;
+begin
+  EntitiesConnector.removeObserver(self);
+  inherited;
 end;
 
 procedure TCEMRUProjectList.projNew(aProject: TCEProject);
