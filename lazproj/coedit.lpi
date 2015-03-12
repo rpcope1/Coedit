@@ -28,7 +28,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="..\src;$(LazarusDir)\components\anchordocking"/>
+            <OtherUnitFiles Value="..\src"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -216,6 +216,7 @@
         <ComponentName Value="CEMiniExplorerWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_miniexplorer"/>
       </Unit14>
       <Unit15>
         <Filename Value="..\src\ce_observer.pas"/>
