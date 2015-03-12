@@ -23,7 +23,9 @@ type
       _struct,
       _template,
       _union,
-      _variable
+      _variable,
+      _error,
+      _warning
   );
 
   TSymbolCollection = class;
@@ -78,6 +80,7 @@ type
     fShowChildCategories: boolean;
     fAutoRefreshDelay: Integer;
     fSmartFilter: boolean;
+    fAutoExpandErrors: boolean;
   published
     property autoRefresh: boolean read fAutoRefresh write fAutoRefresh;
     property refreshOnChange: boolean read fRefreshOnChange write fRefreshOnChange;
@@ -85,6 +88,7 @@ type
     property showChildCategories: boolean read fShowChildCategories write fShowChildCategories;
     property autoRefreshDelay: Integer read fAutoRefreshDelay write fAutoRefreshDelay;
     property smartFilter: boolean read fSmartFilter write fSmartFilter;
+    property autoExpandErrors: boolean read fAutoExpandErrors write fAutoExpandErrors;
   public
     constructor Create(AOwner: TComponent); override;
     procedure Assign(Source: TPersistent); override;
@@ -122,9 +126,11 @@ type
     fRefreshOnFocus: boolean;
     fShowChildCategories: boolean;
     fSmartFilter: boolean;
+    fAutoExpandErrors: boolean;
     fToolOutput: TMemoryStream;
     ndAlias, ndClass, ndEnum, ndFunc, ndUni: TTreeNode;
-    ndImp, ndIntf, ndMix, ndStruct, ndTmp, ndVar: TTreeNode;
+    ndImp, ndIntf, ndMix, ndStruct, ndTmp: TTreeNode;
+    ndVar, ndWarn, ndErr: TTreeNode;
     procedure TreeDblClick(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure actAutoRefreshExecute(Sender: TObject);
@@ -218,11 +224,19 @@ end;
 procedure TSymbolList.LoadFromTool(str: TStream);
 var
   bin: TMemoryStream;
+  dat: integer;
 begin
   bin := TMemoryStream.Create;
   try
     str.Position:=0;
-    ObjectTextToBinary(str, bin);
+    try
+      ObjectTextToBinary(str, bin);
+    except
+      // if output is not fully read then
+      // the tool process never terminates.
+      while str.Read(dat, SizeOf(dat)) <> 0 do;
+      exit;
+    end;
     bin.Position:=0;
     bin.ReadComponent(self);
   finally
@@ -237,6 +251,7 @@ begin
   inherited;
   fRefreshOnFocus := true;
   fShowChildCategories := true;
+  fAutoExpandErrors := true;
   fSmartFilter := true;
   fAutoRefreshDelay := 1500;
 end;
@@ -255,6 +270,7 @@ begin
     fAutoRefresh          := widg.fAutoRefresh;
     fShowChildCategories  := widg.fShowChildCategories;
     fSmartFilter          := widg.fSmartFilter;
+    fAutoExpandErrors     := widg.fAutoExpandErrors;
   end
   else inherited;
 end;
@@ -273,6 +289,7 @@ begin
     widg.fAutoRefresh           := fAutoRefresh;
     widg.fShowChildCategories   := fShowChildCategories;
     widg.fSmartFilter           := fSmartFilter;
+    widg.fAutoExpandErrors      := fAutoExpandErrors;
     //
     widg.fActAutoRefresh.Checked    := fAutoRefresh;
     widg.fActRefreshOnChange.Checked:= fRefreshOnChange;
@@ -340,6 +357,8 @@ begin
   ndTmp     := Tree.Items[8];
   ndUni     := Tree.Items[9];
   ndVar     := Tree.Items[10];
+  ndWarn    := Tree.Items[11];
+  ndErr     := Tree.Items[12];
   //
   png := TPortableNetworkGraphic.Create;
   try
@@ -526,6 +545,8 @@ begin
     ndTmp.Visible   := ndTmp.Count > 0;
     ndUni.Visible   := ndUni.Count > 0;
     ndVar.Visible   := ndVar.Count > 0;
+    ndWarn.Visible  := ndWarn.Count > 0;
+    ndErr.Visible   := ndErr.Count > 0;
   end else
   begin
     ndAlias.Visible := true;
@@ -539,6 +560,8 @@ begin
     ndTmp.Visible   := true;
     ndUni.Visible   := true;
     ndVar.Visible   := true;
+    ndWarn.Visible  := true;
+    ndErr.Visible   := true;
   end;
 end;
 
@@ -555,6 +578,8 @@ begin
   ndTmp.DeleteChildren;
   ndUni.DeleteChildren;
   ndVar.DeleteChildren;
+  ndWarn.DeleteChildren;
+  ndErr.DeleteChildren;
 end;
 
 procedure TCESymbolListWidget.TreeFilterEdit1AfterFilter(Sender: TObject);
@@ -636,6 +661,13 @@ end;
 procedure TCESymbolListWidget.toolTerminated(sender: TObject);
 //
 function getCatNode(node: TTreeNode; stype: TSymbolType ): TTreeNode;
+  //
+  function newCat(const aCat: string): TTreeNode;
+  begin
+    result := node.FindNode(aCat);
+    if result = nil then result := node.TreeNodes.AddChild(node, aCat);
+  end;
+  //
 begin
   if node = nil then case stype of
     _alias    : exit(ndAlias);
@@ -649,62 +681,22 @@ begin
     _template : exit(ndTmp);
     _union    : exit(ndUni);
     _variable : exit(ndVar);
+    _warning  : exit(ndWarn);
+    _error    : exit(ndErr);
   end else case stype of
-    _alias:
-      begin
-        result := node.FindNode('Alias');
-        if result = nil then result := node.TreeNodes.AddChild(node, 'Alias');
-      end;
-    _class:
-      begin
-        result := node.FindNode('Class');
-        if result = nil then result := node.TreeNodes.AddChild(node, 'Class');
-      end;
-    _enum:
-      begin
-        result := node.FindNode('Enum');
-        if result = nil then result := node.TreeNodes.AddChild(node, 'Enum');
-      end;
-    _function:
-      begin
-        result := node.FindNode('Function');
-        if result = nil then result := node.TreeNodes.AddChild(node, 'Function');
-      end;
-    _import:
-      begin
-        result := node.FindNode('Import');
-        if result = nil then result := node.TreeNodes.AddChild(node, 'Import');
-      end;
-    _interface:
-      begin
-        result := node.FindNode('Interface');
-        if result = nil then result := node.TreeNodes.AddChild(node, 'Interface');
-      end;
-    _mixin:
-      begin
-        result := node.FindNode('Mixin');
-        if result = nil then result := node.TreeNodes.AddChild(node, 'Mixin');
-      end;
-    _struct:
-      begin
-        result := node.FindNode('Struct');
-        if result = nil then result := node.TreeNodes.AddChild(node, 'Struct');
-      end;
-    _template:
-      begin
-        result := node.FindNode('Template');
-        if result = nil then result := node.TreeNodes.AddChild(node, 'Template');
-      end;
-    _union:
-      begin
-        result := node.FindNode('Union');
-        if result = nil then result := node.TreeNodes.AddChild(node, 'Union');
-      end;
-    _variable:
-      begin
-        result := node.FindNode('Variable');
-        if result = nil then result := node.TreeNodes.AddChild(node, 'Variable');
-      end;
+    _alias: exit(newCat('Alias'));
+    _class: exit(newCat('Class'));
+    _enum: exit(newCat('Enum'));
+    _function: exit(newCat('Function'));
+    _import: exit(newCat('Import'));
+    _interface: exit(newCat('Interface'));
+    _mixin: exit(newCat('Mixin'));
+    _struct: exit(newCat('Struct'));
+    _template: exit(newCat('Template'));
+    _union: exit(newCat('Union'));
+    _variable: exit(newCat('Variable'));
+    _warning: exit(ndWarn);
+    _error: exit(ndErr);
     end;
 end;
 //
@@ -743,6 +735,13 @@ begin
   tree.BeginUpdate;
   for i := 0 to fSyms.symbols.Count-1 do
     symbolToTreeNode(nil, fSyms.symbols[i]);
+  if fAutoExpandErrors then
+  begin
+    if ndWarn.Visible then
+      ndWarn.Expand(true);
+    if ndErr.Visible then
+      ndErr.Expand(true);
+  end;
   tree.EndUpdate;
 end;
 {$ENDREGION --------------------------------------------------------------------}

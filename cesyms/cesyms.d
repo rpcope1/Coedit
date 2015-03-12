@@ -11,10 +11,12 @@ void main(string[] args)
     if (!fname.exists) return;
 
     // load and parse the file
-    auto config = LexerConfig(fname, StringBehavior.source, WhitespaceBehavior.include);
+    auto config = LexerConfig(fname, StringBehavior.source, WhitespaceBehavior.skip);
     auto source = cast(ubyte[]) read(fname, size_t.max);
     auto scache = StringCache(StringCache.defaultBucketCount);
-    auto ast = parseModule(getTokensForParser(source, config, &scache), fname);
+    
+    
+    auto ast = parseModule(getTokensForParser(source, config, &scache), fname, null, &(SymbolListBuilder.astError));
 
     // visit each root member
     auto slb = construct!SymbolListBuilder; 
@@ -87,17 +89,19 @@ if (is(T == class) || (isPointer!T && is(PointerTarget!T == struct)))
 // Serializable Symbol --------------------------------------------------------+
 enum SymbolType
 {
-    _alias,     // X
-    _class,     // X
-    _enum,      // X
-    _function,  // X
-    _interface, // X
-    _import,    // X
-    _mixin,     // X (template decl)
-    _struct,    // X
-    _template,  // X
-    _union,     // X
-    _variable   // X
+    _alias,
+    _class, 
+    _enum,    
+    _function, 
+    _interface, 
+    _import,   
+    _mixin,   // (template decl)
+    _struct, 
+    _template,
+    _union,
+    _variable,
+    _error,
+    _warning
 }
 
 struct Symbol
@@ -137,6 +141,7 @@ class SymbolListBuilder : ASTVisitor
 {
     Symbol * root;
     Symbol * parent;
+    static Symbol * [] illFormed;
     size_t count;
     
     alias visit = ASTVisitor.visit;
@@ -144,12 +149,24 @@ class SymbolListBuilder : ASTVisitor
     this()
     {
         root = construct!Symbol;
+        if(illFormed.length)
+            root.subs ~= illFormed;
         resetRoot;
     }
     
     ~this()
     {
         root.destruct;  
+    }
+    
+    static void astError(string fname, size_t line, size_t col, string msg, bool isErr)
+    {
+        Symbol * newSym = construct!Symbol;
+        newSym.col = col;
+        newSym.line = line;
+        newSym.name = msg;
+        isErr ? newSym.type = SymbolType._error : newSym.type = SymbolType._warning; 
+        illFormed ~= newSym;
     }
     
     final void resetRoot(){parent = root;}
