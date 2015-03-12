@@ -632,6 +632,7 @@ var
 begin
   if fDoc = nil then exit;
   if fDoc.Lines.Count = 0 then exit;
+  if not fDoc.isDSource then exit;
 
   // standard process options
   killProcess(fToolProc);

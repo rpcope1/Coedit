@@ -24,7 +24,7 @@ inherited CESymbolListWidget: TCESymbolListWidget
         Width = 302
         Align = alClient
         BorderSpacing.Around = 4
-        DefaultItemHeight = 18
+        DefaultItemHeight = 16
         HideSelection = False
         Images = imgList
         ReadOnly = True
