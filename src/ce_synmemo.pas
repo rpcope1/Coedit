@@ -92,7 +92,8 @@ type
     fCallTipWin: TCEEditorHintWindow;
     fDDocWin: TCEEditorHintWindow;
     fIdleTimer: TIdleTimer;
-    fMayHint: boolean;
+    fCanShowHint: boolean;
+    fOldMousePos: TPoint;
     function getMouseStart: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
@@ -425,7 +426,7 @@ begin
   if not Visible then exit;
   if not isDSource then exit;
   //
-  if not fMayHint then exit;
+  if not fCanShowHint then exit;
   if Identifier = '' then exit;
   DcdWrapper.getDdocFromCursor(str);
   //
@@ -630,9 +631,12 @@ procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   fDDocWin.Hide;
   fCallTipWin.Hide;
-  fMayHint := ((Y > 10) or (Y < -10)) and ((X > 10) or (X < -10));
-  fMousePos := PixelsToRowColumn(Point(X,Y));
   inherited;
+  fCanShowHint := (shift = []) and
+    (Y - fOldMousePos.y < 2) and (Y - fOldMousePos.y > -2) and
+    (X - fOldMousePos.x < 2) and (X - fOldMousePos.x > -2);
+  fOldMousePos := Point(X, Y);
+  fMousePos := PixelsToRowColumn(fOldMousePos);
   if ssLeft in Shift then
     identifierToD2Syn;
 end;
@@ -641,6 +645,7 @@ procedure TCESynMemo.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:In
 begin
   inherited;
   identifierToD2Syn;
+  fCanShowHint := false;
   fDDocWin.Hide;
   fCallTipWin.Hide;
 end;
