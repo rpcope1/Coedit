@@ -12,7 +12,7 @@ uses
   ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
   ce_search, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist, ce_observer,
   ce_toolseditor, ce_procinput, ce_optionseditor,{$IFDEF WIN32} ce_cdbcmd,{$ENDIF}
-  ce_symlist;
+  ce_symlist, ce_mru;
 
 type
 
@@ -187,8 +187,8 @@ type
     fScCollectCount: Integer;
     fUpdateCount: NativeInt;
     fProject: TCEProject;
-    fProjMru: TMruFileList;
-    fFileMru: TMruFileList;
+    fProjMru: TCEMRUProjectList;
+    fFileMru: TCEMRUDocumentList;
     fWidgList: TCEWidgetList;
     fMesgWidg: TCEMessagesWidget;
     fEditWidg: TCEEditorWidget;
@@ -398,8 +398,8 @@ end;
 
 procedure TCEMainForm.InitMRUs;
 begin
-  fProjMru := TMruFileList.Create;
-  fFileMru := TMruFileList.Create;
+  fProjMru := TCEMRUProjectList.Create;
+  fFileMru := TCEMRUDocumentList.Create;
   fProjMru.objectTag := mnuItemMruProj;
   fFileMru.objectTag := mnuItemMruFile;
   fProjMru.OnChange := @mruChange;
@@ -828,14 +828,14 @@ end;
 
 procedure TCEMainForm.mruChange(Sender: TObject);
 var
-  srcLst: TMruFileList;
+  srcLst: TCEMruFileList;
   trgMnu: TMenuItem;
   itm: TMenuItem;
   fname: string;
   clickTrg: TNotifyEvent;
   i: NativeInt;
 begin
-  srcLst := TMruFileList(Sender);
+  srcLst := TCEMruFileList(Sender);
   if srcLst = nil then exit;
   trgMnu := TMenuItem(srcLst.objectTag);
   if trgMnu = nil then exit;
@@ -874,9 +874,9 @@ end;
 
 procedure TCEMainForm.mruClearClick(Sender: TObject);
 var
-  srcLst: TMruFileList;
+  srcLst: TCEMruFileList;
 begin
-  srcLst := TMruFileList(TmenuItem(Sender).Tag);
+  srcLst := TCEMruFileList(TmenuItem(Sender).Tag);
   if srcLst = nil then exit;
   //
   srcLst.Clear;
@@ -1020,7 +1020,6 @@ end;
 procedure TCEMainForm.openFile(const aFilename: string);
 begin
   fMultidoc.openDocument(aFilename);
-  fFileMru.Insert(0, aFilename);
 end;
 
 procedure TCEMainForm.saveFile(aDocument: TCESynMemo);
@@ -1093,7 +1092,6 @@ begin
     Filter := DdiagFilter;
     if execute then
       fDoc.saveToFile(filename);
-      fFileMru.Insert(0, filename);
   finally
     free;
   end;
@@ -1610,7 +1608,6 @@ procedure TCEMainForm.saveProjAs(const aFilename: string);
 begin
   fProject.fileName := aFilename;
   fProject.saveToFile(fProject.fileName);
-  fProjMru.Insert(0,fProject.fileName);
 end;
 
 procedure TCEMainForm.openProj(const aFilename: string);
@@ -1618,7 +1615,6 @@ begin
   closeProj;
   newProj;
   fProject.loadFromFile(aFilename);
-  fProjMru.Insert(0,aFilename);
 end;
 
 procedure TCEMainForm.mruProjItemClick(Sender: TObject);

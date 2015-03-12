@@ -43,38 +43,6 @@ type
   end;
 
   (**
-   * MRU list for strings
-   *)
-  TMRUList = class(TStringList)
-  private
-    fMaxCount: Integer;
-    fObj: TObject;
-  protected
-    fChecking: boolean;
-    procedure clearOutOfRange;
-    procedure setMaxCount(aValue: Integer);
-    function checkItem(const S: string): boolean; virtual;
-    procedure Put(Index: Integer; const S: string); override;
-    procedure InsertItem(Index: Integer; const S: string); override;
-  published
-    property maxCount: Integer read fMaxCount write setMaxCount;
-  public
-    constructor Create;
-    procedure Insert(Index: Integer; const S: string); override;
-    property objectTag: TObject read fObj write fObj;
-  end;
-
-  (**
-   * MRU list for filenames
-   *)
-  TMRUFileList = class(TMRUList)
-  protected
-    function checkItem(const S: string): boolean; override;
-  public
-    procedure assign(src: TPersistent); override;
-  end;
-
-  (**
    *  TProcess with assign() 'overriden'.
    *)
   TProcessEx = class helper for TProcess
@@ -316,81 +284,6 @@ begin
   WriteListBegin;
   WriteProperties(aValue);
   WriteListEnd;
-end;
-
-constructor TMRUList.Create;
-begin
-  fMaxCount := 10;
-end;
-
-procedure TMRUList.clearOutOfRange;
-begin
-  while Count > fMaxCount do
-    delete(Count-1);
-end;
-
-procedure TMRUList.setMaxCount(aValue: Integer);
-begin
-  if aValue < 0 then
-    aValue := 0;
-  if fMaxCount = aValue then
-    exit;
-  fMaxCount := aValue;
-  clearOutOfRange;
-end;
-
-function TMRUList.checkItem(const S: string): boolean;
-var
-  i: NativeInt;
-begin
-  i := indexOf(S);
-  if i = -1 then
-    exit(true);
-  if i = 0 then
-    exit(false);
-  if Count < 2 then
-    exit(false);
-  exchange(i, i-1);
-  exit( false);
-end;
-
-procedure TMRUList.Put(Index: Integer; const S: string);
-begin
-  if not (checkItem(S)) then
-    exit;
-  inherited;
-  clearOutOfRange;
-end;
-
-procedure TMRUList.InsertItem(Index: Integer; const S: string);
-begin
-  if not (checkItem(S)) then
-    exit;
-  inherited;
-  clearOutOfRange;
-end;
-
-procedure TMRUList.Insert(Index: Integer; const S: string);
-begin
-  if not (checkItem(S)) then
-    exit;
-  inherited;
-  clearOutOfRange;
-end;
-
-procedure TMRUFileList.assign(src: TPersistent);
-var
-  i: Integer;
-begin
-  inherited;
-  for i := Count-1 downto 0 do
-    if not fileExists(Strings[i]) then
-      Delete(i);
-end;
-
-function TMRUFileList.checkItem(const S: string): boolean;
-begin
-  exit( inherited checkItem(S) and fileExists(S));
 end;
 
 procedure saveCompToTxtFile(const aComp: TComponent; const aFilename: string);
@@ -951,7 +844,6 @@ end;
 
 
 initialization
-  RegisterClasses([TMRUList, TMRUFileList]);
   dExtList := TStringList.Create;
   dExtList.AddStrings(['.d', '.D', '.di', '.DI', '.Di', '.dI']);
 finalization

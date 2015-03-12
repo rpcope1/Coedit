@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, StdCtrls, ce_widget, process, ce_common, ce_interfaces, ce_observer;
+  Menus, StdCtrls, ce_widget, process, ce_common, ce_interfaces, ce_observer,
+  ce_mru;
 
 type
   TCEProcInputWidget = class(TCEWidget, ICEProcInputHandler)
@@ -17,7 +18,7 @@ type
     procedure txtInpKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     fMruPos: Integer;
-    fMru: TMRUList;
+    fMru: TCEMRUList;
     fProc: TProcess;
     procedure sendInput;
     //
@@ -44,7 +45,7 @@ uses
 constructor TCEProcInputWidget.create(aOwner: TComponent);
 begin
   inherited;
-  fMru := TMRUList.Create;
+  fMru := TCEMRUList.Create;
   fMru.maxCount := 25;
   EntitiesConnector.addSingleService(self);
 end;

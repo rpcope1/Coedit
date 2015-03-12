@@ -132,7 +132,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="37">
+    <Units Count="38">
       <Unit0>
         <Filename Value="coedit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -147,6 +147,7 @@
       <Unit2>
         <Filename Value="..\src\ce_common.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_common"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\src\ce_d2syn.pas"/>
@@ -339,7 +340,6 @@
         <ComponentName Value="CEShortcutEditor"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
-        <UnitName Value="ce_shortcutseditor"/>
       </Unit35>
       <Unit36>
         <Filename Value="..\src\ce_symlist.pas"/>
@@ -349,6 +349,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="ce_symlist"/>
       </Unit36>
+      <Unit37>
+        <Filename Value="..\src\ce_mru.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_mru"/>
+      </Unit37>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

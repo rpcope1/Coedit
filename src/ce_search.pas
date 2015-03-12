@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, StdCtrls, actnList, Buttons, SynEdit, SynEditSearch, SynEditTypes, ce_common,
-  ce_widget, ce_synmemo, ce_interfaces, ce_observer, SynEditHighlighter;
+  Menus, StdCtrls, actnList, Buttons, SynEdit, SynEditSearch, SynEditTypes,
+  ce_common, ce_mru, ce_widget, ce_synmemo, ce_interfaces, ce_observer;
 
 type
 
@@ -38,7 +38,7 @@ type
     fReplaceWth: string;
     fActFindNext, fActReplaceNext: TAction;
     fActReplaceAll: TAction;
-    fSearchMru, fReplaceMru: TMruList;
+    fSearchMru, fReplaceMru: TCEMruList;
     fCancelAll: boolean;
     fHasSearched: boolean;
     fHasRestarted: boolean;
@@ -92,8 +92,8 @@ begin
   btnReplace.Action := fActReplaceNext;
   btnReplaceAll.Action := fActReplaceAll;
   //
-  fSearchMru := TMruList.Create;
-  fReplaceMru:= TMruList.Create;
+  fSearchMru := TCEMruList.Create;
+  fReplaceMru:= TCEMruList.Create;
   //
   EntitiesConnector.addObserver(self);
 end;
