@@ -713,6 +713,10 @@ var
 begin
   Handled := true;
   {$IFDEF LINUX}
+  // TODO-cbugfix-linux: AV when closing document, current workaround may have other side effects.
+  // fixes some issues with property inspectors.
+  // option editor: IdleTimer seems to be used to refresh values after editing (e.g TColorPropertyEditor)
+  If not Focused then exit;
   // fixes the error raised when the update is called after docClosing ()
   // looks like a syncro error, needs more investigation.
   Application.DisableIdleHandler;

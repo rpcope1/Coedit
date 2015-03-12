@@ -20,8 +20,6 @@ type
     observer: ICEEditableOptions;
   end;
 
-  //TODO-cbugfix: linux only, a conversion error is raised after a color's  been edited using the dialog color.
-
   { TCEOptionEditorWidget }
 
   TCEOptionEditorWidget = class(TCEWidget)
@@ -179,6 +177,8 @@ begin
     .observer
     .optionedEvent(oeeCancel);
 end;
+
+
 
 procedure TCEOptionEditorWidget.inspectorEditorFilter(Sender: TObject;aEditor:
   TPropertyEditor; var aShow: boolean);
