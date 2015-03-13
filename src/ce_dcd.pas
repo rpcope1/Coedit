@@ -75,9 +75,7 @@ begin
   fClient := TProcess.Create(self);
   fClient.Executable := clientName;
   fClient.Options := [poUsePipes{$IFDEF WINDOWS}, poNewConsole{$ENDIF}{$IFDEF LINUX}, poWaitOnExit{$ENDIF}];
-  {$IFNDEF DEBUG}
   fClient.ShowWindow := swoHIDE;
-  {$ENDIF}
   //
   fServerWasRunning := AppIsRunning((serverName));
   if not fServerWasRunning then begin
