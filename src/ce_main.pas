@@ -135,6 +135,8 @@ type
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
+    procedure updateDocumentBasedAction(sender: TObject);
+    procedure updateProjectBasedAction(sender: TObject);
     procedure actFileCompileAndRunOutExecute(Sender: TObject);
     procedure actEdFindExecute(Sender: TObject);
     procedure actEdFindNextExecute(Sender: TObject);
@@ -706,95 +708,28 @@ begin
   SaveDocking;
 end;
 
-procedure TCEMainForm.ActionsUpdate(AAction: TBasicAction; var Handled: Boolean);
-var
-  hasEd: boolean;
-  hasProj: boolean;
+procedure TCEMainForm.updateDocumentBasedAction(sender: TObject);
 begin
-  Handled := true;
-  {$IFDEF LINUX}
-  // TODO-cbugfix-linux: AV when closing document, current workaround may have other side effects.
-  // fixes some issues with property inspectors.
-  // option editor: IdleTimer seems to be used to refresh values after editing (e.g TColorPropertyEditor)
-  If not Focused then exit;
-  // fixes the error raised when the update is called after docClosing ()
-  // looks like a syncro error, needs more investigation.
-  Application.DisableIdleHandler;
-  {$ENDIF}
+  TAction(sender).Enabled := fDoc <> nil;
+end;
+
+procedure TCEMainForm.updateProjectBasedAction(sender: TObject);
+begin
+  TAction(sender).Enabled := fProject <> nil;
+end;
+
+procedure TCEMainForm.ActionsUpdate(AAction: TBasicAction; var Handled: Boolean);
+begin
+  // TODO-cTest: linux, confirm close doc AV & TCOlorPropertyEditor conv err are fixed
+  Handled := false;
   if fUpdateCount > 0 then exit;
   Inc(fUpdateCount);
-
-
-  clearActProviderEntries;
-  collectedActProviderEntries;
-
   try
-    HasEd := fDoc <> nil;
-    if hasEd then
-    begin
-      actEdCopy.Enabled := fDoc.SelAvail and fDoc.Focused;
-      actEdCut.Enabled := fDoc.SelAvail and fDoc.Focused;
-      actEdPaste.Enabled := fDoc.CanPaste and fDoc.Focused;
-      actEdUndo.Enabled := fDoc.CanUndo;
-      actEdRedo.Enabled := fDoc.CanRedo;
-      //
-      actFileCompAndRun.Enabled := fDoc.isDSource;
-      actFileCompAndRunWithArgs.Enabled := fDoc.isDSource;
-      actFileCompileAndRunOut.Enabled := fDoc.isDSource;
-      actFileUnittest.Enabled := fDoc.isDSource;
-      //
-      actEdMacPlay.Enabled := true;
-      actEdMacStartStop.Enabled := true;
-      actEdIndent.Enabled := true;
-      actEdUnIndent.Enabled := true;
-      //
-      actFileSave.Enabled := true;
-      actFileSaveAs.Enabled := true;
-      actFileClose.Enabled := true;
-      actFileSaveAll.Enabled := true;
-      actFileOpenContFold.Enabled := true;
-      actFileHtmlExport.Enabled := true;
-    end
-    else begin
-      actEdCopy.Enabled := false;
-      actEdCut.Enabled := false ;
-      actEdPaste.Enabled := false;
-      actEdUndo.Enabled := false;
-      actEdRedo.Enabled := false;
-      actEdMacPlay.Enabled := false;
-      actEdMacStartStop.Enabled := false;
-      actEdIndent.Enabled := false;
-      actEdUnIndent.Enabled := false;
-      //
-      actFileCompAndRun.Enabled := false;
-      actFileCompAndRunWithArgs.Enabled := false;
-      actFileCompileAndRunOut.Enabled := false;
-      actFileUnittest.Enabled := false;
-      actFileSave.Enabled := false;
-      actFileSaveAs.Enabled := false;
-      actFileClose.Enabled := false;
-      actFileSaveAll.Enabled := false;
-      actFileOpenContFold.Enabled := false;
-      actFileHtmlExport.Enabled := false;
-    end;
-    hasProj := fProject <> nil;
-    actProjSave.Enabled := hasProj;
-    actProjSaveAs.Enabled := hasProj;
-    actProjOpts.Enabled := hasProj;
-    actProjClose.Enabled := hasProj;
-    actProjCompile.Enabled := hasProj;
-    actProjCompileAndRun.Enabled := hasProj;
-    actProjCompAndRunWithArgs.Enabled := hasProj;
-    actProjOptView.Enabled := hasProj;
-    actProjOpenContFold.Enabled := hasProj;
-    if hasProj then
-    begin
-      actProjSource.Enabled := fileExists(fProject.Filename);
-      actProjRun.Enabled := fProject.canBeRun;
-      actProjRunWithArgs.Enabled := fProject.canBeRun;
-    end;
-    actFileAddToProj.Enabled := hasEd and hasProj;
-    //
+    clearActProviderEntries;
+    collectedActProviderEntries;
+    if (AAction <> nil ) then
+      if not AAction.Update then
+        TAction(AAction).enabled := true;
     updateMainMenuProviders;
   finally
     Dec(fUpdateCount);
