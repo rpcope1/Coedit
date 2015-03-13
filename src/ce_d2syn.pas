@@ -490,7 +490,9 @@ begin
   end;
 
   // line comment / region beg-end
-  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkAsm]) then if readDelim(reader, fTokStop, '//') then
+  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkTokString]) or
+    (fCurrRange.rangeKinds = [rkAsm])
+      then if readDelim(reader, fTokStop, '//') then
   begin
     fTokKind := tkCommt;
     if readDelim(reader, fTokStop, '/') then
@@ -516,7 +518,8 @@ begin
   end else readerReset;
 
   // block comments 1
-  if fCurrRange.rangeKinds = [] then if readDelim(reader, fTokStop, '/*') then
+  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkTokString])
+    then if readDelim(reader, fTokStop, '/*') then
   begin
     fTokKind := tkCommt;
     if readDelim(reader, fTokStop, '*') then
@@ -547,7 +550,8 @@ begin
   end;
 
   // block comments 2
-  if fCurrRange.rangeKinds = [] then if readDelim(reader, fTokStop, '/+') then
+  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkTokString])
+    then if readDelim(reader, fTokStop, '/+') then
   begin
     fTokKind := tkCommt;
     if readDelim(reader, fTokStop, '+') then
@@ -584,7 +588,8 @@ begin
   end;
 
   // string 1
-  if fCurrRange.rangeKinds = [] then if readDelim(reader, fTokStop, stringPrefixes) then
+  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkTokString])
+    then if readDelim(reader, fTokStop, stringPrefixes) then
   begin
     if readerPrev^ in ['r','x','q'] then
     begin
@@ -647,7 +652,8 @@ begin
   end;
 
   // string 2
-  if fCurrRange.rangeKinds = [] then if readDelim(reader, fTokStop, '`') then
+  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkTokString]) then
+    if readDelim(reader, fTokStop, '`') then
   begin
     fTokKind := tkStrng;
     if readUntil(reader, fTokStop, '`') then
@@ -685,7 +691,8 @@ begin
   end else readerReset;
 
   // char literals
-  if fCurrRange.rangeKinds = [] then if readDelim(reader, fTokStop, #39) then
+  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkTokString])
+    then if readDelim(reader, fTokStop, #39) then
   begin
     fTokKind := tkStrng;
     while true do
