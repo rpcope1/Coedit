@@ -91,7 +91,7 @@ type
     fMousePos: TPoint;
     fCallTipWin: TCEEditorHintWindow;
     fDDocWin: TCEEditorHintWindow;
-    fIdleTimer: TIdleTimer;
+    fHintTimer: TIdleTimer;
     fCanShowHint: boolean;
     fOldMousePos: TPoint;
     function getMouseStart: Integer;
@@ -100,8 +100,7 @@ type
     procedure saveCache;
     procedure loadCache;
     procedure setDefaultFontSize(aValue: Integer);
-    procedure hintWinClick(sender: TObject);
-    procedure EditorIdle(sender: TObject);
+    procedure HintTimerEvent(sender: TObject);
     procedure InitHintWins;
   protected
     procedure SetVisible(Value: Boolean); override;
@@ -326,12 +325,15 @@ end;
 constructor TCESynMemo.Create(aOwner: TComponent);
 begin
   inherited;
-  InitHintWins;
-  self.ShowHint:=false;
-  SetDefaultKeystrokes; // not called in inherited if owner = nil !
+  //
   fDefaultFontSize := 10;
-  fIdleTimer := TIdleTimer.Create(self);
-  fIdleTimer.OnTimer := @EditorIdle;
+  SetDefaultKeystrokes; // not called in inherited if owner = nil !
+  //
+  ShowHint :=false;
+  InitHintWins;
+  fHintTimer := TIdleTimer.Create(self);
+  fHintTimer.OnTimer := @HintTimerEvent;
+  //
   Gutter.LineNumberPart.ShowOnlyLineNumbersMultiplesOf := 5;
   Gutter.LineNumberPart.MarkupInfo.Foreground := clGray;
   Gutter.SeparatorPart.LineOffset := 1;
@@ -352,11 +354,11 @@ begin
   fTempFileName := GetTempDir(false) + 'temp_' + uniqueObjStr(self) + '.d';
   fFilename := '<new document>';
   fModified := false;
-  //ShowHint := true;
   TextBuffer.AddNotifyHandler(senrUndoRedoAdded, @changeNotify);
   //
   fPositions := TCESynMemoPositions.create(self);
   fMultiDocSubject := TCEMultiDocSubject.create;
+  //
   subjDocNew(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
 
@@ -370,6 +372,7 @@ begin
   //
   if fileExists(fTempFileName) then
     sysutils.DeleteFile(fTempFileName);
+  //
   inherited;
 end;
 
@@ -398,28 +401,21 @@ begin
   if Value then setFocus;
 end;
 
-procedure TCESynMemo.hintWinClick(sender: TObject);
-begin
-  with THintWindow(sender) do Hide;
-end;
-
 procedure TCESynMemo.InitHintWins;
 begin
   if fCallTipWin = nil then begin
     fCallTipWin := TCEEditorHintWindow.Create(self);
     fCallTipWin.Color := clInfoBk + $01010100;
     fCallTipWin.Font.Color:= clInfoText;
-    fCallTipWin.OnClick:= @hintWinClick;
   end;
   if fDDocWin = nil then begin
     fDDocWin := TCEEditorHintWindow.Create(self);
     fDDocWin.Color := clInfoBk + $01010100;
     fDDocWin.Font.Color:= clInfoText;
-    fDDocWin.OnClick:= @hintWinClick;
   end;
 end;
 
-procedure TCESynMemo.EditorIdle(sender: TObject);
+procedure TCESynMemo.HintTimerEvent(sender: TObject);
 var
   str: string;
 begin
@@ -427,7 +423,7 @@ begin
   if not isDSource then exit;
   //
   if not fCanShowHint then exit;
-  if Identifier = '' then exit;
+  fCanShowHint := false;
   DcdWrapper.getDdocFromCursor(str);
   //
   if (length(str) > 0) then
@@ -440,8 +436,7 @@ begin
   if str <> '' then
   begin
     fDDocWin.FontSize := Font.Size;
-    fDDocWin.Font.Size:=Font.Size;
-    fDDocWin.HintRect := fCallTipWin.CalcHintRect(0, str, nil);
+    fDDocWin.HintRect := fDDocWin.CalcHintRect(0, str, nil);
     fDDocWin.OffsetHintRect(mouse.CursorPos, Font.Size);
 		fDDocWin.ActivateHint(fDDocWin.HintRect, str);
   end;
@@ -610,7 +605,7 @@ begin
     begin
       fCallTipWin.FontSize := Font.Size;
 	  	fCallTipWin.HintRect := fCallTipWin.CalcHintRect(0, str, nil);
-      fCallTipWin.OffsetHintRect(point(CaretXPix, CaretYPix), Font.Size);
+      fCallTipWin.OffsetHintRect(ClientToScreen(point(CaretXPix, CaretYPix)), - (Font.Size * 2 + 5));
 			fCallTipWin.ActivateHint(str);
     end;
   end else fCallTipWin.Hide;
@@ -628,13 +623,19 @@ begin
 end;
 
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
+var
+  dX, dY: Integer;
 begin
   fDDocWin.Hide;
   fCallTipWin.Hide;
   inherited;
-  fCanShowHint := (shift = []) and
-    (Y - fOldMousePos.y < 2) and (Y - fOldMousePos.y > -2) and
-    (X - fOldMousePos.x < 2) and (X - fOldMousePos.x > -2);
+  dx := X - fOldMousePos.x;
+  dy := Y - fOldMousePos.y;
+  fCanShowHint:=false;
+  if (shift = []) then if
+    ((dx < 0) and (dx > -5) or (dx > 0) and (dx < 5)) or
+      ((dy < 0) and (dy > -5) or (dy > 0) and (dy < 5)) then
+        fCanShowHint:=true;
   fOldMousePos := Point(X, Y);
   fMousePos := PixelsToRowColumn(fOldMousePos);
   if ssLeft in Shift then
