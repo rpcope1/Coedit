@@ -720,7 +720,6 @@ end;
 
 procedure TCEMainForm.ActionsUpdate(AAction: TBasicAction; var Handled: Boolean);
 begin
-  // TODO-cTest: linux, confirm close doc AV & TCOlorPropertyEditor conv err are fixed
   Handled := false;
   if fUpdateCount > 0 then exit;
   Inc(fUpdateCount);
