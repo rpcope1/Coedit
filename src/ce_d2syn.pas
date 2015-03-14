@@ -11,12 +11,12 @@ uses
 
 const
 
-  D2Kw: array[0..109] of string =
+  D2Kw: array[0..111] of string =
   ( 'abstract', 'alias', 'align', 'asm', 'assert', 'auto',
     'body', 'bool', 'break', 'byte',
     'case', 'cast', 'catch', 'cdouble', 'cent', 'cfloat', 'char', 'class',
     'const', 'continue', 'creal',
-    'dchar', 'debug', 'default', 'delegate', 'delete', 'deprecated', 'do', 'double',
+    'dchar', 'debug', 'default', 'delegate', 'delete', 'deprecated', 'do', 'double', 'dstring',
     'else', 'enum', 'export', 'extern',
     'false', 'final', 'finally', 'float', 'for', 'foreach',
     'foreach_reverse', 'function',
@@ -34,7 +34,7 @@ const
     'template', 'this', 'throw', 'true', 'try', 'typedef', 'typeid', 'typeof',
     'ubyte', 'ucent', 'uint', 'ulong', 'union', 'unittest', 'ushort',
     'version', 'void', 'volatile',
-    'wchar', 'while', 'with',
+    'wchar', 'while', 'with', 'wstring',
     '__FILE__', '__MODULE__', '__LINE__', '__FUNCTION__', '__PRETTY_FUNCTION__'
   );
 
