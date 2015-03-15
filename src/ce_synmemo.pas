@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, SynEdit, ce_d2syn, ce_txtsyn ,SynEditHighlighter, controls,
   lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
   SynEditFoldedView, crc, ce_common, ce_observer, ce_writableComponent, Forms,
-  graphics, ExtCtrls;
+  graphics, ExtCtrls, LMessages, messages;
 
 type
 
@@ -110,6 +110,7 @@ type
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:Integer); override;
+    function DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean; override;
   published
     property defaultFontSize: Integer read fDefaultFontSize write setDefaultFontSize;
   public
@@ -332,6 +333,8 @@ begin
   ShowHint :=false;
   InitHintWins;
   fHintTimer := TIdleTimer.Create(self);
+  fHintTimer.AutoEnabled:=true;
+  fHintTimer.Interval := 200;
   fHintTimer.OnTimer := @HintTimerEvent;
   //
   Gutter.LineNumberPart.ShowOnlyLineNumbersMultiplesOf := 5;
@@ -579,6 +582,7 @@ begin
     VK_DECIMAL: Font.Size := fDefaultFontSize;
   end;
   TCEEditorHintWindow.FontSize := Font.Size;
+  fCanShowHint:=false;
   fDDocWin.Hide;
 end;
 
@@ -663,6 +667,13 @@ begin
     fPositions.next
   else if Button = mbLeft then
     fPositions.store;
+end;
+
+function TCESynMemo.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean;
+begin
+  result := inherited DoMouseWheel(Shift, WheelDelta, MousePos);
+  fCanShowHint:=false;
+  fHintTimer.Enabled:=false;
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
