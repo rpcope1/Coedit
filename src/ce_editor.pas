@@ -366,7 +366,7 @@ procedure TCEEditorWidget.getSymbolLoc;
 var
   srcpos, i, sum: Integer;
   fname: string;
-  lel: byte;
+  len: byte;
 begin
   if not DcdWrapper.available then exit;
   //
@@ -378,11 +378,11 @@ begin
     // note: SelStart only matches srcpos if the target file has the same line ending
     // as the operating system: the pos has to be found manually.
     sum := 0;
-    lel := getLineEndingLength(fDoc.fileName);
+    len := getLineEndingLength(fDoc.fileName);
     for i := 0 to fDoc.Lines.Count-1 do
     begin
       sum += length(fDoc.Lines.Strings[i]);
-      sum += lel;
+      sum += len;
       //TODO-cenhancement: find declaration, determine column accurately.
       if sum >= srcpos then
       begin
