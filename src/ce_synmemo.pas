@@ -609,7 +609,8 @@ begin
     begin
       fCallTipWin.FontSize := Font.Size;
 	  	fCallTipWin.HintRect := fCallTipWin.CalcHintRect(0, str, nil);
-      fCallTipWin.OffsetHintRect(ClientToScreen(point(CaretXPix, CaretYPix)), - (Font.Size * 2 + 5));
+      fCallTipWin.OffsetHintRect(ClientToScreen(point(CaretXPix, CaretYPix)),
+        - 5 - fCallTipWin.HintRect.Bottom - fCallTipWin.HintRect.Top);
 			fCallTipWin.ActivateHint(str);
     end;
   end else fCallTipWin.Hide;
