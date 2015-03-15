@@ -2074,7 +2074,7 @@ object CEMainForm: TCEMainForm
       Caption = 'Copy'
       ImageIndex = 4
       OnExecute = actEdCopyExecute
-      OnUpdate = updateDocumentBasedAction
+      OnUpdate = updateDocEditBasedAction
       ShortCut = 16451
     end
     object actEdCut: TAction
@@ -2082,7 +2082,7 @@ object CEMainForm: TCEMainForm
       Caption = 'Cut'
       ImageIndex = 6
       OnExecute = actEdCutExecute
-      OnUpdate = updateDocumentBasedAction
+      OnUpdate = updateDocEditBasedAction
       ShortCut = 16472
     end
     object actEdPaste: TAction
@@ -2090,7 +2090,7 @@ object CEMainForm: TCEMainForm
       Caption = 'Paste'
       ImageIndex = 5
       OnExecute = actEdPasteExecute
-      OnUpdate = updateDocumentBasedAction
+      OnUpdate = updateDocEditBasedAction
       ShortCut = 16470
     end
     object actEdUndo: TAction
@@ -2098,7 +2098,7 @@ object CEMainForm: TCEMainForm
       Caption = 'Undo'
       ImageIndex = 0
       OnExecute = actEdUndoExecute
-      OnUpdate = updateDocumentBasedAction
+      OnUpdate = updateDocEditBasedAction
       ShortCut = 16474
     end
     object actEdRedo: TAction
@@ -2106,7 +2106,7 @@ object CEMainForm: TCEMainForm
       Caption = 'Redo'
       ImageIndex = 1
       OnExecute = actEdRedoExecute
-      OnUpdate = updateDocumentBasedAction
+      OnUpdate = updateDocEditBasedAction
       ShortCut = 24666
     end
     object actEdMacStartStop: TAction
@@ -2114,7 +2114,7 @@ object CEMainForm: TCEMainForm
       Caption = 'Start/stop macro recording'
       ImageIndex = 10
       OnExecute = actEdMacStartStopExecute
-      OnUpdate = updateDocumentBasedAction
+      OnUpdate = updateDocEditBasedAction
       ShortCut = 24658
     end
     object actEdMacPlay: TAction
@@ -2122,7 +2122,7 @@ object CEMainForm: TCEMainForm
       Caption = 'Play macro'
       ImageIndex = 11
       OnExecute = actEdMacPlayExecute
-      OnUpdate = updateDocumentBasedAction
+      OnUpdate = updateDocEditBasedAction
       ShortCut = 24656
     end
     object actFileSave: TAction
@@ -2229,7 +2229,7 @@ object CEMainForm: TCEMainForm
       Caption = 'Indent'
       ImageIndex = 16
       OnExecute = actEdIndentExecute
-      OnUpdate = updateDocumentBasedAction
+      OnUpdate = updateDocEditBasedAction
       ShortCut = 24649
     end
     object actEdUnIndent: TAction
@@ -2237,7 +2237,7 @@ object CEMainForm: TCEMainForm
       Caption = 'Unindent'
       ImageIndex = 17
       OnExecute = actEdUnIndentExecute
-      OnUpdate = updateDocumentBasedAction
+      OnUpdate = updateDocEditBasedAction
       ShortCut = 24661
     end
     object actProjOptView: TAction

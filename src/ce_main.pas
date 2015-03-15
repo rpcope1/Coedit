@@ -137,6 +137,7 @@ type
     MenuItem9: TMenuItem;
     procedure updateDocumentBasedAction(sender: TObject);
     procedure updateProjectBasedAction(sender: TObject);
+    procedure updateDocEditBasedAction(sender: TObject);
     procedure actFileCompileAndRunOutExecute(Sender: TObject);
     procedure actEdFindExecute(Sender: TObject);
     procedure actEdFindNextExecute(Sender: TObject);
@@ -716,6 +717,14 @@ end;
 procedure TCEMainForm.updateProjectBasedAction(sender: TObject);
 begin
   TAction(sender).Enabled := fProject <> nil;
+end;
+
+procedure TCEMainForm.updateDocEditBasedAction(sender: TObject);
+begin
+  if (fDoc <> nil) and fDoc.Focused then
+    TAction(sender).Enabled := true
+  else
+    TAction(sender).Enabled := false;
 end;
 
 procedure TCEMainForm.ActionsUpdate(AAction: TBasicAction; var Handled: Boolean);
