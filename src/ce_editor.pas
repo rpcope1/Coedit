@@ -364,7 +364,7 @@ end;
 
 procedure TCEEditorWidget.getSymbolLoc;
 var
-  srcpos, i, sum: Integer;
+  srcpos, i, sum, linelen: Integer;
   fname: string;
   len: byte;
 begin
@@ -381,14 +381,16 @@ begin
     len := getLineEndingLength(fDoc.fileName);
     for i := 0 to fDoc.Lines.Count-1 do
     begin
-      sum += length(fDoc.Lines.Strings[i]);
-      sum += len;
-      //TODO-cenhancement: find declaration, determine column accurately.
-      if sum >= srcpos then
+      linelen := length(fDoc.Lines.Strings[i]);
+      if sum + linelen + len > srcpos then
       begin
-        fDoc.CaretY := i+1;
+        fDoc.CaretY := i + 1;
+        fDoc.CaretX := srcpos - sum + len;
+        fDoc.SelectWord;
         break;
       end;
+      sum += linelen;
+      sum += len;
     end;
   end;
 end;
