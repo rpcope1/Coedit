@@ -224,7 +224,6 @@ end;
 procedure TSymbolList.LoadFromTool(str: TStream);
 var
   bin: TMemoryStream;
-  dat: integer;
 begin
   bin := TMemoryStream.Create;
   try
@@ -232,9 +231,6 @@ begin
     try
       ObjectTextToBinary(str, bin);
     except
-      // if output is not fully read then
-      // the tool process never terminates.
-      while str.Read(dat, SizeOf(dat)) <> 0 do;
       exit;
     end;
     bin.Position:=0;
