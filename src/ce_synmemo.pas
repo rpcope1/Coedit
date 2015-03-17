@@ -620,9 +620,9 @@ var
   i, len: Integer;
 begin
   result := 0;
-  len := getLineEndingLength(fFilename);
+  //len := getLineEndingLength(fFilename);
   for i:= 0 to fMousePos.y-2 do
-    result += length(Lines.Strings[i]) + len;
+    result += length(Lines.Strings[i]) + getSysLineEndLen;
   result += fMousePos.x;
 end;
 
@@ -641,7 +641,7 @@ begin
       ((dy < 0) and (dy > -5) or (dy > 0) and (dy < 5)) then
         fCanShowHint:=true;
   fOldMousePos := Point(X, Y);
-  fMousePos := PixelsToRowColumn(fOldMousePos);
+  fMousePos := PixelsToRowColumn(fOldMousePos, []);
   if ssLeft in Shift then
     identifierToD2Syn;
 end;
