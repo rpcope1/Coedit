@@ -5,10 +5,9 @@ unit ce_synmemo;
 interface
 
 uses
-  Classes, SysUtils, SynEdit, ce_d2syn, ce_txtsyn ,SynEditHighlighter, controls,
-  lcltype, LazSynEditText, SynEditKeyCmds, SynHighlighterLFM, SynEditMouseCmds,
-  SynEditFoldedView, crc, ce_common, ce_observer, ce_writableComponent, Forms,
-  graphics, ExtCtrls, LMessages, messages;
+  Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc, SynEditKeyCmds,
+  LazSynEditText, SynEditHighlighter, SynEdit, SynHighlighterLFM, SynEditMouseCmds,
+  SynEditFoldedView, ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn;
 
 type
 
@@ -94,7 +93,7 @@ type
     fHintTimer: TIdleTimer;
     fCanShowHint: boolean;
     fOldMousePos: TPoint;
-    function getMouseStart: Integer;
+    function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
     procedure saveCache;
@@ -133,7 +132,7 @@ type
     property isProjectSource: boolean read fIsConfig;
     property TextView;
     //
-    property MouseStart: Integer read getMouseStart;
+    property MouseStart: Integer read getMouseFileBytePos;
   end;
 
 var
@@ -616,14 +615,14 @@ begin
   end else fCallTipWin.Hide;
 end;
 
-function TCESynMemo.getMouseStart: Integer;
+function TCESynMemo.getMouseFileBytePos: Integer;
 var
-  i, le: Integer;
+  i, len: Integer;
 begin
   result := 0;
-  le := getLineEndingLength(fFilename);
+  len := getLineEndingLength(fFilename);
   for i:= 0 to fMousePos.y-2 do
-    result += length(Lines.Strings[i]) + le;
+    result += length(Lines.Strings[i]) + len;
   result += fMousePos.x;
 end;
 
