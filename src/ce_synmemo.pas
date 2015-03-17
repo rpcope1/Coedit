@@ -621,9 +621,14 @@ var
 begin
   result := 0;
   //len := getLineEndingLength(fFilename);
+  len := getSysLineEndLen;
+
+
   for i:= 0 to fMousePos.y-2 do
-    result += length(Lines.Strings[i]) + getSysLineEndLen;
+    result += length(Lines.Strings[i]) + len;
   result += fMousePos.x;
+
+  //getMessageDisplay.message(format('%d - %d : %d',[fMousePos.x, fMousePos.y, result]),nil,amcMisc,amkBub);
 end;
 
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
@@ -641,7 +646,7 @@ begin
       ((dy < 0) and (dy > -5) or (dy > 0) and (dy < 5)) then
         fCanShowHint:=true;
   fOldMousePos := Point(X, Y);
-  fMousePos := PixelsToRowColumn(fOldMousePos, []);
+  fMousePos := PixelsToRowColumn(fOldMousePos);
   if ssLeft in Shift then
     identifierToD2Syn;
 end;

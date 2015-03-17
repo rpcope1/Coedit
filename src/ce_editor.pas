@@ -378,8 +378,8 @@ begin
     // note: SelStart only matches srcpos if the target file has the same line ending
     // as the operating system: the pos has to be found manually.
     sum := 0;
-    //len := getLineEndingLength(fDoc.fileName);
-    len := getSysLineEndLen;
+    len := getLineEndingLength(fDoc.fileName);
+    //len := getSysLineEndLen;
     for i := 0 to fDoc.Lines.Count-1 do
     begin
       linelen := length(fDoc.Lines.Strings[i]);
