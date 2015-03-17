@@ -620,9 +620,9 @@ var
   i, len: Integer;
 begin
   result := 0;
-  len := getSysLineEndLen;
+  //len := getLineEndingLength(fFilename);
   for i:= 0 to fMousePos.y-2 do
-    result += length(Lines.Strings[i]) + len;
+    result += length(Lines.Strings[i]) + getSysLineEndLen;
   result += fMousePos.x;
 end;
 
