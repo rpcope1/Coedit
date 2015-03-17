@@ -304,6 +304,9 @@ begin
   if not fAvailable then exit;
   if fDoc = nil then exit;
   //
+  i := fDoc.MouseStart;
+  if i = 0 then exit;
+  //
   fTempLines.Assign(fDoc.Lines);
   fTempLines.SaveToFile(fDoc.tempFilename);
   //
@@ -311,7 +314,7 @@ begin
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-d');
   fClient.Parameters.Add('-c');
-  fClient.Parameters.Add(intToStr(fDoc.MouseStart - 1));
+  fClient.Parameters.Add(intToStr(i - 1));
   fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
   //

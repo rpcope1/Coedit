@@ -5,9 +5,10 @@ unit ce_synmemo;
 interface
 
 uses
-  Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc, SynEditKeyCmds,
-  LazSynEditText, SynEditHighlighter, SynEdit, SynHighlighterLFM, SynEditMouseCmds,
-  SynEditFoldedView, ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn;
+  Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc, math,
+  SynEditKeyCmds,LazSynEditText, SynEditHighlighter, SynEdit, SynHighlighterLFM,
+  SynEditMouseCmds, SynEditFoldedView, ce_common, ce_observer, ce_writableComponent,
+  ce_d2syn, ce_txtsyn;
 
 type
 
@@ -440,7 +441,7 @@ begin
     fDDocWin.FontSize := Font.Size;
     fDDocWin.HintRect := fDDocWin.CalcHintRect(0, str, nil);
     fDDocWin.OffsetHintRect(mouse.CursorPos, Font.Size);
-		fDDocWin.ActivateHint(fDDocWin.HintRect, str);
+    fDDocWin.ActivateHint(fDDocWin.HintRect, str);
   end;
 end;
 
@@ -575,11 +576,13 @@ begin
   identifierToD2Syn;
   if not (Shift = [ssCtrl]) then exit;
   //
+  IncPaintLock;
   case Key of
     VK_ADD: if Font.Size < 50 then Font.Size := Font.Size + 1;
     VK_SUBTRACT: if Font.Size > 3 then Font.Size := Font.Size - 1;
     VK_DECIMAL: Font.Size := fDefaultFontSize;
   end;
+  DecPaintLock;
   TCEEditorHintWindow.FontSize := Font.Size;
   fCanShowHint:=false;
   fDDocWin.Hide;
@@ -617,18 +620,20 @@ end;
 
 function TCESynMemo.getMouseFileBytePos: Integer;
 var
-  i, len: Integer;
+  i, len, llen: Integer;
 begin
   result := 0;
-  //len := getLineEndingLength(fFilename);
+  if fMousePos.y-1 > Lines.Count-1 then exit;
+  llen := length(Lines.Strings[fMousePos.y-1]);
+  if fMousePos.X > llen  then exit;
+  //
+  // something note really clear:
+  // TCEEditorWidget.getSymbolLoc works when using the line ending from the filename.
+  // TCESynMemo.getMouseFileBytePos works when using the line ending from the system.
   len := getSysLineEndLen;
-
-
   for i:= 0 to fMousePos.y-2 do
     result += length(Lines.Strings[i]) + len;
   result += fMousePos.x;
-
-  //getMessageDisplay.message(format('%d - %d : %d',[fMousePos.x, fMousePos.y, result]),nil,amcMisc,amkBub);
 end;
 
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
