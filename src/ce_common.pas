@@ -205,10 +205,8 @@ type
   function AppIsRunning(const ExeName: string):Boolean;
 
   (**
-   * Returns the length of the line ending in aFilename;
+   * Returns the length of the line ending of the system
    *)
-  //function getLineEndingLength(const aFilename: string): byte;
-
   function getSysLineEndLen: byte;
 
 implementation
@@ -757,36 +755,6 @@ begin
   aProcess.Options := aProcess.Options - [poStderrToOutPut, poUsePipes];
   aProcess.Options := aProcess.Options + [poNewConsole];
 end;
-
-// TODO-cbugfix: confirm that DCD location info are based on system Line ending and not the one existing in a specific file
-
-//function getLineEndingLength(const aFilename: string): byte;
-//var
-//  value: char;
-//  le: string;
-//begin
-//  value := #0;
-//  le := LineEnding;
-//  result := length(le);
-//  if not fileExists(aFilename) then
-//    exit;
-//  with TMemoryStream.Create do
-//  try
-//    LoadFromFile(aFilename);
-//    while true do
-//    begin
-//      if Position = Size then
-//        exit;
-//      read(value,1);
-//      if value = #10 then
-//        exit(1);
-//      if value = #13 then
-//        exit(2);
-//    end;
-//  finally
-//    Free;
-//  end;
-//end;
 
 function getSysLineEndLen: byte;
 begin
