@@ -628,7 +628,7 @@ begin
   if fMousePos.X > llen  then exit;
   //
   // something note really clear:
-  // TCEEditorWidget.getSymbolLoc works when using the line ending from the filename.
+  // TCEEditorWidget.getSymbolLoc works when using the line ending of the file.
   // TCESynMemo.getMouseFileBytePos works when using the line ending from the system.
   len := getSysLineEndLen;
   for i:= 0 to fMousePos.y-2 do

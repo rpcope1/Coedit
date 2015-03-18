@@ -1268,6 +1268,7 @@ begin
     dmdproc.Options := [poStdErrToOutput, poUsePipes];
     dmdproc.Executable := DCompiler;
     dmdproc.Parameters.Add(fDoc.fileName);
+    dmdproc.Parameters.Add('-J' + ExtractFilePath(fDoc.fileName));
     dmdproc.Parameters.AddText(fRunnableSw);
     if unittest then
     begin
