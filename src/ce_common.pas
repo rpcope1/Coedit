@@ -758,8 +758,6 @@ begin
   aProcess.Options := aProcess.Options + [poNewConsole];
 end;
 
-// TODO-cbugfix: confirm that DCD location info are based on system Line ending and not the one existing in a specific file
-
 function getLineEndingLength(const aFilename: string): byte;
 var
   value: char;

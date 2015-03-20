@@ -11,6 +11,9 @@ uses
   ce_observer;
 
 type
+
+  { TCEProjectConfigurationWidget }
+
   TCEProjectConfigurationWidget = class(TCEWidget, ICEProjectObserver)
     btnSyncEdit: TSpeedButton;
     imgList: TImageList;
@@ -79,6 +82,8 @@ begin
   Tree.Selected := Tree.Items.GetLastNode;
   inspector.OnEditorFilter := @GridFilter;
   inspector.CheckboxForBoolean := true;
+  //TODO-cfeature: project inspector synchro-mode for TStringList-based editors
+  // currently the event OnModified is only called for simple properties.
   //
   EntitiesConnector.addObserver(self);
 end;
