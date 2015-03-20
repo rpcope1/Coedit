@@ -105,6 +105,7 @@ type
   protected
     procedure SetVisible(Value: Boolean); override;
     procedure SetHighlighter(const Value: TSynCustomHighlighter); override;
+    procedure UTF8KeyPress(var Key: TUTF8Char); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
@@ -589,8 +590,6 @@ begin
 end;
 
 procedure TCESynMemo.KeyUp(var Key: Word; Shift: TShiftState);
-var
-  str: string;
 begin
   if Key in [VK_PRIOR, VK_NEXT, Vk_UP] then
     fPositions.store;
@@ -598,24 +597,29 @@ begin
   //
   if StaticEditorMacro.automatic then
     StaticEditorMacro.Execute;
-  //
-  if Key = 53 then
+end;
+
+procedure TCESynMemo.UTF8KeyPress(var Key: TUTF8Char);
+var
+  str: string;
+  c: TUTF8Char;
+begin
+  c := Key;
+  inherited;
+  if c = '(' then
   begin
-    if fCallTipWin = nil then
-    begin
-    	fCallTipWin := TCEEditorHintWindow.Create(self);
-      fCallTipWin.Color := clInfoBk + $01010100;
-    end;
     DcdWrapper.getCallTip(str);
     if str <> '' then
     begin
       fCallTipWin.FontSize := Font.Size;
-	  	fCallTipWin.HintRect := fCallTipWin.CalcHintRect(0, str, nil);
+  	  fCallTipWin.HintRect := fCallTipWin.CalcHintRect(0, str, nil);
       fCallTipWin.OffsetHintRect(ClientToScreen(point(CaretXPix, CaretYPix)),
         - 5 - fCallTipWin.HintRect.Bottom - fCallTipWin.HintRect.Top);
-			fCallTipWin.ActivateHint(str);
+		  fCallTipWin.ActivateHint(str);
     end;
-  end else fCallTipWin.Hide;
+  end
+  else if c = ')' then
+    fCallTipWin.Hide;
 end;
 
 function TCESynMemo.getMouseFileBytePos: Integer;
