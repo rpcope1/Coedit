@@ -589,8 +589,9 @@ begin
   if fMain then aList.Add('-main');
   if fRelease then aList.Add('-release');
   for opt in fVerIds do begin
-    if opt[1] = ';' then
-      continue;
+    if length(opt) > 0 then
+      if opt[1] = ';' then
+        continue;
     if length(opt) > 1 then
       if opt[1..2] = '//' then
         continue;
