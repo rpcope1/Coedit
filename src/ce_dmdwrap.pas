@@ -968,7 +968,8 @@ var
 begin
   for str1 in fCustom do if str1 <> '' then
   begin
-    if str1[1] = ';' then
+    if length(str) > 0 then
+      if str1[1] = ';' then
         continue;
     if length(str1) > 1 then
       if str1[1..2] = '//' then
