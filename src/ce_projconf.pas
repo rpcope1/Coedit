@@ -82,8 +82,9 @@ begin
   Tree.Selected := Tree.Items.GetLastNode;
   inspector.OnEditorFilter := @GridFilter;
   inspector.CheckboxForBoolean := true;
-  //TODO-cfeature: project inspector synchro-mode for TStringList-based editors
+  //TODO-cfeature: project inspector synchro-mode for dialog-based editors
   // currently the event OnModified is only called for simple properties.
+  // and it misses in ObjectINspector.pp TOICustomPropertyGrid.DoCallEdit();
   //
   EntitiesConnector.addObserver(self);
 end;
