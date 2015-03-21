@@ -22,6 +22,7 @@ type
   TCEDcdWrapper = class(TWritableLfmTextComponent, ICEProjectObserver, ICEMultiDocObserver)
   private
     fTempLines: TStringList;
+    fImportCache: TStringList;
     //fPortNum: Word;
     fServerWasRunning: boolean;
     fClient, fServer: TProcess;
@@ -30,6 +31,7 @@ type
     fProj: TCEProject;
     procedure killServer;
     procedure terminateClient;
+    procedure waitClient;
     //
     procedure projNew(aProject: TCEProject);
     procedure projChanged(aProject: TCEProject);
@@ -45,7 +47,6 @@ type
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     //
-    procedure restartServer;
     procedure addImportFolder(const aFolder: string);
     procedure getComplAtCursor(aList: TStrings);
     procedure getCallTip(out tips: string);
@@ -74,7 +75,7 @@ begin
   //
   fClient := TProcess.Create(self);
   fClient.Executable := clientName;
-  fClient.Options := [poUsePipes{$IFDEF WINDOWS}, poNewConsole{$ENDIF}{$IFDEF LINUX}, poWaitOnExit{$ENDIF}];
+  fClient.Options := [poUsePipes{$IFDEF WINDOWS}, poNewConsole{$ENDIF}];
   fClient.ShowWindow := swoHIDE;
   //
   fServerWasRunning := AppIsRunning((serverName));
@@ -87,6 +88,7 @@ begin
     {$ENDIF}
   end;
   fTempLines := TStringList.Create;
+  fImportCache := TStringList.Create;
 
   if (fServer <> nil) then
     fServer.Execute;
@@ -97,6 +99,7 @@ end;
 destructor TCEDcdWrapper.destroy;
 begin
   EntitiesConnector.removeObserver(self);
+  fImportCache.Free;
   if fTempLines <> nil then
     fTempLines.Free;
   if fServer <> nil then begin
@@ -195,7 +198,6 @@ procedure TCEDcdWrapper.killServer;
 begin
   if not fAvailable then exit;
   //
-  while fClient.Running do;
   fClient.Parameters.Clear;
   fClient.Parameters.Add('--shutdown');
   fClient.Execute;
@@ -205,20 +207,21 @@ begin
   {$ENDIF}
 end;
 
-procedure TCEDcdWrapper.restartServer;
+procedure TCEDcdWrapper.waitClient;
 begin
-  if not fAvailable then exit;
-  //
+  while fClient.Running do;
 end;
 
 procedure TCEDcdWrapper.addImportFolder(const aFolder: string);
 begin
   if not fAvailable then exit;
   //
-  while fClient.Running do sleep(1);
+  if fImportCache.IndexOf(aFolder) <> -1 then exit;
+  fImportCache.Add(aFolder);
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-I' + aFolder);
   fClient.Execute;
+  waitClient;
 end;
 
 procedure TCEDcdWrapper.getCallTip(out tips: string);
@@ -229,12 +232,12 @@ begin
   fTempLines.Assign(fDoc.Lines);
   fTempLines.SaveToFile(fDoc.tempFilename);
   //
-  terminateClient;
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-c');
   fClient.Parameters.Add(intToStr(fDoc.SelStart - 1));
   fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
+  waitClient;
   //
   fTempLines.LoadFromStream(fClient.Output);
   if fTempLines.Count = 0 then exit;
@@ -257,12 +260,12 @@ begin
   fTempLines.Assign(fDoc.Lines);
   fTempLines.SaveToFile(fDoc.tempFilename);
   //
-  terminateClient;
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-c');
   fClient.Parameters.Add(intToStr(fDoc.SelStart - 1));
   fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
+  waitClient;
   //
   fTempLines.LoadFromStream(fClient.Output);
   if fTempLines.Count = 0 then exit;
@@ -310,13 +313,13 @@ begin
   fTempLines.Assign(fDoc.Lines);
   fTempLines.SaveToFile(fDoc.tempFilename);
   //
-  terminateClient;
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-d');
   fClient.Parameters.Add('-c');
   fClient.Parameters.Add(intToStr(i - 1));
   fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
+  waitClient;
   //
   aComment := '';
   fTempLines.LoadFromStream(fClient.Output);
@@ -335,13 +338,13 @@ begin
   fTempLines.Assign(fDoc.Lines);
   fTempLines.SaveToFile(fDoc.tempFilename);
   //
-  terminateClient;
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-l');
   fClient.Parameters.Add('-c');
   fClient.Parameters.Add(intToStr(fDoc.SelStart - 1));
   fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
+  waitClient;
   //
   str := 'a';
   setlength(str, 256);
