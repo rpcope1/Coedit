@@ -209,7 +209,8 @@ end;
 
 procedure TCEDcdWrapper.waitClient;
 begin
-  while fClient.Running do;
+  while fClient.Running do
+    sleep(5);
 end;
 
 procedure TCEDcdWrapper.addImportFolder(const aFolder: string);
