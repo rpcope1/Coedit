@@ -39,8 +39,8 @@ type
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     //
-    procedure getLibFiles(const someAliases, aList: TStrings);
-    procedure getLibSources(const someAliases, aList: TStrings);
+    procedure getLibFiles(someAliases, aList: TStrings);
+    procedure getLibSources(someAliases, aList: TStrings);
     //
     procedure updateDCD;
   end;
@@ -79,10 +79,10 @@ end;
 procedure TLibraryManager.updateDCD;
 var
   itm: TLibraryItem;
-  i: NativeInt;
+  i: Integer;
 begin
   if not DcdWrapper.available then exit;
-  // note: new items are directly handled but removed ones still in cache until next cession.
+  // note: new items are directly handled but removed ones still in cache until server restarts.
   for i := 0 to fCol.Count-1 do
   begin
     itm := TLibraryItem(fCol.Items[i]);
@@ -94,11 +94,11 @@ end;
  * the caller gets all the *.lib/*.a files in aList if someAliases is nil
  * otherwise the static libs selected by the aliases in someAliases.
  *)
-procedure TLibraryManager.getLibFiles(const someAliases, aList: TStrings);
+procedure TLibraryManager.getLibFiles(someAliases, aList: TStrings);
 var
   itm: TLibraryItem;
   lst: TStringList;
-  i, j: NativeInt;
+  i,j: Integer;
   dir: string;
 begin
   for i := 0 to fCol.Count-1 do
@@ -138,12 +138,12 @@ end;
 
 (**
  * the caller gets all the paths were are located the lib sources in aList if someAliases is nil
- * otherwise the paths were are located the lib sources selected by the aliases in someAliases.
+ * otherwise the paths where are located the lib sources selected by the aliases in someAliases.
  *)
-procedure TLibraryManager.getLibSources(const someAliases, aList: TStrings);
+procedure TLibraryManager.getLibSources(someAliases, aList: TStrings);
 var
   itm: TLibraryItem;
-  i: NativeInt;
+  i: Integer;
 begin
   for i := 0 to fCol.Count-1 do
   begin
