@@ -112,8 +112,6 @@ begin
     begin
       if aList.IndexOf(itm.libFile) <> -1 then
         continue;
-      if not FileExists(itm.libFile) then
-        continue;
       aList.Add(itm.libFile);
     end
     // folder of lib file
