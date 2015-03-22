@@ -505,14 +505,19 @@ begin
     readLine(reader, fTokStop);
     if (fkRegion in fFoldKinds) and (fTokStop - fTokStart > 4) then
     begin
-      Dec(reader,4);
-      Dec(fTokStop,4);
-      if reader = '---+'#10 then
+      while isWhite(reader^) do
+      begin
+        Dec(reader);
+        Dec(fTokStop);
+      end;
+      Dec(reader, 3);
+      Dec(fTokStop, 3);
+      if reader[0..3] = '---+' then
       begin
         fCurrRange.namedRegionCount += 1;
         StartCodeFoldBlock(nil);
       end
-      else if (reader = '----'#10) and (fCurrRange.namedRegionCount > 0) then
+      else if (reader[0..3] = '----') and (fCurrRange.namedRegionCount > 0) then
       begin
         EndCodeFoldBlock();
         fCurrRange.namedRegionCount -= 1;
