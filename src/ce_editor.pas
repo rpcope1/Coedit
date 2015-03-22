@@ -177,10 +177,12 @@ procedure TCEEditorWidget.docClosing(aDoc: TCESynMemo);
 var
   sheet: TWinControl;
 begin
-  if fDoc <> aDoc then exit;
-  sheet := fDoc.Parent;
-  fDoc.Parent := nil;
-  fDoc := nil;
+  if aDoc = nil then
+    exit;
+  sheet := aDoc.Parent;
+  aDoc.Parent := nil;
+  if aDoc = fDoc then
+    fDoc := nil;
   if sheet <> nil then sheet.Free;
   updateImperative;
 end;
