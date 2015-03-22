@@ -5,7 +5,7 @@ unit ce_synmemo;
 interface
 
 uses
-  Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc, math,
+  Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
   SynEditKeyCmds,LazSynEditText, SynEditHighlighter, SynEdit, SynHighlighterLFM,
   SynEditMouseCmds, SynEditFoldedView, ce_common, ce_observer, ce_writableComponent,
   ce_d2syn, ce_txtsyn;
@@ -672,15 +672,14 @@ end;
 procedure TCESynMemo.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:Integer);
 begin
   inherited;
-  if (Button = mbMiddle) and (Shift = [ssCtrl]) then
-    Font.Size := fDefaultFontSize
-  // note: Window only
-  else if Button = mbExtra1 then
-    fPositions.back
-  else if Button = mbExtra2 then
-    fPositions.next
-  else if Button = mbLeft then
-    fPositions.store;
+  case Button of
+    mbMiddle: if (Shift = [ssCtrl]) then
+      Font.Size := fDefaultFontSize;
+    // TODO-cfeature: Linux only, mouse action for src position buffer.
+    mbExtra1: fPositions.back;
+    mbExtra2: fPositions.next;
+    mbLeft:   fPositions.store;
+  end;
 end;
 
 function TCESynMemo.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean;
