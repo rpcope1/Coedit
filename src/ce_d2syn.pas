@@ -58,13 +58,13 @@ type
 
   TTokenKind = (tkCommt, tkIdent, tkKeywd, tkStrng, tkBlank, tkSymbl, tkNumbr, tkCurrI, tkDDocs);
 
-  TRangeKind = (rkNone, rkString1, rkString2, rkTokString, rkBlockCom1, rkBlockCom2, rkBlockDoc1, rkBlockDoc2, rkAsm);
+  TRangeKind = (rkString1, rkString2, rkTokString, rkBlockCom1, rkBlockCom2, rkBlockDoc1, rkBlockDoc2, rkAsm);
 
   // a terminal range kind, cannot be combined with another range kind.
-  TPrimaryRange = (prString1, prString2, prBlockCom1, prBlockCom2, prBlockDoc1, prBlockDoc2);
+  TPrimaryRange = (prNone, prString1, prString2, prBlockCom1, prBlockCom2, prBlockDoc1, prBlockDoc2);
 
   // can be combined to a primary range
-  TSecondaryRange = (srTokenString, srActiveVersion, srInactiveVersion, srAssembly);
+  TSecondaryRange = (srNone, srTokenString, srActiveVersion, srInactiveVersion, srAssembly);
 
   // used by the secondary ranges to transform the standard token attributes.
   TAttributeTransform = (taFontStyle, taFontColor, taBackColor);
@@ -251,16 +251,21 @@ begin
   tokenStringBracketsCount := 0;
   rangeKinds := [];
   rString := false;
+  //
+  primaryRange := prNone;
+  secondaryRange := srNone;
 end;
 
 procedure TSynD2SynRange.copyFrom(aSource: TSynD2SynRange);
 begin
   nestedCommentsCount := aSource.nestedCommentsCount;
+  namedRegionCount := aSource.namedRegionCount;
   tokenStringBracketsCount := aSource.tokenStringBracketsCount;
   rangeKinds := aSource.rangeKinds;
+  rString := aSource.rString;
+  //
   primaryRange := aSource.primaryRange;
   secondaryRange := aSource.secondaryRange;
-  rString := aSource.rString;
 end;
 
 constructor TSynD2Syn.create(aOwner: TComponent);
