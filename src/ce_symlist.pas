@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, TreeFilterEdit, Forms, Controls, Graphics, ExtCtrls, Menus,
   ComCtrls, ce_widget, jsonparser, process, actnlist, Buttons, Clipbrd, LCLProc,
-  ce_common, ce_observer, ce_synmemo, ce_interfaces, ce_writableComponent, EditBtn;
+  ce_common, ce_observer, ce_synmemo, ce_interfaces, ce_writableComponent;
 
 type
 
