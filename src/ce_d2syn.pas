@@ -434,7 +434,6 @@ end;
 
 procedure TSynD2Syn.setCurrIdent(const aValue: string);
 begin
-  if aValue = '' then exit;
   if fCurrIdent = aValue then Exit;
   fCurrIdent := aValue;
   doChanged;
