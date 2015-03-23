@@ -294,9 +294,9 @@ type
   published
     property executable;
     property workingDirectory;
-    property options;
+    property options default [];
     property parameters;
-    property showWindow;
+    property showWindow default swoNone;
   end;
 
   (*****************************************************************************
@@ -306,9 +306,9 @@ type
   TProjectRunOptions = class(TCustomProcOptions)
   published
     property workingDirectory;
-    property options;
+    property options default [];
     property parameters;
-    property showWindow;
+    property showWindow default swoNone;
   end;
 
   (*****************************************************************************
