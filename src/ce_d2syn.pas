@@ -814,8 +814,9 @@ begin
       if fLineBuf[FTokStart..fTokStop-1]  = fCurrIdent then
         fTokKind := tkCurrI;
     //check asm range
-    if fLineBuf[FTokStart..fTokStop-1] = 'asm' then
-      fCurrRange.rangeKinds += [rkAsm];
+    if fTokKind = tkKeywd then
+      if fLineBuf[FTokStart..fTokStop-1] = 'asm' then
+        fCurrRange.rangeKinds += [rkAsm];
     exit;
   end;
 
