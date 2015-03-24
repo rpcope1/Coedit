@@ -238,7 +238,6 @@ begin
   fClient.Parameters.Add(intToStr(fDoc.SelStart - 1));
   fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
-  waitClient;
   //
   fTempLines.LoadFromStream(fClient.Output);
   if fTempLines.Count = 0 then exit;
@@ -266,7 +265,6 @@ begin
   fClient.Parameters.Add(intToStr(fDoc.SelStart - 1));
   fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
-  waitClient;
   //
   fTempLines.LoadFromStream(fClient.Output);
   if fTempLines.Count = 0 then exit;
@@ -320,7 +318,6 @@ begin
   fClient.Parameters.Add(intToStr(i - 1));
   fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
-  waitClient;
   //
   aComment := '';
   fTempLines.LoadFromStream(fClient.Output);
@@ -345,7 +342,6 @@ begin
   fClient.Parameters.Add(intToStr(fDoc.SelStart - 1));
   fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
-  waitClient;
   //
   str := 'a';
   setlength(str, 256);
