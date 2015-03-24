@@ -72,7 +72,7 @@ type
   TRangeKinds = set of TRangeKind;
 
   // defines the ranges which can be folded
-  TFoldKinds = set of (fkBrackets, fkComments1, fkComments2, fkStrings, fkRegion);
+  TFoldKinds = set of (fkBrackets, fkComments1, fkComments2, fkStrings, fkRegion, fkDDoc);
 
   // internal class used to keep trace of the useful informations of the previous line
   TSynD2SynRange = class(TSynCustomHighlighterRange)
@@ -527,8 +527,8 @@ begin
   end else readerReset;
 
   // block comments 1
-  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkTokString])
-    then if readDelim(reader, fTokStop, '/*') then
+  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkTokString]) or
+    (fCurrRange.rangeKinds = [rkAsm]) then if readDelim(reader, fTokStop, '/*') then
   begin
     fTokKind := tkCommt;
     if readDelim(reader, fTokStop, '*') then
@@ -541,7 +541,10 @@ begin
     else
       fCurrRange.rangeKinds += [rkBlockCom1];
     readLine(reader, fTokStop);
-    StartCodeFoldBlock(nil, fkComments1 in fFoldKinds);
+    if (fTokKind = tkCommt) and (fkComments1 in fFoldKinds) then
+      StartCodeFoldBlock(nil)
+    else if (fTokKind = tkDDocs) and (fkDDoc in fFoldKinds) then
+      StartCodeFoldBlock(nil);
     exit;
   end else readerReset;
   if (rkBlockCom1 in fCurrRange.rangeKinds) or (rkBlockDoc1 in fCurrRange.rangeKinds) then
@@ -551,7 +554,8 @@ begin
     if readUntil(reader, fTokStop, '*/') then
     begin
       fCurrRange.rangeKinds -= [rkBlockDoc1, rkBlockCom1];
-      EndCodeFoldBlock(fkComments1 in fFoldKinds );
+      if (fkComments1 in fFoldKinds) or (fkDDoc in fFoldKinds) then
+        EndCodeFoldBlock();
       exit;
     end;
     readLine(reader, fTokStop);
@@ -559,8 +563,8 @@ begin
   end;
 
   // block comments 2
-  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkTokString])
-    then if readDelim(reader, fTokStop, '/+') then
+  if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkTokString]) or
+    (fCurrRange.rangeKinds = [rkAsm]) then if readDelim(reader, fTokStop, '/+') then
   begin
     fTokKind := tkCommt;
     if readDelim(reader, fTokStop, '+') then
@@ -573,7 +577,10 @@ begin
     else
       fCurrRange.rangeKinds += [rkBlockCom2];
     readLine(reader, fTokStop);
-    StartCodeFoldBlock(nil, fkComments2 in fFoldKinds);
+    if (fTokKind = tkCommt) and (fkComments2 in fFoldKinds) then
+      StartCodeFoldBlock(nil)
+    else if (fTokKind = tkDDocs) and (fkDDoc in fFoldKinds) then
+      StartCodeFoldBlock(nil);
     exit;
   end else readerReset;
   if (rkBlockCom2 in fCurrRange.rangeKinds) or (rkBlockDoc2 in fCurrRange.rangeKinds) then
@@ -589,7 +596,8 @@ begin
       if fCurrRange.nestedCommentsCount <> 0 then
         exit;
       fCurrRange.rangeKinds -= [rkBlockDoc2, rkBlockCom2];
-      EndCodeFoldBlock(fkComments2 in fFoldKinds);
+      if (fkComments2 in fFoldKinds) or (fkDDoc in fFoldKinds) then
+        EndCodeFoldBlock();
       exit;
     end;
     readLine(reader, fTokStop);
@@ -630,7 +638,8 @@ begin
       end;
     end;
     fCurrRange.rangeKinds += [rkString1];
-    StartCodeFoldBlock(nil, fkStrings in fFoldKinds);
+    if fkStrings in fFoldKinds then
+      StartCodeFoldBlock(nil);
     exit;
   end else _postString1: readerReset;
   if rkString1 in fCurrRange.rangeKinds then
@@ -651,7 +660,8 @@ begin
         fCurrRange.rangeKinds -= [rkString1];
         readDelim(reader, fTokStop, stringPostfixes);
         fCurrRange.rString := false;
-        EndCodeFoldBlock(fkStrings in fFoldKinds);
+        if fkStrings in fFoldKinds then
+          EndCodeFoldBlock();
         exit;
       end
       else break;
@@ -672,7 +682,8 @@ begin
     end;
     fCurrRange.rangeKinds += [rkString2];
     readLine(reader, fTokStop);
-    StartCodeFoldBlock(nil, fkStrings in fFoldKinds);
+    if fkStrings in fFoldKinds then
+      StartCodeFoldBlock(nil);
     exit;
   end else readerReset;
   if rkString2 in fCurrRange.rangeKinds then
@@ -681,7 +692,8 @@ begin
     if readUntil(reader, fTokStop, '`') then
     begin
       fCurrRange.rangeKinds -= [rkString2];
-      EndCodeFoldBlock(fkStrings in fFoldKinds);
+      if fkStrings in fFoldKinds then
+        EndCodeFoldBlock();
       readDelim(reader, fTokStop, stringPostfixes);
       exit;
     end;
@@ -692,10 +704,11 @@ begin
   //token string
   if readDelim(reader, fTokStop, 'q{') then
   begin
-    fTokKind := tkIdent;
+    fTokKind := tkSymbl;
     inc(fCurrRange.tokenStringBracketsCount);
     fCurrRange.rangeKinds += [rkTokString];
-    StartCodeFoldBlock(nil, fkBrackets in fFoldKinds);
+    if fkBrackets in fFoldKinds then
+      StartCodeFoldBlock(nil);
     exit;
   end else readerReset;
 
@@ -734,10 +747,11 @@ begin
   begin
     fTokKind := tkSymbl;
     case reader^ of
-      '{': StartCodeFoldBlock(nil,fkBrackets in fFoldKinds);
+      '{': if fkBrackets in fFoldKinds then StartCodeFoldBlock(nil);
       '}':
       begin
-        EndCodeFoldBlock(fkBrackets in fFoldKinds);
+        if fkBrackets in fFoldKinds then
+          EndCodeFoldBlock();
         if (reader^ = '}') and (rkAsm in fCurrRange.rangeKinds) then
           fCurrRange.rangeKinds -= [rkAsm]; ;
         if (rkTokString in fCurrRange.rangeKinds) then
@@ -819,7 +833,8 @@ begin
     if (fTokKind <> tkSymbl) then
       if (fTokKind <> tkKeywd) then
         if (fTokKind <> tkCommt) then
-          result := fAsblrAttrib;
+          if (fTokKind <> tkDDocs) then
+            result := fAsblrAttrib;
 end;
 
 
