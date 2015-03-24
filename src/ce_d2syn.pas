@@ -553,9 +553,11 @@ begin
       else fTokKind := tkCommt;
     if readUntil(reader, fTokStop, '*/') then
     begin
-      fCurrRange.rangeKinds -= [rkBlockDoc1, rkBlockCom1];
-      if (fkComments1 in fFoldKinds) or (fkDDoc in fFoldKinds) then
+      if (fkComments1 in fFoldKinds) and (fTokKind = tkCommt) then
+        EndCodeFoldBlock()
+      else if (fkDDoc in fFoldKinds) and (fTokKind = tkDDocs) then
         EndCodeFoldBlock();
+      fCurrRange.rangeKinds -= [rkBlockDoc1, rkBlockCom1];
       exit;
     end;
     readLine(reader, fTokStop);
@@ -595,9 +597,11 @@ begin
       dec(fCurrRange.nestedCommentsCount);
       if fCurrRange.nestedCommentsCount <> 0 then
         exit;
-      fCurrRange.rangeKinds -= [rkBlockDoc2, rkBlockCom2];
-      if (fkComments2 in fFoldKinds) or (fkDDoc in fFoldKinds) then
+      if (fkComments2 in fFoldKinds) and (fTokKind = tkCommt) then
+        EndCodeFoldBlock()
+      else if (fkDDoc in fFoldKinds) and (fTokKind = tkDDocs) then
         EndCodeFoldBlock();
+      fCurrRange.rangeKinds -= [rkBlockDoc2, rkBlockCom2];
       exit;
     end;
     readLine(reader, fTokStop);
