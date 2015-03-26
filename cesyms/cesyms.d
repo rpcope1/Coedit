@@ -186,7 +186,7 @@ class SymbolListBuilder : ASTVisitor
     /// returns a new symbol if the declarator is based on a Token named "name".
     final Symbol * addDeclaration(DT)(DT adt)
     {
-        static if 
+        static if
         (
             is(DT == const(EponymousTemplateDeclaration)) ||
             is(DT == const(AnonymousEnumMember))    ||
@@ -194,11 +194,11 @@ class SymbolListBuilder : ASTVisitor
             is(DT == const(ClassDeclaration))       ||
             is(DT == const(Declarator))             ||
             is(DT == const(EnumDeclaration))        ||
-            is(DT == const(FunctionDeclaration))    || 
-            is(DT == const(InterfaceDeclaration))   || 
-            is(DT == const(StructDeclaration))      || 
+            is(DT == const(FunctionDeclaration))    ||
+            is(DT == const(InterfaceDeclaration))   ||
+            is(DT == const(StructDeclaration))      ||
             is(DT == const(TemplateDeclaration))    ||
-            is(DT == const(UnionDeclaration)) 
+            is(DT == const(UnionDeclaration))
             
         )
         {
@@ -206,8 +206,8 @@ class SymbolListBuilder : ASTVisitor
             auto result = construct!Symbol;
             result.name = adt.name.text;
             result.line = adt.name.line;
-            result.col  = adt.name.column;             
-            parent.subs ~= result;  
+            result.col  = adt.name.column;
+            parent.subs ~= result;
             return result;
         }
         
@@ -226,9 +226,9 @@ class SymbolListBuilder : ASTVisitor
             scope(exit) parent = previousParent;
             parent = newSymbol;
             dt.accept(this);
-        }       
+        }
     }
-    
+
     /// visitor implementation for special cases.
     final void otherVisitorImpl(SymbolType st, string name, size_t line, size_t col)
     {
