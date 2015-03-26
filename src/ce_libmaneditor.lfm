@@ -120,20 +120,22 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
         Top = 32
         Width = 458
         Align = alClient
-        AutoWidthLastColumn = True
         BorderSpacing.Around = 4
         Columns = <        
           item
+            AutoSize = True
             Caption = 'Alias'
-            Width = 100
+            Width = 37
           end        
           item
+            AutoSize = True
             Caption = 'Library file'
-            Width = 200
+            Width = 67
           end        
           item
+            AutoSize = True
             Caption = 'Sources root'
-            Width = 154
+            Width = 350
           end>
         GridLines = True
         HideSelection = False

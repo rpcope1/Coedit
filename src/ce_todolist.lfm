@@ -75,24 +75,29 @@ inherited CETodoListWidget: TCETodoListWidget
         BorderSpacing.Around = 4
         Columns = <        
           item
+            AutoSize = True
             Caption = 'text'
-            Width = 250
+            Width = 31
           end        
           item
+            AutoSize = True
             Caption = 'category'
-            Width = 100
+            Width = 58
           end        
           item
+            AutoSize = True
             Caption = 'assignee'
-            Width = 100
+            Width = 57
           end        
           item
+            AutoSize = True
             Caption = 'status'
-            Width = 100
+            Width = 43
           end        
           item
+            AutoSize = True
             Caption = 'priority'
-            Width = 75
+            Width = 383
           end>
         ReadOnly = True
         SortType = stText
