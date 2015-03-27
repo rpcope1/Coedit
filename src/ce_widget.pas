@@ -100,6 +100,8 @@ type
     property widget[index: integer]: TCEWidget read getWidget;
   end;
 
+
+
   TWidgetEnumerator = class
     fList: TCEWidgetList;
     fIndex: Integer;
@@ -109,6 +111,8 @@ type
   end;
 
   operator enumerator(aWidgetList: TCEWidgetList): TWidgetEnumerator;
+
+   function CompareWidgCaption(Item1, Item2: Pointer): Integer;
 
 implementation
 {$R *.lfm}
@@ -304,6 +308,13 @@ end;
 {$ENDREGION}
 
 {$REGION TCEWidgetList----------------------------------------------------------}
+function CompareWidgCaption(Item1, Item2: Pointer): Integer;
+type
+  PWidg = ^TCEWidget;
+begin
+  result := AnsiCompareStr(PWidg(Item1)^.Caption, PWidg(Item2)^.Caption);
+end;
+
 function TCEWidgetList.getWidget(index: integer): TCEWidget;
 begin
   result := PTCEWidget(Items[index])^;

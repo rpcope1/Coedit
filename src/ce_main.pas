@@ -447,6 +447,7 @@ begin
   fWidgList.addWidget(@fTodolWidg);
   fWidgList.addWidget(@fOptEdWidg);
   fWidgList.addWidget(@fSymlWidg);
+  fWidgList.sort(@CompareWidgCaption);
 
   {$IFDEF WIN32}
   fWidgList.addWidget(@fCdbWidg);
