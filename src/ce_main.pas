@@ -585,10 +585,21 @@ begin
   end;
   //
   forceDirectory(getCoeditDocPath);
-  xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'docking.xml',false);
+  xcfg := TXMLConfigStorage.Create(getCoeditDocPath + 'docking.xml.tmp', false);
   try
     DockMaster.SaveLayoutToConfig(xcfg);
     xcfg.WriteToDisk;
+    // TODO: this when AnchorDocking wiont save anymore invalid layout
+    with TMemoryStream.Create do try
+      LoadFromFile(getCoeditDocPath + 'docking.xml.tmp');
+      if Size < 10000 then
+      begin
+        SaveToFile(getCoeditDocPath + 'docking.xml');
+        SysUtils.DeleteFile(getCoeditDocPath + 'docking.xml.tmp');
+      end;
+    finally
+      free;
+    end;
   finally
     xcfg.Free;
   end;
@@ -1455,7 +1466,6 @@ var
   xcfg: TXMLConfigStorage;
   i: NativeInt;
 begin
-  // TODO-cbugfix: possible loading AV, xml saved after undocking some widgets, xml file abnormal size, seems to be related to Anchordocking itself, not its usage.
   for i:= 0 to fWidgList.Count-1 do
   begin
     if not fWidgList.widget[i].isDockable then continue;
@@ -1466,10 +1476,24 @@ begin
   end;
   //
   forceDirectory(extractFilePath(aFilename));
-  xcfg := TXMLConfigStorage.Create(aFilename, false);
+  xcfg := TXMLConfigStorage.Create(aFilename + '.tmp', false);
   try
     DockMaster.SaveLayoutToConfig(xcfg);
     xcfg.WriteToDisk;
+    // prevent any invalid layout to be saved (AnchorDocking bug)
+    // TODO: remove this when AnchorDocking wiont save anymore invalid layout
+    with TMemoryStream.Create do try
+      LoadFromFile(aFilename + '.tmp');
+      if Size < 10000 then
+      begin
+        SaveToFile(aFilename);
+        SysUtils.DeleteFile(aFilename + '.tmp');
+      end else
+        getMessageDisplay.message('prevented an invalid layout to be saved', nil,
+          amcApp, amkWarn);
+    finally
+      free;
+    end;
   finally
     xcfg.Free;
   end;
