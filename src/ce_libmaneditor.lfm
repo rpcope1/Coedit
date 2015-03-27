@@ -125,7 +125,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           item
             AutoSize = True
             Caption = 'Alias'
-            Width = 37
+            Width = 454
           end        
           item
             AutoSize = True
@@ -135,12 +135,13 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           item
             AutoSize = True
             Caption = 'Sources root'
-            Width = 350
+            Width = 78
           end>
         GridLines = True
         HideSelection = False
         ReadOnly = True
         RowSelect = True
+        SortType = stText
         TabOrder = 1
         ViewStyle = vsReport
         OnEdited = ListEdited
