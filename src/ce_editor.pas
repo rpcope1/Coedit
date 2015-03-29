@@ -298,8 +298,6 @@ procedure TCEEditorWidget.focusedEditorChanged;
 begin
   if fDoc = nil then exit;
   //
-  fSyncEdit.Clear;
-  macRecorder.Clear;
   macRecorder.Editor := fDoc;
   fSyncEdit.Editor := fDoc;
   completion.Editor := fDoc;
@@ -419,8 +417,6 @@ begin
     editorStatus.Panels[0].Text := format('%d : %d | %d', [fDoc.CaretY, fDoc.CaretX, fDoc.SelEnd - fDoc.SelStart]);
     editorStatus.Panels[1].Text := modstr[fDoc.modified];
     editorStatus.Panels[2].Text := fDoc.fileName;
-    //
-    if completion.IsActive then getCompletionList;
   end;
 end;
 
