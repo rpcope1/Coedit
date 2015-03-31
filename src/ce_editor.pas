@@ -296,10 +296,12 @@ end;
 
 procedure TCEEditorWidget.focusedEditorChanged;
 begin
+  macRecorder.Clear;
+  fSyncEdit.Clear;
   if fDoc = nil then exit;
   //
-  macRecorder.Editor := fDoc;
-  fSyncEdit.Editor := fDoc;
+  macRecorder.Editor:= fDoc;
+  fSyncEdit.Editor  := fDoc;
   completion.Editor := fDoc;
   if (pageControl.ActivePage.Caption = '') then
   begin
