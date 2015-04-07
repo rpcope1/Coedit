@@ -18,18 +18,19 @@ Current features
 - search and replace.
 - "todo comments" analyzer.
 - user-defined tools powered by a string interpolation system.
-- [D Completion Daemon](https://github.com/Hackerpilot/DCD) integration for completion proposal and source code hints.
+- [D Completion Daemon](https://github.com/Hackerpilot/DCD) integration for completion and hints.
 - mini file browser.
 
-Missing features before the first beta
---------------------------------------
-- Options editor.
-- Shortcuts editor.
-- a few context menus and toolbars.
+Missing things before the first version
+-----------------------------------------
+All the majors features are implemented. 
+Some minor things are still missing or not fully working: 
+- editor context menu.
+- shortcuts customization (main menu, editor).
 
 Project information
 -------------------
-- status: alpha 12.
+- status: beta 1.
 - license: MIT.
 - programmed in Object Pascal with [Lazarus & FPC](http://www.lazarus.freepascal.org) as IDE & compiler.
 - based on *DMD* (the alternative compilers, LDC or GDC, are not supported).
