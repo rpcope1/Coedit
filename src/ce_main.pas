@@ -259,6 +259,7 @@ type
     procedure FreeRunnableProc;
 
     // widget interfaces subroutines
+    procedure updateWidgetMenuEntry(sender: TObject);
     procedure widgetShowFromAction(sender: TObject);
 
     // run & exec sub routines
@@ -461,6 +462,7 @@ begin
     act.OnExecute := @widgetShowFromAction;
     act.Tag := ptrInt(widg);
     act.ImageIndex := 25;
+    act.OnUpdate:= @updateWidgetMenuEntry;
     itm := TMenuItem.Create(self);
     itm.Action := act;
     itm.Tag := ptrInt(widg);
@@ -1423,6 +1425,27 @@ end;
 {$ENDREGION}
 
 {$REGION view ------------------------------------------------------------------}
+procedure TCEMainForm.updateWidgetMenuEntry(sender: TObject);
+var
+  widg: TCEWidget;
+  act: TAction;
+begin
+  if sender = nil then exit;
+  act := TAction(sender);
+  if act.Tag = 0 then exit;
+  //
+  widg := TCEWidget(act.Tag);
+
+  if widg.isDockable then
+  begin
+    if DockMaster.GetAnchorSite(widg).GetTopParent = DockMaster.GetAnchorSite(widg) then
+      act.Enabled := true
+    else
+      act.Enabled := not widg.Parent.IsVisible
+  end
+  else act.Enabled := not widg.IsVisible;
+end;
+
 procedure TCEMainForm.widgetShowFromAction(sender: TObject);
 var
   widg: TCEWidget;
