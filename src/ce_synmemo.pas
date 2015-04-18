@@ -103,6 +103,7 @@ type
     procedure HintTimerEvent(sender: TObject);
     procedure InitHintWins;
   protected
+    procedure MouseLeave; override;
     procedure SetVisible(Value: Boolean); override;
     procedure SetHighlighter(const Value: TSynCustomHighlighter); override;
     procedure UTF8KeyPress(var Key: TUTF8Char); override;
@@ -402,7 +403,12 @@ end;
 procedure TCESynMemo.SetVisible(Value: Boolean);
 begin
   inherited;
-  if Value then setFocus;
+  if Value then
+    setFocus
+  else begin
+    fDDocWin.Hide;
+    fCallTipWin.Hide;
+  end;
 end;
 
 procedure TCESynMemo.InitHintWins;
@@ -638,6 +644,12 @@ begin
   for i:= 0 to fMousePos.y-2 do
     result += length(Lines.Strings[i]) + len;
   result += fMousePos.x;
+end;
+
+procedure TCESynMemo.MouseLeave;
+begin
+  fDDocWin.Hide;
+  fCallTipWin.Hide;
 end;
 
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
