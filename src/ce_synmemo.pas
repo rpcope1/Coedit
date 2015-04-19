@@ -100,6 +100,7 @@ type
     procedure saveCache;
     procedure loadCache;
     procedure setDefaultFontSize(aValue: Integer);
+    procedure getCallTips;
     procedure HintTimerEvent(sender: TObject);
     procedure InitHintWins;
   protected
@@ -425,6 +426,22 @@ begin
   end;
 end;
 
+procedure TCESynMemo.getCallTips();
+var
+  str: string;
+  pnt: TPoint;
+begin
+  DcdWrapper.getCallTip(str);
+  if str <> '' then
+  begin
+    pnt := ClientToScreen(point(CaretXPix, CaretYPix));
+    fCallTipWin.FontSize := Font.Size;
+	  fCallTipWin.HintRect := fCallTipWin.CalcHintRect(0, str, nil);
+    fCallTipWin.OffsetHintRect(pnt,- 5 - fCallTipWin.HintRect.Bottom - fCallTipWin.HintRect.Top);
+	  fCallTipWin.ActivateHint(str);
+  end;
+end;
+
 procedure TCESynMemo.HintTimerEvent(sender: TObject);
 var
   str: string;
@@ -607,25 +624,14 @@ end;
 
 procedure TCESynMemo.UTF8KeyPress(var Key: TUTF8Char);
 var
-  str: string;
   c: TUTF8Char;
 begin
   c := Key;
   inherited;
-  if c = '(' then
-  begin
-    DcdWrapper.getCallTip(str);
-    if str <> '' then
-    begin
-      fCallTipWin.FontSize := Font.Size;
-  	  fCallTipWin.HintRect := fCallTipWin.CalcHintRect(0, str, nil);
-      fCallTipWin.OffsetHintRect(ClientToScreen(point(CaretXPix, CaretYPix)),
-        - 5 - fCallTipWin.HintRect.Bottom - fCallTipWin.HintRect.Top);
-		  fCallTipWin.ActivateHint(str);
-    end;
-  end
-  else if c = ')' then
-    fCallTipWin.Hide;
+  case c of
+    '(': getCallTips;
+    ')': fCallTipWin.Hide;
+  end;
 end;
 
 function TCESynMemo.getMouseFileBytePos: Integer;
