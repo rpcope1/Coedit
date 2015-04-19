@@ -5,8 +5,8 @@ unit ce_synmemo;
 interface
 
 uses
-  Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
-  SynEditKeyCmds,LazSynEditText, SynEditHighlighter, SynEdit, SynHighlighterLFM,
+  Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc, SynPluginSyncroEdit,
+  SynEditKeyCmds, LazSynEditText, SynEditHighlighter, SynEdit, SynHighlighterLFM,
   SynEditMouseCmds, SynEditFoldedView, ce_common, ce_observer, ce_writableComponent,
   ce_d2syn, ce_txtsyn;
 
@@ -22,7 +22,7 @@ type
       AData: Pointer): TRect; override;
   end;
 
-  // Stores the state of a particulat source code folding.
+  // Stores the state of a particular source code folding.
   TCEFoldCache = class(TCollectionItem)
   private
     fCollapsed: boolean;
@@ -94,6 +94,7 @@ type
     fHintTimer: TIdleTimer;
     fCanShowHint: boolean;
     fOldMousePos: TPoint;
+    fSyncEdit: TSynPluginSyncroEdit;
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
@@ -132,6 +133,7 @@ type
     property modified: boolean read fModified;
     property tempFilename: string read fTempFileName;
     //
+    property syncroEdit: TSynPluginSyncroEdit read fSyncEdit;
     property isDSource: boolean read fIsDSource;
     property isProjectSource: boolean read fIsConfig;
     property TextView;
@@ -327,6 +329,8 @@ end;
 
 {$REGION TCESynMemo ------------------------------------------------------------}
 constructor TCESynMemo.Create(aOwner: TComponent);
+var
+  png: TPortableNetworkGraphic;
 begin
   inherited;
   //
@@ -347,6 +351,17 @@ begin
   Gutter.SeparatorPart.MarkupInfo.Foreground := clGray;
   Gutter.CodeFoldPart.MarkupInfo.Foreground := clGray;
   BracketMatchColor.Foreground:=clRed;
+  //
+  fSyncEdit := TSynPluginSyncroEdit.Create(self);
+  fSyncEdit.Editor := self;
+  fSyncEdit.CaseSensitive := true;
+  png := TPortableNetworkGraphic.Create;
+  try
+    png.LoadFromLazarusResource('link_edit');
+    fSyncEdit.GutterGlyph.Assign(png);
+  finally
+    png.Free;
+  end;
   //
   MouseLinkColor.Style:= [fsUnderline];
   with MouseActions.Add do begin

@@ -36,8 +36,6 @@ type
   private
     fKeyChanged: boolean;
     fDoc: TCESynMemo;
-    // TODO-cbugfix: syncro-edit partially broken, undetermined condition
-    fSyncEdit: TSynPluginSyncroEdit;
     fTokList: TLexTokenList;
     fErrList: TLexErrorList;
     fModStart: boolean;
@@ -90,25 +88,12 @@ end;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEEditorWidget.create(aOwner: TComponent);
-var
-  png: TPortableNetworkGraphic;
 begin
   inherited;
   //
   fTokList := TLexTokenList.Create;
   fErrList := TLexErrorList.Create;
-  //
   completion.OnPaintItem := @completionItemPaint;
-  fSyncEdit := TSynPluginSyncroEdit.Create(self);
-  fSyncEdit.CaseSensitive:=true;
-  png := TPortableNetworkGraphic.Create;
-  try
-    png.LoadFromLazarusResource('link_edit');
-    fSyncEdit.GutterGlyph.Assign(png);
-  finally
-    png.Free;
-  end;
-  //
   {$IFDEF LINUX}
   PageControl.OnCloseTabClicked := @pageCloseBtnClick;
   {$ENDIF}
@@ -297,11 +282,9 @@ end;
 procedure TCEEditorWidget.focusedEditorChanged;
 begin
   macRecorder.Clear;
-  fSyncEdit.Clear;
   if fDoc = nil then exit;
   //
   macRecorder.Editor:= fDoc;
-  fSyncEdit.Editor  := fDoc;
   completion.Editor := fDoc;
   if (pageControl.ActivePage.Caption = '') then
   begin
@@ -458,7 +441,7 @@ begin
   // - editor is saved
   // - gutter is updated (green bar indicating a saved block)
   // - syncroedit icon is hidden
-  if fSyncEdit.Active then
+  if fDoc.syncroEdit.Active then
     fDoc.Refresh;
 end;
 {$ENDREGION}
