@@ -281,6 +281,7 @@ type
     procedure openProj(const aFilename: string);
     procedure closeProj;
     procedure addSource(const aFilename: string);
+    procedure showProjTitle;
 
     // mru
     procedure mruChange(Sender: TObject);
@@ -1575,6 +1576,14 @@ end;
 {$ENDREGION}
 
 {$REGION project ---------------------------------------------------------------}
+procedure TCEMainForm.showProjTitle;
+begin
+  if (fProject <> nil) and fileExists(fProject.Filename) then
+    caption := format('Coedit - %s', [shortenPath(fProject.Filename, 30)])
+  else
+    caption := 'Coedit';
+end;
+
 procedure TCEMainForm.saveProjSource(const aEditor: TCESynMemo);
 begin
   if fProject = nil then exit;
@@ -1588,12 +1597,14 @@ procedure TCEMainForm.closeProj;
 begin
   fProject.Free;
   fProject := nil;
+  showProjTitle;
 end;
 
 procedure TCEMainForm.newProj;
 begin
   fProject := TCEProject.Create(nil);
   fProject.Name := 'CurrentProject';
+  showProjTitle;
 end;
 
 procedure TCEMainForm.saveProj;
@@ -1605,6 +1616,7 @@ procedure TCEMainForm.saveProjAs(const aFilename: string);
 begin
   fProject.fileName := aFilename;
   fProject.saveToFile(fProject.fileName);
+  showProjTitle;
 end;
 
 procedure TCEMainForm.openProj(const aFilename: string);
@@ -1612,6 +1624,7 @@ begin
   closeProj;
   newProj;
   fProject.loadFromFile(aFilename);
+  showProjTitle;
 end;
 
 procedure TCEMainForm.mruProjItemClick(Sender: TObject);
