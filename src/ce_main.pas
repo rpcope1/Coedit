@@ -1630,7 +1630,7 @@ end;
 procedure TCEMainForm.mruProjItemClick(Sender: TObject);
 begin
   if fProject <> nil then if fProject.modified then if dlgOkCancel(
-    'The latest mdofifications are not saved, continue ?')
+    'The project modifications are not saved, continue ?')
       = mrCancel then exit;
   openProj(TMenuItem(Sender).Hint);
 end;
@@ -1638,7 +1638,7 @@ end;
 procedure TCEMainForm.actProjNewExecute(Sender: TObject);
 begin
   if fProject <> nil then if fProject.modified then if dlgOkCancel(
-    'The latest mdofifications are not saved, continue ?')
+    'The project modifications are not saved, continue ?')
       = mrCancel then exit;
   closeProj;
   newProj;
@@ -1648,9 +1648,8 @@ procedure TCEMainForm.actProjCloseExecute(Sender: TObject);
 begin
   if fProject = nil then exit;
   if fProject.modified then if dlgOkCancel(
-    'The latest mdofifications are not saved, continue ?')
+    'The project modifications are not saved, continue ?')
       = mrCancel then exit;
-
   closeProj;
 end;
 
