@@ -600,14 +600,13 @@ begin
   identifierToD2Syn;
   if not (Shift = [ssCtrl]) then exit;
   //
-  IncPaintLock;
   case Key of
     VK_ADD: if Font.Size < 50 then Font.Size := Font.Size + 1;
     VK_SUBTRACT: if Font.Size > 3 then Font.Size := Font.Size - 1;
     VK_DECIMAL: Font.Size := fDefaultFontSize;
   end;
-  DecPaintLock;
   TCEEditorHintWindow.FontSize := Font.Size;
+  UpdateCursor;
   fCanShowHint:=false;
   fDDocWin.Hide;
 end;
@@ -705,6 +704,7 @@ begin
   result := inherited DoMouseWheel(Shift, WheelDelta, MousePos);
   fCanShowHint:=false;
   fHintTimer.Enabled:=false;
+  //SynEdit bug: begin scroll, press CTRL still while. Wrong cursor size sometimes.
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
