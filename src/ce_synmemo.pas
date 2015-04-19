@@ -437,7 +437,7 @@ begin
     pnt := ClientToScreen(point(CaretXPix, CaretYPix));
     fCallTipWin.FontSize := Font.Size;
 	  fCallTipWin.HintRect := fCallTipWin.CalcHintRect(0, str, nil);
-    fCallTipWin.OffsetHintRect(pnt,- 5 - fCallTipWin.HintRect.Bottom - fCallTipWin.HintRect.Top);
+    fCallTipWin.OffsetHintRect(pnt, Font.Size * 2);
 	  fCallTipWin.ActivateHint(str);
   end;
 end;
