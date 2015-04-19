@@ -714,7 +714,7 @@ begin
   canClose := false;
   if fProject <> nil then if fProject.modified then
     if ce_common.dlgOkCancel(
-      'last project modifications are not saved, quit anyway ?') <> mrOK then
+      'The project modifications are not saved, quit anyway ?') <> mrOK then
           exit;
   for i := fMultidoc.documentCount-1 downto 0 do
     if not fMultidoc.closeDocument(i) then exit;
@@ -1087,7 +1087,7 @@ procedure TCEMainForm.actFileCloseExecute(Sender: TObject);
 begin
   if fDoc = nil then exit;
   if fDoc.modified then if dlgOkCancel(
-    'The latest mdofifications are not saved, continue ?') = mrCancel
+    'The file modifications are not saved, continue ?') = mrCancel
       then exit;
   //
   fDoc.Free;
@@ -1678,7 +1678,7 @@ end;
 procedure TCEMainForm.actProjOpenExecute(Sender: TObject);
 begin
   if fProject <> nil then if fProject.modified then if dlgOkCancel(
-    'The latest mdofifications are not saved, continue ?')
+    'The project modifications are not saved, continue ?')
       = mrCancel then exit;
   with TOpenDialog.Create(nil) do
   try
