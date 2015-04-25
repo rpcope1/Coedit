@@ -371,6 +371,7 @@ begin
   end;
   //
   Highlighter := D2Syn;
+  Highlighter.ResetRange;
   //
   fTempFileName := GetTempDir(false) + 'temp_' + uniqueObjStr(self) + '.d';
   fFilename := '<new document>';
@@ -412,6 +413,11 @@ procedure TCESynMemo.setFocus;
 begin
   inherited;
   checkFileDate;
+  if (Highlighter <> nil) then
+  begin
+    LineTextChanged(nil, 0, Lines.Count);
+    Highlighter.ScanRanges;
+  end;
   identifierToD2Syn;
   subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
