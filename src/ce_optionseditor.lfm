@@ -35,12 +35,13 @@ inherited CEOptionEditorWidget: TCEOptionEditorWidget
           Width = 140
           Align = alLeft
           AutoExpand = True
-          DefaultItemHeight = 16
+          DefaultItemHeight = 18
           HideSelection = False
           ReadOnly = True
           ScrollBars = ssAutoBoth
           SortType = stText
           TabOrder = 0
+          OnChanging = selCatChanging
           OnDeletion = selCatDeletion
           OnSelectionChanged = selCatSelectionChanged
           Options = [tvoAutoExpand, tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
@@ -94,7 +95,7 @@ inherited CEOptionEditorWidget: TCEOptionEditorWidget
         object btnCancel: TSpeedButton
           Left = 484
           Height = 24
-          Hint = 'cancel and revert modifications'
+          Hint = 'cancel and revert the modifications of the category'
           Top = 3
           Width = 30
           Align = alRight
@@ -105,7 +106,7 @@ inherited CEOptionEditorWidget: TCEOptionEditorWidget
         object btnAccept: TSpeedButton
           Left = 518
           Height = 24
-          Hint = 'accept modifications'
+          Hint = 'accept the modifications of the category'
           Top = 3
           Width = 30
           Align = alRight

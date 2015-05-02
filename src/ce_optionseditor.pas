@@ -36,11 +36,14 @@ type
     procedure inspectorEditorFilter(Sender: TObject; aEditor: TPropertyEditor;
       var aShow: boolean);
     procedure inspectorModified(Sender: TObject);
+    procedure selCatChanging(Sender: TObject; Node: TTreeNode;
+      var AllowChange: Boolean);
     procedure selCatDeletion(Sender: TObject; Node: TTreeNode);
     procedure selCatSelectionChanged(Sender: TObject);
   protected
     procedure UpdateShowing; override;
   private
+    fCatChanged: boolean;
     fEdOptsSubj: TCEEditableOptionsSubject;
     procedure updateCategories;
     function sortCategories(Cat1, Cat2: TTreeNode): integer;
@@ -76,6 +79,7 @@ end;
 
 destructor TCEOptionEditorWidget.destroy;
 begin
+  fCatChanged := false;
   fEdOptsSubj.Free;
   inherited;
 end;
@@ -119,12 +123,28 @@ begin
     Dispose(PCategoryData(node.Data));
 end;
 
+procedure TCEOptionEditorWidget.selCatChanging(Sender: TObject;
+  Node: TTreeNode; var AllowChange: Boolean);
+begin
+  if selCat.Selected = nil then exit;
+  if selCat.Selected.Data = nil then exit;
+  // accept/cancel is relative to a single category
+  if fCatChanged then begin
+    AllowChange := dlgOkCancel(
+      'The modifications of the current category are not validated, ' +
+      'discard them and continue ?'
+      ) = mrOk;
+    fCatChanged := not AllowChange;
+    if AllowChange then
+      btnCancelClick(nil);
+  end;
+end;
+
 procedure TCEOptionEditorWidget.selCatSelectionChanged(Sender: TObject);
 var
   dt: PCategoryData;
 begin
-  // remove either the control, the form or the inspector
-  // being used as editor.
+  // remove either the control, the form or the inspector used as editor.
   inspector.TIObject := nil;
   if pnlEd.ControlCount > 0 then
     pnlEd.Controls[0].Parent := nil;
@@ -161,6 +181,7 @@ begin
   if selCat.Selected = nil then exit;
   if selcat.Selected.Data = nil then exit;
   //
+  fCatChanged := true;
   PCategoryData(selCat.Selected.Data)^
     .observer
     .optionedEvent(oeeChange);
@@ -171,14 +192,13 @@ begin
   if selCat.Selected = nil then exit;
   if selcat.Selected.Data = nil then exit;
   //
+  fCatChanged := false;
   if inspector.Parent <> nil then
     inspector.ItemIndex := -1;
   PCategoryData(selCat.Selected.Data)^
     .observer
     .optionedEvent(oeeCancel);
 end;
-
-
 
 procedure TCEOptionEditorWidget.inspectorEditorFilter(Sender: TObject;aEditor:
   TPropertyEditor; var aShow: boolean);
@@ -197,6 +217,7 @@ begin
   if selCat.Selected = nil then exit;
   if selcat.Selected.Data = nil then exit;
   //
+  fCatChanged := false;
   if inspector.Parent <> nil then
     inspector.ItemIndex := -1;
   PCategoryData(selCat.Selected.Data)^
