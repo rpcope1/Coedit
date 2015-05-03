@@ -553,6 +553,7 @@ begin
   item.ImageIndex := iconIndex(aKind);
   item.SelectedIndex := item.ImageIndex;
   clearOutOfRangeMessg;
+  //TODO:-cfeature: reset horz scroll bar to the left
   scrollToBack;
   Application.ProcessMessages;
   filterMessages(fCtxt);
@@ -787,8 +788,11 @@ begin
         exit;
       getMultiDocHandler.openDocument(ident);
       result := true;
-    end;
-    ident += aMessage[i];
+    end
+    else if aMessage[i] = '@' then
+      ident := ''
+    else
+      ident += aMessage[i];
   end;
 end;
 {$ENDREGION}
