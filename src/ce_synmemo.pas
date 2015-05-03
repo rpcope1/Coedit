@@ -100,6 +100,7 @@ type
     procedure identifierToD2Syn;
     procedure saveCache;
     procedure loadCache;
+    class procedure cleanCache; static;
     procedure setDefaultFontSize(aValue: Integer);
     procedure getCallTips;
     procedure HintTimerEvent(sender: TObject);
@@ -587,6 +588,29 @@ begin
   end;
 end;
 
+class procedure TCESynMemo.cleanCache;
+var
+  lst: TStringList;
+  today, t: TDateTime;
+  fname: string;
+  y, m, d: word;
+begin
+  lst := TStringList.Create;
+  try
+    listFiles(lst, getCoeditDocPath + 'editorcache' + DirectorySeparator);
+    today := date();
+    for fname in lst do if FileAge(fname, t) then
+    begin
+      DecodeDate(t, y, m, d);
+      IncAMonth(y, m, d, 3);
+      if EncodeDate(y, m, d) <= today then
+        sysutils.DeleteFile(fname);
+    end;
+  finally
+    lst.free;
+  end;
+end;
+
 procedure TCESynMemo.checkFileDate;
 var
   newDate: double;
@@ -746,4 +770,6 @@ finalization
   D2Syn.Free;
   LfmSyn.Free;
   TxtSyn.Free;
+  //
+  TCESynMemo.cleanCache;
 end.
