@@ -277,17 +277,23 @@ end;
 procedure TCEMessagesWidget.ListKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  i: NativeInt;
+  i: Integer;
 begin
-  if Key in [VK_BACK, VK_DELETE] then
-  begin
-    if List.SelectionCount > 0 then
+  case Key of
+    VK_BACK, VK_DELETE:
     begin
-    for i := List.Items.Count-1 downto 0 do
-      if List.Items[i].MultiSelected then
-        List.Items.Delete(List.Items[i]);
-    end
-    else clearbyContext(amcAll);
+      if List.SelectionCount > 0 then
+      begin
+      for i := List.Items.Count-1 downto 0 do
+        if List.Items[i].MultiSelected then
+          List.Items.Delete(List.Items[i]);
+      end
+      else clearbyContext(amcAll);
+    end;
+    VK_UP, VK_DOWN:
+      if fOptions.singleMessageClick then handleMessageClick(nil);
+    VK_RETURN:
+      handleMessageClick(nil);
   end;
 end;
 
