@@ -597,6 +597,8 @@ begin
   if fFileDate = newDate then exit;
   if fFileDate <> 0.0 then
   begin
+    // note: this could cause a bug in France during the switch from winter time to summer time.
+    // e.g: save at 2h59, at 3h00, clock is reset to 2h00, set the focus on the doc: new version message.
     if dlgOkCancel(format('"%s" has been modified by another program, load the new version ?',
       [shortenPath(fFilename, 25)])) = mrOk then
     begin
