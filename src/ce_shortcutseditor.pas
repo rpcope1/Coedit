@@ -190,6 +190,9 @@ end;
 
 procedure TCEShortcutEditor.optionedEvent(anEvent: TOptionEditorEvent);
 begin
+  case anEvent of
+    oeeSelectCat: updateFromObservers;
+  end;
   // TODO-cfeature: pass new shortcut to observer
 end;
 {$ENDREGION}

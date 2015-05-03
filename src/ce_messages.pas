@@ -368,7 +368,7 @@ end;
 procedure TCEMessagesWidget.optionedEvent(anEvent: TOptionEditorEvent);
 begin
   case anEvent of
-    oeeAccept:
+    oeeAccept, oeeSelectCat:
       fOptionsBackup.assign(fOptions);
     oeeCancel:
       fOptions.assign(fOptionsBackup);

@@ -89,6 +89,19 @@ begin
     SaveToMaster;
     fBackup.Clear;
     DockMaster.SaveSettingsToConfig(fBackup);
+  end
+  // reload
+  else if anEvent = oeeSelectCat then
+  begin
+    fBackup.Clear;
+    DockMaster.SaveSettingsToConfig(fBackup);
+    LoadFromMaster;
+  end
+  //change
+  else
+  begin
+    SaveToMaster;
+    doChanged(nil);
   end;
 end;
 
