@@ -9,6 +9,8 @@ must be setup in the [libman](https://github.com/BBasile/Coedit/wiki#library-man
 as described in this [tutorial](https://github.com/BBasile/Coedit/wiki#lets-build-a-static-library),
 or *libdparse* submodule must be cloned with Coedit repository (`git submodule init` or `update`).
 
+Notice that *libdparse* can be easily build in Coedit using the [metad project](https://github.com/BBasile/metad).
+
 - `cetodo_submodule.coedit`: coedit project based on *libdparse* as a submodule.
 - `cetodo_libman.coedit`: coedit project based on *libdparse* as a *libman* entry.
 
