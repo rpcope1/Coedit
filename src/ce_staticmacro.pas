@@ -298,7 +298,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION Macros things ---------------------------------------------------------}
+{$REGION ICEEditableShortCut ---------------------------------------------------}
 function TCEStaticEditorMacro.scedWantFirst: boolean;
 begin
   exit(true);
@@ -315,8 +315,11 @@ end;
 procedure TCEStaticEditorMacro.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
 begin
   if category = 'Static macros' then
-    if identifier = 'invoke' then
+    if identifier = 'invoke' then begin
       fCompletor.ShortCut := aShortcut;
+      fOptionBackup.shortcut := aShortcut;
+      fOptions.shortcut := aShortcut;
+    end;
 end;
 {$ENDREGION}
 
