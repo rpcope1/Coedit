@@ -174,6 +174,10 @@ begin
         inspector.TIObject := dt^.container;
       end;
   end;
+  //
+  PCategoryData(selCat.Selected.Data)^
+    .observer
+    .optionedEvent(oeeSelectCat);
 end;
 
 procedure TCEOptionEditorWidget.inspectorModified(Sender: TObject);
