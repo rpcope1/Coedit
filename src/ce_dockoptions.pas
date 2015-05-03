@@ -44,6 +44,11 @@ begin
   DragThresholdTrackBar.OnChange := @doChanged;
   SplitterWidthTrackBar.OnChange := @doChanged;
   //
+  ShowHeaderCaptionCheckBox.OnChange := @doChanged;
+  HideHeaderCaptionForFloatingCheckBox.OnChange := @doChanged;
+  FlattenHeaders.OnChange := @doChanged;
+  FilledHeaders.OnChange := @doChanged;
+  //
   HeaderStyleComboBox.OnChange := @doChanged;
   //
   EntitiesConnector.addObserver(self);
@@ -82,9 +87,9 @@ begin
     LoadFromMaster;
     fBackup.Clear;
     DockMaster.SaveSettingsToConfig(fBackup);
-  end;
+  end
   // accept and new backup
-  if anEvent = oeeAccept then
+  else if anEvent = oeeAccept then
   begin
     SaveToMaster;
     fBackup.Clear;
@@ -106,6 +111,8 @@ begin
 end;
 
 procedure TDockOptionsEditor.doChanged(Sender: TObject);
+var
+  hasHeaders: boolean;
 begin
   DragThresholdLabel.Caption := adrsDragThreshold +
     ' (' + IntToStr(DragThresholdTrackBar.Position) + ')';
@@ -115,11 +122,17 @@ begin
     ' (' + IntToStr(HeaderAlignLeftTrackBar.Position) + ')';
   SplitterWidthLabel.Caption := adrsSplitterWidth +
     ' (' + IntToStr(SplitterWidthTrackBar.Position) + ')';
-
-  FlattenHeaders.Enabled := adofShow_ShowHeader in Flags;
-  FilledHeaders.Enabled := adofShow_ShowHeader in Flags;
-  ShowHeaderCaptionCheckBox.Enabled := adofShow_ShowHeader in Flags;
-  HideHeaderCaptionForFloatingCheckBox.Enabled := adofShow_ShowHeader in Flags;
+  //
+  hasHeaders:=ShowHeaderCheckBox.Checked;
+  ShowHeaderCaptionCheckBox.Enabled:=HasHeaders;
+  HideHeaderCaptionForFloatingCheckBox.Enabled:=HasHeaders;
+  FlattenHeaders.Enabled:=HasHeaders;
+  FilledHeaders.Enabled:=HasHeaders;
+  //
+  DockMaster.HeaderFilled := FilledHeaders.Checked;
+  DockMaster.HeaderFlatten:= FlattenHeaders.Checked;
+  DockMaster.ShowHeaderCaption:= ShowHeaderCaptionCheckBox.Checked;
+  DockMaster.HideHeaderCaptionFloatingControl:= HideHeaderCaptionForFloatingCheckBox.Checked;
   //
   SaveToMaster;
 end;
