@@ -724,41 +724,28 @@ begin
   while (true) do
   begin
     if i > length(aMessage) then exit;
-    if aMessage[i] = '.' then
+    if aMessage[i] = '(' then
     begin
       inc(i);
       if i > length(aMessage) then exit;
-      if aMessage[i] = 'd' then
+      while( isNumber(aMessage[i]) or (aMessage[i] = ',') or (aMessage[i] = ':')) do
       begin
+        ident += aMessage[i];
         inc(i);
         if i > length(aMessage) then exit;
-        if aMessage[i] = 'i' then
-          inc(i);
-        if i > length(aMessage) then exit;
-        if aMessage[i] = '(' then
+      end;
+      if aMessage[i] = ')' then
+      begin
+        j := Pos(',', ident);
+        if j = 0 then j := Pos(':', ident);
+        if j = 0 then
+          result.y := strToIntDef(ident, -1)
+        else
         begin
-          inc(i);
-          if i > length(aMessage) then exit;
-          while( isNumber(aMessage[i]) or (aMessage[i] = ',') or (aMessage[i] = ':')) do
-          begin
-            ident += aMessage[i];
-            inc(i);
-            if i > length(aMessage) then exit;
-          end;
-          if aMessage[i] = ')' then
-          begin
-            j := Pos(',', ident);
-            if j = 0 then j := Pos(':', ident);
-            if j = 0 then
-              result.y := strToIntDef(ident, -1)
-            else
-            begin
-              result.y := strToIntDef(ident[1..j-1], -1);
-              result.x := strToIntDef(ident[j+1..length(ident)], -1);
-            end;
-            exit;
-          end;
+          result.y := strToIntDef(ident[1..j-1], -1);
+          result.x := strToIntDef(ident[j+1..length(ident)], -1);
         end;
+        exit;
       end;
     end;
     inc(i);
