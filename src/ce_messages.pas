@@ -425,19 +425,19 @@ end;
 
 procedure TCEMessagesWidget.actCopyMsgExecute(Sender: TObject);
 var
-  i: NativeInt;
+  i: Integer;
   str: string;
 begin
   str := '';
   for i := 0 to List.Items.Count-1 do
-      if List.Items[i].MultiSelected then
-        str += List.Items[i].Text + LineEnding;
+    if List.Items[i].MultiSelected then
+      str += List.Items[i].Text + LineEnding;
   Clipboard.AsText := str;
 end;
 
 procedure TCEMessagesWidget.actSelAllExecute(Sender: TObject);
 var
-  i: NativeInt;
+  i: Integer;
 begin
   for i := 0 to List.Items.Count-1 do
     if List.Items[i].Visible then
@@ -639,7 +639,7 @@ procedure TCEMessagesWidget.filterMessages(aCtxt: TCEAppMessageCtxt);
 var
   msgdt: PMessageData;
   itm: TTreeNode;
-  i: NativeInt;
+  i: Integer;
 begin
   if updating then
     exit;
@@ -662,7 +662,7 @@ end;
 
 function guessMessageKind(const aMessg: string): TCEAppMessageKind;
 var
-  pos: Nativeint;
+  pos: Integer;
   idt: string;
 function checkIdent: TCEAppMessageKind;
 begin
@@ -714,7 +714,7 @@ end;
 
 function getLineFromMessage(const aMessage: string): TPoint;
 var
-  i, j: NativeInt;
+  i, j: Integer;
   ident: string;
 begin
   result.x := 0;
@@ -767,7 +767,7 @@ end;
 
 function openFileFromDmdMessage(const aMessage: string): boolean;
 var
-  i: NativeInt;
+  i: Integer;
   ident: string;
   ext: string;
 begin

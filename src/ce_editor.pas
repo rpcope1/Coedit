@@ -8,7 +8,8 @@ uses
   Classes, SysUtils, FileUtil, ExtendedNotebook, Forms, Controls, lcltype,
   Graphics, SynEditKeyCmds, ComCtrls, SynEditHighlighter, ExtCtrls, Menus,
   SynMacroRecorder, SynPluginSyncroEdit, SynEdit, SynCompletion,
-  ce_widget, ce_interfaces, ce_synmemo, ce_dlang, ce_common, ce_dcd, ce_observer;
+  SynHighlighterMulti, ce_widget, ce_interfaces, ce_synmemo, ce_dlang,
+  ce_common, ce_dcd, ce_observer;
 
 type
 

@@ -19,7 +19,7 @@ inherited CEEditorWidget: TCEEditorWidget
       ClientWidth = 465
       object PageControl: TExtendedNotebook[0]
         Left = 3
-        Height = 380
+        Height = 375
         Top = 3
         Width = 459
         Align = alClient
@@ -32,8 +32,8 @@ inherited CEEditorWidget: TCEEditorWidget
       end
       object editorStatus: TStatusBar[1]
         Left = 3
-        Height = 18
-        Top = 385
+        Height = 23
+        Top = 380
         Width = 459
         BorderSpacing.Around = 2
         Panels = <        
