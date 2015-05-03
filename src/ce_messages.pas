@@ -766,7 +766,7 @@ begin
     inc(i);
     if i > length(aMessage) then
       exit;
-    if aMessage[i] = '(' then
+    if (aMessage[i] = '(') or (aMessage[i..i+5] = '-mixin') then
     begin
       if not fileExists(ident) then
         exit;
