@@ -110,6 +110,7 @@ type
     procedure TreeFilterEdit1MouseEnter(Sender: TObject);
     procedure TreeKeyPress(Sender: TObject; var Key: char);
   private
+    fHasToolExe: boolean;
     fOptions: TCESymbolListOptions;
     fSyms: TSymbolList;
     fMsgs: ICEMessagesDisplay;
@@ -140,6 +141,7 @@ type
     procedure updateVisibleCat;
     procedure clearTree;
     //
+    procedure checkIfHasToolExe;
     procedure callToolProc;
     procedure toolOutputData(sender: TObject);
     procedure toolTerminated(sender: TObject);
@@ -175,6 +177,7 @@ implementation
 
 const
   OptsFname = 'symbollist.txt';
+  toolExeName = 'cesyms' + exeExt;
 
 {$REGION Serializable symbols---------------------------------------------------}
 constructor TSymbol.create(ACollection: TCollection);
@@ -304,6 +307,7 @@ begin
   fAutoRefresh := false;
   fRefreshOnFocus := true;
   fRefreshOnChange := false;
+  checkIfHasToolExe;
   //
   fActCopyIdent := TAction.Create(self);
   fActCopyIdent.OnExecute:=@actCopyIdentExecute;
@@ -387,6 +391,7 @@ end;
 procedure TCESymbolListWidget.SetVisible(Value: boolean);
 begin
   inherited;
+  checkIfHasToolExe;
   getMessageDisplay(fMsgs);
   if Value then
     callToolProc;
@@ -622,10 +627,16 @@ begin
   fDoc.SelectLine;
 end;
 
+procedure TCESymbolListWidget.checkIfHasToolExe;
+begin
+  fHasToolExe := exeInSysPath(toolExeName);
+end;
+
 procedure TCESymbolListWidget.callToolProc;
 var
   srcFname: string;
 begin
+  if not fHasToolExe then exit;
   if fDoc = nil then exit;
   if fDoc.Lines.Count = 0 then exit;
   if not fDoc.isDSource then exit;
@@ -635,7 +646,7 @@ begin
   fToolProc := TCheckedAsyncProcess.Create(nil);
   fToolProc.ShowWindow := swoHIDE;
   fToolProc.Options := [poUsePipes];
-  fToolProc.Executable := 'cesyms';
+  fToolProc.Executable := toolExeName;
   fToolProc.OnTerminate := @toolTerminated;
   fToolProc.OnReadData  := @toolOutputData;
   fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);
