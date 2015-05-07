@@ -211,6 +211,11 @@ type
 
   function getSysLineEndLen: byte;
 
+  (**
+   * Returns the common folder of the file names stored in aList
+   *)
+   function commonFolder(const someFiles: TStringList): string;
+
 implementation
 
 {$IFDEF LINUX}
@@ -793,6 +798,68 @@ begin
   {$ELSE}
   exit(1);
   {$ENDIF}
+end;
+
+function countFolder(aFilename: string): integer;
+var
+  parent: string;
+begin
+  result := 0;
+  while(true) do begin
+    parent := ExtractFileDir(aFilename);
+    if parent = aFilename then exit;
+    aFilename := parent;
+    result += 1;
+  end;
+end;
+
+function commonFolder(const someFiles: TStringList): string;
+var
+  i,j,k: integer;
+  sink: TStringList;
+  dir: string;
+  cnt: integer;
+begin
+  result := '';
+  if someFiles.Count = 0 then exit;
+  sink := TStringList.Create;
+  try
+    sink.Assign(someFiles);
+    for i := sink.Count-1 downto 0 do
+      if (not FileExists(sink.Strings[i])) and (not DirectoryExists(sink.Strings[i])) then
+        sink.Delete(i);
+    // folders count
+    cnt := 256;
+    for dir in sink do
+    begin
+      k := countFolder(dir);
+      if k < cnt then
+        cnt := k;
+    end;
+    for i := sink.Count-1 downto 0 do
+    begin
+      while (countFolder(sink.Strings[i]) <> cnt) do
+        sink.Strings[i] := ExtractFileDir(sink.Strings[i]);
+    end;
+    // common folder
+    while(true) do
+    begin
+      for i := sink.Count-1 downto 0 do
+      begin
+        dir := ExtractFileDir(sink.Strings[i]);
+        j := sink.IndexOf(dir);
+        if j = -1 then
+          sink.Strings[i] := dir
+        else if j <> i then
+          sink.Delete(i);
+      end;
+      if sink.Count = 1 then
+        break;
+    end;
+    result := sink.Strings[0];
+  finally
+    sink.free;
+  end;
 end;
 
 {$IFDEF WINDOWS}
