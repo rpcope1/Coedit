@@ -645,8 +645,11 @@ procedure TCESynMemo.KeyDown(var Key: Word; Shift: TShiftState);
 begin
   inherited;
   identifierToD2Syn;
+  case Key of
+    VK_BROWSER_BACK: fPositions.back;
+    VK_BROWSER_FORWARD: fPositions.next;
+  end;
   if not (Shift = [ssCtrl]) then exit;
-  //
   case Key of
     VK_ADD: if Font.Size < 50 then Font.Size := Font.Size + 1;
     VK_SUBTRACT: if Font.Size > 3 then Font.Size := Font.Size - 1;
@@ -739,7 +742,7 @@ begin
   case Button of
     mbMiddle: if (Shift = [ssCtrl]) then
       Font.Size := fDefaultFontSize;
-    // TODO-cfeature: Linux only, mouse action for src position buffer.
+    // linux, kde: mbExtra are never called
     mbExtra1: fPositions.back;
     mbExtra2: fPositions.next;
     mbLeft:   fPositions.store;
