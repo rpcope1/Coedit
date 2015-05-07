@@ -6,13 +6,17 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, ComCtrls, Buttons, ce_widget;
+  Menus, ComCtrls, Buttons, ce_widget, ce_interfaces, ce_project, ce_dmdwrap,
+  ce_common;
 
 type
 
-  TCELibManEditorWidget = class(TCEWidget)
+  { TCELibManEditorWidget }
+
+  TCELibManEditorWidget = class(TCEWidget, ICEProjectObserver)
     btnMoveDown: TBitBtn;
     btnMoveUp: TBitBtn;
+    btnReg: TBitBtn;
     btnSelFile: TBitBtn;
     btnAddLib: TBitBtn;
     btnRemLib: TBitBtn;
@@ -23,6 +27,7 @@ type
     Panel1: TPanel;
     procedure btnAddLibClick(Sender: TObject);
     procedure btnEditAliasClick(Sender: TObject);
+    procedure btnRegClick(Sender: TObject);
     procedure btnRemLibClick(Sender: TObject);
     procedure btnSelFileClick(Sender: TObject);
     procedure btnSelfoldOfFilesClick(Sender: TObject);
@@ -31,6 +36,14 @@ type
     procedure btnMoveDownClick(Sender: TObject);
     procedure ListEdited(Sender: TObject; Item: TListItem; var AValue: string);
   private
+    fProj: TCEProject;
+    procedure updateRegistrable;
+    procedure projNew(aProject: TCEProject);
+    procedure projChanged(aProject: TCEProject);
+    procedure projClosing(aProject: TCEProject);
+    procedure projFocused(aProject: TCEProject);
+    procedure projCompiling(aProject: TCEProject);
+    //
     procedure dataToGrid;
     procedure gridToData;
   protected
@@ -72,10 +85,47 @@ begin
     btnSelfoldOfFiles.Glyph.Assign(png);
     png.LoadFromLazarusResource('folder_add');
     btnSelRoot.Glyph.Assign(png);
+    png.LoadFromLazarusResource('book_link');
+    btnReg.Glyph.Assign(png);
   finally
     png.Free;
   end;
 end;
+
+procedure TCELibManEditorWidget.updateRegistrable;
+begin
+  btnReg.Enabled := (fProj <> nil) and
+    (fProj.currentConfiguration.outputOptions.binaryKind = staticlib) and
+    (FileExists(fProj.Filename))
+end;
+
+procedure TCELibManEditorWidget.projNew(aProject: TCEProject);
+begin
+  fProj := aProject;
+end;
+
+procedure TCELibManEditorWidget.projChanged(aProject: TCEProject);
+begin
+  updateRegistrable;
+end;
+
+procedure TCELibManEditorWidget.projClosing(aProject: TCEProject);
+begin
+  if aProject <> fProj then exit;
+  fProj := nil;
+  updateRegistrable;
+end;
+
+procedure TCELibManEditorWidget.projFocused(aProject: TCEProject);
+begin
+  fProj := aProject;
+  updateRegistrable;
+end;
+
+procedure TCELibManEditorWidget.projCompiling(aProject: TCEProject);
+begin
+end;
+
 
 procedure TCELibManEditorWidget.ListEdited(Sender: TObject; Item: TListItem; var AValue: string);
 begin
@@ -104,6 +154,40 @@ begin
   if inputQuery('library alias', '', al) then
     List.Selected.Caption := al;
   gridToData;
+end;
+
+procedure TCELibManEditorWidget.btnRegClick(Sender: TObject);
+var
+  str: TStringList;
+  root: string;
+  i: integer;
+begin
+  if fProj = nil then exit;
+  //
+  str := TStringList.Create;
+  try
+    for i := 0 to fProj.Sources.Count-1 do
+      str.Add(fProj.getAbsoluteSourceName(i));
+    root := commonFolder(str);
+    root := ExtractFileDir(root);
+    if root = '' then
+      exit;
+    //
+    with List.Items.Add do
+    begin
+      Caption := ExtractFileNameOnly(fProj.Filename);
+      if ExtractFileExt(fProj.outputFilename) <> libExt then
+        SubItems.add(fProj.outputFilename + libExt)
+      else
+        SubItems.add(fProj.outputFilename);
+      SubItems.add(root);
+      Selected:= true;
+    end;
+    SetFocus;
+    gridToData;
+  finally
+    str.free;
+  end;
 end;
 
 procedure TCELibManEditorWidget.btnRemLibClick(Sender: TObject);

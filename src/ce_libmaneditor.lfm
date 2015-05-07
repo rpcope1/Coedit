@@ -113,6 +113,17 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           Spacing = 0
           TabOrder = 7
         end
+        object btnReg: TBitBtn
+          Left = 112
+          Height = 24
+          Hint = 'register from the current project'
+          Top = 0
+          Width = 28
+          Align = alLeft
+          OnClick = btnRegClick
+          Spacing = 0
+          TabOrder = 8
+        end
       end
       object List: TListView[1]
         Left = 4
@@ -130,12 +141,12 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           item
             AutoSize = True
             Caption = 'Library file'
-            Width = 67
+            Width = 82
           end        
           item
             AutoSize = True
             Caption = 'Sources root'
-            Width = 78
+            Width = 95
           end>
         GridLines = True
         HideSelection = False
