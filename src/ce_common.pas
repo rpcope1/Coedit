@@ -813,6 +813,7 @@ begin
   end;
 end;
 
+//TODO-cfeature: make it working with relative paths
 function commonFolder(const someFiles: TStringList): string;
 var
   i,j,k: integer;

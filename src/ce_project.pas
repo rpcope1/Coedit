@@ -414,12 +414,13 @@ var
     if dlgOkCancel( 'The project source(s) are all missing. ' + LineEnding +
       'This can be encountered if the project file has been moved from its original location.' + LineEnding + LineEnding +
       'Do you wish to select the new root folder ?') <> mrOk then exit;
+    // TODO-cimprovement: use commonFolder() when it'll be compat. with the rel. paths.
     // hint for the common dir
     dirHint := fSrcs.Strings[i];
     while (dirHint[1] = '.') or (dirHint[1] = DirectorySeparator) do
         dirHint := dirHint[2..length(dirHint)];
     ini := extractFilePath(fFilename);
-    if not selectDirectory( format('select the folder (which contains "%s")',[dirHint]), ini, newdir) then
+    if not selectDirectory( format('select the folder (that contains "%s")',[dirHint]), ini, newdir) then
       exit;
     for i := 0 to fSrcs.Count-1 do
     begin
