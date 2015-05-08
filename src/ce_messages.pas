@@ -559,7 +559,7 @@ begin
   item.ImageIndex := iconIndex(aKind);
   item.SelectedIndex := item.ImageIndex;
   clearOutOfRangeMessg;
-  //TODO:-cfeature: reset horz scroll bar to the left
+  //TODO-cfeature: reset horz scroll bar to the left
   scrollToBack;
   Application.ProcessMessages;
   filterMessages(fCtxt);
