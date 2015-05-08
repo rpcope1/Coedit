@@ -239,7 +239,7 @@ var
 begin
   doc := getDocument(index);
   if doc.modified then if dlgOkCancel(format(
-    'The latest "%s" mofifications are not saved, continue ?',
+    'The latest "%s" modifications are not saved, continue ?',
     [shortenPath(doc.fileName,25)])) = mrCancel then exit(false);
   doc.Free;
   result := true;
