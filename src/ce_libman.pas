@@ -31,8 +31,6 @@ type
   private
     fCol: TCollection;
     procedure setCol(const aValue: TCollection);
-  protected
-    procedure afterLoad; override;
   published
     property libraries: TCollection read fCol write setCol;
   public
@@ -56,11 +54,45 @@ implementation
 constructor TLibraryManager.create(aOwner: TComponent);
 var
   fName: string;
+  {$IFDEF WINDOWS}
+  fDmdPath: string;
+  {$ENDIF}
 begin
   inherited;
   fCol := TCollection.Create(TLibraryItem);
   fname := getCoeditDocPath + libFname;
-  if fileExists(fname) then loadFromFile(fname);
+  if fileExists(fname) then
+    loadFromFile(fname);
+  if fCol.Count = 0 then
+  begin
+    {$IFDEF WINDOWS}
+    fDmdPath := ExeSearch('dmd.exe');
+    if FileExists(fDmdPath) then
+    begin
+      // add phobos
+      fname := ExtractFileDir(fDmdPath);
+      fname := ExtractFileDir(fname);
+      with TLibraryItem(fCol.Add) do begin
+        libAlias := 'phobos';
+        libFile  := fname + '\lib\phobos.lib';
+        libSourcePath := ExtractFileDir(fname) + '\src\phobos';
+      end;
+      // add druntime (no lib - only for DCD)
+      fname := ExtractFileDir(fDmdPath);
+      fname := ExtractFileDir(fname);
+      with TLibraryItem(fCol.Add) do begin
+        libAlias := 'druntime';
+        libFile  := '';
+        libSourcePath := ExtractFileDir(fname) + '\src\druntime\import';
+      end;
+    end;
+    {$ENDIF}
+    // TODO-cfeature: add linux paths for druntime/phobos
+    {$IFDEF LINUX}
+
+    {$ENDIF}
+  end;
+  updateDCD
 end;
 
 destructor TLibraryManager.destroy;
@@ -158,11 +190,6 @@ begin
       continue;
     aList.Add('-I' + itm.libSourcePath);
   end;
-end;
-
-procedure TLibraryManager.afterLoad;
-begin
-  updateDCD;
 end;
 
 initialization
