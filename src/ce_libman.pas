@@ -87,12 +87,38 @@ begin
       end;
     end;
     {$ENDIF}
-    // TODO-cfeature: add linux paths for druntime/phobos
     {$IFDEF LINUX}
-
+    // add phobos
+    if DirectoryExists('/usr/include/dmd/phobos') and FileExists('/usr/lib/libphobos2.a') then
+    begin
+      with TLibraryItem(fCol.Add) do begin
+        libAlias := 'phobos';
+        libFile  := '/usr/lib/libphobos2.a';
+        libSourcePath := '/usr/include/dmd/phobos';
+      end;
+    end;
+    // add druntime (no lib - only for DCD)
+    if DirectoryExists('/usr/include/dmd/druntime/import') then
+    begin
+      with TLibraryItem(fCol.Add) do begin
+        libAlias := 'druntime';
+        libFile  := '';
+        libSourcePath := '/usr/include/dmd/druntime/import';
+      end;
+    end;
+    {$ENDIF}
+    {$IFDEF DARWIN}
+    assert(false, 'to be implemented');
     {$ENDIF}
   end;
-  updateDCD
+  if fCol.Count = 0 then
+  begin
+    ce_common.dlgOkError(
+      'Coedit failed to automatically add "druntime" and "phobos" to the library manager.'
+    + 'These two items have to be added manually following the procedure described in the wiki.'
+    );
+  end;
+  updateDCD;
 end;
 
 destructor TLibraryManager.destroy;
