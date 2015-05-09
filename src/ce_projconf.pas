@@ -298,11 +298,13 @@ begin
   //
   nme := '';
   beginImperativeUpdate;
+  fProj.beginUpdate;
   src := fProj.currentConfiguration;
   trg := fProj.addConfiguration;
   trg.assign(src);
   if InputQuery('Configuration name', '', nme) then trg.name := nme;
   fProj.ConfigurationIndex := trg.Index;
+  fProj.endUpdate;
   endImperativeUpdate;
 end;
 
