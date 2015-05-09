@@ -629,8 +629,6 @@ begin
     fRelease := src.fRelease;
     fAllinst := src.fAllInst;
     fStackStomp := src.fStackStomp;
-    //
-    depPatch;
   end
   else inherited;
 end;
