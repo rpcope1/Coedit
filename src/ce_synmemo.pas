@@ -648,6 +648,11 @@ begin
   case Key of
     VK_BROWSER_BACK: fPositions.back;
     VK_BROWSER_FORWARD: fPositions.next;
+    VK_ESCAPE:
+      begin
+        fCallTipWin.Hide;
+        fDDocWin.Hide;
+      end;
   end;
   if not (Shift = [ssCtrl]) then exit;
   case Key of
