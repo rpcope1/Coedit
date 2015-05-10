@@ -924,7 +924,7 @@ end;
 
 initialization
   dExtList := TStringList.Create;
-  dExtList.AddStrings(['.d', '.D', '.di', '.DI', '.Di', '.dI']);
+  dExtList.AddStrings(['.d', '.D', '.di', '.DI', '.Di', '.dI', '.dd', '.DD']);
 finalization
   dExtList.Free;
 end.
