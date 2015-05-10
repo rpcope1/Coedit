@@ -315,20 +315,40 @@ begin
 end;
 
 procedure TCEProjectInspectWidget.FormDropFiles(Sender: TObject; const FileNames: array of String);
+procedure addFile(const aFilename: string);
 var
-  fname: string;
-  multidoc: ICEMultiDocHandler;
+  ext: string;
+begin
+  ext := ExtractFileExt(aFilename);
+  if (dExtList.IndexOf(ext) = -1)
+    and (ext <> '.obj') and (ext <> '.o')
+      and (ext <> '.a') and (ext <> '.lib') then
+        exit;
+  fProject.addSource(aFilename);
+  if (dExtList.IndexOf(ext) <> -1) then
+    getMultiDocHandler.openDocument(aFilename);
+end;
+var
+  fname, direntry: string;
+  lst: TStringList;
 begin
   if fProject = nil then exit;
-  multidoc := getMultiDocHandler;
-  for fname in Filenames do
+  lst := TStringList.Create;
+  fProject.beginUpdate;
+  try for fname in Filenames do
     if FileExists(fname) then
+      addFile(fname)
+    else if DirectoryExists(fname) then
     begin
-      multidoc.openDocument(fname);
-      fProject.beginUpdate;
-      fProject.addSource(fname);
-      fProject.endUpdate;
+      lst.Clear;
+      listFiles(lst, fname, true);
+      for direntry in lst do
+        addFile(dirEntry);
     end;
+  finally
+    fProject.endUpdate;
+    lst.Free;
+  end;
 end;
 
 procedure TCEProjectInspectWidget.updateDelayed;
