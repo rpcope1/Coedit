@@ -1000,7 +1000,6 @@ begin
     if act.Caption <> identifier then
       continue;
     act.ShortCut := aShortcut;
-    break;
   end;
 end;
 {$ENDREGION}
