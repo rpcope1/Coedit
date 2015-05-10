@@ -105,6 +105,7 @@ type
     procedure getCallTips;
     procedure HintTimerEvent(sender: TObject);
     procedure InitHintWins;
+    function getIfTemp: boolean;
   protected
     procedure MouseLeave; override;
     procedure SetVisible(Value: Boolean); override;
@@ -137,6 +138,7 @@ type
     property syncroEdit: TSynPluginSyncroEdit read fSyncEdit;
     property isDSource: boolean read fIsDSource;
     property isProjectSource: boolean read fIsConfig;
+    property isTemporary: boolean read getIfTemp;
     property TextView;
     //
     property MouseStart: Integer read getMouseFileBytePos;
@@ -562,6 +564,11 @@ procedure TCESynMemo.saveTempFile;
 begin
   saveToFile(fTempFileName);
   fModified := false;
+end;
+
+function TCESynMemo.getIfTemp: boolean;
+begin
+  exit(fFilename = fTempFileName);
 end;
 
 procedure TCESynMemo.saveCache;
