@@ -75,6 +75,7 @@ object CEShortcutEditor: TCEShortcutEditor
       object shortcutCatcher: TEdit
         Left = 310
         Height = 22
+        Hint = 'type a key combination while active'
         Top = 2
         Width = 109
         Align = alRight
@@ -90,6 +91,7 @@ object CEShortcutEditor: TCEShortcutEditor
       object btnActivate: TSpeedButton
         Left = 285
         Height = 22
+        Hint = 'enable shortcut capture'
         Top = 2
         Width = 23
         Align = alRight
