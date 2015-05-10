@@ -193,7 +193,7 @@ begin
   case anEvent of
     oeeSelectCat: updateFromObservers;
   end;
-  // TODO-cfeature: pass new shortcut to observer
+  // other events are not called when the option editor is not oekGeneric.
 end;
 {$ENDREGION}
 
