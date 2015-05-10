@@ -148,14 +148,19 @@ end;
 
 procedure TCEProject.addSource(const aFilename: string);
 var
-  relSrc, absSrc: string;
+  relSrc, absSrc, ext: string;
 begin
+  ext := ExtractFileExt(aFilename);
+  if (dExtList.IndexOf(ext) = -1) and
+    (ext <> '.obj') and (ext <> '.o')
+      and (ext <> '.lib') and (ext <> '.a') then
+        exit;
   for relSrc in fSrcs do
   begin
     absSrc := expandFilenameEx(fBasePath,relsrc);
     if aFilename = absSrc then exit;
   end;
-  fSrcs.Add(ExtractRelativepath(fBasePath,aFilename));
+  fSrcs.Add(ExtractRelativepath(fBasePath, aFilename));
 end;
 
 procedure TCEProject.setRoot(const aValue: string);
