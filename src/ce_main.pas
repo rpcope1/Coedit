@@ -1078,7 +1078,7 @@ begin
   if fDoc.isProjectSource then exit;
   if fProject = nil then exit;
   //
-  if fileExists(fDoc.fileName) then
+  if fileExists(fDoc.fileName) and (not fDoc.isTemporary) then
     fProject.addSource(fDoc.fileName)
   else dlgOkInfo('the file has not been added to the project because it does not exist');
 end;
