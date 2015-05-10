@@ -301,6 +301,29 @@ type
     procedure UpdateDockCaption(Exclude: TControl = nil); override;
   end;
 
+  TCEPersistentMainShortcut = class(TCollectionItem)
+  private
+    fShortcut: TShortCut;
+    fActionName: string;
+  published
+    property shortcut: TShortCut read fShortcut write fShortcut;
+    property actionName: string read fActionName write fActionName;
+  end;
+
+  TCEPersistentMainShortcuts = class(TWritableLfmTextComponent)
+  private
+    fCol: TCollection;
+    procedure setCol(aValue: TCollection);
+  published
+    property shortcut: TCollection read fCol write setCol;
+  public
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
+    //
+    procedure assign(aValue: TPersistent); override;
+    procedure assignTo(aValue: TPersistent); override;
+  end;
+
 var
   CEMainForm: TCEMainForm;
 
@@ -309,6 +332,62 @@ implementation
 
 uses
   SynMacroRecorder, ce_options, ce_symstring;
+
+{$REGION Actions shortcuts -----------------------------------------------------}
+constructor TCEPersistentMainShortcuts.create(aOwner: TComponent);
+begin
+  inherited;
+  fCol := TCollection.Create(TCEPersistentMainShortcut);
+end;
+
+destructor TCEPersistentMainShortcuts.destroy;
+begin
+  fCol.Free;
+  inherited;
+end;
+
+procedure TCEPersistentMainShortcuts.setCol(aValue: TCollection);
+begin
+  fCol.Assign(aValue);
+end;
+
+procedure TCEPersistentMainShortcuts.assign(aValue: TPersistent);
+var
+  itm: TCEPersistentMainShortcut;
+  i: Integer;
+begin
+  fCol.Clear;
+  if aValue = CEMainForm then
+    for i := 0 to CEMainForm.Actions.ActionCount-1 do
+    begin
+      if CEMainForm.Actions.Actions[i].Owner <> CEMainForm then
+        continue;
+      itm := TCEPersistentMainShortcut(fCol.Add);
+      itm.shortcut := TAction(CEMainForm.Actions.Actions[i]).Shortcut;
+      itm.actionName := CEMainForm.Actions.Actions[i].Name;
+    end
+  else inherited;
+end;
+
+procedure TCEPersistentMainShortcuts.assignTo(aValue: TPersistent);
+var
+  itm: TCEPersistentMainShortcut;
+  i, j: Integer;
+begin
+  if aValue = CEMainForm then
+    for i:= 0 to fCol.Count-1 do
+    begin
+      itm := TCEPersistentMainShortcut(fCol.Items[i]);
+      for j := 0 to CEMainForm.Actions.ActionCount-1 do
+        if CEMainForm.Actions.Actions[i].Name = itm.actionName then
+        begin
+          TAction(CEMainForm.Actions.Actions[i]).Shortcut := itm.shortcut;
+          break;
+        end;
+    end
+  else inherited;
+end;
+{$ENDREGION}
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEMainForm.create(aOwner: TComponent);
@@ -533,6 +612,7 @@ var
   fname2: string;
   opts: TCEOptions;
 begin
+  // old centralized options
   fname1 := getCoeditDocPath + 'options2.txt';
   fname2 := getCoeditDocPath + 'options2.bak';
   opts := TCEOptions.create(nil);
@@ -551,6 +631,15 @@ begin
   finally
     opts.Free;
   end;
+  // shortcuts for the actions standing in the main action list
+  fname1 := getCoeditDocPath + 'mainshortcuts.txt';
+  if fileExists(fname1) then with TCEPersistentMainShortcuts.create(nil) do
+  try
+    loadFromFile(fname1);
+    assignTo(self);
+  finally
+    Free;
+  end;
 end;
 
 procedure TCEMainForm.SaveSettings;
@@ -559,12 +648,21 @@ var
 begin
   if not fInitialized then
     exit;
+  // old centralized options
   opts := TCEOptions.create(nil);
   try
     forceDirectory(getCoeditDocPath);
     opts.saveToFile(getCoeditDocPath + 'options2.txt');
   finally
     opts.Free;
+  end;
+  // shortcuts for the actions standing in the main action list
+  with TCEPersistentMainShortcuts.create(nil) do
+  try
+    assign(self);
+    saveToFile(getCoeditDocPath + 'mainshortcuts.txt');
+  finally
+    Free;
   end;
 end;
 
@@ -890,8 +988,20 @@ begin
 end;
 
 procedure TCEMainForm.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+var
+  act: TCustomAction;
+  i: integer;
 begin
-
+  for i:= 0 to Actions.ActionCount-1 do
+  begin
+    act := TCustomAction(Actions.Actions[i]);
+    if act.Category <> category then
+      continue;
+    if act.Caption <> identifier then
+      continue;
+    act.ShortCut := aShortcut;
+    break;
+  end;
 end;
 {$ENDREGION}
 
