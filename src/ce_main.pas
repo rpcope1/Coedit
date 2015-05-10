@@ -1903,4 +1903,6 @@ begin
 end;
 {$ENDREGION}
 
+initialization
+  registerClasses([TCEPersistentMainShortcut, TCEPersistentMainShortcuts]);
 end.
