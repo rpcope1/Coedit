@@ -592,7 +592,7 @@ begin
   try
     DockMaster.SaveLayoutToConfig(xcfg);
     xcfg.WriteToDisk;
-    // TODO: this when AnchorDocking wiont save anymore invalid layout
+    // TODO: remove this when AnchorDocking wiont save anymore invalid layout
     with TMemoryStream.Create do try
       LoadFromFile(getCoeditDocPath + 'docking.xml.tmp');
       if Size < 10000 then
@@ -905,13 +905,16 @@ begin
   for i:= 0 to fActionHandler.observersCount-1 do
   begin
     prov := fActionHandler[i] as ICEActionProvider;
-    if not prov.actHandlerWantRecollect then continue;
+    if not prov.actHandlerWantRecollect then
+      continue;
     //
     for j := Actions.ActionCount-1 downto 0 do
     begin
       act := Actions.Actions[j];
-      if act.Owner = Self then continue;
-      if act.Tag <> PtrInt(prov) then continue;
+      if act.Owner = Self then
+        continue;
+      if act.Tag <> PtrInt(prov) then
+        continue;
       //
       act.ActionList := nil;
     end;
@@ -938,7 +941,8 @@ begin
   for i:= 0 to fActionHandler.observersCount-1 do
   begin
     prov := fActionHandler[i] as ICEActionProvider;
-    if not prov.actHandlerWantFirst then continue;
+    if not prov.actHandlerWantFirst then
+      continue;
     //
     act := nil;
     cat := '';
@@ -1006,9 +1010,7 @@ begin
   try
     filter := DdiagFilter;
     if execute then
-    begin
       openFile(filename);
-    end;
   finally
     free;
   end;
@@ -1069,7 +1071,8 @@ begin
   str := fDoc.fileName;
   if (str <> fDoc.tempFilename) and (fileExists(str)) then
     saveFile(fDoc)
-  else actFileSaveAs.Execute;
+  else
+    actFileSaveAs.Execute;
 end;
 
 procedure TCEMainForm.actFileAddToProjExecute(Sender: TObject);
@@ -1182,7 +1185,8 @@ begin
   //
   if fDoc.SelAvail then
     str := fDoc.SelText
-  else str := fDoc.Identifier;
+  else
+    str := fDoc.Identifier;
   ffindwidg.cbToFind.Text := str;
   ffindwidg.cbToFindChange(nil);
 end;
@@ -1234,11 +1238,9 @@ begin
   finally
     lst.Free;
   end;
-  //if proc = fPrInpWidg.process then
-    //fPrInpWidg.process := nil;
-
   inph := EntitiesConnector.getSingleService('ICEProcInputHandler');
-  if (inph <> nil) then (inph as ICEProcInputHandler).removeProcess(proc);
+  if (inph <> nil) then
+    (inph as ICEProcInputHandler).removeProcess(proc);
 end;
 
 procedure TCEMainForm.compileAndRunFile(unittest: boolean = false; redirect: boolean = true;
@@ -1791,6 +1793,4 @@ begin
 end;
 {$ENDREGION}
 
-initialization
-  RegisterClasses([TCEOptions]);
 end.

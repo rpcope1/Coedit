@@ -51,24 +51,6 @@ type
   end;
 
   (**
-   * Makes TReader.ReadProperties visible
-   *)
-  TReaderEx = class helper for TReader
-  public
-    procedure ReadPersistent(aValue: TPersistent);
-  end;
-
-  (**
-   * Makes TWriter.WriteProperties visible
-   * W
-   *)
-  TWriterEx = class helper for TWriter
-  public
-    // works as bin but raises because of 'ObjectBinaryToText'
-    procedure WritePersistent(aValue: TPersistent);
-  end;
-
-  (**
    * Save a component with a readable aspect.
    *)
   procedure saveCompToTxtFile(const aComp: TComponent; const aFilename: string);
@@ -122,7 +104,7 @@ type
   (**
    * Returns an unique object identifier, based on its heap address.
    *)
-  function uniqueObjStr(const aObject: Tobject): string;
+  function uniqueObjStr(const aObject: TObject): string;
 
   (**
    * Reduces a filename if its length is over the threshold defined by charThresh.
@@ -136,7 +118,7 @@ type
   function getUserDocPath: string;
 
   (**
-   * Returns the folder Coedit documents and settings.
+   * Returns the documents and settings folder for Coedit.
    *)
   function getCoeditDocPath: string;
 
@@ -187,7 +169,7 @@ type
   procedure processOutputToStream(aProcess: TProcess; output: TMemoryStream);
 
   (**
-   * Terminates and frees aProcess;
+   * Terminates and frees aProcess.
    *)
   procedure killProcess(var aProcess: TAsyncProcess);
 
@@ -224,13 +206,14 @@ begin
   inherited;
   fTimer := TIdleTimer.Create(self);
   fTimer.Enabled := false;
-  fTimer.Interval :=50;
+  fTimer.Interval := 50;
   fTimer.AutoEnabled := false;
 end;
 
 procedure TCheckedAsyncProcess.Execute;
 begin
-  if OnTerminate <> nil then fTimer.Enabled :=true;
+  if OnTerminate <> nil then
+    fTimer.Enabled :=true;
   fTimer.OnTimer := @checkTerminated;
   inherited;
 end;
@@ -244,9 +227,6 @@ begin
 end;
 {$ENDIF}
 
-
-// https://stackoverflow.com/questions/25438091/objectbinarytotext-error-with-a-treader-twriter-helper-class
-// http://forum.lazarus.freepascal.org/index.php/topic,25557.0.html
 procedure TProcessEx.Assign(aValue: TPersistent);
 var
   src: TProcess;
@@ -276,21 +256,6 @@ begin
     XTermProgram := src.XTermProgram;
   end
   else inherited;
-end;
-
-procedure TReaderEx.ReadPersistent(aValue: TPersistent);
-begin
-  ReadListBegin;
-  while not EndOfList do
-    ReadProperty(aValue);
-  ReadListEnd;
-end;
-
-procedure TWriterEx.WritePersistent(aValue: TPersistent);
-begin
-  WriteListBegin;
-  WriteProperties(aValue);
-  WriteListEnd;
 end;
 
 procedure saveCompToTxtFile(const aComp: TComponent; const aFilename: string);
@@ -400,14 +365,6 @@ begin
   end;
 end;
 
-function stripFileExt(const aFilename: string): string;
-begin
-  if Pos('.', aFilename) > 1 then
-    exit(ChangeFileExt(aFilename, ''))
-  else
-    exit(aFilename);
-end;
-
 function patchPlateformExt(const aFilename: string): string;
 var
   ext, newext: string;
@@ -444,6 +401,14 @@ begin
   end;
   {$ENDIF}
   result := ChangeFileExt(aFilename, newext);
+end;
+
+function stripFileExt(const aFilename: string): string;
+begin
+  if Pos('.', aFilename) > 1 then
+    exit(ChangeFileExt(aFilename, ''))
+  else
+    exit(aFilename);
 end;
 
 function dlgOkCancel(const aMsg: string): TModalResult;

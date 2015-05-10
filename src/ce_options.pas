@@ -68,4 +68,6 @@ begin
   subjSesOptsAfterLoad(TCESessionOptionsSubject(fSubjPersObservers));
 end;
 
+initialization
+  RegisterClasses([TCEOptions]);
 end.
