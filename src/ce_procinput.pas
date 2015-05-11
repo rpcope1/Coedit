@@ -10,8 +10,12 @@ uses
   ce_mru;
 
 type
+
+  { TCEProcInputWidget }
+
   TCEProcInputWidget = class(TCEWidget, ICEProcInputHandler)
     btnSend: TButton;
+    Panel1: TPanel;
     txtInp: TEdit;
     txtExeName: TStaticText;
     procedure btnSendClick(Sender: TObject);

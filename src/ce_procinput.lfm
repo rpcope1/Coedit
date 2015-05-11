@@ -1,59 +1,71 @@
 inherited CEProcInputWidget: TCEProcInputWidget
-  Left = 868
-  Height = 61
-  Top = 335
-  Width = 608
+  Left = 863
+  Height = 65
+  Top = 397
+  Width = 613
   Caption = 'Process input'
-  ClientHeight = 61
-  ClientWidth = 608
+  ClientHeight = 65
+  ClientWidth = 613
   inherited Back: TPanel
-    Height = 61
-    Width = 608
-    ClientHeight = 61
-    ClientWidth = 608
+    Height = 65
+    Width = 613
+    ClientHeight = 65
+    ClientWidth = 613
     inherited Content: TPanel
-      Height = 61
-      Width = 608
-      ClientHeight = 61
-      ClientWidth = 608
-      object txtInp: TEdit[0]
-        Left = 4
-        Height = 27
-        Top = 30
-        Width = 521
-        Align = alClient
-        BorderSpacing.Left = 4
-        BorderSpacing.Top = 2
-        BorderSpacing.Right = 4
-        BorderSpacing.Bottom = 4
-        OnKeyDown = txtInpKeyDown
-        TabOrder = 0
-      end
-      object btnSend: TButton[1]
-        Left = 529
-        Height = 27
-        Top = 30
-        Width = 75
-        Align = alRight
-        BorderSpacing.Top = 2
-        BorderSpacing.Right = 4
-        BorderSpacing.Bottom = 4
-        Caption = 'Send'
-        OnClick = btnSendClick
-        TabOrder = 1
-      end
-      object txtExeName: TStaticText[2]
+      Height = 65
+      Width = 613
+      ClientHeight = 65
+      ClientWidth = 613
+      object txtExeName: TStaticText[0]
         Left = 4
         Height = 22
         Top = 4
-        Width = 600
+        Width = 605
         Align = alTop
         BorderSpacing.Around = 4
         BorderStyle = sbsSunken
         Caption = 'no process'
-        TabOrder = 2
+        TabOrder = 0
         Transparent = False
       end
+      object Panel1: TPanel[1]
+        Left = 4
+        Height = 30
+        Top = 31
+        Width = 605
+        Align = alBottom
+        BorderSpacing.Around = 4
+        BevelOuter = bvNone
+        ClientHeight = 30
+        ClientWidth = 605
+        TabOrder = 1
+        object btnSend: TButton
+          Left = 530
+          Height = 30
+          Top = 0
+          Width = 75
+          Align = alRight
+          BorderSpacing.Left = 4
+          Caption = 'Send'
+          OnClick = btnSendClick
+          TabOrder = 0
+        end
+        object txtInp: TEdit
+          Left = 0
+          Height = 26
+          Top = 2
+          Width = 526
+          Align = alClient
+          BorderSpacing.Top = 2
+          BorderSpacing.Bottom = 2
+          OnKeyDown = txtInpKeyDown
+          TabOrder = 1
+        end
+      end
     end
+  end
+  inherited contextMenu: TPopupMenu
+    left = 16
+    top = 8
   end
 end
