@@ -235,14 +235,6 @@ type
     procedure sesoptBeforeSave;
     procedure sesoptDeclareProperties(aFiler: TFiler);
     procedure sesoptAfterLoad;
-    procedure optget_FileMRUItems(aWriter: TWriter);
-    procedure optset_FileMRUItems(aReader: TReader);
-    procedure optget_FileMRULimit(aWriter: TWriter);
-    procedure optset_FileMRULimit(aReader: TReader);
-    procedure optget_ProjMRUItems(aWriter: TWriter);
-    procedure optset_ProjMRUItems(aReader: TReader);
-    procedure optget_ProjMRULimit(aWriter: TWriter);
-    procedure optset_ProjMRULimit(aReader: TReader);
     procedure optset_RunnableSw(aReader: TReader);
     procedure optget_RunnableSw(aWriter: Twriter);
 
@@ -324,6 +316,19 @@ type
     procedure assignTo(aValue: TPersistent); override;
   end;
 
+  TCEPersistentMainMrus = class(TWritableLfmTextComponent)
+  private
+    fProjMruPt: TCEMRUFileList;
+    fFileMruPt: TCEMRUFileList;
+    procedure setProjMru(aValue: TCEMRUFileList);
+    procedure setFileMru(aValue: TCEMRUFileList);
+  published
+    property mostRecentFiles: TCEMRUFileList read fFileMruPt write setFileMru;
+    property mostRecentprojects: TCEMRUFileList read fProjMruPt write setProjMru;
+  public
+    procedure setTargets(projs: TCEMRUFileList; files: TCEMRUFileList);
+  end;
+
 var
   CEMainForm: TCEMainForm;
 
@@ -386,6 +391,27 @@ begin
         end;
     end
   else inherited;
+end;
+{$ENDREGION}
+
+{$REGION TCEPersistentMainMrus -------------------------------------------------}
+
+//fProjMru: TCEMRUFileList;
+//fFileMru: TCEMRUFileList;
+procedure TCEPersistentMainMrus.setProjMru(aValue: TCEMRUFileList);
+begin
+  fProjMruPt.assign(aValue);
+end;
+
+procedure TCEPersistentMainMrus.setFileMru(aValue: TCEMRUFileList);
+begin
+  fFileMruPt.assign(aValue);
+end;
+
+procedure TCEPersistentMainMrus.setTargets(projs: TCEMRUFileList; files: TCEMRUFileList);
+begin
+  fFileMruPt := files;
+  fProjMruPt := projs;
 end;
 {$ENDREGION}
 
@@ -631,6 +657,15 @@ begin
   finally
     opts.Free;
   end;
+  // project and files MRU
+  fname1 := getCoeditDocPath + 'mostrecent.txt';
+  if fileExists(fname1) then with TCEPersistentMainMrus.create(nil) do
+  try
+    setTargets(fFileMru, fProjMru);
+    loadFromFile(fname1);
+  finally
+    Free;
+  end;
   // shortcuts for the actions standing in the main action list
   fname1 := getCoeditDocPath + 'mainshortcuts.txt';
   if fileExists(fname1) then with TCEPersistentMainShortcuts.create(nil) do
@@ -655,6 +690,14 @@ begin
     opts.saveToFile(getCoeditDocPath + 'options2.txt');
   finally
     opts.Free;
+  end;
+  // project and files MRU
+  with TCEPersistentMainMrus.create(nil) do
+  try
+    setTargets(fFileMru, fProjMru);
+    saveToFile(getCoeditDocPath + 'mostrecent.txt');
+  finally
+    Free;
   end;
   // shortcuts for the actions standing in the main action list
   with TCEPersistentMainShortcuts.create(nil) do
@@ -1840,56 +1883,11 @@ end;
 
 procedure TCEMainForm.sesoptDeclareProperties(aFiler: TFiler);
 begin
-  aFiler.DefineProperty('Menu_FileMRU_Items', @optset_FileMRUItems, @optget_FileMRUItems, true);
-  aFiler.DefineProperty('Menu_FileMRU_Limit', @optset_FileMRULimit, @optget_FileMRULimit, true);
-  aFiler.DefineProperty('Menu_ProjMRU_Items', @optset_ProjMRUItems, @optget_ProjMRUItems, true);
-  aFiler.DefineProperty('Menu_ProjMRU_Limit', @optset_ProjMRULimit, @optget_ProjMRULimit, true);
-  //
   aFiler.DefineProperty('Runnable_Switches', @optset_RunnableSw, @optget_RunnableSw, true);
 end;
 
 procedure TCEMainForm.sesoptAfterLoad;
 begin
-end;
-
-procedure TCEMainForm.optget_FileMRUItems(aWriter: TWriter);
-begin
-  aWriter.WriteString(fFileMru.DelimitedText);
-end;
-
-procedure TCEMainForm.optset_FileMRUItems(aReader: TReader);
-begin
-  fFileMru.DelimitedText := aReader.ReadString;
-end;
-
-procedure TCEMainForm.optget_FileMRULimit(aWriter: TWriter);
-begin
-  aWriter.WriteInteger(fFileMru.maxCount);
-end;
-
-procedure TCEMainForm.optset_FileMRULimit(aReader: TReader);
-begin
-  fFileMru.maxCount := aReader.ReadInteger;
-end;
-
-procedure TCEMainForm.optget_ProjMRUItems(aWriter: TWriter);
-begin
-  aWriter.WriteString(fProjMru.DelimitedText);
-end;
-
-procedure TCEMainForm.optset_ProjMRUItems(aReader: TReader);
-begin
-  fProjMru.DelimitedText := aReader.ReadString;
-end;
-
-procedure TCEMainForm.optget_ProjMRULimit(aWriter: TWriter);
-begin
-  aWriter.WriteInteger(fProjMru.maxCount);
-end;
-
-procedure TCEMainForm.optset_ProjMRULimit(aReader: TReader);
-begin
-  fProjMru.maxCount := aReader.ReadInteger;
 end;
 
 procedure TCEMainForm.optset_RunnableSw(aReader: TReader);
