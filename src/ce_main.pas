@@ -20,7 +20,7 @@ type
 
   { TCEMainForm }
 
-  TCEMainForm = class(TForm, ICEMultiDocObserver, ICESessionOptionsObserver, ICEEditableShortCut)
+  TCEMainForm = class(TForm, ICEMultiDocObserver, ICEEditableShortCut)
     actFileCompAndRun: TAction;
     actFileSaveAll: TAction;
     actFileClose: TAction;
@@ -231,20 +231,13 @@ type
     function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
     procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
 
-    // ICESessionOptionsObserver
-    procedure sesoptBeforeSave;
-    procedure sesoptDeclareProperties(aFiler: TFiler);
-    procedure sesoptAfterLoad;
-    procedure optset_RunnableSw(aReader: TReader);
-    procedure optget_RunnableSw(aWriter: Twriter);
-
     //Init - Fina
     procedure getCMdParams;
     procedure checkCompilo;
     procedure InitMRUs;
     procedure InitWidgets;
     procedure InitDocking;
-    procedure InitSettings;
+    procedure LoadSettings;
     procedure SaveSettings;
     procedure LoadDocking;
     procedure SaveDocking;
@@ -336,7 +329,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynMacroRecorder, ce_options, ce_symstring;
+  SynMacroRecorder, ce_symstring;
 
 {$REGION Actions shortcuts -----------------------------------------------------}
 constructor TCEPersistentMainShortcuts.create(aOwner: TComponent);
@@ -427,16 +420,17 @@ begin
   InitMRUs;
   InitWidgets;
   InitDocking;
-  InitSettings;
+  LoadSettings;
   layoutUpdateMenu;
   fMultidoc := getMultiDocHandler;
   //
-  newProj;
   checkCompilo;
   getCMdParams;
   //
   updateMainMenuProviders;
   EntitiesConnector.forceUpdate;
+  //
+  if fProject = nil then newProj;
   fInitialized := true;
 end;
 
@@ -632,31 +626,10 @@ begin
   end;
 end;
 
-procedure TCEMainForm.InitSettings;
+procedure TCEMainForm.LoadSettings;
 var
   fname1: string;
-  fname2: string;
-  opts: TCEOptions;
 begin
-  // old centralized options
-  fname1 := getCoeditDocPath + 'options2.txt';
-  fname2 := getCoeditDocPath + 'options2.bak';
-  opts := TCEOptions.create(nil);
-  try
-    if fileExists(fname1) then
-    begin
-      opts.loadFromFile(fname1);
-      if opts.hasLoaded then
-      begin
-        if fileExists(fname2) then
-           sysutils.deleteFile(fname2);
-        if not fileExists(fname2) then
-          fileutil.copyFile(fname1, fname2, false);
-      end;
-    end;
-  finally
-    opts.Free;
-  end;
   // project and files MRU
   fname1 := getCoeditDocPath + 'mostrecent.txt';
   if fileExists(fname1) then with TCEPersistentMainMrus.create(nil) do
@@ -678,19 +651,9 @@ begin
 end;
 
 procedure TCEMainForm.SaveSettings;
-var
-  opts: TCEOptions;
 begin
   if not fInitialized then
     exit;
-  // old centralized options
-  opts := TCEOptions.create(nil);
-  try
-    forceDirectory(getCoeditDocPath);
-    opts.saveToFile(getCoeditDocPath + 'options2.txt');
-  finally
-    opts.Free;
-  end;
   // project and files MRU
   with TCEPersistentMainMrus.create(nil) do
   try
@@ -1873,31 +1836,6 @@ begin
   finally
     lst.Free;
   end;
-end;
-{$ENDREGION}
-
-{$REGION ICESessionOptionsObserver ---------------------------------------------}
-procedure TCEMainForm.sesoptBeforeSave;
-begin
-end;
-
-procedure TCEMainForm.sesoptDeclareProperties(aFiler: TFiler);
-begin
-  aFiler.DefineProperty('Runnable_Switches', @optset_RunnableSw, @optget_RunnableSw, true);
-end;
-
-procedure TCEMainForm.sesoptAfterLoad;
-begin
-end;
-
-procedure TCEMainForm.optset_RunnableSw(aReader: TReader);
-begin
-  fRunnableSw := aReader.ReadString;
-end;
-
-procedure TCEMainForm.optget_RunnableSw(aWriter: Twriter);
-begin
-  aWriter.WriteString(fRunnableSw);
 end;
 {$ENDREGION}
 
