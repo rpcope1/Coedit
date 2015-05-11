@@ -16,10 +16,7 @@ uses
 
 type
 
-  // TODO-cfeature: options
-
   { TCEMainForm }
-
   TCEMainForm = class(TForm, ICEMultiDocObserver, ICEEditableShortCut)
     actFileCompAndRun: TAction;
     actFileSaveAll: TAction;
@@ -388,9 +385,6 @@ end;
 {$ENDREGION}
 
 {$REGION TCEPersistentMainMrus -------------------------------------------------}
-
-//fProjMru: TCEMRUFileList;
-//fFileMru: TCEMRUFileList;
 procedure TCEPersistentMainMrus.setProjMru(aValue: TCEMRUFileList);
 begin
   fProjMruPt.assign(aValue);
