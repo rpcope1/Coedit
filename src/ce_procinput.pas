@@ -22,9 +22,6 @@ type
     fProc: TProcess;
     procedure sendInput;
     //
-    procedure optset_InputMru(aReader: TReader);
-    procedure optget_InputMru(aWriter: TWriter);
-    //
     function singleServiceName: string;
     procedure addProcess(aProcess: TProcess);
     procedure removeProcess(aProcess: TProcess);
@@ -32,8 +29,6 @@ type
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
-    //
-    procedure sesoptDeclareProperties(aFiler: TFiler); override;
   end;
 
 implementation
@@ -42,37 +37,31 @@ implementation
 uses
   ce_symstring, LCLType;
 
+const
+  OptsFname = 'procinput.txt';
+
 {$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCEProcInputWidget.create(aOwner: TComponent);
+var
+  fname: string;
 begin
   inherited;
   fMru := TCEMRUList.Create;
   fMru.maxCount := 25;
   EntitiesConnector.addSingleService(self);
+  fname := getCoeditDocPath + OptsFname;
+  if fileExists(OptsFname) then
+    fMru.LoadFromFile(fname);
+  if fMru.Count = 0 then
+    fMru.Insert(0, '(your input here)');
 end;
 
 destructor TCEProcInputWidget.destroy;
 begin
+  // note that mru list max count is not saved.
+  fMru.SaveToFile(getCoeditDocPath + OptsFname);
   fMru.Free;
   inherited;
-end;
-{$ENDREGION --------------------------------------------------------------------}
-
-{$REGION ICESessionOptionsObserver ---------------------------------------------}
-procedure TCEProcInputWidget.sesoptDeclareProperties(aFiler: TFiler);
-begin
-  inherited;
-  aFiler.DefineProperty(Name + '_inputMru', @optset_InputMru, @optget_InputMru, true);
-end;
-
-procedure TCEProcInputWidget.optset_InputMru(aReader: TReader);
-begin
-  fMru.DelimitedText := aReader.ReadString;
-end;
-
-procedure TCEProcInputWidget.optget_InputMru(aWriter: TWriter);
-begin
-  aWriter.WriteString(fMru.DelimitedText);
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
