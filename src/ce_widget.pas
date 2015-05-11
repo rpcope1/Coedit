@@ -14,7 +14,7 @@ type
    * Base type for an UI module.
    *)
   PTCEWidget = ^TCEWidget;
-  TCEWidget = class(TForm, ICEContextualActions, ICESessionOptionsObserver)
+  TCEWidget = class(TForm, ICEContextualActions)
     Content: TPanel;
     Back: TPanel;
     contextMenu: TPopupMenu;
@@ -30,11 +30,6 @@ type
     procedure setLoopInt(aValue: Integer);
     procedure updaterAutoProc(Sender: TObject);
     procedure updaterLatchProc(Sender: TObject);
-    //
-    procedure optget_LoopInterval(aWriter: TWriter);
-    procedure optset_LoopInterval(aReader: TReader);
-    procedure optget_UpdaterDelay(aWriter: TWriter);
-    procedure optset_UpdaterDelay(aReader: TReader);
   protected
     fDockable: boolean;
     fModal: boolean;
@@ -50,10 +45,6 @@ type
     function contextActionCount: integer; virtual;
     function contextAction(index: integer): TAction; virtual;
     //
-    procedure sesoptBeforeSave; virtual;
-    procedure sesoptDeclareProperties(aFiler: TFiler); virtual;
-    procedure sesoptAfterLoad; virtual;
-    //
     function getIfModal: boolean;
   published
     property updaterByLoopInterval: Integer read fLoopInter write setLoopInt;
@@ -67,7 +58,7 @@ type
     procedure beginDelayedUpdate;
     // prevent any pending update.
     procedure stopDelayedUpdate;
-    // immediate call any pending delayed update.
+    // calls immediattly any pending delayed update.
     procedure forceDelayedUpdate;
 
     // increments the imperative updates count.
@@ -99,8 +90,6 @@ type
     procedure addWidget(aValue: PTCEWidget);
     property widget[index: integer]: TCEWidget read getWidget;
   end;
-
-
 
   TWidgetEnumerator = class
     fList: TCEWidgetList;
@@ -157,44 +146,6 @@ function TCEWidget.getIfModal: boolean;
 begin
   if isDockable then result := false
   else result := fModal;
-end;
-
-{$ENDREGION}
-
-{$REGION ICESessionOptionsObserver ---------------------------------------------}
-procedure TCEWidget.sesoptBeforeSave;
-begin
-end;
-
-procedure TCEWidget.sesoptDeclareProperties(aFiler: TFiler);
-begin
-  // override rules: inherited must be called. No dots in the property name, property name prefixed with the widget Name
-  aFiler.DefineProperty(Name + '_updaterByLoopInterval', @optset_LoopInterval, @optget_LoopInterval, true);
-  aFiler.DefineProperty(Name + '_updaterByDelayDuration', @optset_UpdaterDelay, @optget_UpdaterDelay, true);
-end;
-
-procedure TCEWidget.sesoptAfterLoad;
-begin
-end;
-
-procedure TCEWidget.optget_LoopInterval(aWriter: TWriter);
-begin
-  aWriter.WriteInteger(fLoopInter);
-end;
-
-procedure TCEWidget.optset_LoopInterval(aReader: TReader);
-begin
-  updaterByLoopInterval := aReader.ReadInteger;
-end;
-
-procedure TCEWidget.optget_UpdaterDelay(aWriter: TWriter);
-begin
-  aWriter.WriteInteger(fDelayDur);
-end;
-
-procedure TCEWidget.optset_UpdaterDelay(aReader: TReader);
-begin
-  updaterByDelayDuration := aReader.ReadInteger;
 end;
 {$ENDREGION}
 
