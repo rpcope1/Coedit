@@ -7,9 +7,29 @@ interface
 uses
   Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls, Graphics,
   ExtCtrls, Menus, ComCtrls, Buttons, lcltype, strutils, ce_widget,
-  ce_common, ce_interfaces, ce_observer;
+  ce_common, ce_interfaces, ce_observer, ce_writableComponent;
 
 type
+
+  TCEMiniExplorerOptions = class(TWritableLfmTextComponent)
+  private
+    fFavoriteFolders: TStringList;
+    fSplitter1Position: integer;
+    fSplitter2Position: integer;
+    fLastFolder: string;
+    procedure setFavoriteFolders(aValue: TStringList);
+  published
+    property splitter1Position: integer read fSplitter1Position write fSplitter1Position;
+    property splitter2Position: integer read fSplitter2Position write fSplitter2Position;
+    property lastFolder: string read fLastFolder write fLastFolder;
+    property favoriteFolders: TStringList read fFavoriteFolders write setFavoriteFolders;
+  public
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
+    procedure assign(aValue: TPersistent); override;
+    procedure assignTo(aValue: TPersistent); override;
+  end;
+
   TCEMiniExplorerWidget = class(TCEWidget)
     btnAddFav: TBitBtn;
     btnEdit: TBitBtn;
@@ -34,14 +54,6 @@ type
     fFavorites: TStringList;
     fLastFold: string;
     procedure lstFavDblClick(Sender: TObject);
-    procedure optset_LastFold(aReader: TReader);
-    procedure optget_LastFold(aWriter: TWriter);
-    procedure optset_Favs(aReader: TReader);
-    procedure optget_Favs(aWriter: TWriter);
-    procedure optset_SplitFavTree(aReader: TReader);
-    procedure optget_SplitFavTree(aWriter: TWriter);
-    procedure optset_SplitTreeFiles(aReader: TReader);
-    procedure optget_SplitTreeFiles(aWriter: TWriter);
     procedure updateFavorites;
     procedure treeSetRoots;
     procedure lstFilesFromTree;
@@ -61,18 +73,72 @@ type
     constructor create(aIwner: TComponent); override;
     destructor destroy; override;
     //
-    procedure sesoptDeclareProperties(aFiler: TFiler); override;
-    //
     procedure expandPath(const aPath: string);
   end;
 
 implementation
 {$R *.lfm}
 
+const
+  OptsFname = 'miniexplorer.txt';
+
+{$REGION TCEMiniExplorerOptions ------------------------------------------------}
+constructor TCEMiniExplorerOptions.create(aOwner: TComponent);
+begin
+  inherited;
+  fFavoriteFolders := TStringList.Create;
+end;
+
+destructor TCEMiniExplorerOptions.destroy;
+begin
+  fFavoriteFolders.Free;
+  inherited;
+end;
+
+procedure TCEMiniExplorerOptions.assign(aValue: TPersistent);
+var
+  widg: TCEMiniExplorerWidget;
+begin
+  if aValue is TCEMiniExplorerWidget then
+  begin
+    widg := TCEMiniExplorerWidget(aValue);
+    fFavoriteFolders.Assign(widg.fFavorites);
+    fLastFolder := widg.fLastFold;
+    fSplitter1Position := widg.Splitter1.GetSplitterPosition;
+    fSplitter2Position := widg.Splitter2.GetSplitterPosition;
+  end
+  else inherited;
+end;
+
+procedure TCEMiniExplorerOptions.assignTo(aValue: TPersistent);
+var
+  widg: TCEMiniExplorerWidget;
+begin
+  if aValue is TCEMiniExplorerWidget then
+  begin
+    widg := TCEMiniExplorerWidget(aValue);
+    widg.fFavorites.Assign(fFavoriteFolders);
+    widg.fLastFold:=fLastFolder;
+    widg.Splitter1.SetSplitterPosition(fSplitter1Position);
+    widg.Splitter2.SetSplitterPosition(fSplitter2Position);
+    widg.updateFavorites;
+    if DirectoryExists(widg.fLastFold) then
+      widg.expandPath(fLastFolder);
+  end
+  else inherited;
+end;
+
+procedure TCEMiniExplorerOptions.setFavoriteFolders(aValue: TStringList);
+begin
+  fFavoriteFolders.Assign(aValue);
+end;
+{$ENDREGION}
+
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEMiniExplorerWidget.create(aIwner: TComponent);
 var
   png: TPortableNetworkGraphic;
+  fname: string;
 begin
   inherited;
   //
@@ -107,10 +173,27 @@ begin
   lstFilter.onChange := @lstFilterChange;
   //
   treeSetRoots;
+  //
+  fname := getCoeditDocPath + OptsFname;
+  if fileExists(fname) then with TCEMiniExplorerOptions.create(nil) do
+  try
+    loadFromFile(fname);
+    assignTo(self);
+  finally
+    free;
+  end;
 end;
 
 destructor TCEMiniExplorerWidget.destroy;
 begin
+  with TCEMiniExplorerOptions.create(nil) do
+  try
+    assign(self);
+    saveToFile(getCoeditDocPath + OptsFname);
+  finally
+    free;
+  end;
+  //
   fFavorites.Free;
   inherited;
 end;
@@ -119,68 +202,6 @@ procedure TCEMiniExplorerWidget.lstDeletion(Sender: TObject; Item: TListItem);
 begin
   if Item.Data <> nil then
     DisposeStr(PString(Item.Data));
-end;
-{$ENDREGION}
-
-{$REGION ICEWidgetPersist ------------------------------------------------------}
-procedure TCEMiniExplorerWidget.sesoptDeclareProperties(aFiler: TFiler);
-begin
-  inherited;
-  aFiler.DefineProperty(Name + '_LastFolder', @optset_LastFold, @optget_LastFold, true);
-  aFiler.DefineProperty(Name + '_FavoritesFolders', @optset_Favs, @optget_Favs, true);
-  aFiler.DefineProperty(Name + '_SplitterFavTree', @optset_SplitFavTree, @optget_SplitFavTree, true);
-  aFiler.DefineProperty(Name + '_SplitterTreeFiles', @optset_SplitTreeFiles, @optget_SplitTreeFiles, true);
-end;
-
-procedure TCEMiniExplorerWidget.optset_LastFold(aReader: TReader);
-begin
-  fLastFold := aReader.ReadString;
-  if directoryExists(fLastFold) then
-    expandPath(fLastFold);
-end;
-
-procedure TCEMiniExplorerWidget.optget_LastFold(aWriter: TWriter);
-begin
-  aWriter.WriteString(fLastFold);
-end;
-
-procedure TCEMiniExplorerWidget.optset_Favs(aReader: TReader);
-begin
-  fFavorites.DelimitedText := aReader.ReadString;
-  updateFavorites;
-end;
-
-procedure TCEMiniExplorerWidget.optget_Favs(aWriter: TWriter);
-begin
-  aWriter.WriteString(fFavorites.DelimitedText);
-end;
-
-procedure TCEMiniExplorerWidget.optset_SplitFavTree(aReader: TReader);
-var
-  pos: Integer;
-begin
-  pos := aReader.ReadInteger;
-  if pos > 0 then
-    Splitter1.SetSplitterPosition(pos);
-end;
-
-procedure TCEMiniExplorerWidget.optget_SplitFavTree(aWriter: TWriter);
-begin
-  aWriter.WriteInteger(Splitter1.GetSplitterPosition);
-end;
-
-procedure TCEMiniExplorerWidget.optset_SplitTreeFiles(aReader: TReader);
-var
-  pos: Integer;
-begin
-  pos := aReader.ReadInteger;
-  if pos > 0 then
-    Splitter2.SetSplitterPosition(pos);
-end;
-
-procedure TCEMiniExplorerWidget.optget_SplitTreeFiles(aWriter: TWriter);
-begin
-  aWriter.WriteInteger(Splitter2.GetSplitterPosition);
 end;
 {$ENDREGION}
 
