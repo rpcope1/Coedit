@@ -7,12 +7,41 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Menus, StdCtrls, actnList, Buttons, SynEdit, SynEditSearch, SynEditTypes,
-  ce_common, ce_mru, ce_widget, ce_synmemo, ce_interfaces, ce_observer;
+  ce_common, ce_mru, ce_widget, ce_synmemo, ce_interfaces, ce_observer,
+  ce_writableComponent;
 
 type
 
-  { TCESearchWidget }
+  // TCESearchWidget persistents settings
+  TCESearchOptions = class(TWritableLfmTextComponent)
+  private
+    fPrompt: boolean;
+    fFromCur: boolean;
+    fRegex: boolean;
+    fCaseSens:boolean;
+    fBackWard: boolean;
+    fWholeWord: boolean;
+    fMrSearches: TStringList;
+    fMrReplacements: TStringList;
+    procedure setMrSearches(aValue: TStringList);
+    procedure setMrReplacements(aValue: TStringList);
+  published
+    property prompt: boolean read fPrompt write fPrompt;
+    property fromCursor: boolean read fFromCur write fFromCur;
+    property regex: boolean read fRegex write fRegex;
+    property caseSensistive: boolean read fCaseSens write fCaseSens;
+    property backward: boolean read fBackWard write fBackWard;
+    property wholeWord: boolean read fWholeWord write fWholeWord;
+    property recentSearches: TStringList read fMrSearches write setMrSearches;
+    property recentReplacements: TStringList read fMrReplacements write setMrReplacements;
+  public
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
+    procedure Assign(aValue: TPersistent); override;
+    procedure AssignTo(aValue: TPersistent); override;
+  end;
 
+  { TCESearchWidget }
   TCESearchWidget = class(TCEWidget, ICEMultiDocObserver)
     btnFind: TBitBtn;
     btnReplace: TBitBtn;
@@ -42,10 +71,6 @@ type
     fCancelAll: boolean;
     fHasSearched: boolean;
     fHasRestarted: boolean;
-    procedure optset_SearchMru(aReader: TReader);
-    procedure optget_SearchMru(aWriter: TWriter);
-    procedure optset_ReplaceMru(aReader: TReader);
-    procedure optget_ReplaceMru(aWriter: TWriter);
     function getOptions: TSynSearchOptions;
     procedure actReplaceAllExecute(sender: TObject);
     procedure replaceEvent(Sender: TObject; const ASearch, AReplace:
@@ -65,8 +90,6 @@ type
     function contextActionCount: integer; override;
     function contextAction(index: integer): TAction; override;
     //
-    procedure sesoptDeclareProperties(aFiler: TFiler); override;
-    //
     procedure actFindNextExecute(sender: TObject);
     procedure actReplaceNextExecute(sender: TObject);
   end;
@@ -74,8 +97,77 @@ type
 implementation
 {$R *.lfm}
 
+const
+  OptsFname = 'search.txt';
+
+{$REGION TCESearchOptions ------------------------------------------------------}
+constructor TCESearchOptions.create(aOwner: TComponent);
+begin
+  inherited;
+  fMrReplacements := TStringList.Create;
+  fMrSearches := TStringList.Create;
+end;
+
+destructor TCESearchOptions.destroy;
+begin
+  fMrSearches.Free;
+  fMrReplacements.Free;
+  inherited;
+end;
+
+procedure TCESearchOptions.Assign(aValue: TPersistent);
+var
+  widg: TCESearchWidget;
+begin
+  if aValue is TCESearchWidget then
+  begin
+    widg := TCESearchWidget(aValue);
+    fMrSearches.Assign(widg.cbToFind.Items);
+    fMrReplacements.Assign(widg.cbReplaceWth.Items);
+    fPrompt     := widg.chkPrompt.Checked;
+    fBackWard   := widg.chkBack.Checked;
+    fCaseSens   := widg.chkCaseSens.Checked;
+    fRegex      := widg.chkRegex.Checked;
+    fFromCur    := widg.chkFromCur.Checked;
+    fWholeWord  := widg.chkWWord.Checked;
+  end
+  else inherited;
+end;
+
+procedure TCESearchOptions.AssignTo(aValue: TPersistent);
+var
+  widg: TCESearchWidget;
+begin
+  if aValue is TCESearchWidget then
+  begin
+    widg := TCESearchWidget(aValue);
+    widg.cbToFind.Items.Assign(fMrSearches);
+    widg.cbReplaceWth.Items.Assign(fMrReplacements);
+    widg.chkPrompt.Checked  := fPrompt;
+    widg.chkBack.Checked    := fBackWard;
+    widg.chkCaseSens.Checked:= fCaseSens;
+    widg.chkRegex.Checked   := fRegex;
+    widg.chkFromCur.Checked := fFromCur;
+    widg.chkWWord.Checked   := fWholeWord;
+  end
+  else inherited;
+end;
+
+procedure TCESearchOptions.setMrSearches(aValue: TStringList);
+begin
+  fMrSearches.Assign(aValue);
+end;
+
+procedure TCESearchOptions.setMrReplacements(aValue: TStringList);
+begin
+  fMrReplacements.Assign(aValue);
+end;
+{$ENDREGION}
+
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCESearchWidget.Create(aOwner: TComponent);
+var
+  fname: string;
 begin
   fActFindNext := TAction.Create(self);
   fActFindNext.Caption := 'Find';
@@ -87,6 +179,15 @@ begin
   fActReplaceAll.Caption := 'Replace all';
   fActReplaceAll.OnExecute := @actReplaceAllExecute;
   inherited;
+  //
+  fname := getCoeditDocPath + OptsFname;
+  if FileExists(fname) then with TCESearchOptions.create(nil) do
+  try
+    loadFromFile(fname);
+    AssignTo(self);
+  finally
+    free;
+  end;
   //
   btnFind.Action := fActFindNext;
   btnReplace.Action := fActReplaceNext;
@@ -100,40 +201,18 @@ end;
 
 destructor TCESearchWidget.Destroy;
 begin
+  with TCESearchOptions.create(nil) do
+  try
+    Assign(self);
+    saveToFile(getCoeditDocPath + OptsFname);
+  finally
+    free;
+  end;
+  //
   EntitiesConnector.removeObserver(self);
   fSearchMru.Free;
   fReplaceMru.Free;
   inherited;
-end;
-{$ENDREGION}
-
-{$REGION ICESessionOptionsObserver ---------------------------------------------}
-procedure TCESearchWidget.sesoptDeclareProperties(aFiler: TFiler);
-begin
-  inherited;
-  aFiler.DefineProperty(Name + '_FindMRU', @optset_SearchMru, @optget_SearchMru, true);
-  aFiler.DefineProperty(Name + '_ReplaceMRU', @optset_ReplaceMru, @optget_ReplaceMru, true);
-end;
-
-procedure TCESearchWidget.optset_SearchMru(aReader: TReader);
-begin
-  fSearchMru.DelimitedText := aReader.ReadString;
-  cbToFind.Items.DelimitedText := fSearchMru.DelimitedText;
-end;
-
-procedure TCESearchWidget.optget_SearchMru(aWriter: TWriter);
-begin
-  aWriter.WriteString(fSearchMru.DelimitedText);
-end;
-
-procedure TCESearchWidget.optset_ReplaceMru(aReader: TReader);
-begin
-  fReplaceMru.DelimitedText := aReader.ReadString;
-  cbReplaceWth.Items.DelimitedText := fReplaceMru.DelimitedText ;
-end;
-procedure TCESearchWidget.optget_ReplaceMru(aWriter: TWriter);
-begin
-  aWriter.WriteString(fReplaceMru.DelimitedText);
 end;
 {$ENDREGION}
 

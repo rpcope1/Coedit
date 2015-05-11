@@ -133,9 +133,9 @@ inherited CESearchWidget: TCESearchWidget
         TabOrder = 3
         object chkWWord: TCheckBox
           Left = 8
-          Height = 21
+          Height = 23
           Top = 0
-          Width = 84
+          Width = 86
           Caption = 'whole word'
           Checked = True
           State = cbChecked
@@ -143,17 +143,17 @@ inherited CESearchWidget: TCESearchWidget
         end
         object chkBack: TCheckBox
           Left = 8
-          Height = 21
+          Height = 23
           Top = 24
-          Width = 73
+          Width = 75
           Caption = 'backward'
           TabOrder = 2
         end
         object chkFromCur: TCheckBox
           Left = 8
-          Height = 21
+          Height = 23
           Top = 48
-          Width = 84
+          Width = 86
           Caption = 'from cursor'
           Checked = True
           State = cbChecked
@@ -161,25 +161,25 @@ inherited CESearchWidget: TCESearchWidget
         end
         object chkCaseSens: TCheckBox
           Left = 128
-          Height = 21
+          Height = 23
           Top = 0
-          Width = 93
+          Width = 95
           Caption = 'case sensitive'
           TabOrder = 4
         end
         object chkPrompt: TCheckBox
           Left = 128
-          Height = 21
+          Height = 23
           Top = 24
-          Width = 62
+          Width = 64
           Caption = 'prompt'
           TabOrder = 1
         end
         object chkRegex: TCheckBox
           Left = 128
-          Height = 21
+          Height = 23
           Top = 48
-          Width = 117
+          Width = 119
           Caption = 'regular expression'
           Checked = True
           State = cbChecked
@@ -244,10 +244,10 @@ inherited CESearchWidget: TCESearchWidget
         ClientWidth = 386
         TabOrder = 5
         object cbReplaceWth: TComboBox
-          Left = 92
+          Left = 94
           Height = 23
           Top = 0
-          Width = 294
+          Width = 292
           Align = alClient
           Anchors = [akTop, akLeft, akBottom]
           ItemHeight = 15
@@ -258,7 +258,7 @@ inherited CESearchWidget: TCESearchWidget
           Left = 0
           Height = 23
           Top = 0
-          Width = 92
+          Width = 94
           Align = alLeft
           Caption = 'Replace with '
           OnChange = chkEnableRepChange
