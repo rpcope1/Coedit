@@ -5,8 +5,8 @@ unit ce_main;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, SynEditKeyCmds, SynHighlighterLFM, Forms,
-  AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls, Graphics,
+  Classes, SysUtils, FileUtil, SynEditKeyCmds, SynHighlighterLFM, Forms, StdCtrls,
+  AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls, Graphics, strutils,
   Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, SynExportHTML,
   ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_synmemo, ce_writableComponent,
   ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
@@ -34,6 +34,7 @@ type
     actFileHtmlExport: TAction;
     actFileUnittest: TAction;
     actFileCompileAndRunOut: TAction;
+    actSetRunnableSw: TAction;
     actLayoutSave: TAction;
     actProjOpenContFold: TAction;
     actProjOptView: TAction;
@@ -122,6 +123,8 @@ type
     MenuItem64: TMenuItem;
     MenuItem65: TMenuItem;
     MenuItem66: TMenuItem;
+    MenuItem67: TMenuItem;
+    MenuItem68: TMenuItem;
     mnuLayout: TMenuItem;
     mnuItemMruFile: TMenuItem;
     mnuItemMruProj: TMenuItem;
@@ -132,6 +135,7 @@ type
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
+    procedure actSetRunnableSwExecute(Sender: TObject);
     procedure updateDocumentBasedAction(sender: TObject);
     procedure updateProjectBasedAction(sender: TObject);
     procedure updateDocEditBasedAction(sender: TObject);
@@ -1351,6 +1355,53 @@ begin
   inph := EntitiesConnector.getSingleService('ICEProcInputHandler');
   if (inph <> nil) then
     (inph as ICEProcInputHandler).removeProcess(proc);
+end;
+
+procedure TCEMainForm.actSetRunnableSwExecute(Sender: TObject);
+var
+  form: TForm;
+  memo: TMemo;
+  i, j: integer;
+  cur: string;
+begin
+  if fRunnableSw = '' then
+    fRunnableSw := '-vcolumns'#13'-w'#13'-wi';
+  form := TForm.Create(nil);
+  form.BorderIcons:= [biSystemMenu];
+  memo := TMemo.Create(form);
+  memo.Align := alClient;
+  memo.BorderSpacing.Around:=4;
+  memo.Text := fRunnableSw;
+  memo.Parent := form;
+  form.ShowModal;
+  //
+  fRunnableSw := '';
+  for i := memo.Lines.Count-1 downto 0 do
+  begin
+    cur := memo.Lines.Strings[i];
+    // duplicated item
+    j := memo.Lines.IndexOf(cur);
+    if (j > -1) and (j < i) then
+      continue;
+    // not a switch
+    if length(cur) < 2 then
+      continue;
+    if cur[1] <> '-' then
+      continue;
+    // added dynamically when needed
+    if cur = '-unittest' then
+      continue;
+    if cur = '-main' then
+      continue;
+    RemoveTrailingChars(cur, [#0..#30]);
+    fRunnableSw += (cur + #13);
+  end;
+  if (fRunnableSw <> '') and (fRunnableSw[length(fRunnableSw)] = #13) then
+    fRunnableSw := fRunnableSw[1..length(fRunnableSw)-1];
+  if fRunnableSw = '' then
+    fRunnableSw := '-vcolumns'#13'-w'#13'-wi';
+  //
+  form.Free;
 end;
 
 procedure TCEMainForm.compileAndRunFile(unittest: boolean = false; redirect: boolean = true;
