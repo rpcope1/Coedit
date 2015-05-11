@@ -769,8 +769,9 @@ begin
     exit;
   //
   fname := fRunProc.Executable;
-  if ExtractFileDir(fname) <> GetTempDir(false) then
-    exit;
+  if getprocInputHandler.process = fRunProc  then
+    getMessageDisplay.message('the execution of a runnable module ' +
+      'has been implicitly aborted', fDoc, amcEdit, amkWarn);
   killProcess(fRunProc);
   if fileExists(fname) then
     sysutils.DeleteFile(fname);
@@ -1359,6 +1360,7 @@ var
   fname: string;
 begin
 
+  fMsgs.clearByData(fDoc);
   FreeRunnableProc;
   if fDoc = nil then exit;
 
@@ -1379,7 +1381,6 @@ begin
   dmdproc := TProcess.Create(nil);
   try
 
-    fMsgs.clearByData(fDoc);
     fMsgs.message('compiling ' + shortenPath(fDoc.fileName, 25), fDoc, amcEdit, amkInf);
 
     if fileExists(fDoc.fileName) then fDoc.save
