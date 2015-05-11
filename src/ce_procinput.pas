@@ -28,6 +28,7 @@ type
     function singleServiceName: string;
     procedure addProcess(aProcess: TProcess);
     procedure removeProcess(aProcess: TProcess);
+    function process(): TProcess;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -102,6 +103,11 @@ procedure TCEProcInputWidget.removeProcess(aProcess: TProcess);
 begin
   if fProc = aProcess then
     addProcess(nil);
+end;
+
+function TCEProcInputWidget.process(): TProcess;
+begin
+  exit(fProc);
 end;
 {$ENDREGION}
 

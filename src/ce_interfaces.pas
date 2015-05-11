@@ -218,8 +218,10 @@ type
   ICEProcInputHandler = interface(ICESingleService)
     // add an entry to the list of process which can receive an user input.
     procedure addProcess(aProcess: TProcess);
-    // remove an entry.
+    // removes an entry.
     procedure removeProcess(aProcess: TProcess);
+    // indicates the current process
+    function process(): TProcess;
   end;
 
 
