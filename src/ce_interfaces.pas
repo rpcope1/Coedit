@@ -11,28 +11,6 @@ uses
 type
 
   (**
-   * An implementer can save and load some stuffs when Coedit starts/quits
-   *)
-  ICESessionOptionsObserver = interface
-  ['ICESessionOptionsObserver']
-    // persistent things are about to be saved.
-    procedure sesoptBeforeSave;
-    // persistent things can be declared to aFiler.
-    procedure sesoptDeclareProperties(aFiler: TFiler);
-    // persistent things have just been reloaded.
-    procedure sesoptAfterLoad;
-  end;
-  (**
-   * An implementer gets and gives back some things
-   *)
-  TCESessionOptionsSubject = class(TCECustomSubject)
-  protected
-    function acceptObserver(aObject: TObject): boolean; override;
-  end;
-
-
-
-  (**
    * An implementer declares some actions on demand.
    *)
   ICEContextualActions = interface
@@ -268,12 +246,6 @@ type
   procedure subjProjFocused(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
   procedure subjProjChanged(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
   procedure subjProjCompiling(aSubject: TCEProjectSubject; aProj: TCEProject);{$IFDEF RELEASE}inline;{$ENDIF}
-  (**
-   * TCESessionOptionsSubject primitives.
-   *)
-  procedure subjSesOptsBeforeSave(aSubject: TCESessionOptionsSubject);                       {$IFDEF RELEASE}inline;{$ENDIF}
-  procedure subjSesOptsDeclareProperties(aSubject: TCESessionOptionsSubject; aFiler: TFiler);{$IFDEF RELEASE}inline;{$ENDIF}
-  procedure subjSesOptsAfterLoad(aSubject: TCESessionOptionsSubject);                        {$IFDEF RELEASE}inline;{$ENDIF}
 
 
 {
@@ -378,37 +350,6 @@ var
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
     (fObservers.Items[i] as ICEProjectObserver).projCompiling(aProj);
-end;
-{$ENDREGION}
-
-{$REGION TCESessionOptionsSubject ----------------------------------------------}
-function TCESessionOptionsSubject.acceptObserver(aObject: TObject): boolean;
-begin
-  exit(aObject is ICESessionOptionsObserver);
-end;
-
-procedure subjSesOptsBeforeSave(aSubject: TCESessionOptionsSubject);
-var
-  i: Integer;
-begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICESessionOptionsObserver).sesoptBeforeSave;
-end;
-
-procedure subjSesOptsDeclareProperties(aSubject: TCESessionOptionsSubject; aFiler: TFiler);
-var
-  i: Integer;
-begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICESessionOptionsObserver).sesoptDeclareProperties(aFiler);
-end;
-
-procedure subjSesOptsAfterLoad(aSubject: TCESessionOptionsSubject);
-var
-  i: Integer;
-begin
-  with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICESessionOptionsObserver).sesoptAfterLoad;
 end;
 {$ENDREGION}
 
