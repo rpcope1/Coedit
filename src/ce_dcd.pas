@@ -233,6 +233,8 @@ begin
   fTempLines.Assign(fDoc.Lines);
   fTempLines.SaveToFile(fDoc.tempFilename);
   //
+  terminateClient;
+  //
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-c');
   fClient.Parameters.Add(intToStr(fDoc.SelStart - 1));
@@ -259,6 +261,8 @@ begin
   //
   fTempLines.Assign(fDoc.Lines);
   fTempLines.SaveToFile(fDoc.tempFilename);
+  //
+  terminateClient;
   //
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-c');
@@ -312,6 +316,8 @@ begin
   fTempLines.Assign(fDoc.Lines);
   fTempLines.SaveToFile(fDoc.tempFilename);
   //
+  terminateClient;
+  //
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-d');
   fClient.Parameters.Add('-c');
@@ -335,6 +341,8 @@ begin
   //
   fTempLines.Assign(fDoc.Lines);
   fTempLines.SaveToFile(fDoc.tempFilename);
+  //
+  terminateClient;
   //
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-l');
