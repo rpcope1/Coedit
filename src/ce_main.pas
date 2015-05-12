@@ -423,12 +423,13 @@ begin
   fMultidoc := getMultiDocHandler;
   //
   checkCompilo;
-  getCMdParams;
   //
   updateMainMenuProviders;
   EntitiesConnector.forceUpdate;
   //
+  getCMdParams;
   if fProject = nil then newProj;
+  //
   fInitialized := true;
 end;
 
