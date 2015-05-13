@@ -287,7 +287,7 @@ type
     procedure UpdateDockCaption(Exclude: TControl = nil); override;
   end;
 
-  TCEPersistentMainShortcut = class(TCollectionItem)
+  TCEPersistentShortcut = class(TCollectionItem)
   private
     fShortcut: TShortCut;
     fActionName: string;
@@ -336,7 +336,7 @@ uses
 constructor TCEPersistentMainShortcuts.create(aOwner: TComponent);
 begin
   inherited;
-  fCol := TCollection.Create(TCEPersistentMainShortcut);
+  fCol := TCollection.Create(TCEPersistentShortcut);
 end;
 
 destructor TCEPersistentMainShortcuts.destroy;
@@ -352,7 +352,7 @@ end;
 
 procedure TCEPersistentMainShortcuts.assign(aValue: TPersistent);
 var
-  itm: TCEPersistentMainShortcut;
+  itm: TCEPersistentShortcut;
   i: Integer;
 begin
   fCol.Clear;
@@ -361,7 +361,7 @@ begin
     begin
       if CEMainForm.Actions.Actions[i].Owner <> CEMainForm then
         continue;
-      itm := TCEPersistentMainShortcut(fCol.Add);
+      itm := TCEPersistentShortcut(fCol.Add);
       itm.shortcut := TAction(CEMainForm.Actions.Actions[i]).Shortcut;
       itm.actionName := CEMainForm.Actions.Actions[i].Name;
     end
@@ -370,13 +370,13 @@ end;
 
 procedure TCEPersistentMainShortcuts.assignTo(aValue: TPersistent);
 var
-  itm: TCEPersistentMainShortcut;
+  itm: TCEPersistentShortcut;
   i, j: Integer;
 begin
   if aValue = CEMainForm then
     for i:= 0 to fCol.Count-1 do
     begin
-      itm := TCEPersistentMainShortcut(fCol.Items[i]);
+      itm := TCEPersistentShortcut(fCol.Items[i]);
       for j := 0 to CEMainForm.Actions.ActionCount-1 do
         if CEMainForm.Actions.Actions[i].Name = itm.actionName then
         begin
@@ -1886,5 +1886,5 @@ end;
 {$ENDREGION}
 
 initialization
-  registerClasses([TCEPersistentMainShortcut, TCEPersistentMainShortcuts]);
+  registerClasses([TCEPersistentShortcut, TCEPersistentMainShortcuts]);
 end.
