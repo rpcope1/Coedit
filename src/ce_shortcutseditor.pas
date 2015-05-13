@@ -22,6 +22,7 @@ type
     property data: TShortcut read fData write fData;
   public
     function combination: string;
+    procedure assign(aValue: TPersistent); override;
   end;
 
   TShortCutCollection = class(TWritableLfmTextComponent)
@@ -35,6 +36,7 @@ type
   public
     constructor create(AOwner: TComponent); override;
     destructor destroy; override;
+    procedure assign(aValue: TPersistent); override;
     //
     function findIdentifier(const identifier: string): boolean;
     function findShortcut(aShortcut: Word): boolean;
@@ -43,7 +45,10 @@ type
     property item[index: Integer]: TShortcutItem read getItem; default;
   end;
 
+  { TCEShortcutEditor }
+
   TCEShortcutEditor = class(TFrame, ICEEditableOptions)
+    btnClear: TSpeedButton;
     shortcutCatcher: TEdit;
     Panel1: TPanel;
     fltItems: TTreeFilterEdit;
@@ -52,6 +57,7 @@ type
     btnActivate: TSpeedButton;
     tree: TTreeView;
     procedure btnActivateClick(Sender: TObject);
+    procedure btnClearClick(Sender: TObject);
     procedure LabeledEdit1KeyDown(Sender: TObject; var Key: Word;Shift: TShiftState);
     procedure shortcutCatcherExit(Sender: TObject);
     procedure shortcutCatcherMouseLeave(Sender: TObject);
@@ -89,6 +95,20 @@ begin
   result := ShortCutToText(fData);
 end;
 
+procedure TShortcutItem.assign(aValue: TPersistent);
+var
+  src: TShortcutItem;
+begin
+  if aValue is TShortcutItem then
+  begin
+    src := TShortcutItem(aValue);
+    fData:= src.fData;
+    fIdentifier:= src.fIdentifier;
+    fDeclarator := src.fDeclarator;
+  end
+  else inherited;
+end;
+
 constructor TShortCutCollection.create(AOwner: TComponent);
 begin
   inherited;
@@ -99,6 +119,14 @@ destructor TShortCutCollection.destroy;
 begin
   fItems.Free;
   inherited;
+end;
+
+procedure TShortCutCollection.assign(aValue: TPersistent);
+begin
+  if aValue is TShortCutCollection then
+    fItems.Assign(TShortCutCollection(aValue).fItems)
+  else
+    inherited;
 end;
 
 procedure TShortCutCollection.setItems(aValue: TCollection);
@@ -144,7 +172,8 @@ begin
   fObservers := TCEEditableShortCutSubject.create;
   fShortcuts := TShortCutCollection.create(self);
   fBackup := TShortCutCollection.create(self);
-  //
+  // note: icon data not yet ready during init of this unit.
+  // cant be used for btnClear.
   EntitiesConnector.addObserver(self);
 end;
 
@@ -192,8 +221,8 @@ procedure TCEShortcutEditor.optionedEvent(anEvent: TOptionEditorEvent);
 begin
   case anEvent of
     oeeSelectCat: updateFromObservers;
+    //TODO-cfeature: cancel modifications using fBackup
   end;
-  // other events are not called when the option editor is not oekGeneric.
 end;
 {$ENDREGION}
 
@@ -222,6 +251,20 @@ begin
   if tree.Selected.Data = nil then exit;
   //
   shortcutCatcher.Enabled := not shortcutCatcher.Enabled;
+end;
+
+procedure TCEShortcutEditor.btnClearClick(Sender: TObject);
+begin
+  if tree.Selected = nil then exit;
+  if tree.Selected.Level = 0 then exit;
+  if tree.Selected.Data = nil then exit;
+  //
+  TShortcutItem(tree.Selected.Data).data := 0;
+  TShortcutItem(tree.Selected.Data).declarator.scedSendItem(
+    tree.Selected.Parent.Text,
+    tree.Selected.Text, 0);
+  //
+  updateEditCtrls;
 end;
 
 procedure TCEShortcutEditor.LabeledEdit1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -318,6 +361,7 @@ begin
     end;
   end;
   tree.Items.SortTopLevelNodes(@sortCategories);
+  fBackup.Assign(fShortcuts);
 end;
 {$ENDREGION}
 
