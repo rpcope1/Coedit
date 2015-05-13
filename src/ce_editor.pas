@@ -22,7 +22,7 @@ type
 
   { TCEEditorWidget }
 
-  TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler, ICEEditableShortCut)
+  TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler)
     PageControl: TExtendedNotebook;
     macRecorder: TSynMacroRecorder;
     editorStatus: TStatusBar;
@@ -40,7 +40,6 @@ type
     fTokList: TLexTokenList;
     fErrList: TLexErrorList;
     fModStart: boolean;
-    fShortcutCount: Integer;
     {$IFDEF LINUX}
     procedure pageCloseBtnClick(Sender: TObject);
     {$ENDIF}
@@ -66,10 +65,6 @@ type
     function findDocument(aFilename: string): TCESynMemo;
     procedure openDocument(aFilename: string);
     function closeDocument(index: Integer): boolean;
-    //
-    function scedWantFirst: boolean;
-    function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
-    procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -243,32 +238,6 @@ begin
     [shortenPath(doc.fileName,25)])) = mrCancel then exit(false);
   doc.Free;
   result := true;
-end;
-{$ENDREGION}
-
-{$REGION ICEEDitableShortcut ---------------------------------------------------}
-function TCEEditorWidget.scedWantFirst: boolean;
-begin
-  result := fDoc <> nil;
-  fShortcutCount := 0;
-end;
-
-function TCEEditorWidget.scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
-var
-  shrct: TSynEditKeyStroke;
-begin
-  shrct     := fDoc.Keystrokes.Items[fShortcutCount];
-  category  := 'Editor';
-  identifier:= shrct.DisplayName;
-  aShortcut := Shortcut(shrct.Key, shrct.Shift);
-  //
-  fShortcutCount += 1;
-  result := fShortcutCount < fDoc.Keystrokes.Count;
-end;
-
-procedure TCEEditorWidget.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
-begin
-
 end;
 {$ENDREGION}
 
