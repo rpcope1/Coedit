@@ -60,6 +60,8 @@ type
   published
     property shortcut: TShortCut read fShortcut write fShortcut;
     property actionName: string read fActionName write fActionName;
+  public
+    procedure assign(aValue: TPersistent); override;
   end;
 
   (**
@@ -212,6 +214,19 @@ type
 
 
 implementation
+
+procedure TCEPersistentShortcut.assign(aValue: TPersistent);
+var
+  src: TCEPersistentShortcut;
+begin
+  if aValue is TCEPersistentShortcut then
+  begin
+    src := TCEPersistentShortcut(Avalue);
+    fActionName := src.fActionName;
+    fShortcut := src.fShortcut;
+  end
+  else inherited;
+end;
 
 {$IFDEF LINUX}
 constructor TCheckedAsyncProcess.Create(aOwner: TComponent);
