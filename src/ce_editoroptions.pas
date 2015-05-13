@@ -6,6 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Graphics, SynEdit, SynEditMouseCmds, SynEditMiscClasses,
+  SynEditKeyCmds, Menus,
   ce_interfaces, ce_observer, ce_common, ce_writableComponent, ce_synmemo,
   ce_d2syn, ce_txtsyn;
 
@@ -27,6 +28,8 @@ type
     // but expose it as a published TPersistent.
     fD2Syn: TPersistent;
     fTxtSyn: TPersistent;
+    //
+    fShortCuts: TCollection;
     //
     fSelCol: TSynSelectedColor;
     fFoldedColor: TSynSelectedColor;
@@ -52,6 +55,7 @@ type
     procedure setBracketMatchColor(aValue: TSynSelectedColor);
     procedure setD2Syn(aValue: TPersistent);
     procedure setTxtSyn(aValue: TPersistent);
+    procedure setShortcuts(Avalue: TCollection);
   published
     property bracketMatchColor: TSynSelectedColor read fBracketMatchColor write setBracketMatchColor;
     property mouseLinkColor: TSynSelectedColor read fMouseLinkColor write setMouseLinkColor;
@@ -70,6 +74,7 @@ type
     property mouseOptions: TSynEditorMouseOptions read fMouseOptions write fMouseOptions;
     property D2Highlighter: TPersistent read fD2Syn write setD2Syn;
     property TxtHighlighter: TPersistent read fTxtSyn write setTxtSyn;
+    property shortcuts: TCollection read fShortCuts write setShortcuts;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -81,9 +86,10 @@ type
    * Manages and exposes all the editor and highligther options to an TCEOptionsEditor.
    * It's also responsible to give the current options to a new editor.
    *)
-  TCEEditorOptions = class(TCEEditorOptionsBase, ICEEditableOptions, ICEMultiDocObserver)
+  TCEEditorOptions = class(TCEEditorOptionsBase, ICEEditableOptions, ICEMultiDocObserver, ICEEDitableShortcut)
   private
     fBackup: TCEEditorOptionsBase;
+    fShortcutCount: Integer;
     //
     function optionedWantCategory(): string;
     function optionedWantEditorKind: TOptionEditorKind;
@@ -94,6 +100,10 @@ type
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
+    //
+    function scedWantFirst: boolean;
+    function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
+    procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
     //
     procedure applyChangesFromSelf;
     procedure applyChangeToEditor(anEditor: TCESynMemo);
@@ -114,6 +124,9 @@ var
 
 {$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCEEditorOptionsBase.Create(AOwner: TComponent);
+var
+  i: integer;
+  shc: TCEPersistentShortcut;
 begin
   inherited;
   //
@@ -160,12 +173,28 @@ begin
   //
   mouseOptions := MouseOptions +
     [emAltSetsColumnMode, emDragDropEditing, emCtrlWheelZoom, emShowCtrlMouseLinks];
+  //
+  fShortCuts := TCollection.Create(TCEPersistentShortcut);
+  with TSynEdit.Create(nil) do
+  try
+    // note cant use a TCESynMemo because it'd be added to the EntitiesConnector
+    SetDefaultKeystrokes;
+    for i:= 0 to Keystrokes.Count-1 do
+    begin
+      shc := TCEPersistentShortcut(fShortCuts.Add);
+      shc.actionName:= EditorCommandToCodeString(Keystrokes.Items[i].Command);
+      shc.shortcut  := Keystrokes.Items[i].ShortCut;
+    end;
+  finally
+    free;
+  end;
 end;
 
 destructor TCEEditorOptionsBase.Destroy;
 begin
   fFont.Free;
   fSelCol.Free;
+  fShortCuts.Free;
   fFoldedColor.Free;
   fMouseLinkColor.Free;
   fBracketMatchColor.Free;
@@ -197,9 +226,15 @@ begin
     mouseOptions := srcopt.mouseOptions;
     rightEdge := srcopt.rightEdge;
     rightEdgeColor := srcopt.rightEdgeColor;
+    fShortCuts.Assign(srcopt.fShortCuts);
   end
   else
     inherited;
+end;
+
+procedure TCEEditorOptionsBase.setShortcuts(aValue: TCollection);
+begin
+  fShortCuts.Assign(aValue);
 end;
 
 procedure TCEEditorOptionsBase.setFont(aValue: TFont);
@@ -264,7 +299,6 @@ begin
   D2Syn.Assign(fD2Syn);
   TxtSyn.Assign(fTxtSyn);
 end;
-
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ----------------------------------------------------}
@@ -284,7 +318,44 @@ end;
 procedure TCEEditorOptions.docClosing(aDoc: TCESynMemo);
 begin
 end;
+{$ENDREGION}
 
+{$REGION ICEEDitableShortcut ---------------------------------------------------}
+function TCEEditorOptions.scedWantFirst: boolean;
+begin
+  result := fShortCuts.Count > 0;
+  fShortcutCount := 0;
+end;
+
+function TCEEditorOptions.scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
+var
+  shrct: TCEPersistentShortcut;
+begin
+  shrct     := TCEPersistentShortcut(fShortCuts.Items[fShortcutCount]);
+  category  := 'Code editor';
+  identifier:= shrct.actionName;
+  aShortcut := shrct.shortcut;
+  //
+  fShortcutCount += 1;
+  result := fShortcutCount < fShortCuts.Count;
+end;
+
+procedure TCEEditorOptions.scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+var
+  i: Integer;
+  shc: TCEPersistentShortcut;
+begin
+  if category <> 'Code editor' then exit;
+  //
+  for i:= 0 to fShortCuts.Count-1 do
+  begin
+    shc := TCEPersistentShortcut(fShortCuts.Items[i]);
+    if shc.actionName <> identifier then
+      continue;
+    shc.shortcut:= aShortcut;
+    break;
+  end;
+end;
 {$ENDREGION}
 
 {$REGION ICEEditableOptions ----------------------------------------------------}
@@ -344,6 +415,10 @@ begin
 end;
 
 procedure TCEEditorOptions.applyChangeToEditor(anEditor: TCESynMemo);
+var
+  i, j: Integer;
+  shc: TCEPersistentShortcut;
+  kst: TSynEditKeyStroke;
 begin
   anEditor.defaultFontSize := font.Size;
   anEditor.Font.Assign(font);
@@ -361,6 +436,25 @@ begin
   anEditor.Color := background;
   anEditor.RightEdge := rightEdge;
   anEditor.RightEdgeColor := rightEdgeColor;
+  for i := 0 to anEditor.Keystrokes.Count-1 do
+  begin
+    kst := anEditor.Keystrokes.Items[i];
+    for j := 0 to fShortCuts.Count-1 do
+    begin
+      shc := TCEPersistentShortcut(fShortCuts.Items[j]);
+      if shc.actionName = EditorCommandToCodeString(kst.Command) then
+      begin
+        try
+          kst.ShortCut := shc.shortcut;
+        except
+          //TODO-cfeaure: manage shortcuts conflicts
+          //either here or a the shortcut editor level
+          // by default and if a conflict exists synedit will raise an exception here.
+        end;
+        break;
+      end;
+    end;
+  end;
 end;
 
 {$ENDREGION}
