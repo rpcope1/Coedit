@@ -355,6 +355,9 @@ begin
     shc.shortcut:= aShortcut;
     break;
   end;
+  // note: shortcut modifications are not reversible,
+  // they are sent from another option editor.
+  applyChangesFromSelf;
 end;
 {$ENDREGION}
 
