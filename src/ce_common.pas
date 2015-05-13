@@ -51,6 +51,18 @@ type
   end;
 
   (**
+   * CollectionItem used to store a shortcut.
+   *)
+  TCEPersistentShortcut = class(TCollectionItem)
+  private
+    fShortcut: TShortCut;
+    fActionName: string;
+  published
+    property shortcut: TShortCut read fShortcut write fShortcut;
+    property actionName: string read fActionName write fActionName;
+  end;
+
+  (**
    * Save a component with a readable aspect.
    *)
   procedure saveCompToTxtFile(const aComp: TComponent; const aFilename: string);
@@ -196,7 +208,8 @@ type
   (**
    * Returns the common folder of the file names stored in aList
    *)
-   function commonFolder(const someFiles: TStringList): string;
+  function commonFolder(const someFiles: TStringList): string;
+
 
 implementation
 
@@ -890,6 +903,7 @@ end;
 initialization
   dExtList := TStringList.Create;
   dExtList.AddStrings(['.d', '.D', '.di', '.DI', '.Di', '.dI', '.dd', '.DD']);
+  registerClasses([TCEPersistentShortcut]);
 finalization
   dExtList.Free;
 end.

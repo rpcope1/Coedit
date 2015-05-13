@@ -287,15 +287,6 @@ type
     procedure UpdateDockCaption(Exclude: TControl = nil); override;
   end;
 
-  TCEPersistentShortcut = class(TCollectionItem)
-  private
-    fShortcut: TShortCut;
-    fActionName: string;
-  published
-    property shortcut: TShortCut read fShortcut write fShortcut;
-    property actionName: string read fActionName write fActionName;
-  end;
-
   TCEPersistentMainShortcuts = class(TWritableLfmTextComponent)
   private
     fCol: TCollection;
@@ -1886,5 +1877,5 @@ end;
 {$ENDREGION}
 
 initialization
-  registerClasses([TCEPersistentShortcut, TCEPersistentMainShortcuts]);
+  registerClasses([TCEPersistentMainShortcuts]);
 end.
