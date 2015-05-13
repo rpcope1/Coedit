@@ -202,6 +202,7 @@ end;
 constructor TCEMessagesWidget.create(aOwner: TComponent);
 var
   fname: string;
+  png: TPortableNetworkGraphic;
 begin
   fMaxMessCnt := 500;
   fCtxt := amcAll;
@@ -249,6 +250,13 @@ begin
   fBtns[amcProj]:= btnSelProj;
   //
   btnClearCat.OnClick := @actClearCurCatExecute;
+  png:= TPortableNetworkGraphic.Create;
+  try
+    png.LoadFromLazarusResource('clean');
+    btnClearCat.Glyph.Assign(png);
+  finally
+    png.free;
+  end;
   //
   fname := getCoeditDocPath + optname;
   if fileExists(fname) then
