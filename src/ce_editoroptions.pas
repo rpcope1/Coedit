@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Graphics, SynEdit, SynEditMouseCmds, SynEditMiscClasses,
-  SynEditKeyCmds, Menus,
+  SynEditKeyCmds, Menus, LCLProc,
   ce_interfaces, ce_observer, ce_common, ce_writableComponent, ce_synmemo,
   ce_d2syn, ce_txtsyn;
 
@@ -127,6 +127,7 @@ constructor TCEEditorOptionsBase.Create(AOwner: TComponent);
 var
   i: integer;
   shc: TCEPersistentShortcut;
+  ed: TSynEdit;
 begin
   inherited;
   //
@@ -175,18 +176,18 @@ begin
     [emAltSetsColumnMode, emDragDropEditing, emCtrlWheelZoom, emShowCtrlMouseLinks];
   //
   fShortCuts := TCollection.Create(TCEPersistentShortcut);
-  with TSynEdit.Create(nil) do
+  ed := TSynEdit.Create(nil);
   try
-    // note cant use a TCESynMemo because it'd be added to the EntitiesConnector
-    SetDefaultKeystrokes;
-    for i:= 0 to Keystrokes.Count-1 do
+    // note: cant use a TCESynMemo because it'd be added to the EntitiesConnector
+    SetDefaultCoeditKeystrokes(ed);
+    for i:= 0 to ed.Keystrokes.Count-1 do
     begin
       shc := TCEPersistentShortcut(fShortCuts.Add);
-      shc.actionName:= EditorCommandToCodeString(Keystrokes.Items[i].Command);
-      shc.shortcut  := Keystrokes.Items[i].ShortCut;
+      shc.actionName:= EditorCommandToCodeString(ed.Keystrokes.Items[i].Command);
+      shc.shortcut  := ed.Keystrokes.Items[i].ShortCut;
     end;
   finally
-    free;
+    ed.free;
   end;
 end;
 
@@ -448,10 +449,12 @@ begin
       if shc.actionName = EditorCommandToCodeString(kst.Command) then
       begin
         try
+          // if anEditor.Keystrokes.FindShortcut();
+          // try to find, if not match cur action, set to 0
           kst.ShortCut := shc.shortcut;
         except
-          //TODO-cfeaure: manage shortcuts conflicts
-          //either here or a the shortcut editor level
+          // TODO-cfeaure: manage shortcuts conflicts
+          // either here or in the shortcut editor.
           // by default and if a conflict exists synedit will raise an exception here.
         end;
         break;
