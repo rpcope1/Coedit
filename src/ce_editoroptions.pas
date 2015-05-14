@@ -453,6 +453,8 @@ begin
           // try to find, if not match cur action, set to 0
           kst.ShortCut := shc.shortcut;
         except
+          kst.ShortCut := 0;
+          shc.shortcut := 0;
           // TODO-cfeaure: manage shortcuts conflicts
           // either here or in the shortcut editor.
           // by default and if a conflict exists synedit will raise an exception here.
