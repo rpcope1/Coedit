@@ -181,7 +181,7 @@ begin
     root := ExtractFileDir(root);
     if root = '' then
     begin
-      dlgOkInfo('the static library can not be registered because its sources files has not a common folder');
+      dlgOkInfo('the static library can not be registered because its source files have no common folder');
       exit;
     end;
     //
