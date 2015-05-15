@@ -6,11 +6,11 @@ interface
 
 uses
 
-  Classes, SysUtils, ExtCtrls,
+  Classes, SysUtils,
   {$IFDEF WINDOWS}
   Windows, JwaTlHelp32,
   {$ENDIF}
-  ActnList, dialogs, forms, process, asyncprocess;
+  dialogs, forms, process, asyncprocess;
 
 const
 
