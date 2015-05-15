@@ -1152,13 +1152,11 @@ begin
   fName := aValue;
   if fName = '' then
     fName := nameFromID;
-  Changed(true);
   doChanged;
 end;
 
 procedure TCompilerConfiguration.subOptsChanged(sender: TObject);
 begin
-  Changed(true);
   doChanged;
 end;
 
