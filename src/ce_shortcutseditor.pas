@@ -167,13 +167,22 @@ end;
 
 {$REGION Standard Comp/Object things -------------------------------------------}
 constructor TCEShortcutEditor.create(TheOwner: TComponent);
+var
+  png: TPortableNetworkGraphic;
 begin
   inherited;
   fObservers := TCEEditableShortCutSubject.create;
   fShortcuts := TShortCutCollection.create(self);
   fBackup := TShortCutCollection.create(self);
-  // note: icon data not yet ready during init of this unit.
-  // cant be used for btnClear.
+  //
+  png := TPortableNetworkGraphic.Create;
+  try
+    png.LoadFromLazarusResource('clean');
+    btnClear.Glyph.Assign(png);
+  finally
+    png.free;
+  end;
+  //
   EntitiesConnector.addObserver(self);
 end;
 
