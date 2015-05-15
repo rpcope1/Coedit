@@ -160,9 +160,18 @@ procedure TCELibManEditorWidget.btnRegClick(Sender: TObject);
 var
   str: TStringList;
   root: string;
+  lalias: string;
   i: integer;
 begin
   if fProj = nil then exit;
+  //
+  lalias := ExtractFileNameOnly(fProj.Filename);
+  if List.Items.FindCaption(0, lalias, false, false, false) <> nil then
+  begin
+    dlgOkInfo(format('a library item with the alias "%s" already exists, delete it before trying again.',
+      [lalias]));
+    exit;
+  end;
   //
   str := TStringList.Create;
   try
@@ -171,7 +180,10 @@ begin
     root := commonFolder(str);
     root := ExtractFileDir(root);
     if root = '' then
+    begin
+      dlgOkInfo('the static library can not be registered because its sources files has not a common folder');
       exit;
+    end;
     //
     with List.Items.Add do
     begin
@@ -181,6 +193,8 @@ begin
       else
         SubItems.add(fProj.outputFilename);
       SubItems.add(root);
+      if not FileExists(SubItems[0]) then
+        dlgOkInfo('the library file does not exist, maybe the project not been already compiled ?');
       Selected:= true;
     end;
     SetFocus;
