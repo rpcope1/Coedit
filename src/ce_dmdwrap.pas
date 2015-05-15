@@ -68,16 +68,16 @@ type
   TMsgOpts = class(TOptsGroup)
   private
     fDepHandling : TDepHandling;
-    fVerb: boolean;
-    fWarn: boolean;
+    fVerbose: boolean;
+    fWarnings: boolean;
     fWarnEx: boolean;
     fVtls: boolean;
     fQuiet: boolean;
     fVgc: boolean;
     fCol: boolean;
     procedure setDepHandling(const aValue: TDepHandling);
-    procedure setVerb(const aValue: boolean);
-    procedure setWarn(const aValue: boolean);
+    procedure setVerbose(const aValue: boolean);
+    procedure setWarnings(const aValue: boolean);
     procedure setWarnEx(const aValue: boolean);
     procedure setVtls(const aValue: boolean);
     procedure setQuiet(const aValue: boolean);
@@ -85,8 +85,8 @@ type
     procedure setCol(const aValue: boolean);
   published
     property depreciationHandling: TDepHandling read fDepHandling write setDepHandling default warning;
-    property verbose: boolean read fVerb write setVerb default false;
-    property warnings: boolean read fWarn write setWarn default true;
+    property verbose: boolean read fVerbose write setVerbose default false;
+    property warnings: boolean read fWarnings write setWarnings default true;
     property additionalWarnings: boolean read fWarnEx write setWarnEx default false;
     property tlsInformations: boolean read fVtls write setVtls default false;
     property quiet: boolean read fQuiet write setQuiet default false;
@@ -120,25 +120,25 @@ type
   private
     fTrgKind: TTargetSystem;
     fBinKind: TBinaryKind;
-    fUt: boolean;
+    fUnittest: boolean;
     fVerIds: TStringList;
     fInline: boolean;
     fBoundsCheck: TBoundCheckKind;
     fOptimz: boolean;
     fGenStack: boolean;
-    fMain: boolean;
+    fAddMain: boolean;
     fRelease: boolean;
     fAllInst: boolean;
     fStackStomp: boolean;
     procedure setAllInst(const aValue: boolean);
-    procedure setUt(const aValue: boolean);
+    procedure setUnittest(const aValue: boolean);
     procedure setTrgKind(const aValue: TTargetSystem);
     procedure setBinKind(const aValue: TBinaryKind);
     procedure setInline(const aValue: boolean);
     procedure setBoundsCheck(const aValue: TBoundCheckKind);
     procedure setOptims(const aValue: boolean);
     procedure setGenStack(const aValue: boolean);
-    procedure setMain(const aValue: boolean);
+    procedure setAddMain(const aValue: boolean);
     procedure setRelease(const aValue: boolean);
     procedure setVerIds(const aValue: TStringList);
     procedure setStackStomp(const aValue: boolean);
@@ -149,9 +149,9 @@ type
     property boundsCheck: TBoundCheckKind read fBoundsCheck write setBoundsCheck default safeOnly;
     property optimizations: boolean read fOptimz write setOptims default false;
     property generateStackFrame: boolean read fGenStack write setGenStack default false;
-    property addMain: boolean read fMain write setMain default false;
+    property addMain: boolean read fAddMain write setAddMain default false;
     property release: boolean read fRelease write setRelease default false;
-    property unittest: boolean read fUt write setUt default false;
+    property unittest: boolean read fUnittest write setUnittest default false;
     property versionIdentifiers: TStringList read fVerIds write setVerIds;
     property generateAllTmpCode: boolean read fAllInst write setAllInst default false;
     property addStackStompCode: boolean read fStackStomp write setStackStomp default false;
@@ -167,27 +167,27 @@ type
    *)
   TDebugOpts = class(TOptsGroup)
   private
-    fDbg: boolean;
+    fDebug: boolean;
     fDbgD: boolean;
     fDbgC: boolean;
-    fMap: boolean;
+    fGenMap: boolean;
     fDbgIdents: TStringList;
     fDbgLevel: Integer;
     fForceDbgBool: boolean;
     procedure updateForceDbgBool;
-    procedure setDbg(const aValue: boolean);
+    procedure setDebug(const aValue: boolean);
     procedure setDbgD(const aValue: boolean);
     procedure setDbgC(const aValue: boolean);
-    procedure setMap(const aValue: boolean);
+    procedure setGenMap(const aValue: boolean);
     procedure setDbgLevel(const aValue: Integer);
     procedure setDbgIdents(const aValue: TStringList);
   published
-    property debug: boolean read fDbg write setDbg default false;
+    property debug: boolean read fDebug write setDebug default false;
     property debugIdentifiers: TStringList read fDbgIdents write setDbgIdents;
     property debugLevel: Integer read fDbgLevel write setDbgLevel default 0;
     property codeviewDexts: boolean read fDbgD write setDbgD default false;
     property codeviewCformat: boolean read fDbgC write setDbgC default false;
-    property generateMapFile: boolean read fMap write setMap default false;
+    property generateMapFile: boolean read fGenMap write setGenMap default false;
   public
     constructor create;
     destructor destroy; override;
@@ -381,6 +381,7 @@ begin
   if (aValue is TDocOpts) then
   begin
     src       := TDocOpts(aValue);
+    //
     fGenDoc   := src.fGenDoc;
     fGenJson  := src.fGenJson;
     fDocDir   := patchPlateformPath(src.fDocDir);
@@ -442,7 +443,7 @@ end;
 constructor TMsgOpts.create;
 begin
   fDepHandling := TDepHandling.warning;
-  fWarn := true;
+  fWarnings := true;
 end;
 
 procedure TMsgOpts.getOpts(const aList: TStrings);
@@ -453,8 +454,8 @@ const
 begin
   opt := DepStr[fDepHandling];
   if opt <> '' then aList.Add(opt);
-  if fVerb then aList.Add('-v');
-  if fWarn then aList.Add('-w');
+  if fVerbose then aList.Add('-v');
+  if fWarnings then aList.Add('-w');
   if fWarnEx then aList.Add('-wi');
   if fVtls then aList.Add('-vtls');
   if fQuiet then aList.Add('-quiet');
@@ -469,14 +470,15 @@ begin
   if (aValue is TMsgOpts) then
   begin
     src := TMsgOpts(aValue);
+    //
     fDepHandling := src.fDepHandling;
-    fVerb   := src.fVerb;
-    fWarn   := src.fWarn;
-    fWarnEx := src.fWarnEx;
-    fVtls   := src.fVtls;
-    fQuiet  := src.fQuiet;
-    fVgc    := src.fVgc;
-    fCOl    := src.fCol;
+    fVerbose  := src.fVerbose;
+    fWarnings := src.fWarnings;
+    fWarnEx   := src.fWarnEx;
+    fVtls     := src.fVtls;
+    fQuiet    := src.fQuiet;
+    fVgc      := src.fVgc;
+    fCol      := src.fCol;
   end
   else inherited;
 end;
@@ -488,17 +490,17 @@ begin
   doChanged;
 end;
 
-procedure TMsgOpts.setVerb(const aValue: boolean);
+procedure TMsgOpts.setVerbose(const aValue: boolean);
 begin
-  if fVerb = aValue then exit;
-  fVerb := aValue;
+  if fVerbose = aValue then exit;
+  fVerbose := aValue;
   doChanged;
 end;
 
-procedure TMsgOpts.setWarn(const aValue: boolean);
+procedure TMsgOpts.setWarnings(const aValue: boolean);
 begin
-  if fWarn = aValue then exit;
-  fWarn := aValue;
+  if fWarnings = aValue then exit;
+  fWarnings := aValue;
   doChanged;
 end;
 
@@ -563,13 +565,13 @@ begin
   if opt <> '' then aList.Add(opt);
   opt := trgKindStr[fTrgKind];
   if opt <> '' then aList.Add(opt);
-  if fUt then aList.Add('-unittest');
+  if fUnittest then aList.Add('-unittest');
   if fInline then aList.Add('-inline');
   if fOptimz then aList.Add('-O');
   if fGenStack then aList.Add('-gs');
   if fStackStomp then aList.Add('-gx');
   if fAllInst then aList.Add('-allinst');
-  if fMain then aList.Add('-main');
+  if fAddMain then aList.Add('-main');
   if fRelease then aList.Add('-release');
   for opt in fVerIds do begin
     if length(opt) > 0 then
@@ -599,26 +601,27 @@ begin
   if (aValue is TOutputOpts) then
   begin
     src := TOutputOpts(aValue);
-    fBinKind := src.fBinKind;
-    fTrgKind := src.fTrgKind;
-    fUt := src.fUt;
+    //
     fVerIds.Assign(src.fVerIds);
-    fInline := src.fInline;
+    fBinKind    := src.fBinKind;
+    fTrgKind    := src.fTrgKind;
+    fUnittest   := src.fUnittest;
+    fInline     := src.fInline;
     fBoundsCheck:= src.fBoundsCheck;
-    fOptimz := src.fOptimz;
-    fGenStack := src.fGenStack;
-    fMain := src.fMain;
-    fRelease := src.fRelease;
-    fAllinst := src.fAllInst;
+    fOptimz     := src.fOptimz;
+    fGenStack   := src.fGenStack;
+    fAddMain       := src.fAddMain;
+    fRelease    := src.fRelease;
+    fAllinst    := src.fAllInst;
     fStackStomp := src.fStackStomp;
   end
   else inherited;
 end;
 
-procedure TOutputOpts.setUt(const aValue: boolean);
+procedure TOutputOpts.setUnittest(const aValue: boolean);
 begin
-  if fUt = aValue then exit;
-  fUt := aValue;
+  if fUnittest = aValue then exit;
+  fUnittest := aValue;
   doChanged;
 end;
 
@@ -677,10 +680,10 @@ begin
   doChanged;
 end;
 
-procedure TOutputOpts.setMain(const aValue: boolean);
+procedure TOutputOpts.setAddMain(const aValue: boolean);
 begin
-  if fMain = aValue then exit;
-  fMain := aValue;
+  if fAddMain = aValue then exit;
+  fAddMain := aValue;
   doChanged;
 end;
 
@@ -715,14 +718,14 @@ procedure TDebugOpts.getOpts(const aList: TStrings);
 var
   idt: string;
 begin
-  if fDbg then aList.Add('-debug');
+  if fDebug then aList.Add('-debug');
   if fDbgLevel <> 0 then
     aList.Add('-debug=' + intToStr(fDbgLevel));
   for idt in fDbgIdents do
     aList.Add('-debug=' + idt);
   if fDbgD then aList.Add('-g');
   if fDbgC then aList.Add('-gc');
-  if fMap then aList.Add('-map');
+  if fGenMap then aList.Add('-map');
 end;
 
 procedure TDebugOpts.assign(aValue: TPersistent);
@@ -732,12 +735,13 @@ begin
   if (aValue is TDebugOpts) then
   begin
     src := TDebugOpts(aValue);
-    fDbg := src.fDbg;
+    //
     fDbgIdents.Assign(src.fDbgIdents);
+    fDebug    := src.fDebug;
     fDbgLevel := src.fDbgLevel;
-    fDbgD := src.fDbgD;
-    fDbgC := src.fDbgC;
-    fMap := src.fMap;
+    fDbgD     := src.fDbgD;
+    fDbgC     := src.fDbgC;
+    fGenMap   := src.fGenMap;
   end
   else inherited;
 end;
@@ -745,18 +749,18 @@ end;
 procedure TDebugOpts.updateForceDbgBool;
 begin
   fForceDbgBool := (fDbgLevel > 0) or (fDbgIdents.Count > 0);
-  if fForceDbgBool then setDbg(true);
+  if fForceDbgBool then setDebug(true);
 end;
 
-procedure TDebugOpts.setDbg(const aValue: boolean);
+procedure TDebugOpts.setDebug(const aValue: boolean);
 begin
   if fForceDbgBool then
   begin
-    fDbg := true;
+    fDebug := true;
     exit;
   end;
-  if fDbg = aValue then exit;
-  fDbg := aValue;
+  if fDebug = aValue then exit;
+  fDebug := aValue;
   doChanged;
 end;
 
@@ -774,10 +778,10 @@ begin
   doChanged;
 end;
 
-procedure TDebugOpts.setMap(const aValue: boolean);
+procedure TDebugOpts.setGenMap(const aValue: boolean);
 begin
-  if fMap = aValue then exit;
-  fMap := aValue;
+  if fGenMap = aValue then exit;
+  fGenMap := aValue;
   doChanged;
 end;
 
@@ -847,12 +851,13 @@ begin
   if (aValue is TPathsOpts) then
   begin
     src := TPathsOpts(aValue);
+    //
     fExtraSrcs.Assign(src.fExtraSrcs);
     fImpMod.Assign(src.fImpMod);
     fImpStr.Assign(src.fImpStr);
-    fFName := patchPlateformPath(src.fFname);
-    fObjDir := patchPlateformPath(src.fObjDir);
     fExcl.Assign(src.fExcl);
+    fFName  := patchPlateformPath(src.fFname);
+    fObjDir := patchPlateformPath(src.fObjDir);
   end
   else inherited;
 end;
@@ -980,10 +985,11 @@ begin
   if source is TCustomProcOptions then
   begin
     src := TCustomProcOptions(source);
+    //
     Parameters.Assign(src.Parameters);
-    fOptions := src.fOptions;
+    fOptions    := src.fOptions;
     fExecutable := src.fExecutable;
-    fShowWin := src.fShowWin;
+    fShowWin    := src.fShowWin;
   end
   else inherited;
 end;
@@ -1110,6 +1116,7 @@ begin
   if (aValue is TCompilerConfiguration) then
   begin
     src := TCompilerConfiguration(aValue);
+    //
     fDocOpts.assign(src.fDocOpts);
     fDebugOpts.assign(src.fDebugOpts);
     fMsgOpts.assign(src.fMsgOpts);
@@ -1125,7 +1132,7 @@ end;
 
 function TCompilerConfiguration.nameFromID: string;
 begin
-  result := format('<configuration %d>',[ID]);
+  result := format('<configuration %d>', [ID]);
 end;
 
 procedure TCompilerConfiguration.getOpts(const aList: TStrings);
