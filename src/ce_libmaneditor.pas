@@ -314,11 +314,12 @@ procedure TCELibManEditorWidget.dataToGrid;
 var
   itm: TLibraryItem;
   row: TListItem;
-  i: NativeInt;
+  i: Integer;
 begin
-  List.Clear;
   if LibMan = nil then
     exit;
+  List.BeginUpdate;
+  List.Clear;
   for i := 0 to LibMan.libraries.Count - 1 do
   begin
     itm := TLibraryItem(LibMan.libraries.Items[i]);
@@ -327,6 +328,7 @@ begin
     row.SubItems.Add(itm.libFile);
     row.SubItems.Add(itm.libSourcePath);
   end;
+  List.EndUpdate;
 end;
 
 procedure TCELibManEditorWidget.gridToData;
@@ -336,6 +338,7 @@ var
 begin
   if LibMan = nil then
     exit;
+  LibMan.libraries.BeginUpdate;
   LibMan.libraries.Clear;
   for row in List.Items do
   begin
@@ -344,6 +347,7 @@ begin
     itm.libFile := row.SubItems.Strings[0];
     itm.libSourcePath := row.SubItems.Strings[1];
   end;
+  LibMan.libraries.EndUpdate;
   LibMan.updateDCD;
 end;
 
