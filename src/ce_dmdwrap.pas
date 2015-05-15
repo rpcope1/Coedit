@@ -58,7 +58,7 @@ type
 
 
   (*****************************************************************************
-   * Describes the different depreciation treatments.
+   * Describes the different deprecation handling.
    *)
   TDepHandling = (silent, warning, error);
 
@@ -124,21 +124,18 @@ type
     fVerIds: TStringList;
     fInline: boolean;
     fBoundsCheck: TBoundCheckKind;
-    fNoBounds: boolean;
     fOptimz: boolean;
     fGenStack: boolean;
     fMain: boolean;
     fRelease: boolean;
     fAllInst: boolean;
     fStackStomp: boolean;
-    procedure depPatch;
     procedure setAllInst(const aValue: boolean);
     procedure setUt(const aValue: boolean);
     procedure setTrgKind(const aValue: TTargetSystem);
     procedure setBinKind(const aValue: TBinaryKind);
     procedure setInline(const aValue: boolean);
     procedure setBoundsCheck(const aValue: TBoundCheckKind);
-    procedure setNoBounds(const aValue: boolean);
     procedure setOptims(const aValue: boolean);
     procedure setGenStack(const aValue: boolean);
     procedure setMain(const aValue: boolean);
@@ -149,7 +146,6 @@ type
     property targetKind: TTargetSystem read fTrgKind write setTrgKind default auto;
     property binaryKind: TBinaryKind read fBinKind write setBinKind default executable;
     property inlining: boolean read fInline write setInline default false;
-    property noBoundsCheck: boolean read fNoBounds write setNoBounds stored false default false;
     property boundsCheck: TBoundCheckKind read fBoundsCheck write setBoundsCheck default safeOnly;
     property optimizations: boolean read fOptimz write setOptims default false;
     property generateStackFrame: boolean read fGenStack write setGenStack default false;
@@ -189,8 +185,6 @@ type
     property debug: boolean read fDbg write setDbg default false;
     property debugIdentifiers: TStringList read fDbgIdents write setDbgIdents;
     property debugLevel: Integer read fDbgLevel write setDbgLevel default 0;
-    property addDInformations: boolean read fDbgD write setDbgD stored false; deprecated;
-    property addCInformations: boolean read fDbgC write setDbgC stored false; deprecated;
     property codeviewDexts: boolean read fDbgD write setDbgD default false;
     property codeviewCformat: boolean read fDbgC write setDbgC default false;
     property generateMapFile: boolean read fMap write setMap default false;
@@ -222,11 +216,8 @@ type
   published
     property outputFilename: TCEFilename read fFname write setFname;
     property objectDirectory: TCEPathname read fObjDir write setObjDir;
-    property Sources: TStringList read fExtraSrcs write setSrcs stored false; deprecated;
     property exclusions: TStringList read fExcl write setExcl;
     property extraSources: TStringList read fExtraSrcs write setSrcs;
-    property includes: TStringList read fImpMod write setIncl stored false; deprecated;
-    property imports: TStringList read fImpStr write setImpt stored false; deprecated;
     property importModulePaths: TStringList read fImpMod write setIncl;
     property importStringPaths: TStringList read fImpStr write setImpt;
   public
@@ -560,14 +551,6 @@ begin
   inherited;
 end;
 
-procedure TOutputOpts.depPatch;
-begin
-  // patch deprecated fields
-  if fNoBounds then setBoundsCheck(offAlways)
-  else setBoundsCheck(onAlways);
-  fNoBounds := false;
-end;
-
 procedure TOutputOpts.getOpts(const aList: TStrings);
 var
   opt: string;
@@ -621,7 +604,6 @@ begin
     fUt := src.fUt;
     fVerIds.Assign(src.fVerIds);
     fInline := src.fInline;
-    fNoBounds := src.fNoBounds;
     fBoundsCheck:= src.fBoundsCheck;
     fOptimz := src.fOptimz;
     fGenStack := src.fGenStack;
@@ -678,14 +660,6 @@ procedure TOutputOpts.setBoundsCheck(const aValue: TBoundCheckKind);
 begin
   if fBoundsCheck = aValue then exit;
   fBoundsCheck := aValue;
-  doChanged;
-end;
-
-procedure TOutputOpts.setNoBounds(const aValue: boolean);
-begin
-  if fNoBounds = aValue then exit;
-  fNoBounds := aValue;
-  depPatch;
   doChanged;
 end;
 
