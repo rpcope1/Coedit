@@ -686,7 +686,7 @@ begin
   try
     DockMaster.SaveLayoutToConfig(xcfg);
     xcfg.WriteToDisk;
-    // TODO: remove this when AnchorDocking wiont save anymore invalid layout
+    // TODO: remove this when AnchorDocking wont save anymore invalid layout
     with TMemoryStream.Create do try
       LoadFromFile(getCoeditDocPath + 'docking.xml.tmp');
       if Size < 10000 then
@@ -770,7 +770,8 @@ begin
       'has been implicitly aborted', fDoc, amcEdit, amkWarn);
   killProcess(fRunProc);
   if fileExists(fname) then
-    sysutils.DeleteFile(fname);
+    if ExtractFilePath(fname) = GetTempDir(false) then
+      sysutils.DeleteFile(fname);
 end;
 
 destructor TCEMainForm.destroy;
@@ -1660,7 +1661,7 @@ begin
     DockMaster.SaveLayoutToConfig(xcfg);
     xcfg.WriteToDisk;
     // prevent any invalid layout to be saved (AnchorDocking bug)
-    // TODO: remove this when AnchorDocking wiont save anymore invalid layout
+    // TODO: remove this when AnchorDocking wont save anymore invalid layout
     with TMemoryStream.Create do try
       LoadFromFile(aFilename + '.tmp');
       if Size < 10000 then
