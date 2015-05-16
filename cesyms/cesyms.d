@@ -15,7 +15,6 @@ void main(string[] args)
     auto source = cast(ubyte[]) read(fname, size_t.max);
     auto scache = StringCache(StringCache.defaultBucketCount);
     
-    
     auto ast = parseModule(getTokensForParser(source, config, &scache), fname, null, &(SymbolListBuilder.astError));
 
     // visit each root member
@@ -43,11 +42,29 @@ void main(string[] args)
     } 
     else 
     {
-        auto str = slb.serialize;
-        write(str);
+        write(slb.serialize);
     }
     
     slb.destruct;
+}
+
+// libdparse warnings includes some "'", which in Pascal are string delim
+string patchPasStringLitteral(const ref string p)
+{
+    string result;
+    for (auto i = 0; i < p.length; i++)
+    {    
+        auto curr = p[i];
+        if (curr == 0)
+            break;
+        else if (curr == 13 || curr == 10)
+            result ~= ' ';
+        else if (curr == '\'') 
+            result ~= "'#39'";
+        else  
+            result ~= curr; 
+    }
+    return result;
 }
 
 // Memory utils ---------------------------------------------------------------+
@@ -131,7 +148,7 @@ struct Symbol
         if (subs.length) foreach(Symbol * sub; subs)
             sub.serialize(lfmApp);
         lfmApp.put(">\r");
-        lfmApp.put("end\r");
+        lfmApp.put("end");
     }
 }
 //----
@@ -141,7 +158,10 @@ class SymbolListBuilder : ASTVisitor
 {
     Symbol * root;
     Symbol * parent;
-    static Symbol * [] illFormed;
+    
+    // for some reason (?) the .name of a (static Symbol* []) item was lost 
+    static Symbol[] illFormed;
+    
     size_t count;
     
     alias visit = ASTVisitor.visit;
@@ -149,8 +169,6 @@ class SymbolListBuilder : ASTVisitor
     this()
     {
         root = construct!Symbol;
-        if(illFormed.length)
-            root.subs ~= illFormed;
         resetRoot;
     }
     
@@ -164,9 +182,9 @@ class SymbolListBuilder : ASTVisitor
         Symbol * newSym = construct!Symbol;
         newSym.col = col;
         newSym.line = line;
-        newSym.name = msg;
-        isErr ? newSym.type = SymbolType._error : newSym.type = SymbolType._warning; 
-        illFormed ~= newSym;
+        newSym.name = patchPasStringLitteral(msg);
+        newSym.type = isErr ? SymbolType._error : SymbolType._warning; 
+        illFormed ~= * newSym;
     }
     
     final void resetRoot(){parent = root;}
@@ -177,7 +195,8 @@ class SymbolListBuilder : ASTVisitor
         lfmApp.reserve(count * 64);
         
         lfmApp.put("object TSymbolList\rsymbols = <");
-        foreach(Symbol * sym; root.subs) sym.serialize(lfmApp);
+        foreach(sym; illFormed) sym.serialize(lfmApp);
+        foreach(sym; root.subs) sym.serialize(lfmApp);
         lfmApp.put(">\rend\r\n");
         
         return lfmApp.data; 
