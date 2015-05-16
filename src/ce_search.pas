@@ -389,6 +389,7 @@ begin
   if Updating then exit;
   fToFind := cbToFind.Text;
   fHasSearched := false;
+  updateImperative;
 end;
 
 procedure TCESearchWidget.chkEnableRepChange(Sender: TObject);
@@ -402,18 +403,16 @@ begin
   if Updating then exit;
   fReplaceWth := cbReplaceWth.Text;
   fHasSearched := false;
+  updateImperative;
 end;
 
 procedure TCESearchWidget.updateImperative;
 begin
-  fActFindNext.Enabled := fDoc <> nil;
-  fActReplaceNext.Enabled := (fDoc <> nil) and (chkEnableRep.Checked);
-  fActReplaceAll.Enabled := (fDoc <> nil) and (chkEnableRep.Checked);
+  btnFind.Enabled := (fDoc <> nil) and (fToFind <> '');
+  btnReplace.Enabled := (fDoc <> nil) and (chkEnableRep.Checked) and (fToFind <> '');
+  btnReplaceAll.Enabled := btnReplace.Enabled;
   cbReplaceWth.Enabled := (fDoc <> nil) and (chkEnableRep.Checked);
   cbToFind.Enabled := fDoc <> nil;
-  //
-  cbToFind.Items.Assign(fSearchMru);
-  cbReplaceWth.Items.Assign(fReplaceMru);
 end;
 {$ENDREGION}
 
