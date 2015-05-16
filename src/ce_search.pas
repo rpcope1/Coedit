@@ -122,8 +122,8 @@ begin
   if aValue is TCESearchWidget then
   begin
     widg := TCESearchWidget(aValue);
-    fMrSearches.Assign(widg.cbToFind.Items);
-    fMrReplacements.Assign(widg.cbReplaceWth.Items);
+    fMrSearches.Assign(widg.fSearchMru);
+    fMrReplacements.Assign(widg.fReplaceMru);
     fPrompt     := widg.chkPrompt.Checked;
     fBackWard   := widg.chkBack.Checked;
     fCaseSens   := widg.chkCaseSens.Checked;
@@ -142,7 +142,9 @@ begin
   begin
     widg := TCESearchWidget(aValue);
     widg.cbToFind.Items.Assign(fMrSearches);
+    widg.fSearchMru.Assign(fMrSearches);
     widg.cbReplaceWth.Items.Assign(fMrReplacements);
+    widg.fReplaceMru.Assign(fMrReplacements);
     widg.chkPrompt.Checked  := fPrompt;
     widg.chkBack.Checked    := fBackWard;
     widg.chkCaseSens.Checked:= fCaseSens;
@@ -180,6 +182,9 @@ begin
   fActReplaceAll.OnExecute := @actReplaceAllExecute;
   inherited;
   //
+  fSearchMru := TCEMruList.Create;
+  fReplaceMru:= TCEMruList.Create;
+  //
   fname := getCoeditDocPath + OptsFname;
   if FileExists(fname) then with TCESearchOptions.create(nil) do
   try
@@ -192,9 +197,7 @@ begin
   btnFind.Action := fActFindNext;
   btnReplace.Action := fActReplaceNext;
   btnReplaceAll.Action := fActReplaceAll;
-  //
-  fSearchMru := TCEMruList.Create;
-  fReplaceMru:= TCEMruList.Create;
+  updateImperative;
   //
   EntitiesConnector.addObserver(self);
 end;
@@ -274,6 +277,8 @@ begin
   if fDoc = nil then exit;
   //
   fSearchMru.Insert(0,fToFind);
+  cbToFind.Items.Assign(fSearchMru);
+  //
   if not chkFromCur.Checked then
   begin
     if chkBack.Checked then
@@ -309,6 +314,9 @@ begin
   //
   fSearchMru.Insert(0, fToFind);
   fReplaceMru.Insert(0, fReplaceWth);
+  cbToFind.Items.Assign(fSearchMru);
+  cbReplaceWth.Items.Assign(fReplaceMru);
+  //
   if chkPrompt.Checked then
     fDoc.OnReplaceText := @replaceEvent;
   if not chkFromCur.Checked then
@@ -336,6 +344,7 @@ var
   opts: TSynSearchOptions;
 begin
   if fDoc = nil then exit;
+  cbReplaceWth.Items.Assign(fReplaceMru);
   opts := getOptions + [ssoReplace];
   opts -= [ssoBackwards];
   //
