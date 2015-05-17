@@ -41,9 +41,10 @@ and TTodoItem(the collection item).
 module cetodo;
 
 // std
-import std.stdio, std.getopt, std.string;
-import std.array, std.conv, std.traits;
+import std.stdio, std.getopt, std.string, std.algorithm;
+import std.array, std.conv, std.traits, std.ascii;
 import std.file, std.path, std.range;
+
 // libdparse
 import std.d.lexer;
 
@@ -153,82 +154,99 @@ void main(string[] args)
 }
 
 /// Try to transforms a Token into a a TODO item
-@safe private void token2TodoItem(const(Token) atok, string fname,  ref TodoItems todoItems)
+@safe private void token2TodoItem(const(Token) atok, string fname, ref TodoItems todoItems)
 {
-    if (atok.type != (tok!"comment")) 
-        return;
+    if (atok.type != (tok!"comment")) return;
     auto text = atok.text.strip;
-    if (text.length < 3) 
-        return;
-    if (text[1] == '*' || text[1] == '+' || text[2] == '/')
-        return; 
-        
-    text = text[2..$];
     string identifier;
+  
+    
+    // detects single line comments, incl. ddoc
+    bool isSingleLineComment; 
+    while (!text.empty)
+    {
+        auto front = text.front;
+        if (front == '/') identifier ~= front;
+        else
+        {
+            if (!isSingleLineComment)
+                isSingleLineComment = (identifier.length > 1);
+            if (!front.isWhite) break; 
+        }
+        text.popFront;
+    }   
+    if (!isSingleLineComment) return;
+    identifier = ""; 
+    
+    
+    // looks for the TODO/FIXME token
     bool isTodoComment;
-    size_t pos;
-
-    // "TODO" 
-    while (true) {
-        if (pos == text.length) break; 
-        if (identifier.length > 3) {
-            auto upIdent = identifier.strip.toUpper;  
-            if (upIdent == "TODO" || upIdent == "FIXME"){
-                isTodoComment = true;
-                text = text[pos..$];
-                break;
-            }
-        } 
-        identifier ~= text[pos++]; 
+    while (!text.empty)
+    {
+        identifier ~= std.ascii.toUpper(text.front);
+        text.popFront;   
+        if (canFind(["TODO","FIXME"], identifier)) 
+        {
+            isTodoComment = true;
+            break;
+        }            
     }
     if (!isTodoComment) return;
+    identifier = "";
     
-    //fields : text
-    identifier = identifier.init;
-    auto fc = text.split(':');
-    if (fc.length < 2) return;
-    auto raw_fields  = fc[0];
-    auto raw_content = fc[1..$];
     
-    // fields
-    string a,c,p,s;
-    foreach(field; raw_fields.split('-')) {
-        if (field.length < 2) continue;
-        switch (field[0]) {
-            default: break;
-            case 'a': case 'A': 
-                a = field[1..$].strip; 
-                break;
-            case 'c': case 'C': 
-                c = field[1..$].strip; 
-                break;
-            case 'p': case 'P': 
-                p = field[1..$].strip; 
-                break;
-            case 's': case 'S': 
-                s = field[1..$].strip; 
-                break;
+    // separates the description fields from the text body
+    bool isWellFormed;
+    string comment, fields;
+    while (!text.empty)
+    {
+        auto front = text.front;
+        text.popFront;
+        if (front != ':') identifier ~= front;
+        else
+        {
+            if (identifier.length) fields = identifier;
+            isWellFormed = (text.length > 0);
+            break;
         }
     }
+    if (!isWellFormed) return;
+    identifier = ""; 
     
-    // content, must exists.
-    string content = raw_content.join.strip;
-    if (!content.length) return;
     
-    string lnStr;
-    try lnStr = to!string(atok.line);
-    catch(Exception e) lnStr = "0";  
+    // parses the item description fields
+    string a, c, p, s;
+    if (fields.length) while (!fields.empty)
+    {
+        auto front = fields.front;
+        fields.popFront;
+        if ((front == '-' || fields.empty) && identifier.length > 2)
+        {
+            auto field0 = identifier[0..2].toUpper;
+            auto field1 = identifier[2..$].strip;  
+                 if (field0 == "-A") a = field1;
+            else if (field0 == "-C") c = field1;
+            else if (field0 == "-P") p = field1;
+            else if (field0 == "-S") s = field1;
+            identifier = "";                
+        }
+        identifier ~= front;  
+    }
     
-    // item
-    todoItems ~= new TodoItem(fname, lnStr, content, c, a, p, s);
+    
+    string line;
+    try line = to!string(atok.line);
+    catch(ConvException e) line = "0";
+    todoItems ~= new TodoItem(fname, line, text, c, a, p, s);
 }
 
-// samples for testing the program as a runnable ('Compile and runfile ...') with '<CFF>'
+// samples for testing the program as a runnable ('Compile and run file ...') with '<CFF>'
 
 // fixme-p8: èuèuuè``u`èuùè 
 // fixme-p8: fixme also handled
-// TODO-cINVALID_because_no_content:              
-// TODO: set this property as const() to set it read only.
-// TODO-cfeature-sDone: save this property in the inifile.
+// TODO-cINVALID_because_no_content:
+////TODO:set this property as const() to set it read only.
+// TODO-cfeature-sDone:save this property in the inifile.
 // TODO-cannnotations-p8: annotates the member of the module as @safe and if possible nothrow.
 // TODO-cfeature-sDone: save this property in the inifile.
+// TODO-aMe-cCat-p1-sjkjkj:todo body
