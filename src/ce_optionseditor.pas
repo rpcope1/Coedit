@@ -33,6 +33,7 @@ type
     selCat: TTreeView;
     procedure btnAcceptClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure inspectorEditorFilter(Sender: TObject; aEditor: TPropertyEditor;
       var aShow: boolean);
     procedure inspectorModified(Sender: TObject);
@@ -202,6 +203,20 @@ begin
   PCategoryData(selCat.Selected.Data)^
     .observer
     .optionedEvent(oeeCancel);
+end;
+
+procedure TCEOptionEditorWidget.FormCloseQuery(Sender: TObject;
+  var CanClose: boolean);
+begin
+  if fCatChanged then
+  begin
+    CanClose := dlgOkCancel(
+       'The modifications of the current category are not validated, ' +
+       'discard them and continue ?' ) = mrOk;
+    if CanClose then
+      btnCancelClick(nil);
+  end
+  else CanClose := true;
 end;
 
 procedure TCEOptionEditorWidget.inspectorEditorFilter(Sender: TObject;aEditor:
