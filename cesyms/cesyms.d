@@ -355,7 +355,6 @@ class SymbolListBuilder : ASTVisitor
             namedVisitorImpl!(Declarator, SymbolType._variable, false)(elem);  
     }
     
-    /* Disabled: line and column are not available
     final override void visit(const StaticConstructor decl) 
     {
         otherVisitorImpl(SymbolType._function, "static this", decl.line, decl.column); 
@@ -365,6 +364,5 @@ class SymbolListBuilder : ASTVisitor
     {
         otherVisitorImpl(SymbolType._function, "static ~this", decl.line, decl.column); 
     }
-    */ 
 }
 //----
