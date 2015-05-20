@@ -81,6 +81,7 @@ type
     fAutoRefreshDelay: Integer;
     fSmartFilter: boolean;
     fAutoExpandErrors: boolean;
+    fSortSymbols: boolean;
   published
     property autoRefresh: boolean read fAutoRefresh write fAutoRefresh;
     property refreshOnChange: boolean read fRefreshOnChange write fRefreshOnChange;
@@ -89,6 +90,7 @@ type
     property autoRefreshDelay: Integer read fAutoRefreshDelay write fAutoRefreshDelay;
     property smartFilter: boolean read fSmartFilter write fSmartFilter;
     property autoExpandErrors: boolean read fAutoExpandErrors write fAutoExpandErrors;
+    property sortSymbols: boolean read fSortSymbols write fSortSymbols;
   public
     constructor Create(AOwner: TComponent); override;
     procedure Assign(Source: TPersistent); override;
@@ -104,6 +106,7 @@ type
     Tree: TTreeView;
     TreeFilterEdit1: TTreeFilterEdit;
     procedure btnRefreshClick(Sender: TObject);
+    procedure TreeCompare(Sender: TObject; Node1, Node2: TTreeNode; var Compare: Integer);
     procedure TreeDeletion(Sender: TObject; Node: TTreeNode);
     procedure TreeFilterEdit1AfterFilter(Sender: TObject);
     function TreeFilterEdit1FilterItem(Item: TObject; out Done: Boolean): Boolean;
@@ -128,6 +131,7 @@ type
     fShowChildCategories: boolean;
     fSmartFilter: boolean;
     fAutoExpandErrors: boolean;
+    fSortSymbols: boolean;
     fToolOutput: TMemoryStream;
     ndAlias, ndClass, ndEnum, ndFunc, ndUni: TTreeNode;
     ndImp, ndIntf, ndMix, ndStruct, ndTmp: TTreeNode;
@@ -252,6 +256,7 @@ begin
   fShowChildCategories := true;
   fAutoExpandErrors := true;
   fSmartFilter := true;
+  fSortSymbols := false;
   fAutoRefreshDelay := 1500;
 end;
 
@@ -270,6 +275,7 @@ begin
     fShowChildCategories  := widg.fShowChildCategories;
     fSmartFilter          := widg.fSmartFilter;
     fAutoExpandErrors     := widg.fAutoExpandErrors;
+    fSortSymbols          := widg.fSortSymbols;
   end
   else inherited;
 end;
@@ -289,10 +295,16 @@ begin
     widg.fShowChildCategories   := fShowChildCategories;
     widg.fSmartFilter           := fSmartFilter;
     widg.fAutoExpandErrors      := fAutoExpandErrors;
+    widg.fSortSymbols           := fSortSymbols;
     //
     widg.fActAutoRefresh.Checked    := fAutoRefresh;
     widg.fActRefreshOnChange.Checked:= fRefreshOnChange;
     widg.fActRefreshOnFocus.Checked := fRefreshOnFocus;
+    //
+    //if fSortSymbols then
+    //  widg.Tree.SortType := stText
+    //else
+    //  widg.Tree.SortType:= stNone;
   end
   else inherited;
 end;
@@ -531,6 +543,12 @@ begin
   fActRefresh.Execute;
 end;
 
+procedure TCESymbolListWidget.TreeCompare(Sender: TObject; Node1,
+  Node2: TTreeNode; var Compare: Integer);
+begin
+  Compare := CompareStr(Node1.Text, Node2.text);
+end;
+
 procedure TCESymbolListWidget.updateVisibleCat;
 begin
   if (fDoc <> nil) then
@@ -750,6 +768,10 @@ begin
     if ndErr.Visible then
       ndErr.Expand(true);
   end;
+  if fSortSymbols then
+    for i:= 0 to tree.Items.Count-1 do
+      if Tree.Items[i].Count > 0 then
+        tree.Items[i].CustomSort(nil);
   tree.EndUpdate;
 end;
 {$ENDREGION --------------------------------------------------------------------}
