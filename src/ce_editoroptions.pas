@@ -391,10 +391,10 @@ begin
     self.Assign(fBackup);
     D2Syn.Assign(fBackup.fD2Syn);
     TxtSyn.Assign(fBackup.fTxtSyn);
-  end
+  end;
   // apply, if change/accept event
   // to get a live preview
-  else if anEvent <> oeeSelectCat then
+  if anEvent <> oeeSelectCat then
     applyChangesFromSelf;
   // new backup values based on accepted values.
   if anEvent = oeeAccept then
