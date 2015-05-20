@@ -24,7 +24,7 @@ inherited CESymbolListWidget: TCESymbolListWidget
         Width = 302
         Align = alClient
         BorderSpacing.Around = 4
-        DefaultItemHeight = 16
+        DefaultItemHeight = 18
         HideSelection = False
         Images = imgList
         ReadOnly = True
@@ -32,6 +32,7 @@ inherited CESymbolListWidget: TCESymbolListWidget
         ScrollBars = ssAutoBoth
         SelectionColor = clActiveBorder
         TabOrder = 0
+        OnCompare = TreeCompare
         OnDeletion = TreeDeletion
         OnKeyPress = TreeKeyPress
         Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
