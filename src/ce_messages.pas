@@ -555,6 +555,7 @@ var
   dt: PMessageData;
    item: TTreeNode;
 begin
+  showWidget;
   if aKind = amkAuto then
     aKind := guessMessageKind(aValue);
   dt := new(PMessageData);

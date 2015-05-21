@@ -473,6 +473,7 @@ begin
     end;
     if dig(node) then break;
   end;
+  showWidget;
 end;
 {$ENDREGION}
 
