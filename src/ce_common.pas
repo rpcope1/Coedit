@@ -10,6 +10,9 @@ uses
   {$IFDEF WINDOWS}
   Windows, JwaTlHelp32,
   {$ENDIF}
+  {$IFDEF LINUX}
+  ExtCtrls,
+  {$ENDIF}
   dialogs, forms, process, asyncprocess;
 
 const
