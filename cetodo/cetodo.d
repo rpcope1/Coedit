@@ -201,9 +201,9 @@ void main(string[] args)
     while (!text.empty)
     {
         auto front = text.front;
+        identifier ~= front;
         text.popFront;
-        if (front != ':') identifier ~= front;
-        else
+        if (front == ':')
         {
             if (identifier.length) fields = identifier;
             isWellFormed = (text.length > 0);
