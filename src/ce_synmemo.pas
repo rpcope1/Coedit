@@ -91,6 +91,7 @@ type
     fMousePos: TPoint;
     fCallTipWin: TCEEditorHintWindow;
     fDDocWin: TCEEditorHintWindow;
+    fHintDelay: Integer;
     fHintTimer: TIdleTimer;
     fCanShowHint: boolean;
     fOldMousePos: TPoint;
@@ -106,6 +107,7 @@ type
     procedure HintTimerEvent(sender: TObject);
     procedure InitHintWins;
     function getIfTemp: boolean;
+    procedure setHintDelay(aValue: Integer);
   protected
     procedure MouseLeave; override;
     procedure SetVisible(Value: Boolean); override;
@@ -119,6 +121,7 @@ type
     function DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean; override;
   published
     property defaultFontSize: Integer read fDefaultFontSize write setDefaultFontSize;
+    property hintDelay: Integer read fHintDelay write setHintDelay;
   public
     constructor Create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -344,9 +347,10 @@ begin
   //
   ShowHint :=false;
   InitHintWins;
+  fHintDelay := 200;
   fHintTimer := TIdleTimer.Create(self);
   fHintTimer.AutoEnabled:=true;
-  fHintTimer.Interval := 200;
+  fHintTimer.Interval := fHintDelay;
   fHintTimer.OnTimer := @HintTimerEvent;
   //
   Gutter.LineNumberPart.ShowOnlyLineNumbersMultiplesOf := 5;
@@ -572,6 +576,12 @@ begin
     fCallTipWin.OffsetHintRect(pnt, Font.Size * 2);
 	  fCallTipWin.ActivateHint(str);
   end;
+end;
+
+procedure TCESynMemo.setHintDelay(aValue: Integer);
+begin
+  fHintDelay:=aValue;
+  fHintTimer.Interval:=fHintDelay;
 end;
 
 procedure TCESynMemo.HintTimerEvent(sender: TObject);

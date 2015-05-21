@@ -37,6 +37,7 @@ type
     fBracketMatchColor: TSynSelectedColor;
     fFont: TFont;
     //
+    fHintDelay: Integer;
     fTabWidth: Integer;
     fBlockIdent: Integer;
     fLineSpacing: Integer;
@@ -55,8 +56,10 @@ type
     procedure setBracketMatchColor(aValue: TSynSelectedColor);
     procedure setD2Syn(aValue: TPersistent);
     procedure setTxtSyn(aValue: TPersistent);
-    procedure setShortcuts(Avalue: TCollection);
+    procedure setShortcuts(aValue: TCollection);
+    procedure setHintDelay(aValue: Integer);
   published
+    property hintDelay: Integer read fHintDelay write setHintDelay;
     property bracketMatchColor: TSynSelectedColor read fBracketMatchColor write setBracketMatchColor;
     property mouseLinkColor: TSynSelectedColor read fMouseLinkColor write setMouseLinkColor;
     property selectedColor: TSynSelectedColor read fSelCol write setSelCol;
@@ -142,6 +145,7 @@ begin
   fTxtSyn := TSynTxtSyn.Create(self);
   fTxtSyn.Assign(TxtSyn);
   //
+  fHintDelay:=200;
   fSelCol := TSynSelectedColor.Create;
   fFoldedColor := TSynSelectedColor.Create;
   fMouseLinkColor := TSynSelectedColor.Create;
@@ -210,6 +214,7 @@ begin
   begin
     srcopt := TCEEditorOptionsBase(src);
     //
+    fHintDelay:=srcopt.fHintDelay;
     fFont.Assign(srcopt.fFont);
     fSelCol.Assign(srcopt.fSelCol);
     fFoldedColor.Assign(srcopt.fFoldedColor);
@@ -231,6 +236,13 @@ begin
   end
   else
     inherited;
+end;
+
+procedure TCEEditorOptionsBase.setHintDelay(aValue: Integer);
+begin
+  if aValue > 2000 then aValue := 2000
+  else if aValue < 20 then aValue := 20;
+  fHintDelay:=aValue;
 end;
 
 procedure TCEEditorOptionsBase.setShortcuts(aValue: TCollection);
@@ -431,6 +443,7 @@ var
   shc: TCEPersistentShortcut;
   kst: TSynEditKeyStroke;
 begin
+  anEditor.hintDelay:=fHintDelay;
   anEditor.defaultFontSize := font.Size;
   anEditor.Font.Assign(font);
   anEditor.SelectedColor.Assign(fSelCol);
