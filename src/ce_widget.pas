@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, ExtCtrls, ActnList, Menus,
-  ce_interfaces;
+  AnchorDocking, ce_interfaces;
 
 type
 
@@ -71,6 +71,8 @@ type
 
     // increment a flag used to indicate if updateLoop has to be called
     procedure IncLoopUpdate;
+
+    procedure showWidget;
 
     // returns true if one of the three updater is processing.
     property updating: boolean read fUpdating;
@@ -146,6 +148,28 @@ function TCEWidget.getIfModal: boolean;
 begin
   if isDockable then result := false
   else result := fModal;
+end;
+
+procedure TCEWidget.showWidget;
+var
+  win: TControl;
+begin
+  if isDockable then
+  begin
+    win := DockMaster.GetAnchorSite(self);
+    if win <> nil then
+    begin
+      win.Show;
+      win.BringToFront;
+    end;
+  end
+  else begin
+    if isModal then ShowModal else
+    begin
+      Show;
+      BringToFront;
+    end;
+  end;
 end;
 {$ENDREGION}
 

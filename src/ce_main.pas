@@ -1606,24 +1606,11 @@ end;
 procedure TCEMainForm.widgetShowFromAction(sender: TObject);
 var
   widg: TCEWidget;
-  win: TControl;
 begin
   widg := TCEWidget( TComponent(sender).tag );
   if widg = nil then exit;
   //
-  if widg.isDockable then
-  begin
-    win := DockMaster.GetAnchorSite(widg);
-    win.Show;
-    win.BringToFront;
-  end
-  else begin
-    if widg.isModal then widg.ShowModal else
-    begin
-      widg.Show;
-      widg.BringToFront;
-    end;
-  end;
+  widg.showWidget;
 end;
 
 procedure TCEMainForm.layoutLoadFromFile(const aFilename: string);
