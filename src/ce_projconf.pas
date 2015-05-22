@@ -37,7 +37,8 @@ type
   private
     fProj: TCEProject;
     fSyncroMode: boolean;
-    fSyncroPropValue: string;
+    fSynchroItem: TStringList;
+    fSynchroValue: TStringList;
     function getGridTarget: TPersistent;
     procedure setSyncroMode(aValue: boolean);
     function syncroSetPropAsString(const ASection, Item, Default: string): string;
@@ -79,18 +80,20 @@ begin
   finally
     png.Free;
   end;
+  fSynchroItem := TStringList.Create;
+  fSynchroValue := TStringList.Create;
   Tree.Selected := Tree.Items.GetLastNode;
   inspector.OnEditorFilter := @GridFilter;
   inspector.CheckboxForBoolean := true;
-  //TODO-cfeature: project inspector synchro-mode for dialog-based editors
-  // currently the event OnModified is only called for simple properties.
-  // and it misses in ObjectINspector.pp TOICustomPropertyGrid.DoCallEdit();
+  inspector.PropertyEditorHook.AddHandlerModified(@inspectorModified);
   //
   EntitiesConnector.addObserver(self);
 end;
 
 destructor TCEProjectConfigurationWidget.destroy;
 begin
+  fSynchroItem.Free;
+  fSynchroValue.Free;
   EntitiesConnector.removeObserver(self);
   inherited;
 end;
@@ -177,13 +180,18 @@ begin
 end;
 
 function TCEProjectConfigurationWidget.syncroSetPropAsString(const ASection, Item, Default: string): string;
+var
+  i: Integer;
 begin
-  result := fSyncroPropValue;
+  i := fSynchroItem.IndexOf(Item);
+  if i = -1 then exit('');
+  result := fSynchroValue.Strings[i];
 end;
 
 procedure TCEProjectConfigurationWidget.syncroGetPropAsString(const ASection, Item, Value: string);
 begin
- fSyncroPropValue := Value;
+  fSynchroItem.Add(Item);
+  fSynchroValue.Add(Value);
 end;
 
 procedure TCEProjectConfigurationWidget.inspectorModified(Sender: TObject);
@@ -255,7 +263,8 @@ begin
     storage.free;
     src_list.free;
     fProj.endUpdate;
-    fSyncroPropValue := '';
+    fSynchroItem.Clear;
+    fSynchroValue.Clear;
   end;
 end;
 
@@ -310,6 +319,8 @@ end;
 
 procedure TCEProjectConfigurationWidget.btnSyncEditClick(Sender: TObject);
 begin
+  fSynchroValue.Clear;
+  fSynchroItem.Clear;
   if fProj = nil then exit;
   syncroMode := not syncroMode;
 end;
