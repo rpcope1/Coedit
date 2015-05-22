@@ -884,7 +884,6 @@ begin
   result := inherited DoMouseWheel(Shift, WheelDelta, MousePos);
   fCanShowHint:=false;
   fHintTimer.Enabled:=false;
-  //SynEdit bug: begin scroll, press CTRL still while. Wrong cursor size sometimes.
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
