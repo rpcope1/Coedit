@@ -51,28 +51,13 @@ inherited CEEditorWidget: TCEEditorWidget
     end
   end
   inherited contextMenu: TPopupMenu
-    left = 32
-    top = 40
+    left = 24
+    top = 16
   end
   object macRecorder: TSynMacroRecorder[2]
     RecordShortCut = 24658
     PlaybackShortCut = 24656
-    left = 32
-    top = 144
-  end
-  object completion: TSynCompletion[3]
-    OnExecute = completionExecute
-    Position = 0
-    LinesInWindow = 8
-    SelectedColor = clHighlight
-    CaseSensitive = True
-    Width = 262
-    ShowSizeDrag = True
-    ShortCut = 16416
-    EndOfTokenChr = '()[].!+"''(-*/\$:;?<>'
-    OnCodeCompletion = completionCodeCompletion
-    ExecCommandID = ecSynCompletionExecute
-    left = 32
-    top = 88
+    left = 80
+    top = 16
   end
 end
