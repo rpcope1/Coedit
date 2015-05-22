@@ -667,7 +667,7 @@ begin
 end;
 
 function TCESynMemo.completionItemPaint(const AKey: string; ACanvas: TCanvas;X, Y: integer;
-        Selected: boolean; Index: integer): boolean;
+  Selected: boolean; Index: integer): boolean;
 var
   lft, rgt: string;
   len: Integer;
@@ -688,7 +688,7 @@ begin
   if not fCanAutoDot then exit;
   if fAutoDotDelay = 0 then exit;
   fCanAutoDot := false;
-  fCompletion.Execute('', ClientToScreen(point(CaretXPix, top + CaretYPix)));
+  fCompletion.Execute('', ClientToScreen(point(CaretXPix, CaretYPix + Font.Size)));
 end;
 
 procedure TCESynMemo.setAutoDotDelay(aValue: Integer);
