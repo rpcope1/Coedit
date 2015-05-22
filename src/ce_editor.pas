@@ -7,9 +7,8 @@ interface
 uses
   Classes, SysUtils, FileUtil, ExtendedNotebook, Forms, Controls, lcltype,
   Graphics, SynEditKeyCmds, ComCtrls, SynEditHighlighter, ExtCtrls, Menus,
-  SynMacroRecorder, SynPluginSyncroEdit, SynEdit, SynCompletion,
-  SynHighlighterMulti, ce_widget, ce_interfaces, ce_synmemo, ce_dlang,
-  ce_common, ce_dcd, ce_observer;
+  SynMacroRecorder, SynPluginSyncroEdit, SynEdit, SynHighlighterMulti,
+  ce_widget, ce_interfaces, ce_synmemo, ce_dlang, ce_common, ce_dcd, ce_observer;
 
 type
 
@@ -26,10 +25,6 @@ type
     PageControl: TExtendedNotebook;
     macRecorder: TSynMacroRecorder;
     editorStatus: TStatusBar;
-    completion: TSynCompletion;
-    procedure completionCodeCompletion(var Value: string; SourceValue: string;
-      var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char; Shift: TShiftState);
-    procedure completionExecute(Sender: TObject);
     procedure PageControlChange(Sender: TObject);
   protected
     procedure updateDelayed; override;
@@ -43,14 +38,12 @@ type
     {$IFDEF LINUX}
     procedure pageCloseBtnClick(Sender: TObject);
     {$ENDIF}
-    function completionItemPaint(const AKey: string; ACanvas: TCanvas;X, Y: integer; Selected: boolean; Index: integer): boolean;
     procedure lexFindToken(const aToken: PLexToken; out doStop: boolean);
     procedure memoKeyPress(Sender: TObject; var Key: char);
     procedure memoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure memoMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure memoCtrlClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure memoMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-    procedure getCompletionList;
     procedure getSymbolLoc;
     procedure focusedEditorChanged;
     //
@@ -89,7 +82,6 @@ begin
   //
   fTokList := TLexTokenList.Create;
   fErrList := TLexErrorList.Create;
-  completion.OnPaintItem := @completionItemPaint;
   {$IFDEF LINUX}
   PageControl.OnCloseTabClicked := @pageCloseBtnClick;
   {$ENDIF}
@@ -111,22 +103,6 @@ begin
   fErrList.Free;
   inherited;
 end;
-
-function TCEEditorWidget.completionItemPaint(const AKey: string; ACanvas: TCanvas;X, Y: integer; Selected: boolean; Index: integer): boolean;
-var
-  lft, rgt: string;
-  len: Integer;
-begin
-  // warning: '20' depends on ce_dcd, case knd of, string literals length
-  result := true;
-  lft := AKey[1 .. length(AKey)-20];
-  rgt := AKey[length(AKey)-19 .. length(AKey)];
-  ACanvas.Font.Style := [fsBold];
-  len := ACanvas.TextExtent(lft).cx;
-  ACanvas.TextOut(2 + X , Y, lft);
-  ACanvas.Font.Style := [fsItalic];
-  ACanvas.TextOut(2 + X + len + 2, Y, rgt);
-end;
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
@@ -141,7 +117,6 @@ begin
   aDoc.Parent := sheet;
   //
   aDoc.OnKeyDown := @memoKeyDown;
-  aDoc.OnKeyUp := @memoKeyDown;
   aDoc.OnKeyPress := @memoKeyPress;
   aDoc.OnMouseDown := @memoMouseDown;
   aDoc.OnMouseMove := @memoMouseMove;
@@ -255,7 +230,6 @@ begin
   if fDoc = nil then exit;
   //
   macRecorder.Editor:= fDoc;
-  completion.Editor := fDoc;
   if (pageControl.ActivePage.Caption = '') then
   begin
     fKeyChanged := true;
@@ -268,27 +242,11 @@ begin
   updateImperative;
 end;
 
-procedure TCEEditorWidget.completionExecute(Sender: TObject);
-begin
-  getCompletionList;
-  completion.TheForm.Font.Size := fDoc.Font.Size;
-end;
-
-procedure TCEEditorWidget.completionCodeCompletion(var Value: string;
-  SourceValue: string; var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char;
-  Shift: TShiftState);
-begin
-  // warning: '20' depends on ce_dcd, case knd of, string literals length
-  Value := Value[1..length(Value)-20];
-end;
-
 procedure TCEEditorWidget.memoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  updateImperative;
-  case Byte(Key) of
+  case Key of
     VK_CLEAR,VK_RETURN,VK_BACK : fKeyChanged := true;
-    //VK_OEM_PERIOD, VK_DECIMAL: completion.Execute('.', fDoc.ClientToScreen(
-    //  point(fDoc.CaretXPix, top + fDoc.CaretYPix)));
+    VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT: updateImperative;
   end;
   if fKeyChanged then
     beginDelayedUpdate
@@ -349,15 +307,6 @@ begin
       sum += len;
     end;
   end;
-end;
-
-procedure TCEEditorWidget.getCompletionList;
-begin
-  if not DcdWrapper.available then exit;
-  //
-  completion.Position := 0;
-  completion.ItemList.Clear;
-  DcdWrapper.getComplAtCursor(completion.ItemList);
 end;
 
 procedure TCEEditorWidget.updateImperative;
