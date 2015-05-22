@@ -22,9 +22,25 @@ type
   { TCEEditorWidget }
 
   TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler)
+    mnuedCopy: TMenuItem;
+    mnuedCut: TMenuItem;
+    mnuedPaste: TMenuItem;
+    MenuItem4: TMenuItem;
+    mnuedUndo: TMenuItem;
+    mnuedRedo: TMenuItem;
+    MenuItem7: TMenuItem;
+    mnuedJum2Decl: TMenuItem;
     PageControl: TExtendedNotebook;
     macRecorder: TSynMacroRecorder;
     editorStatus: TStatusBar;
+    mnuEditor: TPopupMenu;
+    procedure mnuedCopyClick(Sender: TObject);
+    procedure mnuedCutClick(Sender: TObject);
+    procedure mnuEditorPopup(Sender: TObject);
+    procedure mnuedPasteClick(Sender: TObject);
+    procedure mnuedUndoClick(Sender: TObject);
+    procedure mnuedRedoClick(Sender: TObject);
+    procedure mnuedJum2DeclClick(Sender: TObject);
     procedure PageControlChange(Sender: TObject);
   protected
     procedure updateDelayed; override;
@@ -77,6 +93,8 @@ end;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEEditorWidget.create(aOwner: TComponent);
+var
+  png: TPortableNetworkGraphic;
 begin
   inherited;
   //
@@ -85,6 +103,24 @@ begin
   {$IFDEF LINUX}
   PageControl.OnCloseTabClicked := @pageCloseBtnClick;
   {$ENDIF}
+  //
+  png := TPortableNetworkGraphic.Create;
+  try
+    png.LoadFromLazarusResource('copy');
+    mnuedCopy.Bitmap.Assign(png);
+    png.LoadFromLazarusResource('cut');
+    mnuedCut.Bitmap.Assign(png);
+    png.LoadFromLazarusResource('paste');
+    mnuedPaste.Bitmap.Assign(png);
+    png.LoadFromLazarusResource('arrow_undo');
+    mnuedUndo.Bitmap.Assign(png);
+    png.LoadFromLazarusResource('arrow_redo');
+    mnuedRedo.Bitmap.Assign(png);
+    png.LoadFromLazarusResource('arrow_shoe');
+    mnuedJum2Decl.Bitmap.Assign(png);
+  finally
+    png.Free;
+  end;
   //
   EntitiesConnector.addObserver(self);
   EntitiesConnector.addSingleService(self);
@@ -230,6 +266,7 @@ begin
   if fDoc = nil then exit;
   //
   macRecorder.Editor:= fDoc;
+  fDoc.PopupMenu := mnuEditor;
   if (pageControl.ActivePage.Caption = '') then
   begin
     fKeyChanged := true;
@@ -365,4 +402,53 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION Editor context menu ---------------------------------------------------}
+procedure TCEEditorWidget.mnuedCopyClick(Sender: TObject);
+begin
+  if fDoc = nil then exit;
+  fDoc.ExecuteCommand(ecCopy, '', nil);
+end;
+
+procedure TCEEditorWidget.mnuedCutClick(Sender: TObject);
+begin
+  if fDoc = nil then exit;
+  fDoc.ExecuteCommand(ecCut, '', nil);
+end;
+
+procedure TCEEditorWidget.mnuedPasteClick(Sender: TObject);
+begin
+  if fDoc = nil then exit;
+  fDoc.ExecuteCommand(ecPaste, '', nil);
+end;
+
+procedure TCEEditorWidget.mnuedUndoClick(Sender: TObject);
+begin
+  if fDoc = nil then exit;
+  fDoc.ExecuteCommand(ecUndo, '', nil);
+end;
+
+procedure TCEEditorWidget.mnuedRedoClick(Sender: TObject);
+begin
+  if fDoc = nil then exit;
+  fDoc.ExecuteCommand(ecRedo, '', nil);
+end;
+
+procedure TCEEditorWidget.mnuedJum2DeclClick(Sender: TObject);
+begin
+  if fDoc = nil then exit;
+  getSymbolLoc;
+end;
+
+procedure TCEEditorWidget.mnuEditorPopup(Sender: TObject);
+begin
+  if fDoc = nil then exit;
+  //
+  mnuedCut.Enabled:=fDOc.SelAvail;
+  mnuedPaste.Enabled:=fDoc.CanPaste;
+  mnuedCopy.Enabled:=fDoc.SelAvail;
+  mnuedUndo.Enabled:=fDoc.CanUndo;
+  mnuedRedo.Enabled:=fDoc.CanRedo;
+  mnuedJum2Decl.Enabled:=fDoc.isDSource;
+end;
+{$ENDREGION}
 end.

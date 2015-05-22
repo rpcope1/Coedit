@@ -60,4 +60,40 @@ inherited CEEditorWidget: TCEEditorWidget
     left = 80
     top = 16
   end
+  object mnuEditor: TPopupMenu[3]
+    OnPopup = mnuEditorPopup
+    left = 152
+    top = 16
+    object mnuedCopy: TMenuItem
+      Caption = 'Copy'
+      OnClick = mnuedCopyClick
+    end
+    object mnuedCut: TMenuItem
+      Caption = 'Cut'
+      OnClick = mnuedCutClick
+    end
+    object mnuedPaste: TMenuItem
+      Caption = 'Paste'
+      OnClick = mnuedPasteClick
+    end
+    object MenuItem4: TMenuItem
+      Caption = '-'
+    end
+    object mnuedUndo: TMenuItem
+      Caption = 'Undo'
+      OnClick = mnuedUndoClick
+    end
+    object mnuedRedo: TMenuItem
+      Caption = 'Redo'
+      OnClick = mnuedRedoClick
+    end
+    object MenuItem7: TMenuItem
+      Caption = '-'
+    end
+    object mnuedJum2Decl: TMenuItem
+      Caption = 'Jump to declaration'
+      ShortCut = 24614
+      OnClick = mnuedJum2DeclClick
+    end
+  end
 end
