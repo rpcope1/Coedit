@@ -80,7 +80,11 @@ begin
   // TODO-cfeature: process list, imply that each TCESynMemo must have its own runnable TProcess
   // currently they share the CEMainForm.fRunProc variable.
   if fProc <> nil then
+  begin
     fProc.Terminate(1);
+    Panel1.Enabled:=false;
+  end
+  else Panel1.Enabled:=true;
 
   txtExeName.Caption := 'no process';
   fProc := nil;

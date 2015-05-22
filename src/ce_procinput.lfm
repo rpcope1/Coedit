@@ -38,6 +38,7 @@ inherited CEProcInputWidget: TCEProcInputWidget
         BevelOuter = bvNone
         ClientHeight = 30
         ClientWidth = 605
+        Enabled = False
         TabOrder = 1
         object btnSend: TButton
           Left = 530
