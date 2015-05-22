@@ -38,6 +38,7 @@ type
     fFont: TFont;
     //
     fHintDelay: Integer;
+    fAutoDotDelay: Integer;
     fTabWidth: Integer;
     fBlockIdent: Integer;
     fLineSpacing: Integer;
@@ -58,7 +59,9 @@ type
     procedure setTxtSyn(aValue: TPersistent);
     procedure setShortcuts(aValue: TCollection);
     procedure setHintDelay(aValue: Integer);
+    procedure setAutoDotDelay(aValue: Integer);
   published
+    property autoDotDelay: integer read fAutoDotDelay write SetautoDotDelay;
     property hintDelay: Integer read fHintDelay write setHintDelay;
     property bracketMatchColor: TSynSelectedColor read fBracketMatchColor write setBracketMatchColor;
     property mouseLinkColor: TSynSelectedColor read fMouseLinkColor write setMouseLinkColor;
@@ -146,6 +149,7 @@ begin
   fTxtSyn.Assign(TxtSyn);
   //
   fHintDelay:=200;
+  fAutoDotDelay:=200;
   fSelCol := TSynSelectedColor.Create;
   fFoldedColor := TSynSelectedColor.Create;
   fMouseLinkColor := TSynSelectedColor.Create;
@@ -214,6 +218,7 @@ begin
   begin
     srcopt := TCEEditorOptionsBase(src);
     //
+    fAutoDotDelay:=srcopt.fAutoDotDelay;
     fHintDelay:=srcopt.fHintDelay;
     fFont.Assign(srcopt.fFont);
     fSelCol.Assign(srcopt.fSelCol);
@@ -243,6 +248,13 @@ begin
   if aValue > 2000 then aValue := 2000
   else if aValue < 20 then aValue := 20;
   fHintDelay:=aValue;
+end;
+
+procedure TCEEditorOptionsBase.setAutoDotDelay(aValue: Integer);
+begin
+  if aValue > 2000 then aValue := 2000
+  else if aValue < 0 then aValue := 0;
+  fAutoDotDelay:=aValue;
 end;
 
 procedure TCEEditorOptionsBase.setShortcuts(aValue: TCollection);
@@ -443,6 +455,7 @@ var
   shc: TCEPersistentShortcut;
   kst: TSynEditKeyStroke;
 begin
+  anEditor.autoDotDelay:=fAutoDotDelay;
   anEditor.hintDelay:=fHintDelay;
   anEditor.defaultFontSize := font.Size;
   anEditor.Font.Assign(font);
