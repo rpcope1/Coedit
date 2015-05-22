@@ -5,10 +5,10 @@ unit ce_synmemo;
 interface
 
 uses
-  Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc, SynPluginSyncroEdit,
-  SynEditKeyCmds, LazSynEditText, SynEditHighlighter, SynEdit, SynHighlighterLFM,
-  SynEditMouseCmds, SynEditFoldedView, ce_common, ce_observer, ce_writableComponent,
-  ce_d2syn, ce_txtsyn;
+  Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
+  SynPluginSyncroEdit, SynCompletion, SynEditKeyCmds, LazSynEditText, SynEdit,
+  SynHighlighterLFM, SynEditHighlighter, SynEditMouseCmds, SynEditFoldedView,
+  ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn;
 
 type
 
@@ -92,10 +92,14 @@ type
     fCallTipWin: TCEEditorHintWindow;
     fDDocWin: TCEEditorHintWindow;
     fHintDelay: Integer;
+    fAutoDotDelay: Integer;
     fHintTimer: TIdleTimer;
+    fAutoDotTimer: TIdleTimer;
     fCanShowHint: boolean;
+    fCanAutoDot: boolean;
     fOldMousePos: TPoint;
     fSyncEdit: TSynPluginSyncroEdit;
+    fCompletion: TSynCompletion;
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
@@ -105,9 +109,17 @@ type
     procedure setDefaultFontSize(aValue: Integer);
     procedure getCallTips;
     procedure HintTimerEvent(sender: TObject);
+    procedure AutoDotTimerEvent(sender: TObject);
     procedure InitHintWins;
     function getIfTemp: boolean;
     procedure setHintDelay(aValue: Integer);
+    procedure setAutoDotDelay(aValue: Integer);
+    procedure completionExecute(sender: TObject);
+    procedure getCompletionList;
+    function completionItemPaint(const AKey: string; ACanvas: TCanvas;X, Y: integer;
+        Selected: boolean; Index: integer): boolean;
+    procedure completionCodeCompletion(var Value: string; SourceValue: string;
+      var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char; Shift: TShiftState);
   protected
     procedure MouseLeave; override;
     procedure SetVisible(Value: Boolean); override;
@@ -122,6 +134,7 @@ type
   published
     property defaultFontSize: Integer read fDefaultFontSize write setDefaultFontSize;
     property hintDelay: Integer read fHintDelay write setHintDelay;
+    property autoDotDelay: Integer read fAutoDotDelay write setAutoDotDelay;
   public
     constructor Create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -345,13 +358,19 @@ begin
   fDefaultFontSize := 10;
   SetDefaultCoeditKeystrokes(Self); // not called in inherited if owner = nil !
   //
-  ShowHint :=false;
+  ShowHint := false;
   InitHintWins;
   fHintDelay := 200;
   fHintTimer := TIdleTimer.Create(self);
   fHintTimer.AutoEnabled:=true;
   fHintTimer.Interval := fHintDelay;
   fHintTimer.OnTimer := @HintTimerEvent;
+  //
+  fAutoDotDelay := 200;
+  fAutoDotTimer := TIdleTimer.Create(self);
+  fAutoDotTimer.AutoEnabled:=true;
+  fAutoDotTimer.Interval := fAutoDotDelay;
+  fAutoDotTimer.OnTimer := @AutoDotTimerEvent;
   //
   Gutter.LineNumberPart.ShowOnlyLineNumbersMultiplesOf := 5;
   Gutter.LineNumberPart.MarkupInfo.Foreground := clGray;
@@ -371,6 +390,13 @@ begin
   finally
     png.Free;
   end;
+  //
+  fCompletion := TSyncompletion.create(nil);
+  fCompletion.ShowSizeDrag := true;
+  fCompletion.Editor := Self;
+  fCompletion.OnExecute:= @completionExecute;
+  fCompletion.OnCodeCompletion:=@completionCodeCompletion;
+  fCompletion.OnPaintItem:= @completionItemPaint;
   //
   MouseLinkColor.Style:= [fsUnderline];
   with MouseActions.Add do begin
@@ -400,6 +426,7 @@ begin
   subjDocClosing(TCEMultiDocSubject(fMultiDocSubject), self);
   fMultiDocSubject.Free;
   fPositions.Free;
+  fCompletion.Free;
   //
   if fileExists(fTempFileName) then
     sysutils.DeleteFile(fTempFileName);
@@ -545,9 +572,12 @@ begin
   else begin
     fDDocWin.Hide;
     fCallTipWin.Hide;
+    if  fCompletion.IsActive then
+      fCompletion.Deactivate;
   end;
 end;
 
+{$REGION DDoc hints ------------------------------------------------------------}
 procedure TCESynMemo.InitHintWins;
 begin
   if fCallTipWin = nil then begin
@@ -610,6 +640,63 @@ begin
     fDDocWin.ActivateHint(fDDocWin.HintRect, str);
   end;
 end;
+{$ENDREGION --------------------------------------------------------------------}
+
+{$REGION Completion ------------------------------------------------------------}
+procedure TCESynMemo.completionExecute(sender: TObject);
+begin
+  fCompletion.TheForm.Font.Size := Font.Size;
+  getCompletionList;
+end;
+
+procedure TCESynMemo.getCompletionList;
+begin
+  if not DcdWrapper.available then exit;
+  //
+  fCompletion.Position := 0;
+  fCompletion.ItemList.Clear;
+  DcdWrapper.getComplAtCursor(fCompletion.ItemList);
+end;
+
+procedure TCESynMemo.completionCodeCompletion(var Value: string;
+  SourceValue: string; var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char;
+  Shift: TShiftState);
+begin
+  // warning: '20' depends on ce_dcd, case knd of, string literals length
+  Value := Value[1..length(Value)-20];
+end;
+
+function TCESynMemo.completionItemPaint(const AKey: string; ACanvas: TCanvas;X, Y: integer;
+        Selected: boolean; Index: integer): boolean;
+var
+  lft, rgt: string;
+  len: Integer;
+begin
+  // warning: '20' depends on ce_dcd, case knd of, string literals length
+  result := true;
+  lft := AKey[1 .. length(AKey)-20];
+  rgt := AKey[length(AKey)-19 .. length(AKey)];
+  ACanvas.Font.Style := [fsBold];
+  len := ACanvas.TextExtent(lft).cx;
+  ACanvas.TextOut(2 + X , Y, lft);
+  ACanvas.Font.Style := [fsItalic];
+  ACanvas.TextOut(2 + X + len + 2, Y, rgt);
+end;
+
+procedure TCESynMemo.AutoDotTimerEvent(sender: TObject);
+begin
+  if not fCanAutoDot then exit;
+  if fAutoDotDelay = 0 then exit;
+  fCanAutoDot := false;
+  fCompletion.Execute('', ClientToScreen(point(CaretXPix, top + CaretYPix)));
+end;
+
+procedure TCESynMemo.setAutoDotDelay(aValue: Integer);
+begin
+  fAutoDotDelay:=aValue;
+  fAutoDotTimer.Interval:=fAutoDotDelay;
+end;
+{$ENDREGION --------------------------------------------------------------------}
 
 procedure TCESynMemo.SetHighlighter(const Value: TSynCustomHighlighter);
 begin
@@ -793,8 +880,10 @@ end;
 
 procedure TCESynMemo.KeyUp(var Key: Word; Shift: TShiftState);
 begin
-  if Key in [VK_PRIOR, VK_NEXT, Vk_UP] then
-    fPositions.store;
+  case Key of
+    VK_PRIOR, VK_NEXT, Vk_UP: fPositions.store;
+    VK_OEM_PERIOD, VK_DECIMAL: fCanAutoDot := true;
+  end;
   inherited;
   //
   if StaticEditorMacro.automatic then
