@@ -639,8 +639,7 @@ begin
   end;
   {$ENDIF}
   {$IFDEF LINUX}
-  // aList.LoadFromFile('/etc/fstab'); // to be parsed
-  aList.Add('/home/'); //TODO-cbugfix: AV when scanning non-users folder (e.g replace '/home/'' with '/')
+  aList.Add('//');
   {$ENDIF}
 end;
 

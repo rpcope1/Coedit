@@ -73,7 +73,7 @@ type
     constructor create(aIwner: TComponent); override;
     destructor destroy; override;
     //
-    procedure expandPath(const aPath: string);
+    procedure expandPath(aPath: string);
   end;
 
 implementation
@@ -436,9 +436,11 @@ begin
   if Tree.Selected = nil then exit;
   if Tree.Selected.Expanded then exit;
   treeScanSubFolders(Tree.Selected);
+  //
+  getMessageDisplay.message(PString(Tree.Selected.Data)^ , nil, amcAll, amkBub);
 end;
 
-procedure TCEMiniExplorerWidget.expandPath(const aPath: string);
+procedure TCEMiniExplorerWidget.expandPath(aPath: string);
 var
   i: NativeInt;
   node : TTreeNode;
@@ -448,6 +450,10 @@ var
   str: string;
 begin
   result := false;
+  {$IFDEF LINUX}
+  if (length(aPath) >= 2) and (aPath[2] <> '/') then
+    aPath := '/' + aPath;
+  {$ENDIF}
   for i := 0 to aRoot.Count-1 do
   begin
     str := PString(aRoot.Items[i].Data)^;
