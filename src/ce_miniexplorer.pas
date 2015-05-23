@@ -436,8 +436,6 @@ begin
   if Tree.Selected = nil then exit;
   if Tree.Selected.Expanded then exit;
   treeScanSubFolders(Tree.Selected);
-  //
-  getMessageDisplay.message(PString(Tree.Selected.Data)^ , nil, amcAll, amkBub);
 end;
 
 procedure TCEMiniExplorerWidget.expandPath(aPath: string);
