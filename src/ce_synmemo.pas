@@ -97,6 +97,7 @@ type
     fAutoDotTimer: TIdleTimer;
     fCanShowHint: boolean;
     fCanAutoDot: boolean;
+    fCompletionCaseSens: boolean;
     fOldMousePos: TPoint;
     fSyncEdit: TSynPluginSyncroEdit;
     fCompletion: TSynCompletion;
@@ -112,6 +113,7 @@ type
     procedure AutoDotTimerEvent(sender: TObject);
     procedure InitHintWins;
     function getIfTemp: boolean;
+    procedure SetcompletionMenuCaseCare(aValue: boolean);
     procedure setHintDelay(aValue: Integer);
     procedure setAutoDotDelay(aValue: Integer);
     procedure completionExecute(sender: TObject);
@@ -135,6 +137,7 @@ type
     property defaultFontSize: Integer read fDefaultFontSize write setDefaultFontSize;
     property hintDelay: Integer read fHintDelay write setHintDelay;
     property autoDotDelay: Integer read fAutoDotDelay write setAutoDotDelay;
+    property completionMenuCaseCare: boolean read fCompletionCaseSens write SetcompletionMenuCaseCare;
   public
     constructor Create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -391,12 +394,14 @@ begin
     png.Free;
   end;
   //
+  fCompletionCaseSens:=false;
   fCompletion := TSyncompletion.create(nil);
   fCompletion.ShowSizeDrag := true;
   fCompletion.Editor := Self;
   fCompletion.OnExecute:= @completionExecute;
   fCompletion.OnCodeCompletion:=@completionCodeCompletion;
   fCompletion.OnPaintItem:= @completionItemPaint;
+  fCompletion.CaseSensitive:=false;
   //
   MouseLinkColor.Style:= [fsUnderline];
   with MouseActions.Add do begin
@@ -612,6 +617,12 @@ procedure TCESynMemo.setHintDelay(aValue: Integer);
 begin
   fHintDelay:=aValue;
   fHintTimer.Interval:=fHintDelay;
+end;
+
+procedure TCESynMemo.SetcompletionMenuCaseCare(aValue: boolean);
+begin
+  fCompletionCaseSens:=aValue;
+  fCompletion.CaseSensitive:=aValue;
 end;
 
 procedure TCESynMemo.HintTimerEvent(sender: TObject);

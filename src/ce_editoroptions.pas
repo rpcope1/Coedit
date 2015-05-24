@@ -49,6 +49,7 @@ type
     fOptions1: TSynEditorOptions;
     fOptions2: TSynEditorOptions2;
     fMouseOptions: TSynEditorMouseOptions;
+    fCompletionMenuCaseCare: boolean;
     //
     procedure setFont(aValue: TFont);
     procedure setSelCol(aValue: TSynSelectedColor);
@@ -61,6 +62,7 @@ type
     procedure setHintDelay(aValue: Integer);
     procedure setAutoDotDelay(aValue: Integer);
   published
+    property completionMenuCaseCare: boolean read fCompletionMenuCaseCare write fCompletionMenuCaseCare;
     property autoDotDelay: integer read fAutoDotDelay write SetautoDotDelay;
     property hintDelay: Integer read fHintDelay write setHintDelay;
     property bracketMatchColor: TSynSelectedColor read fBracketMatchColor write setBracketMatchColor;
@@ -218,6 +220,7 @@ begin
   begin
     srcopt := TCEEditorOptionsBase(src);
     //
+    fCompletionMenuCaseCare:=srcopt.fCompletionMenuCaseCare;
     fAutoDotDelay:=srcopt.fAutoDotDelay;
     fHintDelay:=srcopt.fHintDelay;
     fFont.Assign(srcopt.fFont);
@@ -455,6 +458,7 @@ var
   shc: TCEPersistentShortcut;
   kst: TSynEditKeyStroke;
 begin
+  anEditor.completionMenuCaseCare:=fCompletionMenuCaseCare;
   anEditor.autoDotDelay:=fAutoDotDelay;
   anEditor.hintDelay:=fHintDelay;
   anEditor.defaultFontSize := font.Size;
