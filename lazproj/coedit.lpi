@@ -146,7 +146,6 @@
         <ComponentName Value="CECdbWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_cdbcmd"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\src\ce_common.pas"/>
@@ -160,7 +159,6 @@
       <Unit4>
         <Filename Value="..\src\ce_dcd.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_dcd"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\src\ce_dlang.pas"/>
@@ -243,7 +241,6 @@
       <Unit19>
         <Filename Value="..\src\ce_observer.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_observer"/>
       </Unit19>
       <Unit20>
         <Filename Value="..\src\ce_optionseditor.pas"/>
@@ -251,6 +248,7 @@
         <ComponentName Value="CEOptionEditorWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_optionseditor"/>
       </Unit20>
       <Unit21>
         <Filename Value="..\src\ce_procinput.pas"/>
@@ -258,6 +256,7 @@
         <ComponentName Value="CEProcInputWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_procinput"/>
       </Unit21>
       <Unit22>
         <Filename Value="..\src\ce_projconf.pas"/>
@@ -265,6 +264,7 @@
         <ComponentName Value="CEProjectConfigurationWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_projconf"/>
       </Unit22>
       <Unit23>
         <Filename Value="..\src\ce_project.pas"/>
@@ -290,10 +290,12 @@
         <ComponentName Value="CEShortcutEditor"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
+        <UnitName Value="ce_shortcutseditor"/>
       </Unit26>
       <Unit27>
         <Filename Value="..\src\ce_staticmacro.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_staticmacro"/>
       </Unit27>
       <Unit28>
         <Filename Value="..\src\ce_symlist.pas"/>
@@ -318,6 +320,7 @@
         <ComponentName Value="CETodoListWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_todolist"/>
       </Unit31>
       <Unit32>
         <Filename Value="..\src\ce_tools.pas"/>
@@ -348,7 +351,6 @@
         <ComponentName Value="CEWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_widget"/>
       </Unit37>
     </Units>
   </ProjectOptions>
