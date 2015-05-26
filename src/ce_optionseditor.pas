@@ -70,6 +70,7 @@ begin
   fModal:= true;
   fEdOptsSubj := TCEEditableOptionsSubject.create;
   inspector.CheckboxForBoolean := true;
+  inspector.PropertyEditorHook.AddHandlerModified(@inspectorModified);
   //
   png := TPortableNetworkGraphic.Create;
   try
@@ -146,7 +147,7 @@ begin
       fCatChanged := not result;
       if result then btnCancelClick(nil);
     end;
-  // custom editor, changes are notified by optionedCatChange()
+  // custom editor, changes are notified by optionedOptionsModified()
   end else
   begin
     dt := PCategoryData(selCat.Selected.Data);
