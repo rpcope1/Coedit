@@ -585,6 +585,7 @@ var
   i: Integer;
   msgdt: PMessageData;
 begin
+  list.BeginUpdate;
   if aCtxt = amcAll then
     List.Items.Clear
   else for i := List.Items.Count-1 downto 0 do
@@ -593,6 +594,7 @@ begin
     if msgdt^.ctxt = aCtxt then
       List.Items.Delete(List.Items[i]);
   end;
+  list.EndUpdate;
 end;
 
 procedure TCEMessagesWidget.clearByData(aData: Pointer);
@@ -602,12 +604,14 @@ var
 begin
   if aData = nil then
     exit;
+  list.BeginUpdate;
   for i := List.Items.Count-1 downto 0 do
   begin
     msgdt := PMessageData(List.Items[i].Data);
     if (msgdt^.data = aData) then
       List.Items.Delete(List.Items[i]);
   end;
+  list.EndUpdate;
 end;
 {$ENDREGION}
 
@@ -626,8 +630,10 @@ end;
 
 procedure TCEMessagesWidget.clearOutOfRangeMessg;
 begin
+  list.BeginUpdate;
   while List.Items.Count > fMaxMessCnt do
     List.Items.Delete(List.Items.GetFirstNode);
+  list.EndUpdate;
 end;
 
 procedure TCEMessagesWidget.scrollToBack;
@@ -664,6 +670,7 @@ var
 begin
   if updating then
     exit;
+  List.BeginUpdate;
   for i := 0 to List.Items.Count-1 do
   begin
     itm := List.Items[i];
@@ -679,6 +686,7 @@ begin
       amcMisc: itm.Visible := aCtxt = amcMisc;
     end;
   end;
+  list.EndUpdate;
 end;
 
 function guessMessageKind(const aMessg: string): TCEAppMessageKind;
