@@ -104,6 +104,7 @@ type
     function optionedWantEditorKind: TOptionEditorKind;
     function optionedWantContainer: TPersistent;
     procedure optionedEvent(anEvent: TOptionEditorEvent);
+    function optionedOptionsModified: boolean;
     // TODOlist things
     function getContext: TTodoContext;
     procedure killToolProcess;
@@ -301,6 +302,10 @@ begin
   fOptions.AssignTo(self);
 end;
 
+function TCETodoListWidget.optionedOptionsModified: boolean;
+begin
+  exit(false);
+end;
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}

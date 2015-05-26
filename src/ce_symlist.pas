@@ -159,6 +159,7 @@ type
     function optionedWantEditorKind: TOptionEditorKind;
     function optionedWantContainer: TPersistent;
     procedure optionedEvent(anEvent: TOptionEditorEvent);
+    function optionedOptionsModified: boolean;
   protected
     procedure updateDelayed; override;
     //
@@ -487,6 +488,11 @@ begin
   if anEvent <> oeeAccept then exit;
   fOptions.AssignTo(self);
   callToolProc;
+end;
+
+function TCESymbolListWidget.optionedOptionsModified: boolean;
+begin
+  exit(false);
 end;
 {$ENDREGION}
 

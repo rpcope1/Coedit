@@ -65,6 +65,7 @@ type
     function optionedWantEditorKind: TOptionEditorKind;
     function optionedWantContainer: TPersistent;
     procedure optionedEvent(anEvent: TOptionEditorEvent);
+    function optionedOptionsModified: boolean;
     // ICEEditableShortcut
     function scedWantFirst: boolean;
     function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
@@ -295,6 +296,11 @@ begin
     end;
     oeeChange: fOptions.AssignTo(self);
   end;
+end;
+
+function TCEStaticEditorMacro.optionedOptionsModified: boolean;
+begin
+  exit(false);
 end;
 {$ENDREGION}
 

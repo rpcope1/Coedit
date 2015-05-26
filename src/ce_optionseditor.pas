@@ -47,6 +47,7 @@ type
     fCatChanged: boolean;
     fEdOptsSubj: TCEEditableOptionsSubject;
     procedure updateCategories;
+    function allowCategoryChange: boolean;
     function sortCategories(Cat1, Cat2: TTreeNode): integer;
   public
     constructor create(aOwner: TComponent); override;
@@ -55,6 +56,9 @@ type
 
 implementation
 {$R *.lfm}
+
+const
+  msg_mod = 'The current category modifications are not validated, discard them and continue ?';
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEOptionEditorWidget.create(aOwner: TComponent);
@@ -124,21 +128,41 @@ begin
     Dispose(PCategoryData(node.Data));
 end;
 
-procedure TCEOptionEditorWidget.selCatChanging(Sender: TObject;
-  Node: TTreeNode; var AllowChange: Boolean);
+function TCEOptionEditorWidget.allowCategoryChange: boolean;
+var
+  dt: PCategoryData;
 begin
+  result := true;
   if selCat.Selected = nil then exit;
   if selCat.Selected.Data = nil then exit;
   // accept/cancel is relative to a single category
-  if fCatChanged then begin
-    AllowChange := dlgOkCancel(
-      'The modifications of the current category are not validated, ' +
-      'discard them and continue ?'
-      ) = mrOk;
-    fCatChanged := not AllowChange;
-    if AllowChange then
-      btnCancelClick(nil);
+  dt := PCategoryData(selCat.Selected.Data);
+  // generic editor, changes are tracked directly here
+  if dt^.kind = oekGeneric then
+  begin
+    if fCatChanged then
+    begin
+      result := dlgOkCancel(msg_mod) = mrOk;
+      fCatChanged := not result;
+      if result then btnCancelClick(nil);
+    end;
+  // custom editor, changes are notified by optionedCatChange()
+  end else
+  begin
+    dt := PCategoryData(selCat.Selected.Data);
+    if dt^.container = nil then exit;
+    if dt^.observer.optionedOptionsModified() then
+    begin
+      result := dlgOkCancel(msg_mod) = mrOk;
+      if result then btnCancelClick(nil);
+    end;
   end;
+end;
+
+procedure TCEOptionEditorWidget.selCatChanging(Sender: TObject;Node: TTreeNode;
+  var AllowChange: Boolean);
+begin
+  AllowChange := allowCategoryChange;
 end;
 
 procedure TCEOptionEditorWidget.selCatSelectionChanged(Sender: TObject);
@@ -208,15 +232,7 @@ end;
 procedure TCEOptionEditorWidget.FormCloseQuery(Sender: TObject;
   var CanClose: boolean);
 begin
-  if fCatChanged then
-  begin
-    CanClose := dlgOkCancel(
-       'The modifications of the current category are not validated, ' +
-       'discard them and continue ?' ) = mrOk;
-    if CanClose then
-      btnCancelClick(nil);
-  end
-  else CanClose := true;
+  canClose := allowCategoryChange;
 end;
 
 procedure TCEOptionEditorWidget.inspectorEditorFilter(Sender: TObject;aEditor:

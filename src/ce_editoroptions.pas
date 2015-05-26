@@ -103,6 +103,7 @@ type
     function optionedWantEditorKind: TOptionEditorKind;
     function optionedWantContainer: TPersistent;
     procedure optionedEvent(anEvent: TOptionEditorEvent);
+    function optionedOptionsModified: boolean;
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
@@ -439,6 +440,10 @@ begin
   end;
 end;
 
+function TCEEditorOptions.optionedOptionsModified: boolean;
+begin
+  exit(false);
+end;
 {$ENDREGION}
 
 {$REGION ICEEditableOptions ----------------------------------------------------}

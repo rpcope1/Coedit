@@ -21,6 +21,7 @@ type
     function optionedWantEditorKind: TOptionEditorKind;
     function optionedWantContainer: TPersistent;
     procedure optionedEvent(anEvent: TOptionEditorEvent);
+    function optionedOptionsModified: boolean;
     //
     procedure doChanged(Sender: TObject);
   public
@@ -108,6 +109,11 @@ begin
     SaveToMaster;
     doChanged(nil);
   end;
+end;
+
+function TDockOptionsEditor.optionedOptionsModified: boolean;
+begin
+  exit(false);
 end;
 
 procedure TDockOptionsEditor.doChanged(Sender: TObject);

@@ -160,6 +160,8 @@ type
     function optionedWantContainer: TPersistent;
     // the option editor informs that something has happened.
     procedure optionedEvent(anEvent: TOptionEditorEvent);
+    // the option editor wants to know if an editor allows another category to be displayed (not called for oekGeneric).
+    function optionedOptionsModified: boolean;
   end;
   (**
    * An implementer displays its observers editable options.
@@ -199,7 +201,7 @@ type
     // removes an entry.
     procedure removeProcess(aProcess: TProcess);
     // indicates the current process
-    function process(): TProcess;
+    function process: TProcess;
   end;
 
 
@@ -220,6 +222,21 @@ type
     function closeDocument(index: Integer): boolean;
     // conveniance property
     property document[index: integer]: TCESynMemo read getDocument;
+  end;
+
+
+
+  (**
+   * Single service provided by the library manager
+   * In both cases, if someAliases is empty then all the available entries are passed.
+   *)
+  ICELibraryInformer = interface(ICESingleService)
+    // fills aList with the filenames of the static libraries matching to someAliases content.
+    procedure getLibsFiles(someAliases: TStrings; aList: TStrings);
+    // fills aList with the path to static libraries sources matching to someAliases content.
+    procedure getLibsPaths(someAliases: TStrings; aList: TStrings);
+    // fills aList with all the available libraries aliases.
+    procedure getLibsAliases(aList: TStrings);
   end;
 
 
@@ -264,6 +281,9 @@ type
 
   function getMultiDocHandler(var obj: ICEMultiDocHandler): ICEMultiDocHandler; overload;
   function getMultiDocHandler: ICEMultiDocHandler; overload;
+
+  function getLibraryInformer(var obj: ICELibraryInformer): ICELibraryInformer; overload;
+  function getLibraryInformer: ICELibraryInformer; overload;
 
 implementation
 
@@ -410,6 +430,18 @@ end;
 function getMultiDocHandler: ICEMultiDocHandler;
 begin
   exit(EntitiesConnector.getSingleService('ICEMultiDocHandler') as ICEMultiDocHandler);
+end;
+
+function getLibraryInformer(var obj: ICELibraryInformer): ICELibraryInformer;
+begin
+  if obj = nil then
+    obj := EntitiesConnector.getSingleService('ICELibraryInformer') as ICELibraryInformer;
+  exit(obj);
+end;
+
+function getLibraryInformer: ICELibraryInformer;
+begin
+  exit(EntitiesConnector.getSingleService('ICELibraryInformer') as ICELibraryInformer);
 end;
 {$ENDREGION}
 

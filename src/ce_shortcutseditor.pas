@@ -66,16 +66,20 @@ type
     fObservers: TCEEditableShortCutSubject;
     fShortcuts: TShortCutCollection;
     fBackup: TShortCutCollection;
+    fHasChanged: boolean;
     //
     function optionedWantCategory(): string;
     function optionedWantEditorKind: TOptionEditorKind;
     function optionedWantContainer: TPersistent;
     procedure optionedEvent(anEvent: TOptionEditorEvent);
+    function optionedOptionsModified: boolean;
     //
     function findCategory(const aName: string; aData: Pointer): TTreeNode;
+    function findCategory(const aShortcutItem: TShortcutItem): string;
     function sortCategories(Cat1, Cat2: TTreeNode): integer;
-    procedure updateFromObservers;
+    procedure receiveShortcuts;
     procedure updateEditCtrls;
+    procedure sendShortcuts;
   protected
     procedure UpdateShowing; override;
   public
@@ -222,16 +226,32 @@ end;
 
 function TCEShortcutEditor.optionedWantContainer: TPersistent;
 begin
-  updateFromObservers;
+  receiveShortcuts;
   exit(self);
 end;
 
 procedure TCEShortcutEditor.optionedEvent(anEvent: TOptionEditorEvent);
 begin
   case anEvent of
-    oeeSelectCat: updateFromObservers;
-    //TODO-cfeature: cancel modifications using fBackup
+    oeeSelectCat: receiveShortcuts;
+    oeeCancel:
+    begin
+      fShortcuts.assign(fBackup);
+      sendShortcuts;
+      fHasChanged := false;
+    end;
+    oeeAccept:
+    begin
+      fBackup.assign(fShortcuts);
+      sendShortcuts;
+      fHasChanged := false;
+    end;
   end;
+end;
+
+function TCEShortcutEditor.optionedOptionsModified: boolean;
+begin
+  exit(fHasChanged);
 end;
 {$ENDREGION}
 
@@ -268,10 +288,11 @@ begin
   if tree.Selected.Level = 0 then exit;
   if tree.Selected.Data = nil then exit;
   //
-  TShortcutItem(tree.Selected.Data).data := 0;
-  TShortcutItem(tree.Selected.Data).declarator.scedSendItem(
-    tree.Selected.Parent.Text,
-    tree.Selected.Text, 0);
+  if TShortcutItem(tree.Selected.Data).data <> 0 then
+  begin
+    TShortcutItem(tree.Selected.Data).data := 0;
+    fHasChanged := true;
+  end;
   //
   updateEditCtrls;
 end;
@@ -289,10 +310,11 @@ begin
   else
   begin
     sh := Shortcut(Key, Shift);
-    TShortcutItem(tree.Selected.Data).data := sh;
-    TShortcutItem(tree.Selected.Data).declarator.scedSendItem(
-      tree.Selected.Parent.Text,
-      tree.Selected.Text, sh );
+    if TShortcutItem(tree.Selected.Data).data <> sh then
+    begin
+      TShortcutItem(tree.Selected.Data).data := sh;
+      fHasChanged := true;
+    end;
   end;
   //
   updateEditCtrls;
@@ -312,7 +334,7 @@ end;
 
 function TCEShortcutEditor.findCategory(const aName: string; aData: Pointer): TTreeNode;
 var
-  i: Integer;
+  i: integer;
 begin
   result := nil;
   for i:= 0 to tree.Items.Count-1 do
@@ -321,12 +343,23 @@ begin
         exit(tree.Items[i]);
 end;
 
+function TCEShortcutEditor.findCategory(const aShortcutItem: TShortcutItem): string;
+var
+  i, j: integer;
+begin
+  result := '';
+  for i := 0 to tree.Items.Count-1 do
+    for j:= 0 to tree.Items.Item[i].Count-1 do
+      if tree.Items.Item[i].Items[j].Data = Pointer(aShortcutItem) then
+        exit(tree.Items.Item[i].Text);
+end;
+
 function TCEShortcutEditor.sortCategories(Cat1, Cat2: TTreeNode): integer;
 begin
   result := CompareText(Cat1.Text, Cat2.Text);
 end;
 
-procedure TCEShortcutEditor.updateFromObservers;
+procedure TCEShortcutEditor.receiveShortcuts;
 var
   i: Integer;
   obs: ICEEditableShortCut;
@@ -372,6 +405,25 @@ begin
   tree.Items.SortTopLevelNodes(@sortCategories);
   fBackup.Assign(fShortcuts);
 end;
+
+procedure TCEShortcutEditor.sendShortcuts;
+var
+  i: integer;
+  shc: TShortcutItem;
+  cat: string;
+begin
+  for i := 0 to fShortcuts.count-1 do
+  begin
+    shc := fShortcuts[i];
+    cat := findCategory(shc);
+    if cat = '' then
+      continue;
+    if shc.declarator = nil then
+      continue;
+    shc.declarator.scedSendItem(cat, shc.identifier, shc.data);
+  end;
+end;
+
 {$ENDREGION}
 
 initialization

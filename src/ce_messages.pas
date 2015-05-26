@@ -107,6 +107,7 @@ type
     function optionedWantEditorKind: TOptionEditorKind;
     function optionedWantContainer: TPersistent;
     procedure optionedEvent(anEvent: TOptionEditorEvent);
+    function optionedOptionsModified: boolean;
     //
     function singleServiceName: string;
     procedure message(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
@@ -388,6 +389,11 @@ begin
       fOptions.assign(fOptionsBackup);
   end;
   fOptions.AssignTo(self);
+end;
+
+function TCEMessagesWidget.optionedOptionsModified: boolean;
+begin
+  exit(false);
 end;
 {$ENDREGION}
 
