@@ -241,9 +241,11 @@ begin
   if aEditor.GetComponent(0) is TComponent then
   begin
     if aEditor.GetPropInfo^.Name = 'Tag' then
-      aSHow := false;
-    if aEditor.GetPropInfo^.Name = 'Name' then
-      aSHow := false;
+      aShow := false
+    else if aEditor.GetPropInfo^.Name = 'Name' then
+      aShow := false
+    else if aEditor.GetPropInfo^.PropType = TypeInfo(TCollection) then
+      aShow := false;
   end;
 end;
 
