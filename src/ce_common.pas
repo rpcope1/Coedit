@@ -659,6 +659,18 @@ begin
     Free;
   end;
   {$ENDIF}
+  {$IFDEF DARWIN}
+  with TProcess.Create(nil) do
+  try
+    Executable := 'open';
+    Parameters.Add(aFilename);
+    Execute;
+  finally
+    result := true;
+    Free;
+  end;
+  {$ENDIF}
+
 end;
 
 function exeInSysPath(anExeName: string): boolean;
@@ -916,11 +928,8 @@ function internalAppIsRunning(const ExeName: string): integer;
 var
   proc: TProcess;
   lst: TStringList;
-  stripChars: TSysCharSet;
-  lstText: AnsiString;
 begin
   Result := 0;
-  stripChars := ['"'];
   proc := tprocess.Create(nil);
   proc.Executable := 'pgrep';
   proc.Parameters.Add(ExeName);
@@ -930,9 +939,7 @@ begin
     lst := TStringList.Create;
     try
       lst.LoadFromStream(proc.Output);
-      lstText := lst.Text;
-      RemoveLeadingChars(lstText, stripChars);
-      Result := StrToInt(lstText);
+      Result := StrToInt(Trim(lst.Text));
     finally
       lst.Free;
     end;
