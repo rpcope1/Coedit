@@ -659,6 +659,18 @@ begin
     Free;
   end;
   {$ENDIF}
+  {$IFDEF DARWIN}
+  with TProcess.Create(nil) do
+  try
+    Executable := 'open';
+    Parameters.Add(aFilename);
+    Execute;
+  finally
+    result := true;
+    Free;
+  end;
+  {$ENDIF}
+
 end;
 
 function exeInSysPath(anExeName: string): boolean;
@@ -910,6 +922,34 @@ begin
   end;
 end;
 {$ENDIF}
+
+{$IFDEF DARWIN}
+function internalAppIsRunning(const ExeName: string): integer;
+var
+  proc: TProcess;
+  lst: TStringList;
+begin
+  Result := 0;
+  proc := tprocess.Create(nil);
+  proc.Executable := 'pgrep';
+  proc.Parameters.Add(ExeName);
+  proc.Options := [poUsePipes, poWaitonexit];
+  try
+    proc.Execute;
+    lst := TStringList.Create;
+    try
+      lst.LoadFromStream(proc.Output);
+      Result := StrToIntDef(Trim(lst.Text), 0);
+    finally
+      lst.Free;
+    end;
+  finally
+    proc.Free;
+  end;
+end;
+{$ENDIF}
+
+
 
 function AppIsRunning(const ExeName: string):Boolean;
 begin
