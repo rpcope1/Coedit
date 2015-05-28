@@ -917,7 +917,7 @@ var
   proc: TProcess;
   lst: TStringList;
   stripChars: TSysCharSet;
-  var lstText: AnsiString;
+  lstText: AnsiString;
 begin
   Result := 0;
   stripChars := ['"'];
