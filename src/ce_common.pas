@@ -382,6 +382,9 @@ begin
   {$IFDEF UNIX}
   result := patchProc(result, '\');
   {$ENDIF}
+  {$IFDEF DARWIN}
+  result := patchProc(result, '\');
+  {$ENDIF}
 end;
 
 procedure patchPlateformPaths(const sPaths: TStrings);
@@ -512,6 +515,9 @@ begin
   {$IFDEF UNIX}
   result := ExpandFileName('~/');
   {$ENDIF}
+  {$IFDEF DARWIN}
+  raise Exception.Create('darwin: getUserDocPath() has to be implemented');
+  {$ENDIF}
   result += directorySeparator;
 end;
 
@@ -640,6 +646,11 @@ begin
   {$ENDIF}
   {$IFDEF LINUX}
   aList.Add('//');
+  {$ENDIF}
+  {$IFDEF DARWIN}
+  // tobe checked
+  // aList.Add('//');
+  raise Exception.Create('darwin: listDrives() has to be implemented');
   {$ENDIF}
 end;
 

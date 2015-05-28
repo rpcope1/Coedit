@@ -205,6 +205,9 @@ begin
   fClient.Terminate(0);
   fServer.Terminate(0);
   {$ENDIF}
+  {$IFDEF DARWIN}
+  //
+  {$ENDIF}
 end;
 
 procedure TCEDcdWrapper.waitClient;
