@@ -6,7 +6,7 @@ interface
 
 uses
 
-  Classes, SysUtils, StrUtils,
+  Classes, SysUtils,
   {$IFDEF WINDOWS}
   Windows, JwaTlHelp32,
   {$ENDIF}
@@ -939,7 +939,7 @@ begin
     lst := TStringList.Create;
     try
       lst.LoadFromStream(proc.Output);
-      Result := StrToInt(Trim(lst.Text));
+      Result := StrToIntDef(Trim(lst.Text), 0);
     finally
       lst.Free;
     end;
