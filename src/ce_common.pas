@@ -6,7 +6,7 @@ interface
 
 uses
 
-  Classes, SysUtils,
+  Classes, SysUtils, StrUtils,
   {$IFDEF WINDOWS}
   Windows, JwaTlHelp32,
   {$ENDIF}
@@ -910,6 +910,39 @@ begin
   end;
 end;
 {$ENDIF}
+
+{$IFDEF DARWIN}
+function internalAppIsRunning(const ExeName: string): integer;
+var
+  proc: TProcess;
+  lst: TStringList;
+  stripChars: TSysCharSet;
+  var lstText: AnsiString;
+begin
+  Result := 0;
+  stripChars := ['"'];
+  proc := tprocess.Create(nil);
+  proc.Executable := 'pgrep';
+  proc.Parameters.Add(ExeName);
+  proc.Options := [poUsePipes, poWaitonexit];
+  try
+    proc.Execute;
+    lst := TStringList.Create;
+    try
+      lst.LoadFromStream(proc.Output);
+      lstText := lst.Text;
+      RemoveLeadingChars(lstText, stripChars);
+      Result := StrToInt(lstText);
+    finally
+      lst.Free;
+    end;
+  finally
+    proc.Free;
+  end;
+end;
+{$ENDIF}
+
+
 
 function AppIsRunning(const ExeName: string):Boolean;
 begin
