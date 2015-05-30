@@ -1,5 +1,5 @@
 
-![](https://github.com/BBasile/Coedit/raw/master/logo/ce1.png)***Compile*** &***Edit*** in _D_
+***Compile*** &***Edit*** in _D_![](https://github.com/BBasile/Coedit/raw/master/logo/ce1.png)
 
 Coedit is an IDE for the [D2](http://dlang.org) _DMD_ compiler.
 
