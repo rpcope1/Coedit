@@ -89,11 +89,14 @@ begin
     {$ENDIF}
     {$IFDEF LINUX}
     // add phobos
-    if DirectoryExists('/usr/include/dmd/phobos') and FileExists('/usr/lib/libphobos2.a') then
+    if DirectoryExists('/usr/include/dmd/phobos') then
     begin
       with TLibraryItem(fCol.Add) do begin
         libAlias := 'phobos';
-        libFile  := '/usr/lib/libphobos2.a';
+        if FileExists('/usr/lib/libphobos2.a') then
+          libFile  := '/usr/lib/libphobos2.a'
+        else if FileExists('/usr/lib32/libphobos2.a') then
+          libFile  := '/usr/lib32/libphobos2.a';
         libSourcePath := '/usr/include/dmd/phobos';
       end;
     end;
