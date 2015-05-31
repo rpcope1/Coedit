@@ -77,14 +77,12 @@ end;
 
 procedure TCEProcInputWidget.addProcess(aProcess: TProcess);
 begin
+  Panel1.Enabled:=false;
+
   // TODO-cfeature: process list, imply that each TCESynMemo must have its own runnable TProcess
   // currently they share the CEMainForm.fRunProc variable.
   if fProc <> nil then
-  begin
     fProc.Terminate(1);
-    Panel1.Enabled:=false;
-  end
-  else Panel1.Enabled:=true;
 
   txtExeName.Caption := 'no process';
   fProc := nil;
@@ -93,6 +91,7 @@ begin
   if not (poUsePipes in aProcess.Options) then
     exit;
   fProc := aProcess;
+  if fProc <> nil then Panel1.Enabled:=true;
   txtExeName.Caption := shortenPath(fProc.Executable);
 end;
 
