@@ -227,6 +227,8 @@ end;
 function TSynD2SynRange.Compare(Range: TSynCustomHighlighterRange): integer;
 var
   src_t: TSynD2SynRange;
+const
+  cmpRes: array[boolean] of integer = (-1, 1);
 begin
   result := inherited Compare(Range);
   if result <> 0 then exit;
@@ -234,12 +236,13 @@ begin
   if Range is TSynD2SynRange then
   begin
     src_t := TSynD2SynRange(Range);
-    if src_t.rangeKinds <> rangeKinds then exit(1);
-    if src_t.nestedCommentsCount <> nestedCommentsCount then exit(1);
-    if src_t.tokenStringBracketsCount <> tokenStringBracketsCount then exit(1);
-    if src_t.rString <> rString then exit(1);
-    if src_t.namedRegionCount <> namedRegionCount then exit(1);
-    exit(0);
+    if (src_t.rString and rString) then exit(0);
+    if src_t.nestedCommentsCount <> nestedCommentsCount then
+      exit(cmpRes[src_t.nestedCommentsCount > nestedCommentsCount]);
+    if src_t.tokenStringBracketsCount <> tokenStringBracketsCount then
+      exit(cmpRes[src_t.tokenStringBracketsCount > tokenStringBracketsCount]);
+    if src_t.namedRegionCount <> namedRegionCount then
+      exit(cmpRes[src_t.namedRegionCount > namedRegionCount]);
   end;
 end;
 
