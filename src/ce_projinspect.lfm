@@ -27,7 +27,7 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
         Align = alClient
         AutoExpand = True
         BorderSpacing.Around = 2
-        DefaultItemHeight = 22
+        DefaultItemHeight = 18
         Images = imgList
         ReadOnly = True
         RightClickSelect = True
