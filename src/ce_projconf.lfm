@@ -16,7 +16,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
       Width = 445
       ClientHeight = 273
       ClientWidth = 445
-      object Panel1: TPanel[0]
+      object pnlToolBar: TPanel[0]
         Left = 4
         Height = 24
         Top = 2

@@ -48,7 +48,7 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
           20736F7572636573
         }
       end
-      object Panel1: TPanel[1]
+      object pnlToolBar: TPanel[1]
         Left = 2
         Height = 24
         Top = 2

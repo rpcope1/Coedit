@@ -13,7 +13,7 @@ type
   TCEProjectInspectWidget = class(TCEWidget, ICEProjectObserver)
     btnRemFold: TSpeedButton;
     imgList: TImageList;
-    Panel1: TPanel;
+    pnlToolBar: TPanel;
     btnAddFile: TSpeedButton;
     btnProjOpts: TSpeedButton;
     btnAddFold: TSpeedButton;
@@ -388,10 +388,7 @@ begin
   fXtraNode.DeleteChildren;
   //
   hasProj := fProject <> nil;
-  btnAddFile.Enabled := hasProj;
-  btnRemFile.Enabled := hasProj;
-  btnAddFold.Enabled := hasProj;
-  btnRemFold.Enabled := hasProj;
+  pnlToolBar.Enabled := hasProj;
   if not hasProj then exit;
   //
   Tree.BeginUpdate;

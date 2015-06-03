@@ -19,7 +19,7 @@ type
     imgList: TImageList;
     Panel2: TPanel;
     selConf: TComboBox;
-    Panel1: TPanel;
+    pnlToolBar: TPanel;
     btnAddConf: TSpeedButton;
     btnDelConf: TSpeedButton;
     btnCloneConf: TSpeedButton;
@@ -113,6 +113,7 @@ begin
   fProj := aProject;
   if Visible then updateImperative;
   syncroMode := false;
+  pnlToolBar.Enabled:=true;
 end;
 
 procedure TCEProjectConfigurationWidget.projClosing(aProject: TCEProject);
@@ -123,6 +124,7 @@ begin
   inspector.ItemIndex := -1;
   self.selConf.Clear;
   syncroMode := false;
+  pnlToolBar.Enabled:=false;
   fProj := nil;
 end;
 
@@ -136,6 +138,7 @@ end;
 procedure TCEProjectConfigurationWidget.projFocused(aProject: TCEProject);
 begin
   fProj := aProject;
+  pnlToolBar.Enabled:=true;
   if Visible then updateImperative;
 end;
 
