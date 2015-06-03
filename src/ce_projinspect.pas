@@ -38,6 +38,7 @@ type
     fFileNode, fConfNode: TTreeNode;
     fImpsNode, fInclNode: TTreeNode;
     fXtraNode: TTreeNode;
+    fLastFileOrFolder: string;
     procedure actUpdate(sender: TObject);
     procedure TreeDblClick(sender: TObject);
     procedure actOpenFileExecute(sender: TObject);
@@ -148,6 +149,7 @@ end;
 procedure TCEProjectInspectWidget.projNew(aProject: TCEProject);
 begin
   fProject := aProject;
+  fLastFileOrFolder := '';
   if Visible then updateImperative;
 end;
 
@@ -156,6 +158,7 @@ begin
   if fProject <> aProject then
     exit;
   fProject := nil;
+  fLastFileOrFolder := '';
   updateImperative;
 end;
 
@@ -186,6 +189,12 @@ end;
 procedure TCEProjectInspectWidget.TreeSelectionChanged(Sender: TObject);
 begin
   actUpdate(sender);
+  if fProject = nil then
+    exit;
+  if (Tree.Selected.Parent = fFileNode) then
+    fLastFileOrFolder := fProject.getAbsoluteFilename(tree.Selected.Text)
+  else
+    fLastFileOrFolder := tree.Selected.Text;
 end;
 
 procedure TCEProjectInspectWidget.TreeDblClick(sender: TObject);
@@ -229,6 +238,10 @@ begin
   //
   with TOpenDialog.Create(nil) do
   try
+    if FileExists(fLastFileOrFolder) then
+      InitialDir := ExtractFilePath(fLastFileOrFolder)
+    else if DirectoryExists(fLastFileOrFolder) then
+      InitialDir := fLastFileOrFolder;
     filter := DdiagFilter;
     if execute then begin
       fProject.beginUpdate;
@@ -248,9 +261,13 @@ var
 begin
   if fProject = nil then exit;
   //
-  if fileExists(fProject.fileName) then
-    dir := extractFilePath(fProject.fileName)
-  else dir := '';
+  dir := '';
+  if FileExists(fLastFileOrFolder) then
+    dir := extractFilePath(fLastFileOrFolder)
+  else if DirectoryExists(fLastFileOrFolder) then
+    dir := fLastFileOrFolder
+  else if fileExists(fProject.fileName) then
+    dir := extractFilePath(fProject.fileName);
   if selectDirectory('sources', dir, dir, true, 0) then
   begin
     fProject.beginUpdate;
