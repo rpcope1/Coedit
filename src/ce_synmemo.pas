@@ -852,9 +852,12 @@ begin
       str := TStringList.Create;
       try
         str.LoadFromFile(fFilename);
-        DoCopyToClipboard(str.Text);
         ClearAll;
-        PasteFromClipboard;
+        if str.Count > 0 then
+        begin
+          DoCopyToClipboard(str.Text);
+          PasteFromClipboard;
+        end;
         fModified := true;
       finally
         str.Free;
