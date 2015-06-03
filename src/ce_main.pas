@@ -11,8 +11,7 @@ uses
   ce_common, ce_dmdwrap, ce_project, ce_dcd, ce_synmemo, ce_writableComponent,
   ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
   ce_search, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist, ce_observer,
-  ce_toolseditor, ce_procinput, ce_optionseditor,{$IFDEF WIN32} ce_cdbcmd,{$ENDIF}
-  ce_symlist, ce_mru;
+  ce_toolseditor, ce_procinput, ce_optionseditor, ce_symlist, ce_mru;
 
 type
 
@@ -206,9 +205,6 @@ type
     fTodolWidg: TCETodoListWidget;
     fOptEdWidg: TCEOptionEditorWidget;
     fSymlWidg: TCESymbolListWidget;
-    {$IFDEF WIN32}
-    fCdbWidg: TCECdbWidget;
-    {$ENDIF}
 
     fInitialized: boolean;
     fRunnableSw: string;
@@ -548,10 +544,6 @@ begin
 
   getMessageDisplay(fMsgs);
 
-  {$IFDEF WIN32}
-  fCdbWidg  := TCECdbWidget.create(self);
-  {$ENDIF}
-
   fWidgList.addWidget(@fMesgWidg);
   fWidgList.addWidget(@fEditWidg);
   fWidgList.addWidget(@fProjWidg);
@@ -565,10 +557,6 @@ begin
   fWidgList.addWidget(@fOptEdWidg);
   fWidgList.addWidget(@fSymlWidg);
   fWidgList.sort(@CompareWidgCaption);
-
-  {$IFDEF WIN32}
-  fWidgList.addWidget(@fCdbWidg);
-  {$ENDIF}
 
   for widg in fWidgList do
   begin
