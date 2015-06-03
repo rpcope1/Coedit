@@ -23,12 +23,14 @@ type
 
   TCEMessagesOptions = class(TWritableLfmTextComponent)
   private
+    fFastDisplay: boolean;
     fMaxCount: Integer;
     fAutoSelect: boolean;
     fSingleClick: boolean;
     fFont: TFont;
     procedure setFont(aValue: TFont);
   published
+    property fastDisplay: boolean read fFastDisplay write fFastDisplay;
     property maxMessageCount: integer read fMaxCount write fMaxCount;
     property autoSelect: boolean read fAutoSelect write fAutoSelect;
     property singleMessageClick: boolean read fSingleClick write fSingleClick;
@@ -73,6 +75,7 @@ type
     fCtxt: TCEAppMessageCtxt;
     fAutoSelect: boolean;
     fSingleClick: boolean;
+    fastDisplay: boolean;
     fOptions: TCEMessagesOptions;
     fOptionsBackup: TCEMessagesOptions;
     fBtns: array[TCEAppMessageCtxt] of TToolButton;
@@ -114,6 +117,7 @@ type
     procedure clearbyContext(aCtxt: TCEAppMessageCtxt);
     procedure clearbyData(aData: Pointer);
   protected
+    procedure updateLoop; override;
     //
     function contextName: string; override;
     function contextActionCount: integer; override;
@@ -170,6 +174,7 @@ begin
     fMaxCount := opts.fMaxCount;
     fAutoSelect := opts.fAutoSelect;
     fSingleClick := opts.fSingleClick;
+    fFastDisplay := opts.fFastDisplay;
     fFont.EndUpdate;
   end
   else if Source is TCEMessagesWidget then
@@ -179,6 +184,7 @@ begin
     fMaxCount := widg.fMaxMessCnt;
     fAutoSelect := widg.fAutoSelect;
     fSingleClick := widg.fSingleClick;
+    fFastDisplay := widg.fastDisplay;
   end
   else inherited;
 end;
@@ -194,6 +200,7 @@ begin
     widg.maxMessageCount := fMaxCount;
     widg.autoSelectCategory := fAutoSelect;
     widg.singleMessageClick := fSingleClick;
+    widg.fastDisplay:= fFastDisplay;
   end
   else inherited;
 end;
@@ -230,6 +237,7 @@ begin
   //
   inherited;
   //
+  updaterByLoopInterval := 12;
   fOptions := TCEMessagesOptions.Create(Self);
   fOptions.assign(self);
   fOptions.Name:= 'messageOptions';
@@ -569,15 +577,20 @@ begin
   dt^.ctxt := aCtxt;
   if fAutoSelect then if fCtxt <> aCtxt then
     fBtns[aCtxt].Click;
+  if fastDisplay then
+    IncLoopUpdate;
   item := List.Items.Add(nil, aValue);
   item.Data := dt;
   item.ImageIndex := iconIndex(aKind);
   item.SelectedIndex := item.ImageIndex;
-  clearOutOfRangeMessg;
-  //TODO-cfeature: reset horz scroll bar to the left
-  scrollToBack;
-  Application.ProcessMessages;
-  filterMessages(fCtxt);
+  if not fastDisplay then
+  begin
+    //TODO-cfeature: reset horz scroll bar to the left
+    clearOutOfRangeMessg;
+    scrollToBack;
+    Application.ProcessMessages;
+    filterMessages(fCtxt);
+  end;
 end;
 
 procedure TCEMessagesWidget.clearByContext(aCtxt: TCEAppMessageCtxt);
@@ -616,6 +629,14 @@ end;
 {$ENDREGION}
 
 {$REGION Messages --------------------------------------------------------------}
+procedure TCEMessagesWidget.updateLoop;
+begin
+  clearOutOfRangeMessg;
+  scrollToBack;
+  Application.ProcessMessages;
+  filterMessages(fCtxt);
+end;
+
 function TCEMessagesWidget.iconIndex(aKind: TCEAppMessageKind): Integer;
 begin
   case aKind of
