@@ -378,6 +378,7 @@ var
   src, fold, conf: string;
   lst: TStringList;
   itm: TTreeNode;
+  hasProj: boolean;
   i: NativeInt;
 begin
   fConfNode.DeleteChildren;
@@ -385,7 +386,14 @@ begin
   fImpsNode.DeleteChildren;
   fInclNode.DeleteChildren;
   fXtraNode.DeleteChildren;
-  if fProject = nil then exit;
+  //
+  hasProj := fProject <> nil;
+  btnAddFile.Enabled := hasProj;
+  btnRemFile.Enabled := hasProj;
+  btnAddFold.Enabled := hasProj;
+  btnRemFold.Enabled := hasProj;
+  if not hasProj then exit;
+  //
   Tree.BeginUpdate;
   // display main sources
   for src in fProject.Sources do
