@@ -191,6 +191,8 @@ begin
   actUpdate(sender);
   if fProject = nil then
     exit;
+  if Tree.Selected = nil then
+    exit;
   if (Tree.Selected.Parent = fFileNode) then
     fLastFileOrFolder := fProject.getAbsoluteFilename(tree.Selected.Text)
   else
