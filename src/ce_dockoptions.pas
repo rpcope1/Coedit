@@ -5,8 +5,8 @@ unit ce_dockoptions;
 interface
 
 uses
-  Classes, SysUtils, AnchorDocking, AnchorDockOptionsDlg, XMLPropStorage, AnchorDockStr,
-  ce_observer, ce_interfaces;
+  Classes, SysUtils, AnchorDocking, AnchorDockOptionsDlg, XMLPropStorage,
+  AnchorDockStr, Forms, Controls, ce_observer, ce_interfaces;
 
 type
 
@@ -33,6 +33,7 @@ implementation
 
 var
   DockOptionsEditor: TDockOptionsEditor;
+  DockOptionContainer: TScrollBox;
 
 constructor TDockOptionsEditor.Create(TheOwner: TComponent);
 begin
@@ -76,7 +77,7 @@ begin
   fBackup.Clear;
   DockMaster.SaveSettingsToConfig(fBackup);
   LoadFromMaster;
-  exit(self);
+  exit(DockOptionContainer);
 end;
 
 procedure TDockOptionsEditor.optionedEvent(anEvent: TOptionEditorEvent);
@@ -145,7 +146,12 @@ end;
 
 initialization
   DockOptionsEditor := TDockOptionsEditor.Create(nil);
+  DockOptionContainer:= TScrollBox.Create(nil);
+  DockOptionsEditor.Parent := DockOptionContainer;
+  DockOptionContainer.Align:= alClient;
+  DockOptionsEditor.Align:= alClient;
 
 finalization
   DockOptionsEditor.Free;
+  DockOptionContainer.Free;
 end.
