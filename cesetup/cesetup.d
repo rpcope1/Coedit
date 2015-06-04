@@ -99,7 +99,7 @@ void main(string[] args)
     else exePath = "/usr/bin";
     string appDataPath;
     version(win32) appDataPath = environment.get("APPDATA") ~ r"\Coedit\";
-    else appDataPath = environment.get("HOME") ~ r"/Coedit/";
+    else appDataPath = "/home/" ~ environment.get("SUDO_USER") ~ "/Coedit/";
     
     writeln("|---------------------------------------------|");
     writeln("|            Coedit 1.0 RC1 setup             |");
@@ -110,6 +110,15 @@ void main(string[] args)
     writeln("| -u: uninstall                               |");
     writeln("| press a key to continue...                  |");
     writeln("|---------------------------------------------|");
+    
+    
+    version(win32){} else if (environment.get("SUDO_USER") == "")
+    {
+        writeln("the extractor must be run as sudo !");
+        readln;
+        return;
+    }    
+    
     readln;
     writeln("|---------------------------------------------|");    
     size_t failures; 
