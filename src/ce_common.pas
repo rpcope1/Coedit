@@ -176,6 +176,11 @@ type
   function exeInSysPath(anExeName: string): boolean;
 
   (**
+   * Returns the full to anExeName. Works if exeInSysPath().
+   *)
+  function exeFullName(anExeName: string): string;
+
+  (**
    * Clears then fills aList with aProcess output stream.
    *)
   procedure processOutputToStrings(aProcess: TProcess; var aList: TStringList);
@@ -687,6 +692,7 @@ end;
 function exeInSysPath(anExeName: string): boolean;
 var
   ext: string;
+  env: string;
 begin
   ext := extractFileExt(anExeName);
   if ext <> exeExt then
@@ -694,7 +700,31 @@ begin
   if FileExists(anExeName) then
     exit(true)
   else
-    exit(ExeSearch(anExeName, '') <> '');
+  begin
+    env := sysutils.GetEnvironmentVariable('PATH');
+    if Application <> nil then
+      env += PathSeparator + ExtractFileDir(ExtractFilePath(application.ExeName));
+    exit(ExeSearch(anExeName, env) <> '');
+  end;
+end;
+
+function exeFullName(anExeName: string): string;
+var
+  ext: string;
+  env: string;
+begin
+  ext := extractFileExt(anExeName);
+  if ext <> exeExt then
+    anExeName += exeExt;
+  if FileExists(anExeName) then
+    exit(anExeName)
+  else
+  begin
+    env := sysutils.GetEnvironmentVariable('PATH');
+    if Application <> nil then
+      env += PathSeparator + ExtractFileDir(ExtractFilePath(application.ExeName));
+    exit(ExeSearch(anExeName, env));
+  end;
 end;
 
 procedure processOutputToStrings(aProcess: TProcess; var aList: TStringList);

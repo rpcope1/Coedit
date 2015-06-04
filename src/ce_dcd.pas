@@ -74,14 +74,14 @@ begin
     exit;
   //
   fClient := TProcess.Create(self);
-  fClient.Executable := clientName;
+  fClient.Executable := exeFullName(clientName);
   fClient.Options := [poUsePipes{$IFDEF WINDOWS}, poNewConsole{$ENDIF}];
   fClient.ShowWindow := swoHIDE;
   //
   fServerWasRunning := AppIsRunning((serverName));
   if not fServerWasRunning then begin
     fServer := TProcess.Create(self);
-    fServer.Executable := serverName;
+    fServer.Executable := exeFullName(serverName);
     fServer.Options := [{$IFDEF WINDOWS} poNewConsole{$ENDIF}];
     {$IFNDEF DEBUG}
     fServer.ShowWindow := swoHIDE;

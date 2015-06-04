@@ -415,7 +415,7 @@ begin
   killToolProcess;
   // process parameter
   fToolProc := TCheckedAsyncProcess.Create(nil);
-  fToolProc.Executable := ToolExeName;
+  fToolProc.Executable := exeFullName(ToolExeName);
   fToolProc.Options := [poUsePipes];
   fToolProc.ShowWindow := swoHIDE;
   fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);

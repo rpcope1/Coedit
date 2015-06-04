@@ -670,7 +670,7 @@ begin
   fToolProc := TCheckedAsyncProcess.Create(nil);
   fToolProc.ShowWindow := swoHIDE;
   fToolProc.Options := [poUsePipes];
-  fToolProc.Executable := toolExeName;
+  fToolProc.Executable := exeFullName(toolExeName);
   fToolProc.OnTerminate := @toolTerminated;
   fToolProc.OnReadData  := @toolOutputData;
   fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);

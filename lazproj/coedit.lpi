@@ -112,7 +112,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-noplugs"/>
+        <WorkingDirectory Value="C:\"/>
       </local>
     </RunParams>
     <RequiredPackages Count="6">
@@ -148,7 +148,6 @@
       <Unit2>
         <Filename Value="..\src\ce_d2syn.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_d2syn"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\src\ce_dcd.pas"/>
@@ -170,7 +169,6 @@
       <Unit7>
         <Filename Value="..\src\ce_dockoptions.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_dockoptions"/>
       </Unit7>
       <Unit8>
         <Filename Value="..\src\ce_editor.pas"/>
@@ -190,12 +188,10 @@
       <Unit11>
         <Filename Value="..\src\ce_interfaces.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_interfaces"/>
       </Unit11>
       <Unit12>
         <Filename Value="..\src\ce_libman.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_libman"/>
       </Unit12>
       <Unit13>
         <Filename Value="..\src\ce_libmaneditor.pas"/>
@@ -241,7 +237,6 @@
         <ComponentName Value="CEOptionEditorWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_optionseditor"/>
       </Unit19>
       <Unit20>
         <Filename Value="..\src\ce_procinput.pas"/>
@@ -249,7 +244,6 @@
         <ComponentName Value="CEProcInputWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_procinput"/>
       </Unit20>
       <Unit21>
         <Filename Value="..\src\ce_projconf.pas"/>
@@ -262,6 +256,7 @@
       <Unit22>
         <Filename Value="..\src\ce_project.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_project"/>
       </Unit22>
       <Unit23>
         <Filename Value="..\src\ce_projinspect.pas"/>
@@ -269,7 +264,6 @@
         <ComponentName Value="CEProjectInspectWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_projinspect"/>
       </Unit23>
       <Unit24>
         <Filename Value="..\src\ce_search.pas"/>
@@ -284,12 +278,10 @@
         <ComponentName Value="CEShortcutEditor"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
-        <UnitName Value="ce_shortcutseditor"/>
       </Unit25>
       <Unit26>
         <Filename Value="..\src\ce_staticmacro.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_staticmacro"/>
       </Unit26>
       <Unit27>
         <Filename Value="..\src\ce_symlist.pas"/>
@@ -326,7 +318,6 @@
         <ComponentName Value="CEToolsEditorWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_toolseditor"/>
       </Unit32>
       <Unit33>
         <Filename Value="..\src\ce_txtsyn.pas"/>
@@ -346,6 +337,7 @@
         <ComponentName Value="CEWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="ce_widget"/>
       </Unit36>
     </Units>
   </ProjectOptions>
