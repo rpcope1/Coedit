@@ -34,7 +34,7 @@ auto icon   = Resource(cast(ubyte[]) import("coedit.ico"), "coedit.ico", false);
 auto png    = Resource(cast(ubyte[]) import("coedit.png"), "coedit.png", false);
 
 auto celic   = Resource(cast(ubyte[]) import("coedit.license.txt"), "coedit.license.txt", false);
-auto dcdlic  = Resource(cast(ubyte[]) import("dcd.license.txt"), "coedit.license.txt", false);
+auto dcdlic  = Resource(cast(ubyte[]) import("dcd.license.txt"), "dcd.license.txt", false);
 
 bool installResource(alias resource)(string path)
 {
