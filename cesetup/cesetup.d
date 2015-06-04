@@ -36,88 +36,61 @@ auto png    = Resource(cast(ubyte[]) import("coedit.png"), "coedit.png", false);
 auto celic   = Resource(cast(ubyte[]) import("coedit.license.txt"), "coedit.license.txt", false);
 auto dcdlic  = Resource(cast(ubyte[]) import("dcd.license.txt"), "dcd.license.txt", false);
 
-bool installResource(alias resource)(string path)
+
+static string exePath, appDataPath;
+version(win32){} else static bool asSu;
+
+static this()
 {
-    import std.stream: File, FileMode;
-    import std.file: exists, mkdir;
-    
-    if (!path.exists)
-        mkdir(path);
-    if (!path.exists)
-        return false;
-    
-    try 
+    version(win32)
+    { 
+        exePath = environment.get("PROGRAMFILES") ~ r"\Coedit\";
+        appDataPath = environment.get("APPDATA") ~ r"\Coedit\";
+    }
+    else
     {
-        string fname = path ~ dirSeparator ~ resource.destName;
-        if (resource.isExe) fname ~= exeExt;
-        File f = new File(fname, FileMode.OutNew);
-        f.write(resource.data);
-        f.close;
-        
-        version(win32) {} else 
-            if (resource.isExe)
-                if (fname.exists)
-                {
-                    string cmd = "chmod +x " ~ fname;
-                    executeShell(cmd);
-                }
-    } 
-    catch (Exception e) 
-        return false;
-    
-    return true;
-}
-
-bool uinstallResource(alias resource)(string path)
-{
-    import std.file: exists, remove;  
-    string fname = path ~ dirSeparator ~ resource.destName;
-    if (resource.isExe) fname ~= exeExt;
-    if (!fname.exists) return true;
-    try remove(fname);
-    catch (Exception e) return false;
-    return true;
-     
-}
-
-string thispath;
+        asSu = environment.get("SUDO_USER") != "";
+        if (asSu)
+        {
+            exePath = "/usr/bin";
+            appDataPath = "/home/" ~ environment.get("SUDO_USER") ~ "/Coedit/";
+        }
+        else
+        {
+            exePath = "/home/" ~ environment.get("USER") ~ "/bin/";
+            appDataPath = "/home/" ~ environment.get("USER") ~ "/Coedit/";
+        }
+    }
+} 
 
 void main(string[] args)
 {
     bool nodcd;
     bool uninstall;
-    
-    thispath = args[0].dirName;
 
     getopt(args, config.passThrough, 
         "nodcd", &nodcd, 
         "u|uninstall", &uninstall
     );
     
-    string exePath;
-    version(win32) exePath = environment.get("PROGRAMFILES") ~ r"\Coedit\";
-    else exePath = "/usr/bin";
-    string appDataPath;
-    version(win32) appDataPath = environment.get("APPDATA") ~ r"\Coedit\";
-    else appDataPath = "/home/" ~ environment.get("SUDO_USER") ~ "/Coedit/";
-    
     writeln("|---------------------------------------------|");
     writeln("|            Coedit 1.0 RC1 setup             |");
     writeln("|---------------------------------------------|");
-    writeln("| the program must be run as admin            |");
+    version(win32)
+    writeln("| the setup must be run as admin              |");
     writeln("| options:                                    |");
-    writeln("| --nodcd: skip setup of DCD-client           |");
+    writeln("| --nodcd: skip DCD setup                     |");
     writeln("| -u: uninstall                               |");
     writeln("| press a key to continue...                  |");
     writeln("|---------------------------------------------|");
     
     
-    version(win32){} else if (environment.get("SUDO_USER") == "")
+    /*version(win32){} else if (environment.get("SUDO_USER") == "")
     {
-        writeln("the extractor must be run as sudo !");
+        writeln("the extractor must be run with sudo !");
         readln;
         return;
-    }    
+    }*/    
     
     readln;
     writeln("|---------------------------------------------|");    
@@ -125,7 +98,7 @@ void main(string[] args)
     if(!uninstall)
     {
         if (installResource!(coedit)(exePath))
-            writeln("| main Coedit application extracted           |");
+            writeln("| Coedit main application extracted           |");
         else failures++;
         if (installResource!(cesyms)(exePath))
             writeln("| Coedit symbol list builder extracted        |");
@@ -163,7 +136,8 @@ void main(string[] args)
         }
         else
         {
-            writeln("| the files are corectly extracted            |");
+            version(win32) win32PostInstall();
+            writeln("| the files are correctly extracted           |");
         }
         writeln("| press a key to exit...                      |");
         writeln("|---------------------------------------------|");
@@ -194,10 +168,78 @@ void main(string[] args)
         }
         else
         {
-            writeln("| the files are corectly removed              |");
+            writeln("| the files are correctly removed             |");
         }
         writeln("| press a key to exit...                      |");
         writeln("|---------------------------------------------|");
         readln;         
     }
+}
+
+bool installResource(alias resource)(string path)
+{
+    import std.stream: File, FileMode;
+    import std.file: exists, mkdir;
+    
+    if (!path.exists)
+        mkdir(path);
+    if (!path.exists)
+        return false;
+    
+    try 
+    {
+        string fname = path ~ dirSeparator ~ resource.destName;
+        File f = new File(fname, FileMode.OutNew);
+        f.write(resource.data);
+        f.close;
+        
+        version(win32) {} else 
+            if (resource.isExe)
+                if (fname.exists)
+                {
+                    string cmd = "chmod +x " ~ fname;
+                    executeShell(cmd);
+                }
+    } 
+    catch (Exception e) 
+        return false;
+    
+    return true;
+}
+
+bool uinstallResource(alias resource)(string path)
+{
+    import std.file: exists, remove;  
+    string fname = path ~ dirSeparator ~ resource.destName;
+    if (!fname.exists) return true;
+    try remove(fname);
+    catch (Exception e) return false;
+    return true;
+     
+}
+
+void nuxPostInstall()
+{
+}
+
+void win32PostInstall()
+{
+    /*
+        IconFile does not work
+    */
+
+    string link = environment.get(r"USERPROFILE") ~ "\\Desktop\\Coedit.url";
+    string target = exePath ~ "coedit.exe";
+    string ico = appDataPath ~ "coedit.ico";
+
+    import std.stream: File, FileMode;
+    File f = new File(link, FileMode.OutNew);
+    f.writeLine("[InternetShortcut]");
+    f.writeString("URL=");
+    f.writeLine("\"" ~ target ~ "\"");
+    f.writeString("IconFile=");
+    f.writeLine("\"" ~ target ~ "\"");
+    f.writeLine("IconIndex=0");
+    f.close;
+
 }
