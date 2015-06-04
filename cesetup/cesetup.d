@@ -55,7 +55,7 @@ bool installResource(alias resource)(string path)
         f.close;
         
         version(win32) {} else 
-            static if (resource.isExe)
+            if (resource.isExe)
                 if (fname.exists)
                 {
                     string cmd = "chmod +x " ~ fname;
@@ -99,7 +99,7 @@ void main(string[] args)
     else exePath = "/usr/bin";
     string appDataPath;
     version(win32) appDataPath = environment.get("APPDATA") ~ r"\Coedit\";
-    else appDataPath = "~/Coedit/";
+    else appDataPath = environment.get("HOME") ~ r"/Coedit/";
     
     writeln("|---------------------------------------------|");
     writeln("|            Coedit 1.0 RC1 setup             |");
