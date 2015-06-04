@@ -38,7 +38,7 @@ auto dcdlic  = Resource(cast(ubyte[]) import("dcd.license.txt"), "dcd.license.tx
 
 
 static string exePath, appDataPath;
-version(win32){} else static bool asSu;
+static bool asSu;
 
 static this()
 {
