@@ -82,15 +82,7 @@ void main(string[] args)
     writeln("| --nodcd: skip DCD setup                     |");
     writeln("| -u: uninstall                               |");
     writeln("| press a key to continue...                  |");
-    writeln("|---------------------------------------------|");
-    
-    
-    /*version(win32){} else if (environment.get("SUDO_USER") == "")
-    {
-        writeln("the extractor must be run with sudo !");
-        readln;
-        return;
-    }*/    
+    writeln("|---------------------------------------------|");   
     
     readln;
     writeln("|---------------------------------------------|");    
@@ -137,6 +129,7 @@ void main(string[] args)
         else
         {
             version(win32) win32PostInstall();
+            else nuxPostInstall();
             writeln("| the files are correctly extracted           |");
         }
         writeln("| press a key to exit...                      |");
@@ -145,15 +138,15 @@ void main(string[] args)
     }
     else
     {
-        failures += !uinstallResource!coedit(exePath);
-        failures += !uinstallResource!cesyms(exePath);
-        failures += !uinstallResource!cetodo(exePath);
-        failures += !uinstallResource!celic(appDataPath);
-        failures += !uinstallResource!icon(appDataPath);
-        failures += !uinstallResource!png(appDataPath);
-        failures += !uinstallResource!dcd_client(exePath);
-        failures += !uinstallResource!dcd_server(exePath);
-        failures += !uinstallResource!dcdlic(appDataPath); 
+        failures += !uninstallResource!coedit(exePath);
+        failures += !uninstallResource!cesyms(exePath);
+        failures += !uninstallResource!cetodo(exePath);
+        failures += !uninstallResource!celic(appDataPath);
+        failures += !uninstallResource!icon(appDataPath);
+        failures += !uninstallResource!png(appDataPath);
+        failures += !uninstallResource!dcd_client(exePath);
+        failures += !uninstallResource!dcd_server(exePath);
+        failures += !uninstallResource!dcdlic(appDataPath); 
         
         version(win32) 
         {
@@ -168,6 +161,8 @@ void main(string[] args)
         }
         else
         {
+            version(win32) win32PostUninstall();
+            else nuxPostUninstall();
             writeln("| the files are correctly removed             |");
         }
         writeln("| press a key to exit...                      |");
@@ -197,7 +192,7 @@ bool installResource(alias resource)(string path)
             if (resource.isExe)
                 if (fname.exists)
                 {
-                    string cmd = "chmod +x " ~ fname;
+                    string cmd = "chmod a+x " ~ fname;
                     executeShell(cmd);
                 }
     } 
@@ -207,7 +202,7 @@ bool installResource(alias resource)(string path)
     return true;
 }
 
-bool uinstallResource(alias resource)(string path)
+bool uninstallResource(alias resource)(string path)
 {
     import std.file: exists, remove;  
     string fname = path ~ dirSeparator ~ resource.destName;
@@ -220,6 +215,32 @@ bool uinstallResource(alias resource)(string path)
 
 void nuxPostInstall()
 {
+    import std.stream: File, FileMode;
+    File f;
+    if (asSu) f = new File("/usr/share/applications/coedit.desktop", FileMode.OutNew);
+    else f = new File("/home/" ~ environment.get("USER") ~ 
+        "/.local/share/applications/coedit.desktop", FileMode.OutNew);
+    
+    f.writeLine("[Desktop Entry]");
+	f.writeLine("Name=coedit");
+	f.writeLine("Exec=coedit %f");
+	f.writeLine("Icon=" ~ appDataPath ~ "/coedit.png");
+	f.writeLine("Type=Application");
+	f.writeLine("Categories=Utility;Application;Development;");
+    f.writeLine("Terminal=false"); 
+    f.close;    
+}
+
+void nuxPostUninstall()
+{
+    import std.file: remove;
+    try
+    {
+        if (asSu)"/usr/share/applications/coedit.desktop".remove;
+        else remove("/home/" ~ environment.get("USER") ~ 
+            "/.local/share/applications/coedit.desktop");
+    }
+    catch (Exception e) {}
 }
 
 void win32PostInstall()
@@ -241,5 +262,8 @@ void win32PostInstall()
     f.writeLine("\"" ~ target ~ "\"");
     f.writeLine("IconIndex=0");
     f.close;
+}
 
+void win32PostUninstall()
+{
 }
