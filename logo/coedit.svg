@@ -236,7 +236,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -316,7 +316,10 @@
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="csccsccccc" />
     <g
-       id="g5163">
+       id="g5163"
+       inkscape:export-filename="C:\Dev\pasproj\Coedit\logo\coedit.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
       <rect
          inkscape:export-ydpi="90"
          inkscape:export-xdpi="90"
