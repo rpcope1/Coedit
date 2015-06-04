@@ -1,0 +1,40 @@
+object CurrentProject: TCEProject
+  OptionsCollection = <  
+    item
+      name = 'win32'
+      outputOptions.inlining = True
+      outputOptions.boundsCheck = offAlways
+      outputOptions.optimizations = True
+      outputOptions.release = True
+      pathsOptions.outputFilename = 'coedit.win32.setup.exe'
+      pathsOptions.importStringPaths.Strings = (
+        'win32\'
+      )
+    end  
+    item
+      name = 'nux32'
+      outputOptions.inlining = True
+      outputOptions.boundsCheck = offAlways
+      outputOptions.optimizations = True
+      outputOptions.release = True
+      pathsOptions.outputFilename = 'coedit.linux32.setup'
+      pathsOptions.importStringPaths.Strings = (
+        'nux32\'
+      )
+    end  
+    item
+      name = 'nux64'
+      outputOptions.inlining = True
+      outputOptions.boundsCheck = offAlways
+      outputOptions.optimizations = True
+      outputOptions.release = True
+      pathsOptions.outputFilename = 'coedit.linux64.setup'
+      pathsOptions.importStringPaths.Strings = (
+        'nux64\'
+      )
+    end>
+  Sources.Strings = (
+    'cesetup.d'
+  )
+  ConfigurationIndex = 0
+end
