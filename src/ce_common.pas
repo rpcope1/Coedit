@@ -690,22 +690,8 @@ begin
 end;
 
 function exeInSysPath(anExeName: string): boolean;
-var
-  ext: string;
-  env: string;
 begin
-  ext := extractFileExt(anExeName);
-  if ext <> exeExt then
-    anExeName += exeExt;
-  if FileExists(anExeName) then
-    exit(true)
-  else
-  begin
-    env := sysutils.GetEnvironmentVariable('PATH');
-    if Application <> nil then
-      env += PathSeparator + ExtractFileDir(ExtractFilePath(application.ExeName));
-    exit(ExeSearch(anExeName, env) <> '');
-  end;
+  exit(exeFullName(anExeName) <> '');
 end;
 
 function exeFullName(anExeName: string): string;
