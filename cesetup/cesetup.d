@@ -1,13 +1,12 @@
 module cesetup;
 
 import std.stdio: writeln, readln;
-import std.file: mkdir, exists;
-import std.getopt;
-import std.path;
-import std.conv;
-import std.string;
+import std.file: mkdir, exists, remove, rmdir, getSize;
+import std.stream: File, FileMode;
 import std.process: environment, executeShell;
-
+import std.path: dirSeparator;
+import std.string: strip, toLower;
+import std.getopt;
 
 version(X86)    version(linux)  version = nux32;
 version(X86_64) version(linux)  version = nux64;
@@ -37,7 +36,7 @@ auto celic   = Resource(cast(ubyte[]) import("coedit.license.txt"), "coedit.lice
 auto dcdlic  = Resource(cast(ubyte[]) import("dcd.license.txt"), "dcd.license.txt", false);
 
 
-static string exePath, appDataPath;
+static string exePath, appDataPath, shortCutPath;
 static bool asSu;
 
 static this()
@@ -46,6 +45,7 @@ static this()
     { 
         exePath = environment.get("PROGRAMFILES") ~ r"\Coedit\";
         appDataPath = environment.get("APPDATA") ~ r"\Coedit\";
+        shortCutPath = environment.get(r"USERPROFILE") ~ r"\Desktop\";
     }
     else
     {
@@ -54,11 +54,13 @@ static this()
         {
             exePath = "/usr/bin";
             appDataPath = "/home/" ~ environment.get("SUDO_USER") ~ "/Coedit/";
+            shortCutPath = "/usr/share/applications/";
         }
         else
         {
             exePath = "/home/" ~ environment.get("USER") ~ "/bin/";
             appDataPath = "/home/" ~ environment.get("USER") ~ "/Coedit/";
+            shortCutPath = "/home/" ~ environment.get("USER") ~ "/.local/share/applications/";
         }
     }
 } 
@@ -74,17 +76,26 @@ void main(string[] args)
     );
     
     writeln("|---------------------------------------------|");
+    if (!uninstall)
     writeln("|            Coedit 1.0 RC1 setup             |");
+    else
+    writeln("|         Coedit 1.0 RC1 uninstaller          |");
     writeln("|---------------------------------------------|");
+    
     version(win32)
-    writeln("| the setup must be run as admin              |");
+    writeln("| the setup program must be run as admin      |");
+    else if(!asSu)
+    writeln("| the program can be setup globally (sudo)    |");
+    
     writeln("| options:                                    |");
     writeln("| --nodcd: skip DCD setup                     |");
     writeln("| -u: uninstall                               |");
-    writeln("| press a key to continue...                  |");
+    writeln("| press A to abort or another key to start... |");
     writeln("|---------------------------------------------|");   
     
-    readln;
+    const string inp = readln.strip;
+    if (inp.toLower == "a") return; 
+    
     writeln("|---------------------------------------------|");    
     size_t failures; 
     if(!uninstall)
@@ -150,7 +161,6 @@ void main(string[] args)
         
         version(win32) 
         {
-            import std.file: rmdir;
             try std.file.rmdir(exePath);
             catch(Exception e) failures++;
         }
@@ -173,9 +183,6 @@ void main(string[] args)
 
 bool installResource(alias resource)(string path)
 {
-    import std.stream: File, FileMode;
-    import std.file: exists, mkdir;
-    
     if (!path.exists)
         mkdir(path);
     if (!path.exists)
@@ -183,7 +190,7 @@ bool installResource(alias resource)(string path)
     
     try 
     {
-        string fname = path ~ dirSeparator ~ resource.destName;
+        const string fname = path ~ dirSeparator ~ resource.destName;
         File f = new File(fname, FileMode.OutNew);
         f.write(resource.data);
         f.close;
@@ -203,58 +210,40 @@ bool installResource(alias resource)(string path)
 }
 
 bool uninstallResource(alias resource)(string path)
-{
-    import std.file: exists, remove;  
+{ 
     string fname = path ~ dirSeparator ~ resource.destName;
     if (!fname.exists) return true;
     try remove(fname);
     catch (Exception e) return false;
-    return true;
-     
+    return true;  
 }
 
 void nuxPostInstall()
 {
-    import std.stream: File, FileMode;
-    File f;
-    if (asSu) f = new File("/usr/share/applications/coedit.desktop", FileMode.OutNew);
-    else f = new File("/home/" ~ environment.get("USER") ~ 
-        "/.local/share/applications/coedit.desktop", FileMode.OutNew);
-    
+    File f = new File(shortCutPath ~ "coedit.desktop", FileMode.OutNew);
     f.writeLine("[Desktop Entry]");
-	f.writeLine("Name=coedit");
-	f.writeLine("Exec=coedit %f");
-	f.writeLine("Icon=" ~ appDataPath ~ "/coedit.png");
-	f.writeLine("Type=Application");
-	f.writeLine("Categories=Utility;Application;Development;");
+    f.writeLine("Name=coedit");
+    f.writeLine("Exec=coedit %f");
+    f.writeLine("Icon=" ~ appDataPath ~ "/coedit.png");
+    f.writeLine("Type=Application");
+    f.writeLine("Categories=Utility;Application;Development;");
     f.writeLine("Terminal=false"); 
     f.close;    
 }
 
 void nuxPostUninstall()
 {
-    import std.file: remove;
-    try
-    {
-        if (asSu)"/usr/share/applications/coedit.desktop".remove;
-        else remove("/home/" ~ environment.get("USER") ~ 
-            "/.local/share/applications/coedit.desktop");
-    }
+    try remove(shortCutPath ~ "coedit.desktop");
     catch (Exception e) {}
 }
 
 void win32PostInstall()
 {
-    /*
-        IconFile does not work
-    */
-
-    string link = environment.get(r"USERPROFILE") ~ "\\Desktop\\Coedit.url";
+    // notice: this is not a true shortcut, other options are
+    // - create a true lnk by generating a vbs
+    // - use winapi...
     string target = exePath ~ "coedit.exe";
-    string ico = appDataPath ~ "coedit.ico";
-
-    import std.stream: File, FileMode;
-    File f = new File(link, FileMode.OutNew);
+    File f = new File(shortCutPath ~ "Coedit.url", FileMode.OutNew);
     f.writeLine("[InternetShortcut]");
     f.writeString("URL=");
     f.writeLine("\"" ~ target ~ "\"");
@@ -266,4 +255,6 @@ void win32PostInstall()
 
 void win32PostUninstall()
 {
+    try remove(shortCutPath ~ "Coedit.url");
+    catch (Exception e) {}
 }
