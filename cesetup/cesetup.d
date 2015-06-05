@@ -100,34 +100,34 @@ void main(string[] args)
     size_t failures; 
     if(!uninstall)
     {
-        if (installResource!(coedit)(exePath))
+        if (installResource(coedit, exePath))
             writeln("| Coedit main application extracted           |");
         else failures++;
-        if (installResource!(cesyms)(exePath))
+        if (installResource(cesyms, exePath))
             writeln("| Coedit symbol list builder extracted        |");
         else failures++;        
-        if (installResource!(cetodo)(exePath))
+        if (installResource(cetodo, exePath))
             writeln("| Coedit todo comment parser extracted        |");
         else failures++;
-        if (installResource!celic(appDataPath))
+        if (installResource(celic, appDataPath))
             writeln("| Coedit license file extracted               |");
         else failures++;   
-        if (installResource!icon(appDataPath))
+        if (installResource(icon, appDataPath))
             writeln("| Coedit icon file extracted                  |");
         else failures++;  
-        if (installResource!png(appDataPath))
+        if (installResource(png, appDataPath))
             writeln("| Coedit big png logo extracted               |");
         else failures++;                       
         
         if (!nodcd)
         {
-            if (installResource!(dcd_server)(exePath))
+            if (installResource(dcd_server, exePath))
                 writeln("| Completion daemon server extracted          |");
             else failures++; 
-            if (installResource!(dcd_client)(exePath))
+            if (installResource(dcd_client, exePath))
                 writeln("| Completion daemon client extracted          |");
             else failures++;  
-            if (installResource!dcdlic(appDataPath))
+            if (installResource(dcdlic, appDataPath))
                 writeln("| Completion daemon license extracted         |");
             else failures++;                                     
         }
@@ -149,15 +149,15 @@ void main(string[] args)
     }
     else
     {
-        failures += !uninstallResource!coedit(exePath);
-        failures += !uninstallResource!cesyms(exePath);
-        failures += !uninstallResource!cetodo(exePath);
-        failures += !uninstallResource!celic(appDataPath);
-        failures += !uninstallResource!icon(appDataPath);
-        failures += !uninstallResource!png(appDataPath);
-        failures += !uninstallResource!dcd_client(exePath);
-        failures += !uninstallResource!dcd_server(exePath);
-        failures += !uninstallResource!dcdlic(appDataPath); 
+        failures += !uninstallResource(coedit, exePath);
+        failures += !uninstallResource(cesyms, exePath);
+        failures += !uninstallResource(cetodo, exePath);
+        failures += !uninstallResource(celic, appDataPath);
+        failures += !uninstallResource(icon, appDataPath);
+        failures += !uninstallResource(png, appDataPath);
+        failures += !uninstallResource(dcd_client, exePath);
+        failures += !uninstallResource(dcd_server, exePath);
+        failures += !uninstallResource(dcdlic, appDataPath); 
         
         version(win32) 
         {
@@ -181,7 +181,7 @@ void main(string[] args)
     }
 }
 
-bool installResource(alias resource)(string path)
+bool installResource(Resource resource, string path)
 {
     if (!path.exists)
         mkdir(path);
@@ -209,7 +209,7 @@ bool installResource(alias resource)(string path)
     return true;
 }
 
-bool uninstallResource(alias resource)(string path)
+bool uninstallResource(Resource resource, string path)
 { 
     string fname = path ~ dirSeparator ~ resource.destName;
     if (!fname.exists) return true;
