@@ -6,7 +6,7 @@ Coedit is an IDE for the [D2](http://dlang.org) _DMD_ compiler.
 ![](https://github.com/BBasile/Coedit/raw/master/lazproj/coedit.win7.33.png)
 
 **Features**
---------
+---
 - multi platform (_Windows_, _Linux_).
 - strictly based on *DMD* (the alternative compilers are not supported).
 - comprehensive project format and two advanced project editors (one for the options and configurations, another for the files).
@@ -23,27 +23,22 @@ Coedit is an IDE for the [D2](http://dlang.org) _DMD_ compiler.
 - full [D Completion Daemon](https://github.com/Hackerpilot/DCD) integration (completion, hints, call tips, jump to symbol declaration).
 - mini file browser.
 
-**Missing things before the first version**
----------------------------------------
-This is the last beta, all the features are implemented.
-Until version 1, the quality will be improved and any new bug fixed.
-
 **Project information**
--------------------
-- status:  version 1 beta 3.
+---
+- status:  version 1 release candidate 1.
 - _ETA_: mid June, ideally the 10.
 - license: MIT.
 - programmed in Object Pascal with [Lazarus & FPC](http://www.lazarus.freepascal.org) as IDE & compiler.
 
 **Setup or build**
---------------
-Windows and Linux binaries are available for each [release](https://github.com/BBasile/Coedit/releases).
+---
+An installer and the binaries are proposed with each [release](https://github.com/BBasile/Coedit/releases).
 The latest Coedit development version must be build from the sources.
 
 The procedure is described in the [**first section of the wiki**](https://github.com/BBasile/Coedit/wiki#detailed-setup-procedure)
 
 **GUI preview**
------------
+---
 Windows version (Windows 7, x86):
 ![Win screen-cap](https://github.com/BBasile/Coedit/raw/master/lazproj/coedit.win7.png "Coedit GUI preview")
 
