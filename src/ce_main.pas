@@ -234,9 +234,6 @@ type
     procedure InitMRUs;
     procedure InitWidgets;
     procedure InitDocking;
-    {$IFDEF LINUX}
-    procedure TryExtractNuxIcon;
-    {$ENDIF}
     procedure LoadSettings;
     procedure SaveSettings;
     procedure LoadDocking;
@@ -400,9 +397,6 @@ end;
 constructor TCEMainForm.create(aOwner: TComponent);
 begin
   inherited create(aOwner);
-  {$IFDEF LINUX}
-  TryExtractNuxIcon;
-  {$ENDIF}
   fMainMenuSubj := TCEMainMenuSubject.create;
   fActionHandler := TCEActionProviderSubject.create;
   //
@@ -501,26 +495,6 @@ begin
   fProjMru.OnChange := @mruChange;
   fFileMru.OnChange := @mruChange;
 end;
-
-{$IFDEF LINUX}
-procedure TCEMainForm.TryExtractNuxIcon;
-var
-  fold: string;
-  fname: string;
-  png: TPortableNetworkGraphic;
-begin
-  fold := '/usr/share/pixmaps/';
-  if not DirectoryIsWritable(fold) then exit;
-  fname := fold + 'coedit.png';
-  png := TPortableNetworkGraphic.Create;
-  try
-    png.Assign(Icon);
-    png.SaveToFile(fname);
-  finally
-    png.Free;
-  end;
-end;
-{$ENDIF}
 
 procedure TCEMainForm.InitWidgets;
 var
