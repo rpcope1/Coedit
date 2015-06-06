@@ -7,8 +7,6 @@ Coedit is an IDE for the [D2](http://dlang.org) _DMD_ compiler.
 
 **Features**
 ---
-
-[![Join the chat at https://gitter.im/BBasile/Coedit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/BBasile/Coedit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 - multi platform (_Windows_, _Linux_).
 - strictly based on *DMD* (the alternative compilers are not supported).
 - comprehensive project format and two advanced project editors (one for the options and configurations, another for the files).
