@@ -6,12 +6,12 @@ import std.getopt;
 /*
 pass:
 
-"--a=<CAF>" "--b=<CAP>" "--c=<CFF>" "--d=<CFP>" "--e=<CI>" "--f=<CPF>" "--g=<CPP>" "--h=<CPR>" "--i=<CPN>" "--j=<CPO>" "--k=<CPFS>"
+"--a=<CAF>" "--b=<CAP>" "--c=<CFF>" "--d=<CFP>" "--e=<CI>" "--f=<CPF>" "--g=<CPP>" "--h=<CPR>" "--i=<CPN>" "--j=<CPO>" "--k=<CPFS>" "--l=<CPCD>"
 
 as parameters in "Run, Compile and Run file..."
 */
 
-void main(string args[])
+void main(string[] args)
 {
     auto opt2symbol = [
     // coedit
@@ -27,7 +27,8 @@ void main(string args[])
     'h' : "CurrentProjectRoot.....: ",
     'i' : "CurrentProjectName.....: ",
     'j' : "CurrentProjectOutput...: ",
-    'k' : "CurrentProjectFiles....: "
+    'k' : "CurrentProjectFiles....: ",
+    'l' : "CurrentProjectCommonSourceDirectory....: "
     ];
 
     string expanded;

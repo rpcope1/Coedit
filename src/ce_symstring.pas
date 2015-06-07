@@ -12,7 +12,7 @@ type
   (**
    * Enumerates the symbol kinds, used to index an associative array.
    *)
-  TCESymbol = (CAF, CAP, CFF, CFP, CI, CPF, CPP, CPO, CPR, CPN, CPFS);
+  TCESymbol = (CAF, CAP, CFF, CFP, CI, CPF, CPP, CPO, CPR, CPN, CPFS, CPCD);
 
   (**
    * TCESymbolExpander is designed to expand Coedit symbolic strings,
@@ -22,6 +22,7 @@ type
   private
     fProj: TCEProject;
     fDoc: TCESynMemo;
+    fNeedUpdate: boolean;
     fSymbols: array[TCESymbol] of string;
     procedure updateSymbols;
     //
@@ -54,10 +55,12 @@ uses
 constructor TCESymbolExpander.Create;
 begin
   EntitiesConnector.addObserver(self);
+  fNeedUpdate := true;
 end;
 
 destructor TCESymbolExpander.Destroy;
 begin
+  fNeedUpdate := false;
   EntitiesConnector.removeObserver(self);
   inherited;
 end;
@@ -68,6 +71,7 @@ end;
 procedure TCESymbolExpander.projNew(aProject: TCEProject);
 begin
   fProj := aProject;
+  fNeedUpdate := true;
 end;
 
 procedure TCESymbolExpander.projClosing(aProject: TCEProject);
@@ -75,17 +79,20 @@ begin
   if fProj <> aProject then
     exit;
   fProj := nil;
+  fNeedUpdate := true;
 end;
 
 procedure TCESymbolExpander.projFocused(aProject: TCEProject);
 begin
   fProj := aProject;
+  fNeedUpdate := true;
 end;
 
 procedure TCESymbolExpander.projChanged(aProject: TCEProject);
 begin
   if fProj <> aProject then
     exit;
+  fNeedUpdate := true;
 end;
 
 procedure TCESymbolExpander.projCompiling(aProject: TCEProject);
@@ -98,6 +105,7 @@ end;
 procedure TCESymbolExpander.docNew(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
+  fNeedUpdate := true;
 end;
 
 procedure TCESymbolExpander.docClosing(aDoc: TCESynMemo);
@@ -105,17 +113,22 @@ begin
   if aDoc <> fDoc then
     exit;
   fDoc := nil;
+  fNeedUpdate := true;
 end;
 
 procedure TCESymbolExpander.docFocused(aDoc: TCESynMemo);
 begin
+  if (aDoc <> nil) and (fDoc = aDoc) then
+    exit;
   fDoc := aDoc;
+  fNeedUpdate := true;
 end;
 
 procedure TCESymbolExpander.docChanged(aDoc: TCESynMemo);
 begin
   if aDoc <> fDoc then
     exit;
+  fNeedUpdate := true;
 end;
 
 {$ENDREGION}
@@ -127,9 +140,12 @@ var
   hasDoc: boolean;
   fname: string;
   i: Integer;
+  str: TStringList;
 const
   na = '``';
 begin
+  if not fNeedUpdate then exit;
+  fNeedUpdate := false;
   hasProj := fProj <> nil;
   hasDoc := fDoc <> nil;
   // application
@@ -180,19 +196,28 @@ begin
       fSymbols[CPN] := na;
       fSymbols[CPO] := na;
     end;
-    fSymbols[CPFS] := '';
-    for i := 0 to fProj.Sources.Count - 1 do
-    begin
-      fname := fProj.getAbsoluteSourceName(i);
-      if dExtList.IndexOf(ExtractFileExt(fname)) = -1 then
-        continue;
-      fSymbols[CPFS] += fname;
-      if fProj.Sources.Count > 1 then
-        if i <> fProj.Sources.Count - 1 then
-          fSymbols[CPFS] += LineEnding;
-    end;
     if fProj.Sources.Count = 0 then
+    begin
       fSymbols[CPFS] := na;
+      fSymbols[CPCD] := na;
+    end
+    else
+    begin
+      str := TStringList.Create;
+      try
+        for i := 0 to fProj.Sources.Count-1 do
+        begin
+          fname := fProj.getAbsoluteSourceName(i);
+          if dExtList.IndexOf(ExtractFileExt(fname)) = -1 then
+            continue;
+          str.Add(fname);
+        end;
+        fSymbols[CPFS] := str.Text;
+        fSymbols[CPCD] := commonFolder(str);
+      finally
+        str.Free;
+      end;
+    end;
   end
   else
   begin
@@ -202,6 +227,7 @@ begin
     fSymbols[CPN] := na;
     fSymbols[CPO] := na;
     fSymbols[CPFS] := na;
+    fSymbols[CPCD] := na;
   end;
 end;
 
@@ -215,8 +241,8 @@ begin
   Result := '';
   if symString = '' then
     exit;
-  updateSymbols;
   //
+  updateSymbols;
   elems := TStringList.Create;
   try
     i := 0;
@@ -236,7 +262,7 @@ begin
         begin
           begs := False;
           ends := False;
-          // elem.obj is a flag to diferenciate symbols from elements
+          // elem.obj is a flag to differenciate symbols from elements
           elems.Objects[elems.Count - 1] := Self;
         end;
       end;
@@ -264,6 +290,7 @@ begin
           'CPO', 'CurrentProjectOutput': Result += fSymbols[CPO];
           'CPP', 'CurrentProjectPath': Result += fSymbols[CPP];
           'CPR', 'CurrentProjectRoot': Result += fSymbols[CPR];
+          'CPCD','CurrentProjectCommonDirectory': Result += fSymbols[CPCD];
         end;
     end;
   finally
