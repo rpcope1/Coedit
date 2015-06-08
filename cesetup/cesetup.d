@@ -1,7 +1,7 @@
 module cesetup;
 
-import std.stdio: writeln, readln;
-import std.file: mkdir, exists, remove, rmdir, getSize;
+import std.stdio;
+import std.file: mkdir, exists, remove, rmdir, getSize, FileException;
 import std.stream: File, FileMode;
 import std.process: environment, executeShell;
 import std.path: dirSeparator;
@@ -37,7 +37,7 @@ auto dcdlic  = Resource(cast(ubyte[]) import("dcd.license.txt"), "dcd.license.tx
 
 
 static string exePath, appDataPath, shortCutPath;
-static bool asSu;
+version(win32){} else immutable bool asSu;
 
 static this()
 {
@@ -45,7 +45,7 @@ static this()
     { 
         exePath = environment.get("PROGRAMFILES") ~ r"\Coedit\";
         appDataPath = environment.get("APPDATA") ~ r"\Coedit\";
-        shortCutPath = environment.get(r"USERPROFILE") ~ r"\Desktop\";
+        shortCutPath = environment.get("USERPROFILE") ~ r"\Desktop\";
     }
     else
     {
@@ -77,9 +77,9 @@ void main(string[] args)
     
     writeln("|---------------------------------------------|");
     if (!uninstall)
-    writeln("|            Coedit 1.0 RC1 setup             |");
+    writeln("|              Coedit 1.0 setup               |");
     else
-    writeln("|         Coedit 1.0 RC1 uninstaller          |");
+    writeln("|           Coedit 1.0 uninstaller            |");
     writeln("|---------------------------------------------|");
     
     version(win32)
@@ -94,7 +94,7 @@ void main(string[] args)
     writeln("|---------------------------------------------|");   
     
     const string inp = readln.strip;
-    if (inp.toLower == "a") return; 
+    if (inp.toLower == "a") return;
     
     writeln("|---------------------------------------------|");    
     size_t failures; 
@@ -145,7 +145,7 @@ void main(string[] args)
         }
         writeln("| press a key to exit...                      |");
         writeln("|---------------------------------------------|");
-        readln;   
+        readln;  
     }
     else
     {
@@ -161,8 +161,8 @@ void main(string[] args)
         
         version(win32) 
         {
-            try std.file.rmdir(exePath);
-            catch(Exception e) failures++;
+            try rmdir(exePath);
+            catch(FileException e) failures++;
         }
         
         if (failures)
@@ -214,7 +214,7 @@ bool uninstallResource(Resource resource, string path)
     string fname = path ~ dirSeparator ~ resource.destName;
     if (!fname.exists) return true;
     try remove(fname);
-    catch (Exception e) return false;
+    catch (FileException e) return false;
     return true;  
 }
 
@@ -234,13 +234,13 @@ void nuxPostInstall()
 void nuxPostUninstall()
 {
     try remove(shortCutPath ~ "coedit.desktop");
-    catch (Exception e) {}
+    catch (FileException e) {}
 }
 
 void win32PostInstall()
 {
     // notice: this is not a true shortcut, other options are
-    // - create a true lnk by generating a vbs
+    // - create a true lnk by generating and executing a vbs
     // - use winapi...
     string target = exePath ~ "coedit.exe";
     File f = new File(shortCutPath ~ "Coedit.url", FileMode.OutNew);
@@ -256,5 +256,5 @@ void win32PostInstall()
 void win32PostUninstall()
 {
     try remove(shortCutPath ~ "Coedit.url");
-    catch (Exception e) {}
+    catch (FileException e) {}
 }
