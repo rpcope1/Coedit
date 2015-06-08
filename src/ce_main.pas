@@ -422,12 +422,12 @@ end;
 
 procedure TCEMainForm.checkCompilo;
 const
-  msg = 'Coedit recquires DMD or DUB to be setup on this system' + LineEnding +
+  msg = 'Coedit requires DMD to be setup on this system' + LineEnding +
     'If DMD is setup please add it to the system PATH variable before using Coedit';
 begin
-  if exeInSysPath('dmd') or exeInSysPath('dub') then
+  if exeInSysPath('dmd') then
     exit;
-  ce_common.dlgOkError(msg);
+  dlgOkError(msg);
   close;
 end;
 
