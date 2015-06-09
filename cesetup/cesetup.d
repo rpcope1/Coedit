@@ -77,9 +77,9 @@ void main(string[] args)
     
     writeln("|---------------------------------------------|");
     if (!uninstall)
-    writeln("|              Coedit 1.0 setup               |");
+    writeln("|             Coedit 1 gold setup             |");
     else
-    writeln("|           Coedit 1.0 uninstaller            |");
+    writeln("|             Coedit uninstaller              |");
     writeln("|---------------------------------------------|");
     
     version(win32)
