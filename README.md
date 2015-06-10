@@ -34,12 +34,12 @@ Coedit is an IDE for the _DMD_ [D2](http://dlang.org)  compiler.
 ---
 Download the zipped binaries or the zipped setup program for you platform:
 
-- :package: [setup program for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/untagged-ffcf898ae473cfde6b98/coedit.1gold.linux32.setup.zip)
-- :package: [binaries for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/untagged-ffcf898ae473cfde6b98/coedit.1gold.linux32.zip)
-- :package: [setup program for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/untagged-ffcf898ae473cfde6b98/coedit.1gold.linux64.setup.zip)
-- :package: [binaries for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/untagged-ffcf898ae473cfde6b98/coedit.1gold.linux64.zip)
-- :package: [setup program for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/untagged-ffcf898ae473cfde6b98/coedit.1gold.win32.setup.zip)
-- :package: [binaries for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/untagged-ffcf898ae473cfde6b98/coedit.1gold.win32.zip)
+- :package: [setup program for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/1_gold/coedit.1gold.linux32.setup.zip)
+- :package: [binaries for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/1_gold/coedit.1gold.linux32.zip)
+- :package: [setup program for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/1_gold/coedit.1gold.linux64.setup.zip)
+- :package: [binaries for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/1_gold/coedit.1gold.linux64.zip)
+- :package: [setup program for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/1_gold/coedit.1gold.win32.setup.zip)
+- :package: [binaries for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/1_gold/coedit.1gold.win32.zip)
 
 [**See the wiki**](https://github.com/BBasile/Coedit/wiki#detailed-setup-procedure) for more information about the setup.
 
