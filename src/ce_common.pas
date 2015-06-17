@@ -648,14 +648,8 @@ begin
        DRIVE_REMOTE: aList.Add(ltr);
     end;
   end;
-  {$ENDIF}
-  {$IFDEF LINUX}
+  {$ELSE}
   aList.Add('//');
-  {$ENDIF}
-  {$IFDEF DARWIN}
-  // tobe checked
-  // aList.Add('//');
-  raise Exception.Create('darwin: listDrives() has to be implemented');
   {$ENDIF}
 end;
 
