@@ -564,6 +564,7 @@ begin
   begin
     LineTextChanged(nil, 0, Lines.Count);
     Highlighter.ScanRanges;
+    Highlighter.ResetRange;
   end;
   identifierToD2Syn;
   subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
