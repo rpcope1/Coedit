@@ -717,6 +717,8 @@ begin
   if not (poUsePipes in aProcess.Options) then
     exit;
   //
+  // note: aList.LoadFromStream() does not work, lines can be split, which breaks message parsing (e.g filename detector).
+  //
   sum := 0;
   str := TMemoryStream.Create;
   try
