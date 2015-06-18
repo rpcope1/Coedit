@@ -480,6 +480,7 @@ begin
       fOptions.assign(fOptionsBackup);
   end;
   fOptions.AssignTo(self);
+  List.Invalidate;
 end;
 
 function TCEMessagesWidget.optionedOptionsModified: boolean;
