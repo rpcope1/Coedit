@@ -717,7 +717,30 @@ begin
   if not (poUsePipes in aProcess.Options) then
     exit;
   //
-  aList.LoadFromStream(aProcess.Output);
+  sum := 0;
+  str := TMemoryStream.Create;
+  try
+    buffSz := aProcess.PipeBufferSize;
+    // temp fix: messages are cut if the TAsyncProcess version is used on simple TProcess.
+    if aProcess is TAsyncProcess then begin
+      while aProcess.Output.NumBytesAvailable <> 0 do begin
+        str.SetSize(sum + buffSz);
+        cnt := aProcess.Output.Read((str.Memory + sum)^, buffSz);
+        sum += cnt;
+      end;
+    end else begin
+      repeat
+        str.SetSize(sum + buffSz);
+        cnt := aProcess.Output.Read((str.Memory + sum)^, buffSz);
+        sum += cnt;
+      until
+        cnt = 0;
+    end;
+    str.Size := sum;
+    aList.LoadFromStream(str);
+  finally
+    str.Free;
+  end;
 end;
 
 procedure processOutputToStream(aProcess: TProcess; output: TMemoryStream);
