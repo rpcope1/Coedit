@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, TreeFilterEdit,
-  Buttons, ce_writableComponent, ce_common, ce_project, ce_synmemo,
+  Buttons, ce_writableComponent, ce_common, ce_project, ce_synmemo, GraphType,
   ce_dlangutils, ce_interfaces, ce_observer;
 
 type
@@ -28,6 +28,7 @@ type
     fAutoSelect: boolean;
     fSingleClick: boolean;
     fFont: TFont;
+    fMsgColors: array[TCEAppMessageKind] of TColor;
     procedure setFont(aValue: TFont);
   published
     property fastDisplay: boolean read fFastDisplay write fFastDisplay;
@@ -35,6 +36,11 @@ type
     property autoSelect: boolean read fAutoSelect write fAutoSelect;
     property singleMessageClick: boolean read fSingleClick write fSingleClick;
     property font: TFont read fFont write setFont;
+    property colorBuble: TColor read fMsgColors[amkBub] write fMsgColors[amkBub];
+    property colorInfo: TColor read fMsgColors[amkInf] write fMsgColors[amkInf];
+    property colorHint: TColor read fMsgColors[amkHint] write fMsgColors[amkHint];
+    property colorWarning: TColor read fMsgColors[amkWarn] write fMsgColors[amkWarn];
+    property colorError: TColor read fMsgColors[amkErr] write fMsgColors[amkErr];
   public
     constructor Create(AOwner: TComponent); override;
     destructor destroy; override;
@@ -61,8 +67,11 @@ type
     ToolButton8: TToolButton;
     btnSelApp: TToolButton;
     TreeFilterEdit1: TTreeFilterEdit;
+    procedure ListCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode;
+      State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure ListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
+    fMsgColors: array[TCEAppMessageKind] of TColor;
     fActAutoSel: TAction;
     fActClearAll: TAction;
     fActClearCurCat: TAction;
@@ -95,6 +104,12 @@ type
     function iconIndex(aKind: TCEAppMessageKind): Integer;
     procedure handleMessageClick(Sender: TObject);
     //
+    procedure setColorError(aValue: TColor);
+    procedure setColorInfo(aValue: TColor);
+    procedure setColorHint(aValue: TColor);
+    procedure setColorBuble(aValue: TColor);
+    procedure setColorWarning(aValue: TColor);
+    //
     procedure projNew(aProject: TCEProject);
     procedure projClosing(aProject: TCEProject);
     procedure projFocused(aProject: TCEProject);
@@ -126,6 +141,12 @@ type
     property maxMessageCount: Integer read fMaxMessCnt write setMaxMessageCount;
     property autoSelectCategory: boolean read fAutoSelect write setAutoSelectCategory;
     property singleMessageClick: boolean read fSingleClick write setSingleMessageClick;
+    //
+    property colorBuble: TColor read fMsgColors[amkBub] write setColorBuble;
+    property colorInfo: TColor read fMsgColors[amkInf] write setColorInfo;
+    property colorHint: TColor read fMsgColors[amkHint] write setColorHint;
+    property colorWarning: TColor read fMsgColors[amkWarn] write setColorWarning;
+    property colorError: TColor read fMsgColors[amkErr] write setColorError;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -175,6 +196,7 @@ begin
     fAutoSelect := opts.fAutoSelect;
     fSingleClick := opts.fSingleClick;
     fFastDisplay := opts.fFastDisplay;
+    fMsgColors := opts.fMsgColors;
     fFont.EndUpdate;
   end
   else if Source is TCEMessagesWidget then
@@ -185,6 +207,7 @@ begin
     fAutoSelect := widg.fAutoSelect;
     fSingleClick := widg.fSingleClick;
     fFastDisplay := widg.fastDisplay;
+    fMsgColors := widg.fMsgColors;
   end
   else inherited;
 end;
@@ -201,6 +224,7 @@ begin
     widg.autoSelectCategory := fAutoSelect;
     widg.singleMessageClick := fSingleClick;
     widg.fastDisplay:= fFastDisplay;
+    widg.fMsgColors := fMsgColors;
   end
   else inherited;
 end;
@@ -236,6 +260,12 @@ begin
   fActSaveMsg.caption := 'Save selected message(s) to...';
   //
   inherited;
+  //
+  fMsgColors[amkBub]  := clDefault;
+  fMsgColors[amkHint] := clDefault;
+  fMsgColors[amkInf]  := clDefault;
+  fMsgColors[amkErr]  := clDefault;
+  fMsgColors[amkWarn] := clDefault;
   //
   updaterByLoopInterval := 12;
   fOptions := TCEMessagesOptions.Create(Self);
@@ -368,6 +398,59 @@ begin
   end;
 end;
 
+procedure TCEMessagesWidget.setColorError(aValue: TColor);
+begin
+  fMsgColors[amkErr] := aValue;
+  List.Invalidate;
+end;
+
+procedure TCEMessagesWidget.setColorInfo(aValue: TColor);
+begin
+  fMsgColors[amkInf] := aValue;
+  List.Invalidate;
+end;
+
+procedure TCEMessagesWidget.setColorHint(aValue: TColor);
+begin
+  fMsgColors[amkHint] := aValue;
+  List.Invalidate;
+end;
+
+procedure TCEMessagesWidget.setColorBuble(aValue: TColor);
+begin
+  fMsgColors[amkBub] := aValue;
+  List.Invalidate;
+end;
+
+procedure TCEMessagesWidget.setColorWarning(aValue: TColor);
+begin
+  fMsgColors[amkWarn] := aValue;
+  List.Invalidate;
+end;
+
+procedure TCEMessagesWidget.ListCustomDrawItem(Sender: TCustomTreeView;
+  Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
+var
+  rc: TRect;
+  customdraw: Boolean;
+begin
+  customdraw := fMsgColors[TCEAppMessageKind(node.ImageIndex + 1)] <> clDefault;
+  if customdraw then
+  begin
+    rc := node.DisplayRect(false);
+    Sender.Canvas.Brush.Color := fMsgColors[TCEAppMessageKind(node.ImageIndex + 1)];
+    if node.Selected then
+    begin
+      Sender.Canvas.DrawFocusRect(rc);
+      Sender.Canvas.Brush.Color := Sender.Canvas.Brush.Color - $232323;
+    end;
+    Sender.Canvas.FillRect(rc);
+    Sender.Canvas.TextOut(rc.Left + 30, rc.Top, node.Text);
+    list.Images.Draw(sender.Canvas, rc.Left + 1, (rc.Top + rc.Bottom - list.Images.Height) div 2,
+      node.ImageIndex, Node.NodeEffect);
+  end;
+  DefaultDraw := not customdraw;
+end;
 {$ENDREGION}
 
 {$REGION ICEEditableOptions ----------------------------------------------------}
