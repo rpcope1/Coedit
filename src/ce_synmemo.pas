@@ -557,15 +557,16 @@ begin
 end;
 
 procedure TCESynMemo.setFocus;
+var
+  saved: TSynCustomHighlighter;
 begin
   inherited;
   checkFileDate;
-  if (Highlighter <> nil) then
-  begin
-    LineTextChanged(nil, 0, Lines.Count);
-    Highlighter.ScanRanges;
-    Highlighter.ResetRange;
-  end;
+  //
+  saved := Highlighter;
+  Highlighter := nil;
+  Highlighter := saved;
+  //
   identifierToD2Syn;
   subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
