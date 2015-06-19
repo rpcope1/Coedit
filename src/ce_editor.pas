@@ -34,6 +34,7 @@ type
     macRecorder: TSynMacroRecorder;
     editorStatus: TStatusBar;
     mnuEditor: TPopupMenu;
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure mnuedCopyClick(Sender: TObject);
     procedure mnuedCutClick(Sender: TObject);
     procedure mnuEditorPopup(Sender: TObject);
@@ -138,6 +139,13 @@ begin
   fTokList.Free;
   fErrList.Free;
   inherited;
+end;
+
+procedure TCEEditorWidget.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+begin
+  // grants the window not to be undocked.
+  // additional fix, depend on of http://bugs.freepascal.org/view.php?id=28325
+  CanClose := Parent = nil;
 end;
 {$ENDREGION}
 
