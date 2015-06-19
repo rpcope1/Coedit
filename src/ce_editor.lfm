@@ -6,6 +6,7 @@ inherited CEEditorWidget: TCEEditorWidget
   Caption = 'Source editor'
   ClientHeight = 406
   ClientWidth = 465
+  OnCloseQuery = FormCloseQuery
   inherited Back: TPanel
     Height = 406
     Width = 465
