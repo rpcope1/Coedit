@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, TreeFilterEdit,
-  Buttons, ce_writableComponent, ce_common, ce_project, ce_synmemo, GraphType,
+  Buttons, math,ce_writableComponent, ce_common, ce_project, ce_synmemo, GraphType,
   ce_dlangutils, ce_interfaces, ce_observer;
 
 type
@@ -46,6 +46,10 @@ type
     destructor destroy; override;
     procedure assign(Source: TPersistent); override;
     procedure AssignTo(Dest: TPersistent); override;
+  end;
+
+  // grants access to some protected fields that should be actually public (scoll position needed for custom draw !)
+  TTreeHack = class(TTreeView)
   end;
 
   { TCEMessagesWidget }
@@ -131,6 +135,7 @@ type
     procedure message(const aValue: string; aData: Pointer; aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
     procedure clearbyContext(aCtxt: TCEAppMessageCtxt);
     procedure clearbyData(aData: Pointer);
+    procedure scrollToBack;
   protected
     procedure updateLoop; override;
     //
@@ -138,20 +143,18 @@ type
     function contextActionCount: integer; override;
     function contextAction(index: integer): TAction; override;
     //
-    property maxMessageCount: Integer read fMaxMessCnt write setMaxMessageCount;
-    property autoSelectCategory: boolean read fAutoSelect write setAutoSelectCategory;
-    property singleMessageClick: boolean read fSingleClick write setSingleMessageClick;
+    property maxMessageCount: Integer     read fMaxMessCnt  write setMaxMessageCount;
+    property autoSelectCategory: boolean  read fAutoSelect  write setAutoSelectCategory;
+    property singleMessageClick: boolean  read fSingleClick write setSingleMessageClick;
     //
-    property colorBuble: TColor read fMsgColors[amkBub] write setColorBuble;
-    property colorInfo: TColor read fMsgColors[amkInf] write setColorInfo;
-    property colorHint: TColor read fMsgColors[amkHint] write setColorHint;
-    property colorWarning: TColor read fMsgColors[amkWarn] write setColorWarning;
-    property colorError: TColor read fMsgColors[amkErr] write setColorError;
+    property colorBuble: TColor   read fMsgColors[amkBub]   write setColorBuble;
+    property colorInfo: TColor    read fMsgColors[amkInf]   write setColorInfo;
+    property colorHint: TColor    read fMsgColors[amkHint]  write setColorHint;
+    property colorWarning: TColor read fMsgColors[amkWarn]  write setColorWarning;
+    property colorError: TColor   read fMsgColors[amkErr]   write setColorError;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
-    //
-    procedure scrollToBack;
   end;
 
   function guessMessageKind(const aMessg: string): TCEAppMessageKind;
@@ -163,6 +166,7 @@ implementation
 
 const
   optname = 'messages.txt';
+  minColor = $232323;
 
 {$REGION TCEMessagesOptions ----------------------------------------------------}
 constructor TCEMessagesOptions.Create(AOwner: TComponent);
@@ -400,25 +404,25 @@ end;
 
 procedure TCEMessagesWidget.setColorError(aValue: TColor);
 begin
-  fMsgColors[amkErr] := aValue;
+  fMsgColors[amkErr] := max(aValue, minColor);
   List.Invalidate;
 end;
 
 procedure TCEMessagesWidget.setColorInfo(aValue: TColor);
 begin
-  fMsgColors[amkInf] := aValue;
+  fMsgColors[amkInf] := max(aValue, minColor);
   List.Invalidate;
 end;
 
 procedure TCEMessagesWidget.setColorHint(aValue: TColor);
 begin
-  fMsgColors[amkHint] := aValue;
+  fMsgColors[amkHint] := max(aValue, minColor);
   List.Invalidate;
 end;
 
 procedure TCEMessagesWidget.setColorBuble(aValue: TColor);
 begin
-  fMsgColors[amkBub] := aValue;
+  fMsgColors[amkBub] := max(aValue, minColor);
   List.Invalidate;
 end;
 
@@ -431,25 +435,24 @@ end;
 procedure TCEMessagesWidget.ListCustomDrawItem(Sender: TCustomTreeView;
   Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
 var
+  x: integer;
   rc: TRect;
-  customdraw: Boolean;
 begin
-  customdraw := fMsgColors[TCEAppMessageKind(node.ImageIndex + 1)] <> clDefault;
-  if customdraw then
+  rc := node.DisplayRect(false);
+  x := rc.Left + 2 - TTreeHack(list).ScrolledLeft;
+  // warning: the cast may become wrong if the enum is modified.
+  Sender.Canvas.Brush.Color := fMsgColors[TCEAppMessageKind(node.ImageIndex + 1)];
+  if node.Selected then
   begin
-    rc := node.DisplayRect(false);
-    Sender.Canvas.Brush.Color := fMsgColors[TCEAppMessageKind(node.ImageIndex + 1)];
-    if node.Selected then
-    begin
-      Sender.Canvas.DrawFocusRect(rc);
-      Sender.Canvas.Brush.Color := Sender.Canvas.Brush.Color - $232323;
-    end;
-    Sender.Canvas.FillRect(rc);
-    Sender.Canvas.TextOut(rc.Left + 30, rc.Top, node.Text);
-    list.Images.Draw(sender.Canvas, rc.Left + 1, (rc.Top + rc.Bottom - list.Images.Height) div 2,
-      node.ImageIndex, Node.NodeEffect);
+    Sender.Canvas.DrawFocusRect(rc);
+    Sender.Canvas.Brush.Color := Sender.Canvas.Brush.Color - minColor;
   end;
-  DefaultDraw := not customdraw;
+  Sender.Canvas.FillRect(rc);
+  list.Images.Draw(sender.Canvas, x, (rc.Top + rc.Bottom - list.Images.Height) div 2,
+    node.ImageIndex, Node.NodeEffect);
+  x += list.Images.Width + 5;
+  Sender.Canvas.TextOut(x, rc.Top, node.Text);
+  DefaultDraw := false;
 end;
 {$ENDREGION}
 
@@ -669,9 +672,9 @@ begin
   item.SelectedIndex := item.ImageIndex;
   if not fastDisplay then
   begin
-    //TODO-cfeature: reset horz scroll bar to the left
     clearOutOfRangeMessg;
     scrollToBack;
+    TTreeHack(list).scrolledLeft := 0;
     Application.ProcessMessages;
     filterMessages(fCtxt);
   end;
