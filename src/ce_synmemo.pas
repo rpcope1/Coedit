@@ -722,9 +722,9 @@ end;
 procedure TCESynMemo.identifierToD2Syn;
 begin
   fIdentifier := GetWordAtRowCol(LogicalCaretXY);
-  if fIsDSource then
+  if Highlighter = D2Syn then
     D2Syn.CurrentIdentifier := fIdentifier
-  else if fIsTxtFile then
+  else if Highlighter = TxtSyn then
     TxtSyn.CurrIdent := fIdentifier;
 end;
 
@@ -741,7 +741,7 @@ var
   ext: string;
 begin
   ext := extractFileExt(aFilename);
-  if dExtList.IndexOf(ext) = -1 then
+  if (dExtList.IndexOf(ext) = -1) or (ext = '.dd') then
     Highlighter := TxtSyn;
   Lines.LoadFromFile(aFilename);
   fFilename := aFilename;
