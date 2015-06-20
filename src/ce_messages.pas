@@ -42,6 +42,9 @@ type
     procedure AssignTo(Dest: TPersistent); override;
   end;
 
+  TTreeHack = class(TTreeView)
+  end;
+
   { TCEMessagesWidget }
 
   TCEMessagesWidget = class(TCEWidget, ICEEditableOptions, ICEMultiDocObserver, ICEProjectObserver, ICEMessagesDisplay)
@@ -585,8 +588,8 @@ begin
   item.SelectedIndex := item.ImageIndex;
   if not fastDisplay then
   begin
-    //TODO-cfeature: reset horz scroll bar to the left
     clearOutOfRangeMessg;
+    TTreeHack(list).scrolledLeft := 0;
     scrollToBack;
     Application.ProcessMessages;
     filterMessages(fCtxt);
