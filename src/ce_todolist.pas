@@ -82,7 +82,7 @@ type
     fToolOutput: TMemoryStream;
     fAutoRefresh: Boolean;
     fSingleClick: Boolean;
-    fProj: TCEProject;
+    fProj: TCENativeProject;
     fDoc: TCESynMemo;
     fToolProc: TCheckedAsyncProcess;
     fTodos: TTodoItems;
@@ -94,11 +94,11 @@ type
     procedure docChanged(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
     // ICEProjectObserver
-    procedure projNew(aProject: TCEProject);
-    procedure projChanged(aProject: TCEProject);
-    procedure projClosing(aProject: TCEProject);
-    procedure projFocused(aProject: TCEProject);
-    procedure projCompiling(aProject: TCEProject);
+    procedure projNew(aProject: ICECommonProject);
+    procedure projChanged(aProject: ICECommonProject);
+    procedure projClosing(aProject: ICECommonProject);
+    procedure projFocused(aProject: ICECommonProject);
+    procedure projCompiling(aProject: ICECommonProject);
     // ICEEditableOptions
     function optionedWantCategory(): string;
     function optionedWantEditorKind: TOptionEditorKind;
@@ -338,38 +338,43 @@ end;
 {$ENDREGION}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
-procedure TCETodoListWidget.projNew(aProject: TCEProject);
+procedure TCETodoListWidget.projNew(aProject: ICECommonProject);
 begin
-  fProj := aProject;
+  if aProject.getKind <> pkNative then
+    exit;
+  fProj := TCENativeProject(aProject.getProject);
 end;
 
-procedure TCETodoListWidget.projChanged(aProject: TCEProject);
+procedure TCETodoListWidget.projChanged(aProject: ICECommonProject);
 begin
-  if fProj <> aProject then
+  if fProj <> aProject.getProject then
     exit;
   if Visible and fAutoRefresh then
     callToolProcess;
 end;
 
-procedure TCETodoListWidget.projClosing(aProject: TCEProject);
+procedure TCETodoListWidget.projClosing(aProject: ICECommonProject);
 begin
-  if fProj <> aProject then
+  if fProj <> aProject.getProject then
     exit;
   fProj := nil;
   if Visible and fAutoRefresh then
     callToolProcess;
 end;
 
-procedure TCETodoListWidget.projFocused(aProject: TCEProject);
+procedure TCETodoListWidget.projFocused(aProject: ICECommonProject);
 begin
-  if aProject = fProj then
+  if aProject.getProject = fProj then
     exit;
-  fProj := aProject;
+  if aProject.getKind <> pkNative then
+    exit;
+  fProj := TCENativeProject(aProject.getProject);
+
   if Visible and fAutoRefresh then
     callToolProcess;
 end;
 
-procedure TCETodoListWidget.projCompiling(aProject: TCEProject);
+procedure TCETodoListWidget.projCompiling(aProject: ICECommonProject);
 begin
 end;
 

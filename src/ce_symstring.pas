@@ -20,17 +20,17 @@ type
    *)
   TCESymbolExpander = class(ICEMultiDocObserver, ICEProjectObserver)
   private
-    fProj: TCEProject;
+    fProj: TCENativeProject;
     fDoc: TCESynMemo;
     fNeedUpdate: boolean;
     fSymbols: array[TCESymbol] of string;
     procedure updateSymbols;
     //
-    procedure projNew(aProject: TCEProject);
-    procedure projClosing(aProject: TCEProject);
-    procedure projFocused(aProject: TCEProject);
-    procedure projChanged(aProject: TCEProject);
-    procedure projCompiling(aProject: TCEProject);
+    procedure projNew(aProject: ICECommonProject);
+    procedure projClosing(aProject: ICECommonProject);
+    procedure projFocused(aProject: ICECommonProject);
+    procedure projChanged(aProject: ICECommonProject);
+    procedure projCompiling(aProject: ICECommonProject);
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
@@ -68,34 +68,40 @@ end;
 {$ENDREGION}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
-procedure TCESymbolExpander.projNew(aProject: TCEProject);
+procedure TCESymbolExpander.projNew(aProject: ICECommonProject);
 begin
-  fProj := aProject;
+  case aProject.getKind of
+    pkNative: fProj := TCENativeProject(aProject.getProject);
+    pkDub:fProj := nil;
+  end;
   fNeedUpdate := true;
 end;
 
-procedure TCESymbolExpander.projClosing(aProject: TCEProject);
+procedure TCESymbolExpander.projClosing(aProject: ICECommonProject);
 begin
-  if fProj <> aProject then
+  if fProj <> aProject.getProject then
     exit;
   fProj := nil;
   fNeedUpdate := true;
 end;
 
-procedure TCESymbolExpander.projFocused(aProject: TCEProject);
+procedure TCESymbolExpander.projFocused(aProject: ICECommonProject);
 begin
-  fProj := aProject;
+  case aProject.getKind of
+    pkNative: fProj := TCENativeProject(aProject.getProject);
+    pkDub:fProj := nil;
+  end;
   fNeedUpdate := true;
 end;
 
-procedure TCESymbolExpander.projChanged(aProject: TCEProject);
+procedure TCESymbolExpander.projChanged(aProject: ICECommonProject);
 begin
-  if fProj <> aProject then
+  if fProj <> aProject.getProject then
     exit;
   fNeedUpdate := true;
 end;
 
-procedure TCESymbolExpander.projCompiling(aProject: TCEProject);
+procedure TCESymbolExpander.projCompiling(aProject: ICECommonProject);
 begin
 end;
 

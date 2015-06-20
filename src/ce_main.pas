@@ -189,7 +189,7 @@ type
     fMultidoc: ICEMultiDocHandler;
     fScCollectCount: Integer;
     fUpdateCount: NativeInt;
-    fProject: TCEProject;
+    fProject: TCENativeProject;
     fProjMru: TCEMRUProjectList;
     fFileMru: TCEMRUDocumentList;
     fWidgList: TCEWidgetList;
@@ -1733,7 +1733,7 @@ end;
 
 procedure TCEMainForm.newProj;
 begin
-  fProject := TCEProject.Create(nil);
+  fProject := TCENativeProject.Create(nil);
   fProject.Name := 'CurrentProject';
   showProjTitle;
 end;

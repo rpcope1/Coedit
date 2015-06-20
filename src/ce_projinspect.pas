@@ -34,7 +34,7 @@ type
   private
     fActOpenFile: TAction;
     fActSelConf: TAction;
-    fProject: TCEProject;
+    fProject: TCENativeProject;
     fFileNode, fConfNode: TTreeNode;
     fImpsNode, fInclNode: TTreeNode;
     fXtraNode: TTreeNode;
@@ -43,11 +43,11 @@ type
     procedure TreeDblClick(sender: TObject);
     procedure actOpenFileExecute(sender: TObject);
     //
-    procedure projNew(aProject: TCEProject);
-    procedure projClosing(aProject: TCEProject);
-    procedure projFocused(aProject: TCEProject);
-    procedure projChanged(aProject: TCEProject);
-    procedure projCompiling(aProject: TCEProject);
+    procedure projNew(aProject: ICECommonProject);
+    procedure projClosing(aProject: ICECommonProject);
+    procedure projFocused(aProject: ICECommonProject);
+    procedure projChanged(aProject: ICECommonProject);
+    procedure projCompiling(aProject: ICECommonProject);
   protected
     function contextName: string; override;
     function contextActionCount: integer; override;
@@ -146,35 +146,41 @@ end;
 {$ENDREGION}
 
 {$REGION ICEProjectMonitor -----------------------------------------------------}
-procedure TCEProjectInspectWidget.projNew(aProject: TCEProject);
+procedure TCEProjectInspectWidget.projNew(aProject: ICECommonProject);
 begin
-  fProject := aProject;
+  case aProject.getKind of
+    pkNative: fProject := TCENativeProject(aProject.getProject);
+    pkDub:fProject := nil;
+  end;
   fLastFileOrFolder := '';
   if Visible then updateImperative;
 end;
 
-procedure TCEProjectInspectWidget.projClosing(aProject: TCEProject);
+procedure TCEProjectInspectWidget.projClosing(aProject: ICECommonProject);
 begin
-  if fProject <> aProject then
+  if fProject <> aProject.getProject then
     exit;
   fProject := nil;
   fLastFileOrFolder := '';
   updateImperative;
 end;
 
-procedure TCEProjectInspectWidget.projFocused(aProject: TCEProject);
+procedure TCEProjectInspectWidget.projFocused(aProject: ICECommonProject);
 begin
-  fProject := aProject;
+  case aProject.getKind of
+    pkNative: fProject := TCENativeProject(aProject.getProject);
+    pkDub:fProject := nil;
+  end;
   if Visible then beginDelayedUpdate;
 end;
 
-procedure TCEProjectInspectWidget.projChanged(aProject: TCEProject);
+procedure TCEProjectInspectWidget.projChanged(aProject: ICECommonProject);
 begin
-  if fProject <> aProject then exit;
+  if fProject <> aProject.getProject then exit;
   if Visible then beginDelayedUpdate;
 end;
 
-procedure TCEProjectInspectWidget.projCompiling(aProject: TCEProject);
+procedure TCEProjectInspectWidget.projCompiling(aProject: ICECommonProject);
 begin
 end;
 {$ENDREGION}

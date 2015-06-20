@@ -36,13 +36,13 @@ type
     procedure btnMoveDownClick(Sender: TObject);
     procedure ListEdited(Sender: TObject; Item: TListItem; var AValue: string);
   private
-    fProj: TCEProject;
+    fProj: TCENativeProject;
     procedure updateRegistrable;
-    procedure projNew(aProject: TCEProject);
-    procedure projChanged(aProject: TCEProject);
-    procedure projClosing(aProject: TCEProject);
-    procedure projFocused(aProject: TCEProject);
-    procedure projCompiling(aProject: TCEProject);
+    procedure projNew(aProject: ICECommonProject);
+    procedure projChanged(aProject: ICECommonProject);
+    procedure projClosing(aProject: ICECommonProject);
+    procedure projFocused(aProject: ICECommonProject);
+    procedure projCompiling(aProject: ICECommonProject);
     //
     procedure dataToGrid;
     procedure gridToData;
@@ -99,30 +99,37 @@ begin
     (FileExists(fProj.Filename))
 end;
 
-procedure TCELibManEditorWidget.projNew(aProject: TCEProject);
+procedure TCELibManEditorWidget.projNew(aProject: ICECommonProject);
 begin
-  fProj := aProject;
+  if aProject.getKind <> pkNative then
+    exit;
+  fProj := TCENativeProject(aProject.getProject);
 end;
 
-procedure TCELibManEditorWidget.projChanged(aProject: TCEProject);
+procedure TCELibManEditorWidget.projChanged(aProject: ICECommonProject);
 begin
+  if fProj = nil then exit;
+  if fProj <> aProject.getProject then exit;
+  //
   updateRegistrable;
 end;
 
-procedure TCELibManEditorWidget.projClosing(aProject: TCEProject);
+procedure TCELibManEditorWidget.projClosing(aProject: ICECommonProject);
 begin
-  if aProject <> fProj then exit;
+  if  fProj <> aProject.getProject then exit;
   fProj := nil;
   updateRegistrable;
 end;
 
-procedure TCELibManEditorWidget.projFocused(aProject: TCEProject);
+procedure TCELibManEditorWidget.projFocused(aProject: ICECommonProject);
 begin
-  fProj := aProject;
+  if aProject.getKind <> pkNative then
+    exit;
+  fProj := TCENativeProject(aProject.getProject);
   updateRegistrable;
 end;
 
-procedure TCELibManEditorWidget.projCompiling(aProject: TCEProject);
+procedure TCELibManEditorWidget.projCompiling(aProject: ICECommonProject);
 begin
 end;
 

@@ -6,9 +6,44 @@ interface
 
 uses
   Classes, SysUtils, actnList, menus, process,
-  ce_synmemo, ce_project, ce_observer;
+  ce_synmemo, ce_observer;
 
 type
+
+  // describes the project kind. Used as a hint to cast ICECommonProject.getProject()
+  TCEProjectKind = (pkNative, pkDub);
+
+  (**
+   * Common project interface
+   *)
+  ICECommonProject = interface
+  ['ICECommonProject']
+    function getKind: TCEProjectKind;
+    // returns an untyped object that can be casted using getSpecialization()
+    function getProject: TObject;
+
+    //// project file
+    //function filename: string;
+    //procedure loadFromFile(const aFilename: string);
+    //procedure saveToFile(const aFilename: string);
+    //procedure save;
+    //
+    //// common project properties
+    //function sourceCount: integer;
+    //function source(index: integer): string;
+    //function stringImportCount: integer;
+    //function stringImport(index: integer): string;
+    //function moduleImportCount: integer;
+    //function moduleImport(index: integer): string;
+    //function configurationCount: integer;
+    //function configuration(index: integer): string;
+    //function outputFilename: string;
+    //
+    //// common actions
+    //function compile: boolean;
+
+
+  end;
 
   (**
    * An implementer declares some actions on demand.
@@ -55,15 +90,15 @@ type
   ICEProjectObserver = interface
   ['ICEProjectObserver']
     // aProject has been created/opened
-    procedure projNew(aProject: TCEProject);
+    procedure projNew(aProject: ICECommonProject);
     // aProject has been modified: switches, source name, ...
-    procedure projChanged(aProject: TCEProject);
+    procedure projChanged(aProject: ICECommonProject);
     // aProject is about to be closed.
-    procedure projClosing(aProject: TCEProject);
+    procedure projClosing(aProject: ICECommonProject);
     // not called yet: aProject is always the same
-    procedure projFocused(aProject: TCEProject);
+    procedure projFocused(aProject: ICECommonProject);
     // aProject is about to be compiled
-    procedure projCompiling(aProject: TCEProject);
+    procedure projCompiling(aProject: ICECommonProject);
   end;
   (**
    * An implementer informs some ICEProjectObserver about the current project(s)
@@ -258,11 +293,11 @@ type
   (**
    * TCEProjectSubject primitives.
    *)
-  procedure subjProjNew(aSubject: TCEProjectSubject; aProj: TCEProject);     {$IFDEF RELEASE}inline;{$ENDIF}
-  procedure subjProjClosing(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
-  procedure subjProjFocused(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
-  procedure subjProjChanged(aSubject: TCEProjectSubject; aProj: TCEProject); {$IFDEF RELEASE}inline;{$ENDIF}
-  procedure subjProjCompiling(aSubject: TCEProjectSubject; aProj: TCEProject);{$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjProjNew(aSubject: TCEProjectSubject; aProj: ICECommonProject);     {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjProjClosing(aSubject: TCEProjectSubject; aProj: ICECommonProject); {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjProjFocused(aSubject: TCEProjectSubject; aProj: ICECommonProject); {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjProjChanged(aSubject: TCEProjectSubject; aProj: ICECommonProject); {$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjProjCompiling(aSubject: TCEProjectSubject; aProj: ICECommonProject);{$IFDEF RELEASE}inline;{$ENDIF}
 
 
 {
@@ -332,7 +367,7 @@ begin
   exit(aObject is ICEProjectObserver);
 end;
 
-procedure subjProjNew(aSubject: TCEProjectSubject; aProj: TCEProject);
+procedure subjProjNew(aSubject: TCEProjectSubject; aProj: ICECommonProject);
 var
   i: Integer;
 begin
@@ -340,7 +375,7 @@ begin
     (fObservers.Items[i] as ICEProjectObserver).ProjNew(aProj);
 end;
 
-procedure subjProjClosing(aSubject: TCEProjectSubject; aProj: TCEProject);
+procedure subjProjClosing(aSubject: TCEProjectSubject; aProj: ICECommonProject);
 var
   i: Integer;
 begin
@@ -348,7 +383,7 @@ begin
     (fObservers.Items[i] as ICEProjectObserver).projClosing(aProj);
 end;
 
-procedure subjProjFocused(aSubject: TCEProjectSubject; aProj: TCEProject);
+procedure subjProjFocused(aSubject: TCEProjectSubject; aProj: ICECommonProject);
 var
   i: Integer;
 begin
@@ -356,7 +391,7 @@ begin
     (fObservers.Items[i] as ICEProjectObserver).projFocused(aProj);
 end;
 
-procedure subjProjChanged(aSubject: TCEProjectSubject; aProj: TCEProject);
+procedure subjProjChanged(aSubject: TCEProjectSubject; aProj: ICECommonProject);
 var
   i: Integer;
 begin
@@ -364,7 +399,7 @@ begin
     (fObservers.Items[i] as ICEProjectObserver).projChanged(aProj);
 end;
 
-procedure subjProjCompiling(aSubject: TCEProjectSubject; aProj: TCEProject);
+procedure subjProjCompiling(aSubject: TCEProjectSubject; aProj: ICECommonProject);
 var
   i: Integer;
 begin

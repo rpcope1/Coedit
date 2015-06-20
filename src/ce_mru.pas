@@ -63,11 +63,11 @@ type
    *)
   TCEMRUProjectList = class(TCEMRUFileList, ICEProjectObserver)
   private
-    procedure projNew(aProject: TCEProject);
-    procedure projChanged(aProject: TCEProject);
-    procedure projClosing(aProject: TCEProject);
-    procedure projFocused(aProject: TCEProject);
-    procedure projCompiling(aProject: TCEProject);
+    procedure projNew(aProject: ICECommonProject);
+    procedure projChanged(aProject: ICECommonProject);
+    procedure projClosing(aProject: ICECommonProject);
+    procedure projFocused(aProject: ICECommonProject);
+    procedure projCompiling(aProject: ICECommonProject);
   public
     constructor create; override;
     destructor destroy; override;
@@ -192,26 +192,32 @@ begin
   inherited;
 end;
 
-procedure TCEMRUProjectList.projNew(aProject: TCEProject);
+procedure TCEMRUProjectList.projNew(aProject: ICECommonProject);
 begin
 end;
 
-procedure TCEMRUProjectList.projFocused(aProject: TCEProject);
+procedure TCEMRUProjectList.projFocused(aProject: ICECommonProject);
 begin
 end;
 
-procedure TCEMRUProjectList.projChanged(aProject: TCEProject);
+procedure TCEMRUProjectList.projChanged(aProject: ICECommonProject);
 begin
 end;
 
-procedure TCEMRUProjectList.projCompiling(aProject: TCEProject);
+procedure TCEMRUProjectList.projCompiling(aProject: ICECommonProject);
 begin
 end;
 
-procedure TCEMRUProjectList.projClosing(aProject: TCEProject);
+procedure TCEMRUProjectList.projClosing(aProject: ICECommonProject);
+var
+  natProj: TCENativeProject;
 begin
-  if FileExists(aProject.fileName) then
-    Insert(0, aProject.fileName);
+  if aProject.getProject is TCENativeProject then
+  begin
+    natProj := TCENativeProject(aProject.getProject);
+    if FileExists(natProj.fileName) then
+      Insert(0, natProj.fileName);
+  end;
 end;
 
 initialization

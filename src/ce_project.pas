@@ -9,7 +9,7 @@ uses
   LclProc,
   {$ENDIF}
   Classes, SysUtils, process, strUtils, ce_common, ce_writableComponent,
-  ce_dmdwrap, ce_observer;
+  ce_dmdwrap, ce_observer, ce_interfaces;
 
 type
 
@@ -21,7 +21,7 @@ type
  *
  * Basically it' s designed to provide the options for the dmd process.
  *)
-  TCEProject = class(TWritableLfmTextComponent)
+  TCENativeProject = class(TWritableLfmTextComponent, ICECommonProject)
   private
     fOnChange: TNotifyEvent;
     fModified: boolean;
@@ -51,6 +51,9 @@ type
     procedure runProcOutput(sender: TObject);
     // passes compilation message as "to be guessed"
     procedure compProcOutput(proc: TProcess);
+    //
+    function getKind: TCEProjectKind;
+    function getProject: TObject;
   protected
     procedure beforeLoad; override;
     procedure afterSave; override;
@@ -91,9 +94,9 @@ type
 implementation
 
 uses
-  ce_interfaces, controls, dialogs, ce_symstring, ce_libman, ce_dcd;
+  controls, dialogs, ce_symstring, ce_libman, ce_dcd;
 
-constructor TCEProject.create(aOwner: TComponent);
+constructor TCENativeProject.create(aOwner: TComponent);
 begin
   inherited create(aOwner);
   //
@@ -117,7 +120,7 @@ begin
   fModified := false;
 end;
 
-destructor TCEProject.destroy;
+destructor TCENativeProject.destroy;
 begin
   subjProjClosing(TCEProjectSubject(fProjectSubject), self);
   fProjectSubject.Free;
@@ -131,13 +134,23 @@ begin
   inherited;
 end;
 
-function TCEProject.addConfiguration: TCompilerConfiguration;
+function TCENativeProject.getKind: TCEProjectKind;
+begin
+  exit(pkNative);
+end;
+
+function TCENativeProject.getProject: TObject;
+begin
+  exit(Self);
+end;
+
+function TCENativeProject.addConfiguration: TCompilerConfiguration;
 begin
   result := TCompilerConfiguration(fOptsColl.Add);
   result.onChanged := @subMemberChanged;
 end;
 
-procedure TCEProject.setOptsColl(const aValue: TCollection);
+procedure TCENativeProject.setOptsColl(const aValue: TCollection);
 var
   i: nativeInt;
 begin
@@ -146,7 +159,7 @@ begin
     Configuration[i].onChanged := @subMemberChanged;
 end;
 
-procedure TCEProject.addSource(const aFilename: string);
+procedure TCENativeProject.addSource(const aFilename: string);
 var
   relSrc, absSrc, ext: string;
 begin
@@ -163,7 +176,7 @@ begin
   fSrcs.Add(ExtractRelativepath(fBasePath, aFilename));
 end;
 
-procedure TCEProject.setRoot(const aValue: string);
+procedure TCENativeProject.setRoot(const aValue: string);
 begin
   if fRootFolder = aValue then exit;
   beginUpdate;
@@ -171,7 +184,7 @@ begin
   endUpdate;
 end;
 
-procedure TCEProject.setFilename(const aValue: string);
+procedure TCENativeProject.setFilename(const aValue: string);
 var
   oldAbs, newRel, oldBase: string;
   i: NativeInt;
@@ -194,14 +207,14 @@ begin
   endUpdate;
 end;
 
-procedure TCEProject.setLibAliases(const aValue: TStringList);
+procedure TCENativeProject.setLibAliases(const aValue: TStringList);
 begin
   beginUpdate;
   fLibAliases.Assign(aValue);
   endUpdate;
 end;
 
-procedure TCEProject.setSrcs(const aValue: TStringList);
+procedure TCENativeProject.setSrcs(const aValue: TStringList);
 begin
   beginUpdate;
   fSrcs.Assign(aValue);
@@ -209,7 +222,7 @@ begin
   endUpdate;
 end;
 
-procedure TCEProject.setConfIx(aValue: Integer);
+procedure TCENativeProject.setConfIx(aValue: Integer);
 begin
   beginUpdate;
   if aValue < 0 then aValue := 0;
@@ -218,19 +231,19 @@ begin
   endUpdate;
 end;
 
-procedure TCEProject.subMemberChanged(sender : TObject);
+procedure TCENativeProject.subMemberChanged(sender : TObject);
 begin
   beginUpdate;
   fModified := true;
   endUpdate;
 end;
 
-procedure TCEProject.beginUpdate;
+procedure TCENativeProject.beginUpdate;
 begin
   Inc(fUpdateCount);
 end;
 
-procedure TCEProject.endUpdate;
+procedure TCENativeProject.endUpdate;
 begin
   Dec(fUpdateCount);
   if fUpdateCount > 0 then
@@ -244,7 +257,7 @@ begin
   doChanged;
 end;
 
-procedure TCEProject.doChanged;
+procedure TCENativeProject.doChanged;
 {$IFDEF DEBUG}
 var
   lst: TStringList;
@@ -267,18 +280,18 @@ begin
   {$ENDIF}
 end;
 
-function TCEProject.getConfig(const ix: integer): TCompilerConfiguration;
+function TCENativeProject.getConfig(const ix: integer): TCompilerConfiguration;
 begin
   result := TCompilerConfiguration(fOptsColl.Items[ix]);
   result.onChanged := @subMemberChanged;
 end;
 
-function TCEProject.getCurrConf: TCompilerConfiguration;
+function TCENativeProject.getCurrConf: TCompilerConfiguration;
 begin
   result := TCompilerConfiguration(fOptsColl.Items[fConfIx]);
 end;
 
-procedure TCEProject.addDefaults;
+procedure TCENativeProject.addDefaults;
 begin
   with TCompilerConfiguration(fOptsColl.Add) do
   begin
@@ -303,7 +316,7 @@ begin
   end;
 end;
 
-procedure TCEProject.reset;
+procedure TCENativeProject.reset;
 var
   defConf: TCompilerConfiguration;
 begin
@@ -318,7 +331,7 @@ begin
   fModified := false;
 end;
 
-procedure TCEProject.getOpts(const aList: TStrings);
+procedure TCENativeProject.getOpts(const aList: TStrings);
 var
   rel, abs: string;
   i: Integer;
@@ -363,7 +376,7 @@ begin
   end;
 end;
 
-function TCEProject.isProjectSource(const aFilename: string): boolean;
+function TCENativeProject.isProjectSource(const aFilename: string): boolean;
 var
   i: Integer;
 begin
@@ -373,31 +386,31 @@ begin
   exit(false);
 end;
 
-function TCEProject.getAbsoluteSourceName(aIndex: integer): string;
+function TCENativeProject.getAbsoluteSourceName(aIndex: integer): string;
 begin
   if aIndex < 0 then exit('');
   if aIndex > fSrcs.Count-1 then exit('');
   result := expandFileNameEx(fBasePath, fSrcs.Strings[aIndex]);
 end;
 
-function TCEProject.getAbsoluteFilename(const aFilename: string): string;
+function TCENativeProject.getAbsoluteFilename(const aFilename: string): string;
 begin
   result := expandFileNameEx(fBasePath, aFilename);
 end;
 
-procedure TCEProject.afterSave;
+procedure TCENativeProject.afterSave;
 begin
   fModified := false;
   updateOutFilename;
 end;
 
-procedure TCEProject.beforeLoad;
+procedure TCENativeProject.beforeLoad;
 begin
   beginUpdate;
   Inherited;
 end;
 
-procedure TCEProject.afterLoad;
+procedure TCENativeProject.afterLoad;
 var
   hasPatched: Boolean;
   // either all the source files have moved or only the project file
@@ -499,7 +512,7 @@ begin
   if not hasPatched then fModified := false;
 end;
 
-procedure TCEProject.readerPropNoFound(Reader: TReader; Instance: TPersistent;
+procedure TCENativeProject.readerPropNoFound(Reader: TReader; Instance: TPersistent;
       var PropName: string; IsPath: Boolean; var Handled, Skip: Boolean);
 //var
   //idt: string;
@@ -532,7 +545,7 @@ begin
   end;
 end;
 
-procedure TCEProject.updateOutFilename;
+procedure TCENativeProject.updateOutFilename;
 begin
   fOutputFilename := currentConfiguration.pathsOptions.outputFilename;
   // field is specified
@@ -573,7 +586,7 @@ begin
     fCanBeRun := fileExists(fOutputFilename);
 end;
 
-function TCEProject.runPrePostProcess(const processInfo: TCompileProcOptions): Boolean;
+function TCENativeProject.runPrePostProcess(const processInfo: TCompileProcOptions): Boolean;
 var
   process: TProcess;
   pname: string;
@@ -608,7 +621,7 @@ begin
   end;
 end;
 
-function TCEProject.compileProject: Boolean;
+function TCENativeProject.compileProject: Boolean;
 var
   config: TCompilerConfiguration;
   compilproc: TProcess;
@@ -672,7 +685,7 @@ begin
   end;
 end;
 
-function TCEProject.runProject(const runArgs: string = ''): Boolean;
+function TCENativeProject.runProject(const runArgs: string = ''): Boolean;
 var
   prm: string;
   i: Integer;
@@ -715,7 +728,7 @@ begin
   result := true;
 end;
 
-procedure TCEProject.runProcOutput(sender: TObject);
+procedure TCENativeProject.runProcOutput(sender: TObject);
 var
   proc: TProcess;
   lst: TStringList;
@@ -737,7 +750,7 @@ begin
     getprocInputHandler.removeProcess(proc);
 end;
 
-procedure TCEProject.compProcOutput(proc: TProcess);
+procedure TCENativeProject.compProcOutput(proc: TProcess);
 var
   lst: TStringList;
   str: string;
@@ -755,5 +768,5 @@ begin
 end;
 
 initialization
-  RegisterClasses([TCEProject]);
+  RegisterClasses([TCENativeProject]);
 end.

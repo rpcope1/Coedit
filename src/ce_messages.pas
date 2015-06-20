@@ -83,7 +83,7 @@ type
     fActCopyMsg: TAction;
     fActSelAll: TAction;
     fMaxMessCnt: Integer;
-    fProj: TCEProject;
+    fProj: TCENativeProject;
     fDoc: TCESynMemo;
     fCtxt: TCEAppMessageCtxt;
     fAutoSelect: boolean;
@@ -114,11 +114,11 @@ type
     procedure setColorBuble(aValue: TColor);
     procedure setColorWarning(aValue: TColor);
     //
-    procedure projNew(aProject: TCEProject);
-    procedure projClosing(aProject: TCEProject);
-    procedure projFocused(aProject: TCEProject);
-    procedure projChanged(aProject: TCEProject);
-    procedure projCompiling(aProject: TCEProject);
+    procedure projNew(aProject: ICECommonProject);
+    procedure projClosing(aProject: ICECommonProject);
+    procedure projFocused(aProject: ICECommonProject);
+    procedure projChanged(aProject: ICECommonProject);
+    procedure projCompiling(aProject: ICECommonProject);
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
@@ -584,34 +584,40 @@ end;
 {$ENDREGION}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
-procedure TCEMessagesWidget.projNew(aProject: TCEProject);
+procedure TCEMessagesWidget.projNew(aProject: ICECommonProject);
 begin
-  fProj := aProject;
+  case aProject.getKind of
+    pkNative: fProj := TCENativeProject(aProject.getProject);
+    pkDub:fProj := nil;
+  end;
   filterMessages(fCtxt);
 end;
 
-procedure TCEMessagesWidget.projClosing(aProject: TCEProject);
+procedure TCEMessagesWidget.projClosing(aProject: ICECommonProject);
 begin
-  if fProj <> aProject then
+  if fProj <> aProject.getProject then
     exit;
   //
-  clearbyData(aProject);
+  clearbyData(fProj);
   fProj := nil;
   filterMessages(fCtxt);
 end;
 
-procedure TCEMessagesWidget.projFocused(aProject: TCEProject);
+procedure TCEMessagesWidget.projFocused(aProject: ICECommonProject);
 begin
-  if fProj = aProject then exit;
-  fProj := aProject;
+  if fProj = aProject.getProject then exit;
+  case aProject.getKind of
+    pkNative: fProj := TCENativeProject(aProject.getProject);
+    pkDub:fProj := nil;
+  end;
   filterMessages(fCtxt);
 end;
 
-procedure TCEMessagesWidget.projChanged(aProject: TCEProject);
+procedure TCEMessagesWidget.projChanged(aProject: ICECommonProject);
 begin
 end;
 
-procedure TCEMessagesWidget.projCompiling(aProject: TCEProject);
+procedure TCEMessagesWidget.projCompiling(aProject: ICECommonProject);
 begin
 end;
 {$ENDREGION}
@@ -789,7 +795,7 @@ begin
       Itm.Visible := true
     else case msgdt^.ctxt of
       amcEdit: itm.Visible := (fDoc  = TCESynMemo(msgdt^.data)) and (aCtxt = amcEdit);
-      amcProj: itm.Visible := (fProj = TCEProject(msgdt^.data)) and (aCtxt = amcProj);
+      amcProj: itm.Visible := (fProj = TCENativeProject(msgdt^.data)) and (aCtxt = amcProj);
       amcApp:  itm.Visible := aCtxt = amcApp;
       amcMisc: itm.Visible := aCtxt = amcMisc;
     end;

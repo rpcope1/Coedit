@@ -35,7 +35,7 @@ type
     procedure TreeChange(Sender: TObject; Node: TTreeNode);
     procedure GridFilter(Sender: TObject; aEditor: TPropertyEditor;var aShow: boolean);
   private
-    fProj: TCEProject;
+    fProj: TCENativeProject;
     fSyncroMode: boolean;
     fSynchroItem: TStringList;
     fSynchroValue: TStringList;
@@ -45,11 +45,11 @@ type
     procedure syncroGetPropAsString(const ASection, Item, Value: string);
     property syncroMode: boolean read fSyncroMode write setSyncroMode;
     //
-    procedure projNew(aProject: TCEProject);
-    procedure projClosing(aProject: TCEProject);
-    procedure projChanged(aProject: TCEProject);
-    procedure projFocused(aProject: TCEProject);
-    procedure projCompiling(aProject: TCEProject);
+    procedure projNew(aProject: ICECommonProject);
+    procedure projClosing(aProject: ICECommonProject);
+    procedure projChanged(aProject: ICECommonProject);
+    procedure projFocused(aProject: ICECommonProject);
+    procedure projCompiling(aProject: ICECommonProject);
   protected
     procedure updateImperative; override;
     procedure SetVisible(Value: boolean); override;
@@ -107,18 +107,21 @@ end;
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
-procedure TCEProjectConfigurationWidget.projNew(aProject: TCEProject);
+procedure TCEProjectConfigurationWidget.projNew(aProject: ICECommonProject);
 begin
   beginImperativeUpdate;
-  fProj := aProject;
+  case aProject.getKind of
+    pkNative: fProj := TCENativeProject(aProject.getProject);
+    pkDub:fProj := nil;
+  end;
   if Visible then updateImperative;
   syncroMode := false;
   pnlToolBar.Enabled:=true;
 end;
 
-procedure TCEProjectConfigurationWidget.projClosing(aProject: TCEProject);
+procedure TCEProjectConfigurationWidget.projClosing(aProject: ICECommonProject);
 begin
-  if fProj <> aProject then
+  if fProj <> aProject.getProject then
     exit;
   inspector.TIObject := nil;
   inspector.ItemIndex := -1;
@@ -128,21 +131,27 @@ begin
   fProj := nil;
 end;
 
-procedure TCEProjectConfigurationWidget.projChanged(aProject: TCEProject);
+procedure TCEProjectConfigurationWidget.projChanged(aProject: ICECommonProject);
 begin
-  if fProj <> aProject then exit;
-  fProj := aProject;
+  if fProj <> aProject.getProject then exit;
+  case aProject.getKind of
+    pkNative: fProj := TCENativeProject(aProject.getProject);
+    pkDub:fProj := nil;
+  end;
   if Visible then updateImperative;
 end;
 
-procedure TCEProjectConfigurationWidget.projFocused(aProject: TCEProject);
+procedure TCEProjectConfigurationWidget.projFocused(aProject: ICECommonProject);
 begin
-  fProj := aProject;
+  case aProject.getKind of
+    pkNative: fProj := TCENativeProject(aProject.getProject);
+    pkDub: fProj := nil;
+  end;
   pnlToolBar.Enabled:=true;
   if Visible then updateImperative;
 end;
 
-procedure TCEProjectConfigurationWidget.projCompiling(aProject: TCEProject);
+procedure TCEProjectConfigurationWidget.projCompiling(aProject: ICECommonProject);
 begin
 end;
 {$ENDREGION --------------------------------------------------------------------}

@@ -28,16 +28,16 @@ type
     fClient, fServer: TProcess;
     fAvailable: boolean;
     fDoc: TCESynMemo;
-    fProj: TCEProject;
+    fProj: TCENativeProject;
     procedure killServer;
     procedure terminateClient;
     procedure waitClient;
     //
-    procedure projNew(aProject: TCEProject);
-    procedure projChanged(aProject: TCEProject);
-    procedure projClosing(aProject: TCEProject);
-    procedure projFocused(aProject: TCEProject);
-    procedure projCompiling(aProject: TCEProject);
+    procedure projNew(aProject: ICECommonProject);
+    procedure projChanged(aProject: ICECommonProject);
+    procedure projClosing(aProject: ICECommonProject);
+    procedure projFocused(aProject: ICECommonProject);
+    procedure projCompiling(aProject: ICECommonProject);
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
@@ -112,18 +112,21 @@ end;
 {$ENDREGION}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
-procedure TCEDcdWrapper.projNew(aProject: TCEProject);
+procedure TCEDcdWrapper.projNew(aProject: ICECommonProject);
 begin
-  fProj := aProject;
+  case aProject.getKind of
+    pkNative: fProj := TCENativeProject(aProject.getProject);
+    pkDub:fProj := nil;
+  end;
 end;
 
-procedure TCEDcdWrapper.projChanged(aProject: TCEProject);
+procedure TCEDcdWrapper.projChanged(aProject: ICECommonProject);
 var
   i: Integer;
   fold: string;
   folds: TStringList;
 begin
-  if fProj <> aProject then
+  if fProj <> aProject.getProject then
     exit;
   if fProj = nil then
     exit;
@@ -148,18 +151,22 @@ begin
   end;
 end;
 
-procedure TCEDcdWrapper.projClosing(aProject: TCEProject);
+procedure TCEDcdWrapper.projClosing(aProject: ICECommonProject);
 begin
-  if fProj <> aProject then exit;
+  if fProj <> aProject.getProject then
+    exit;
   fProj := nil;
 end;
 
-procedure TCEDcdWrapper.projFocused(aProject: TCEProject);
+procedure TCEDcdWrapper.projFocused(aProject: ICECommonProject);
 begin
-  fProj := aProject;
+  case aProject.getKind of
+    pkNative: fProj := TCENativeProject(aProject.getProject);
+    pkDub:fProj := nil;
+  end;
 end;
 
-procedure TCEDcdWrapper.projCompiling(aProject: TCEProject);
+procedure TCEDcdWrapper.projCompiling(aProject: ICECommonProject);
 begin
 end;
 {$ENDREGION}
