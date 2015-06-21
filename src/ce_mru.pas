@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, ce_interfaces, ce_observer,
-  ce_project, ce_synmemo;
+  ce_nativeproject, ce_synmemo;
 
 type
 
@@ -212,7 +212,7 @@ procedure TCEMRUProjectList.projClosing(aProject: ICECommonProject);
 var
   natProj: TCENativeProject;
 begin
-  if aProject.getProject is TCENativeProject then
+  if aProject.getFormat = pfNative then
   begin
     natProj := TCENativeProject(aProject.getProject);
     if FileExists(natProj.fileName) then

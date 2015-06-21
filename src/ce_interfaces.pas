@@ -11,15 +11,16 @@ uses
 type
 
   // describes the project kind. Used as a hint to cast ICECommonProject.getProject()
-  TCEProjectKind = (pkNative, pkDub);
+  TCEProjectFormat = (pfNative, pfDub);
 
   (**
    * Common project interface
    *)
   ICECommonProject = interface
   ['ICECommonProject']
-    function getKind: TCEProjectKind;
-    // returns an untyped object that can be casted using getSpecialization()
+    // indicates the project format
+    function getFormat: TCEProjectFormat;
+    // returns an untyped object that can be casted using getFormat()
     function getProject: TObject;
 
     //// project file
@@ -38,11 +39,6 @@ type
     //function configurationCount: integer;
     //function configuration(index: integer): string;
     //function outputFilename: string;
-    //
-    //// common actions
-    //function compile: boolean;
-
-
   end;
 
   (**

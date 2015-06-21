@@ -9,7 +9,7 @@ uses
   {$IFDEF WINDOWS}
   windows,
   {$ENDIF}
-  ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_synmemo, ce_project;
+  ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_synmemo, ce_nativeproject;
 
 type
   (**
@@ -114,9 +114,9 @@ end;
 {$REGION ICEProjectObserver ----------------------------------------------------}
 procedure TCEDcdWrapper.projNew(aProject: ICECommonProject);
 begin
-  case aProject.getKind of
-    pkNative: fProj := TCENativeProject(aProject.getProject);
-    pkDub:fProj := nil;
+  case aProject.getFormat of
+    pfNative: fProj := TCENativeProject(aProject.getProject);
+    pfDub:fProj := nil;
   end;
 end;
 
@@ -160,9 +160,9 @@ end;
 
 procedure TCEDcdWrapper.projFocused(aProject: ICECommonProject);
 begin
-  case aProject.getKind of
-    pkNative: fProj := TCENativeProject(aProject.getProject);
-    pkDub:fProj := nil;
+  case aProject.getFormat of
+    pfNative: fProj := TCENativeProject(aProject.getProject);
+    pfDub:fProj := nil;
   end;
 end;
 

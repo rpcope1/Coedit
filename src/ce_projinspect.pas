@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Graphics, actnlist,
-  Dialogs, ExtCtrls, ComCtrls, Menus, Buttons, lcltype, ce_project, ce_interfaces,
+  Dialogs, ExtCtrls, ComCtrls, Menus, Buttons, lcltype, ce_nativeproject, ce_interfaces,
   ce_common, ce_widget, ce_observer;
 
 type
@@ -148,11 +148,12 @@ end;
 {$REGION ICEProjectMonitor -----------------------------------------------------}
 procedure TCEProjectInspectWidget.projNew(aProject: ICECommonProject);
 begin
-  case aProject.getKind of
-    pkNative: fProject := TCENativeProject(aProject.getProject);
-    pkDub:fProject := nil;
-  end;
+  fProject := nil;
   fLastFileOrFolder := '';
+  if aProject.getFormat <> pfNative then
+    exit;
+  //
+  fProject := TCENativeProject(aProject.getProject);
   if Visible then updateImperative;
 end;
 
@@ -167,16 +168,19 @@ end;
 
 procedure TCEProjectInspectWidget.projFocused(aProject: ICECommonProject);
 begin
-  case aProject.getKind of
-    pkNative: fProject := TCENativeProject(aProject.getProject);
-    pkDub:fProject := nil;
-  end;
+  fProject := nil;
+  fLastFileOrFolder := '';
+  if aProject.getFormat <> pfNative then
+    exit;
+  //
+  fProject := TCENativeProject(aProject.getProject);
   if Visible then beginDelayedUpdate;
 end;
 
 procedure TCEProjectInspectWidget.projChanged(aProject: ICECommonProject);
 begin
-  if fProject <> aProject.getProject then exit;
+  if fProject <> aProject.getProject then
+    exit;
   if Visible then beginDelayedUpdate;
 end;
 

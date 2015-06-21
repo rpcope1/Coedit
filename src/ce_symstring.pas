@@ -5,7 +5,7 @@ unit ce_symstring;
 interface
 
 uses
-  ce_observer, ce_interfaces, ce_project, ce_synmemo, ce_common;
+  ce_observer, ce_interfaces, ce_nativeproject, ce_synmemo, ce_common;
 
 type
 
@@ -64,15 +64,14 @@ begin
   EntitiesConnector.removeObserver(self);
   inherited;
 end;
-
 {$ENDREGION}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
 procedure TCESymbolExpander.projNew(aProject: ICECommonProject);
 begin
-  case aProject.getKind of
-    pkNative: fProj := TCENativeProject(aProject.getProject);
-    pkDub:fProj := nil;
+  case aProject.getFormat of
+    pfNative: fProj := TCENativeProject(aProject.getProject);
+    pfDub: fProj := nil;
   end;
   fNeedUpdate := true;
 end;
@@ -87,9 +86,9 @@ end;
 
 procedure TCESymbolExpander.projFocused(aProject: ICECommonProject);
 begin
-  case aProject.getKind of
-    pkNative: fProj := TCENativeProject(aProject.getProject);
-    pkDub:fProj := nil;
+  case aProject.getFormat of
+    pfNative: fProj := TCENativeProject(aProject.getProject);
+    pfDub: fProj := nil;
   end;
   fNeedUpdate := true;
 end;
@@ -104,7 +103,6 @@ end;
 procedure TCESymbolExpander.projCompiling(aProject: ICECommonProject);
 begin
 end;
-
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}

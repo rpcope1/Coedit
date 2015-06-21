@@ -1,4 +1,4 @@
-unit ce_project;
+unit ce_nativeproject;
 
 {$I ce_defines.inc}
 
@@ -32,7 +32,7 @@ type
     fSrcs, fSrcsCop: TStringList;
     fConfIx: Integer;
     fUpdateCount: NativeInt;
-    fProjectSubject: TCECustomSubject;
+    fProjectSubject: TCEProjectSubject;
     fRunner: TCheckedAsyncProcess;
     fOutputFilename: string;
     fCanBeRun: boolean;
@@ -52,7 +52,7 @@ type
     // passes compilation message as "to be guessed"
     procedure compProcOutput(proc: TProcess);
     //
-    function getKind: TCEProjectKind;
+    function getFormat: TCEProjectFormat;
     function getProject: TObject;
   protected
     procedure beforeLoad; override;
@@ -110,8 +110,8 @@ begin
   //
   reset;
   addDefaults;
-  subjProjNew(TCEProjectSubject(fProjectSubject), self);
-  subjProjChanged(TCEProjectSubject(fProjectSubject), self);
+  subjProjNew(fProjectSubject, self);
+  subjProjChanged(fProjectSubject, self);
   //
   {$IFDEF LINUX}
   fBasePath := '/';
@@ -122,7 +122,7 @@ end;
 
 destructor TCENativeProject.destroy;
 begin
-  subjProjClosing(TCEProjectSubject(fProjectSubject), self);
+  subjProjClosing(fProjectSubject, self);
   fProjectSubject.Free;
   //
   fOnChange := nil;
@@ -134,9 +134,9 @@ begin
   inherited;
 end;
 
-function TCENativeProject.getKind: TCEProjectKind;
+function TCENativeProject.getFormat: TCEProjectFormat;
 begin
-  exit(pkNative);
+  exit(pfNative);
 end;
 
 function TCENativeProject.getProject: TObject;
@@ -265,7 +265,7 @@ var
 begin
   fModified := true;
   updateOutFilename;
-  subjProjChanged(TCEProjectSubject(fProjectSubject), self);
+  subjProjChanged(fProjectSubject, self);
   if assigned(fOnChange) then fOnChange(Self);
   {$IFDEF DEBUG}
   lst := TStringList.Create;
@@ -640,7 +640,7 @@ begin
   end;
   //
   msgs.clearByData(Self);
-  subjProjCompiling(TCEProjectSubject(fProjectSubject), Self);
+  subjProjCompiling(fProjectSubject, Self);
   //
   if not runPrePostProcess(config.preBuildProcess) then
     msgs.message('project warning: the pre-compilation process has not been properly executed',

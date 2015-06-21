@@ -143,7 +143,6 @@
       <Unit1>
         <Filename Value="..\src\ce_common.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_common"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\src\ce_d2syn.pas"/>
@@ -176,7 +175,6 @@
         <ComponentName Value="CEEditorWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_editor"/>
       </Unit8>
       <Unit9>
         <Filename Value="..\src\ce_editoroptions.pas"/>
@@ -194,7 +192,6 @@
       <Unit12>
         <Filename Value="..\src\ce_libman.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_libman"/>
       </Unit12>
       <Unit13>
         <Filename Value="..\src\ce_libmaneditor.pas"/>
@@ -249,7 +246,6 @@
         <ComponentName Value="CEProcInputWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_procinput"/>
       </Unit20>
       <Unit21>
         <Filename Value="..\src\ce_projconf.pas"/>
@@ -260,9 +256,9 @@
         <UnitName Value="ce_projconf"/>
       </Unit21>
       <Unit22>
-        <Filename Value="..\src\ce_project.pas"/>
+        <Filename Value="..\src\ce_nativeproject.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_project"/>
+        <UnitName Value="ce_nativeproject"/>
       </Unit22>
       <Unit23>
         <Filename Value="..\src\ce_projinspect.pas"/>
@@ -296,7 +292,6 @@
         <ComponentName Value="CESymbolListWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_symlist"/>
       </Unit27>
       <Unit28>
         <Filename Value="..\src\ce_symstring.pas"/>
@@ -306,7 +301,6 @@
       <Unit29>
         <Filename Value="..\src\ce_synmemo.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_synmemo"/>
       </Unit29>
       <Unit30>
         <Filename Value="..\src\ce_todolist.pas"/>
@@ -338,7 +332,6 @@
       <Unit35>
         <Filename Value="..\src\ce_sharedres.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_sharedres"/>
       </Unit35>
       <Unit36>
         <Filename Value="..\src\ce_widget.pas"/>

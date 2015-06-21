@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, TreeFilterEdit,
-  Buttons, math,ce_writableComponent, ce_common, ce_project, ce_synmemo, GraphType,
+  Buttons, math,ce_writableComponent, ce_common, ce_nativeproject, ce_synmemo, GraphType,
   ce_dlangutils, ce_interfaces, ce_observer;
 
 type
@@ -586,9 +586,9 @@ end;
 {$REGION ICEProjectObserver ----------------------------------------------------}
 procedure TCEMessagesWidget.projNew(aProject: ICECommonProject);
 begin
-  case aProject.getKind of
-    pkNative: fProj := TCENativeProject(aProject.getProject);
-    pkDub:fProj := nil;
+  case aProject.getFormat of
+    pfNative: fProj := TCENativeProject(aProject.getProject);
+    pfDub:fProj := nil;
   end;
   filterMessages(fCtxt);
 end;
@@ -606,9 +606,9 @@ end;
 procedure TCEMessagesWidget.projFocused(aProject: ICECommonProject);
 begin
   if fProj = aProject.getProject then exit;
-  case aProject.getKind of
-    pkNative: fProj := TCENativeProject(aProject.getProject);
-    pkDub:fProj := nil;
+  case aProject.getFormat of
+    pfNative: fProj := TCENativeProject(aProject.getProject);
+    pfDub:fProj := nil;
   end;
   filterMessages(fCtxt);
 end;

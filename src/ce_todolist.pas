@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls,
   strutils, Graphics, Dialogs, ExtCtrls, Menus, Buttons, ComCtrls,
   ce_widget, process, ce_common, ce_interfaces, ce_synmemo,
-  ce_project, ce_symstring, ce_writableComponent, ce_observer;
+  ce_nativeproject, ce_symstring, ce_writableComponent, ce_observer;
 
 type
 
@@ -340,7 +340,8 @@ end;
 {$REGION ICEProjectObserver ----------------------------------------------------}
 procedure TCETodoListWidget.projNew(aProject: ICECommonProject);
 begin
-  if aProject.getKind <> pkNative then
+  fProj := nil;
+  if aProject.getFormat <> pfNative then
     exit;
   fProj := TCENativeProject(aProject.getProject);
 end;
@@ -366,10 +367,10 @@ procedure TCETodoListWidget.projFocused(aProject: ICECommonProject);
 begin
   if aProject.getProject = fProj then
     exit;
-  if aProject.getKind <> pkNative then
+  fProj := nil;
+  if aProject.getFormat <> pfNative then
     exit;
   fProj := TCENativeProject(aProject.getProject);
-
   if Visible and fAutoRefresh then
     callToolProcess;
 end;
@@ -377,7 +378,6 @@ end;
 procedure TCETodoListWidget.projCompiling(aProject: ICECommonProject);
 begin
 end;
-
 {$ENDREGION}
 
 {$REGION Todo list things ------------------------------------------------------}

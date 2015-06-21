@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, RTTIGrids, RTTICtrls, Forms, Controls, Graphics,
   Dialogs, ExtCtrls, ComCtrls, StdCtrls, Menus, Buttons, rttiutils, typinfo,
-  PropEdits, ObjectInspector, ce_dmdwrap, ce_project, ce_widget, ce_interfaces,
+  PropEdits, ObjectInspector, ce_dmdwrap, ce_nativeproject, ce_widget, ce_interfaces,
   ce_observer;
 
 type
@@ -103,20 +103,19 @@ begin
   inherited;
   if Visible then updateImperative;
 end;
-
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
 procedure TCEProjectConfigurationWidget.projNew(aProject: ICECommonProject);
 begin
-  beginImperativeUpdate;
-  case aProject.getKind of
-    pkNative: fProj := TCENativeProject(aProject.getProject);
-    pkDub:fProj := nil;
-  end;
+  fProj := nil;
+  if aProject.getFormat <> pfNative then
+    exit;
+  //
+  fProj := TCENativeProject(aProject.getProject);
   if Visible then updateImperative;
   syncroMode := false;
-  pnlToolBar.Enabled:=true;
+  pnlToolBar.Enabled :=true;
 end;
 
 procedure TCEProjectConfigurationWidget.projClosing(aProject: ICECommonProject);
@@ -125,7 +124,7 @@ begin
     exit;
   inspector.TIObject := nil;
   inspector.ItemIndex := -1;
-  self.selConf.Clear;
+  selConf.Clear;
   syncroMode := false;
   pnlToolBar.Enabled:=false;
   fProj := nil;
@@ -133,20 +132,18 @@ end;
 
 procedure TCEProjectConfigurationWidget.projChanged(aProject: ICECommonProject);
 begin
-  if fProj <> aProject.getProject then exit;
-  case aProject.getKind of
-    pkNative: fProj := TCENativeProject(aProject.getProject);
-    pkDub:fProj := nil;
-  end;
+  if fProj <> aProject.getProject then
+    exit;
   if Visible then updateImperative;
 end;
 
 procedure TCEProjectConfigurationWidget.projFocused(aProject: ICECommonProject);
 begin
-  case aProject.getKind of
-    pkNative: fProj := TCENativeProject(aProject.getProject);
-    pkDub: fProj := nil;
-  end;
+  fProj := nil;
+  if aProject.getFormat <> pfNative then
+    exit;
+  //
+  fProj := TCENativeProject(aProject.getProject);
   pnlToolBar.Enabled:=true;
   if Visible then updateImperative;
 end;

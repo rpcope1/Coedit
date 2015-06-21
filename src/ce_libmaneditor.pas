@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, ComCtrls, Buttons, ce_widget, ce_interfaces, ce_project, ce_dmdwrap,
+  Menus, ComCtrls, Buttons, ce_widget, ce_interfaces, ce_nativeproject, ce_dmdwrap,
   ce_common;
 
 type
@@ -96,43 +96,46 @@ procedure TCELibManEditorWidget.updateRegistrable;
 begin
   btnReg.Enabled := (fProj <> nil) and
     (fProj.currentConfiguration.outputOptions.binaryKind = staticlib) and
-    (FileExists(fProj.Filename))
+      (FileExists(fProj.Filename))
 end;
 
 procedure TCELibManEditorWidget.projNew(aProject: ICECommonProject);
 begin
-  if aProject.getKind <> pkNative then
-    exit;
-  fProj := TCENativeProject(aProject.getProject);
+  case aProject.getFormat of
+    pfNative: fProj := TCENativeProject(aProject.getProject);
+    pfDub:fProj := nil;
+  end;
 end;
 
 procedure TCELibManEditorWidget.projChanged(aProject: ICECommonProject);
 begin
   if fProj = nil then exit;
-  if fProj <> aProject.getProject then exit;
+  if fProj <> aProject.getProject then
+    exit;
   //
   updateRegistrable;
 end;
 
 procedure TCELibManEditorWidget.projClosing(aProject: ICECommonProject);
 begin
-  if  fProj <> aProject.getProject then exit;
+  if  fProj <> aProject.getProject then
+    exit;
   fProj := nil;
   updateRegistrable;
 end;
 
 procedure TCELibManEditorWidget.projFocused(aProject: ICECommonProject);
 begin
-  if aProject.getKind <> pkNative then
-    exit;
-  fProj := TCENativeProject(aProject.getProject);
+  case aProject.getFormat of
+    pfNative: fProj := TCENativeProject(aProject.getProject);
+    pfDub:fProj := nil;
+  end;
   updateRegistrable;
 end;
 
 procedure TCELibManEditorWidget.projCompiling(aProject: ICECommonProject);
 begin
 end;
-
 
 procedure TCELibManEditorWidget.ListEdited(Sender: TObject; Item: TListItem; var AValue: string);
 begin
