@@ -658,6 +658,7 @@ begin
   if not fInitialized then exit;
   if not Visible then exit;
   //
+  DockMaster.RestoreLayouts.Clear;
   if WindowState = wsMinimized then WindowState := wsNormal;
   // does not save minimized/undocked windows to prevent bugs
   for i:= 0 to fWidgList.Count-1 do
@@ -1610,6 +1611,7 @@ begin
   //
   xcfg := TXMLConfigStorage.Create(aFilename, true);
   try
+    DockMaster.RestoreLayouts.Clear;
     DockMaster.LoadLayoutFromConfig(xcfg, false);
   finally
     xcfg.Free;
@@ -1621,6 +1623,7 @@ var
   xcfg: TXMLConfigStorage;
   i: NativeInt;
 begin
+  DockMaster.RestoreLayouts.Clear;
   for i:= 0 to fWidgList.Count-1 do
   begin
     if not fWidgList.widget[i].isDockable then continue;
