@@ -6,7 +6,7 @@ object CurrentProject: TCEProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'coedit.1gold.win32.setup.exe'
+      pathsOptions.outputFilename = 'coedit.1update1.win32.setup.exe'
       pathsOptions.importStringPaths.Strings = (
         'win32\'
       )
@@ -17,7 +17,7 @@ object CurrentProject: TCEProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'coedit.1gold.linux32.setup'
+      pathsOptions.outputFilename = 'coedit.1update1.linux32.setup'
       pathsOptions.importStringPaths.Strings = (
         'nux32\'
       )
@@ -28,7 +28,7 @@ object CurrentProject: TCEProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'coedit.1gold.linux64.setup'
+      pathsOptions.outputFilename = 'coedit.1update1.linux64.setup'
       pathsOptions.importStringPaths.Strings = (
         'nux64\'
       )

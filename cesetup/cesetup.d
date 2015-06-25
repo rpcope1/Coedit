@@ -77,7 +77,7 @@ void main(string[] args)
     
     writeln("|---------------------------------------------|");
     if (!uninstall)
-    writeln("|             Coedit 1 gold setup             |");
+    writeln("|           Coedit 1 update 1 setup           |");
     else
     writeln("|             Coedit uninstaller              |");
     writeln("|---------------------------------------------|");
