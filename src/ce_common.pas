@@ -635,13 +635,16 @@ procedure listDrives(aList: TStrings);
 {$IFDEF WINDOWS}
 var
   drv: char;
-  ltr: string;
+  ltr, nme: string;
   {$ENDIF}
 begin
   {$IFDEF WINDOWS}
+  setLength(nme, 255);
   for drv := 'A' to 'Z' do
   begin
     ltr := drv + ':\';
+    if not GetVolumeInformation(PChar(ltr), PChar(nme), 255, nil, nil, nil, nil, 0) then
+      continue;
     case GetDriveType(PChar(ltr)) of
        DRIVE_REMOVABLE,
        DRIVE_FIXED,
