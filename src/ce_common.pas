@@ -985,7 +985,7 @@ end;
 
 initialization
   dExtList := TStringList.Create;
-  dExtList.AddStrings(['.d', '.D', '.di', '.DI', '.Di', '.dI', '.dd', '.DD']);
+  dExtList.AddStrings(['.d', '.di', '.dd']);
   registerClasses([TCEPersistentShortcut]);
 finalization
   dExtList.Free;
