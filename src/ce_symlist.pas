@@ -107,7 +107,6 @@ type
     TreeFilterEdit1: TTreeFilterEdit;
     procedure btnRefreshClick(Sender: TObject);
     procedure TreeCompare(Sender: TObject; Node1, Node2: TTreeNode; var Compare: Integer);
-    procedure TreeDeletion(Sender: TObject; Node: TTreeNode);
     procedure TreeFilterEdit1AfterFilter(Sender: TObject);
     function TreeFilterEdit1FilterItem(Item: TObject; out Done: Boolean): Boolean;
     procedure TreeFilterEdit1MouseEnter(Sender: TObject);
@@ -538,12 +537,6 @@ begin
   callToolProc;
 end;
 
-procedure TCESymbolListWidget.TreeDeletion(Sender: TObject; Node: TTreeNode);
-begin
-  if (node.Data <> nil) then
-    Dispose(PNativeUint(node.Data));
-end;
-
 procedure TCESymbolListWidget.btnRefreshClick(Sender: TObject);
 begin
   fActRefresh.Execute;
@@ -646,7 +639,9 @@ begin
   if Tree.Selected = nil then exit;
   if Tree.Selected.Data = nil then exit;
   //
-  line := PNativeUInt(Tree.Selected.Data)^;
+  {$HINTS OFF}
+  line := NativeUInt(Tree.Selected.Data);
+  {$HINTS ON}
   fDoc.CaretY := line;
   fDoc.SelectLine;
 end;
@@ -734,15 +729,14 @@ end;
 //
 procedure symbolToTreeNode(origin: TTreenode; sym: TSymbol);
 var
-  data: PNativeUint;
   cat: TTreeNode;
   node: TTreeNode;
   i: Integer;
 begin
   cat   := getCatNode(origin, sym.symType);
-  data  := new(PNativeUint);
-  data^ := sym.fline;
-  node  := tree.Items.AddChildObject(cat, sym.name, data);
+  {$HINTS OFF}
+  node  := tree.Items.AddChildObject(cat, sym.name, Pointer(sym.fline));
+  {$HINTS ON}
   if not fShowChildCategories then node := nil;
   cat.Visible:=true;
   for i := 0 to sym.subs.Count-1 do

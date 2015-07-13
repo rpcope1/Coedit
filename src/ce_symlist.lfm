@@ -33,7 +33,6 @@ inherited CESymbolListWidget: TCESymbolListWidget
         SelectionColor = clActiveBorder
         TabOrder = 0
         OnCompare = TreeCompare
-        OnDeletion = TreeDeletion
         OnKeyPress = TreeKeyPress
         Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
         Items.Data = {
