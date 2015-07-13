@@ -143,6 +143,7 @@ type
     procedure actCopyIdentExecute(Sender: TObject);
     procedure updateVisibleCat;
     procedure clearTree;
+    procedure expandCurrentDeclaration;
     //
     procedure checkIfHasToolExe;
     procedure callToolProc;
@@ -527,6 +528,8 @@ begin
   //
   if fAutoRefresh then beginDelayedUpdate
   else if fRefreshOnChange then callToolProc;
+  //
+  //expandCurrentDeclaration;
 end;
 {$ENDREGION}
 
@@ -772,7 +775,49 @@ begin
     for i:= 0 to tree.Items.Count-1 do
       if Tree.Items[i].Count > 0 then
         tree.Items[i].CustomSort(nil);
+
+  //expandCurrentDeclaration;
   tree.EndUpdate;
+end;
+
+procedure TCESymbolListWidget.expandCurrentDeclaration;
+var
+  i: integer;
+  nearest, target: NativeUint;
+  toExpand: TTreeNode;
+
+  procedure look(root: TTreeNode);
+  var
+    i: integer;
+    l: NativeUint;
+  begin
+    for i := 0 to root.Count-1 do
+    begin
+      if root.Items[i].Data = nil then
+        continue;
+      {$HINTS OFF}
+      l := NativeUInt(root.Items[i].Data);
+      {$HINTS ON}
+      if l > target then
+        continue;
+      if l > nearest then
+      begin
+        nearest := l;
+        toExpand := root.Items[i];
+      end;
+    end;
+  end;
+
+begin
+  if fDoc = nil then exit;
+  //
+  target := fDoc.CaretY;
+  toExpand := nil;
+  nearest := 0;
+  for i := 0 to tree.Items.Count-1 do
+    look(tree.Items[i]);
+  if toExpand <> nil then
+    tree.Selected := toExpand;
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
