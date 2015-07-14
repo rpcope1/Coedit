@@ -742,7 +742,7 @@ begin
     stream.SetSize(sum + buffSz);
     cnt := proc.Output.Read((stream.Memory + sum)^, buffSz);
     sum += cnt;
-  until cnt = 0;
+  until (proc.Output.NumBytesAvailable = 0) or (cnt = 0);
   stream.size := sum;
   stream.Position := sum;
 end;
