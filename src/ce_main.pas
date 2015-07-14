@@ -1440,7 +1440,8 @@ begin
     LibMan.getLibFiles(nil, dmdproc.Parameters);
     LibMan.getLibSources(nil, dmdproc.Parameters);
     dmdproc.Execute;
-    while dmdproc.Running do asyncprocOutput(dmdProc);
+    while dmdproc.Running do;
+    asyncprocOutput(dmdProc);
 
     if (dmdProc.ExitStatus = 0) then
     begin
