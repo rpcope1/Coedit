@@ -166,7 +166,7 @@ type
   function listAsteriskPath(const aPath: string; aList: TStrings; someExts: TStrings = nil): boolean;
 
   (**
-   * Lets the shell open a file.
+   * Lets the shell open a file
    *)
   function shellOpen(const aFilename: string): boolean;
 
@@ -176,19 +176,19 @@ type
   function exeInSysPath(anExeName: string): boolean;
 
   (**
-   * Returns the full path to anExeName. Works if exeInSysPath() returns true.
+   * Returns the full to anExeName. Works if exeInSysPath().
    *)
   function exeFullName(anExeName: string): string;
 
   (**
    * Clears then fills aList with aProcess output stream.
    *)
-  procedure processOutputToStrings(proc: TProcess; strings: TStrings);
+  procedure processOutputToStrings(aProcess: TProcess; var aList: TStringList);
 
   (**
-   * Copies process output to stream. Existing stream content is not cleared.
+   * Copy available process output to a stream.
    *)
-  procedure processOutputToStream(proc: TProcess; stream: TMemoryStream);
+  procedure processOutputToStream(aProcess: TProcess; output: TMemoryStream);
 
   (**
    * Terminates and frees aProcess.
@@ -710,41 +710,61 @@ begin
   end;
 end;
 
-procedure processOutputToStrings(proc: TProcess; strings: TStrings);
+procedure processOutputToStrings(aProcess: TProcess; var aList: TStringList);
 var
   str: TMemoryStream;
+  sum: Integer;
+  cnt: Integer;
+  buffSz: Integer;
 begin
-  if not (poUsePipes in proc.Options) then
+  if not (poUsePipes in aProcess.Options) then
     exit;
   //
+  // note: aList.LoadFromStream() does not work, lines can be split, which breaks message parsing (e.g filename detector).
+  //
+  sum := 0;
   str := TMemoryStream.Create;
   try
-    processOutputToStream(proc, str);
-    str.Position := 0;
-    strings.LoadFromStream(str);
+    buffSz := aProcess.PipeBufferSize;
+    // temp fix: messages are cut if the TAsyncProcess version is used on simple TProcess.
+    if aProcess is TAsyncProcess then begin
+      while aProcess.Output.NumBytesAvailable <> 0 do begin
+        str.SetSize(sum + buffSz);
+        cnt := aProcess.Output.Read((str.Memory + sum)^, buffSz);
+        sum += cnt;
+      end;
+    end else begin
+      repeat
+        str.SetSize(sum + buffSz);
+        cnt := aProcess.Output.Read((str.Memory + sum)^, buffSz);
+        sum += cnt;
+      until
+        cnt = 0;
+    end;
+    str.Size := sum;
+    aList.LoadFromStream(str);
   finally
     str.Free;
   end;
 end;
 
-procedure processOutputToStream(proc: TProcess; stream: TMemoryStream);
+procedure processOutputToStream(aProcess: TProcess; output: TMemoryStream);
 var
   sum, cnt: Integer;
-  buffSz: Integer;
+const
+  buffSz = 2048;
 begin
-  if not (poUsePipes in proc.Options) then
+  if not (poUsePipes in aProcess.Options) then
     exit;
   //
-  buffSz := proc.PipeBufferSize;
-  sum := stream.Size;
-  stream.Position := sum;
-  repeat
-    stream.SetSize(sum + buffSz);
-    cnt := proc.Output.Read((stream.Memory + sum)^, buffSz);
+  sum := output.Size;
+  while aProcess.Output.NumBytesAvailable <> 0 do begin
+    output.SetSize(sum + buffSz);
+    cnt := aProcess.Output.Read((output.Memory + sum)^, buffSz);
     sum += cnt;
-  until (proc.Output.NumBytesAvailable = 0) or (cnt = 0);
-  stream.size := sum;
-  stream.Position := sum;
+  end;
+  output.SetSize(sum);
+  output.Position := sum;
 end;
 
 procedure killProcess(var aProcess: TAsyncProcess);
