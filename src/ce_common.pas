@@ -722,6 +722,20 @@ begin
   //
   // note: aList.LoadFromStream() does not work, lines can be split, which breaks message parsing (e.g filename detector).
   //
+  {
+    Split lines:
+    ------------
+
+    The problem comes from TAsynProcess.OnReadData. When the output is read in the
+    event, it does not always finish on a full line.
+
+    Resolution:
+    -----------
+
+    in TAsynProcess.OnReadData Accumulate avalaible output in a stream.
+    Detects last line terminator in the accumation.
+    Load TStrings from this stream range.
+  }
   sum := 0;
   str := TMemoryStream.Create;
   try

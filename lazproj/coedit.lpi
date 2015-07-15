@@ -135,7 +135,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="37">
+    <Units Count="38">
       <Unit0>
         <Filename Value="coedit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -151,7 +151,6 @@
       <Unit3>
         <Filename Value="..\src\ce_dcd.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_dcd"/>
       </Unit3>
       <Unit4>
         <Filename Value="..\src\ce_dlang.pas"/>
@@ -187,7 +186,6 @@
       <Unit11>
         <Filename Value="..\src\ce_interfaces.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_interfaces"/>
       </Unit11>
       <Unit12>
         <Filename Value="..\src\ce_libman.pas"/>
@@ -199,7 +197,6 @@
         <ComponentName Value="CELibManEditorWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_libmaneditor"/>
       </Unit13>
       <Unit14>
         <Filename Value="..\src\ce_main.pas"/>
@@ -207,7 +204,6 @@
         <ComponentName Value="CEMainForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_main"/>
       </Unit14>
       <Unit15>
         <Filename Value="..\src\ce_messages.pas"/>
@@ -215,7 +211,6 @@
         <ComponentName Value="CEMessagesWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_messages"/>
       </Unit15>
       <Unit16>
         <Filename Value="..\src\ce_miniexplorer.pas"/>
@@ -227,7 +222,6 @@
       <Unit17>
         <Filename Value="..\src\ce_mru.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_mru"/>
       </Unit17>
       <Unit18>
         <Filename Value="..\src\ce_observer.pas"/>
@@ -253,12 +247,10 @@
         <ComponentName Value="CEProjectConfigurationWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_projconf"/>
       </Unit21>
       <Unit22>
         <Filename Value="..\src\ce_nativeproject.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_nativeproject"/>
       </Unit22>
       <Unit23>
         <Filename Value="..\src\ce_projinspect.pas"/>
@@ -266,7 +258,6 @@
         <ComponentName Value="CEProjectInspectWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_projinspect"/>
       </Unit23>
       <Unit24>
         <Filename Value="..\src\ce_search.pas"/>
@@ -296,7 +287,6 @@
       <Unit28>
         <Filename Value="..\src\ce_symstring.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ce_symstring"/>
       </Unit28>
       <Unit29>
         <Filename Value="..\src\ce_synmemo.pas"/>
@@ -308,7 +298,6 @@
         <ComponentName Value="CETodoListWidget"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="ce_todolist"/>
       </Unit30>
       <Unit31>
         <Filename Value="..\src\ce_tools.pas"/>
@@ -340,6 +329,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit36>
+      <Unit37>
+        <Filename Value="..\src\ce_processes.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit37>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
