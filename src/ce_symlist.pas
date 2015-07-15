@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, TreeFilterEdit, Forms, Controls, Graphics, ExtCtrls, Menus,
   ComCtrls, ce_widget, jsonparser, process, actnlist, Buttons, Clipbrd, LCLProc,
-  ce_common, ce_observer, ce_synmemo, ce_interfaces, ce_writableComponent;
+  ce_common, ce_observer, ce_synmemo, ce_interfaces, ce_writableComponent, ce_processes;
 
 type
 
@@ -116,7 +116,7 @@ type
     fOptions: TCESymbolListOptions;
     fSyms: TSymbolList;
     fMsgs: ICEMessagesDisplay;
-    fToolProc: TCheckedAsyncProcess;
+    fToolProc: TCEProcess;
     fActCopyIdent: TAction;
     fActRefresh: TAction;
     fActRefreshOnChange: TAction;
@@ -131,7 +131,6 @@ type
     fSmartFilter: boolean;
     fAutoExpandErrors: boolean;
     fSortSymbols: boolean;
-    fToolOutput: TMemoryStream;
     ndAlias, ndClass, ndEnum, ndFunc, ndUni: TTreeNode;
     ndImp, ndIntf, ndMix, ndStruct, ndTmp: TTreeNode;
     ndVar, ndWarn, ndErr: TTreeNode;
@@ -147,7 +146,6 @@ type
     //
     procedure checkIfHasToolExe;
     procedure callToolProc;
-    procedure toolOutputData(sender: TObject);
     procedure toolTerminated(sender: TObject);
     //
     procedure docNew(aDoc: TCESynMemo);
@@ -350,7 +348,6 @@ begin
   inherited;
   // allow empty name if owner is nil
   fSyms := TSymbolList.create(nil);
-  fToolOutput := TMemoryStream.create;
   //
   fOptions := TCESymbolListOptions.Create(self);
   fOptions.Name:= 'symbolListOptions';
@@ -392,7 +389,6 @@ begin
   EntitiesConnector.removeObserver(self);
   //
   killProcess(fToolProc);
-  fToolOutput.free;
   fSyms.Free;
   //
   fOptions.saveToFile(getCoeditDocPath + OptsFname);
@@ -665,12 +661,11 @@ begin
 
   // standard process options
   killProcess(fToolProc);
-  fToolProc := TCheckedAsyncProcess.Create(nil);
+  fToolProc := TCEProcess.Create(nil);
   fToolProc.ShowWindow := swoHIDE;
   fToolProc.Options := [poUsePipes];
   fToolProc.Executable := exeFullName(toolExeName);
   fToolProc.OnTerminate := @toolTerminated;
-  fToolProc.OnReadData  := @toolOutputData;
   fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);
 
   // focused source
@@ -681,11 +676,6 @@ begin
   fToolProc.Parameters.Add(srcFname);
 
   fToolProc.Execute;
-end;
-
-procedure TCESymbolListWidget.toolOutputData(sender: TObject);
-begin
-  processOutputToStream(TProcess(sender), fToolOutput);
 end;
 
 procedure TCESymbolListWidget.toolTerminated(sender: TObject);
@@ -754,12 +744,10 @@ begin
   updateVisibleCat;
   if fDoc = nil then exit;
   //
-  processOutputToStream(TProcess(sender), fToolOutput);
-  fToolOutput.Position := 0;
-  fSyms.LoadFromTool(fToolOutput);
   fToolProc.OnTerminate := nil;
   fToolProc.OnReadData  := nil;
-  fToolOutput.Clear;
+  fToolProc.OutputStack.Position:=0;
+  fSyms.LoadFromTool(fToolProc.OutputStack);
   //
   tree.BeginUpdate;
   for i := 0 to fSyms.symbols.Count-1 do
