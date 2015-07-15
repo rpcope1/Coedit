@@ -11,7 +11,7 @@ uses
   ce_common, ce_dmdwrap, ce_nativeproject, ce_dcd, ce_synmemo, ce_writableComponent,
   ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
   ce_search, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist, ce_observer,
-  ce_toolseditor, ce_procinput, ce_optionseditor, ce_symlist, ce_mru;
+  ce_toolseditor, ce_procinput, ce_optionseditor, ce_symlist, ce_mru, ce_processes;
 
 type
 
@@ -208,7 +208,7 @@ type
 
     fInitialized: boolean;
     fRunnableSw: string;
-    fRunProc: TCheckedAsyncProcess;
+    fRunProc: TCEProcess;
     fMsgs: ICEMessagesDisplay;
     fMainMenuSubj: TCEMainMenuSubject;
     procedure updateMainMenuProviders;
@@ -1296,14 +1296,15 @@ end;
 {$REGION run -------------------------------------------------------------------}
 procedure TCEMainForm.asyncprocOutput(sender: TObject);
 var
-  proc: TProcess;
+  proc: TCEProcess;
   lst: TStringList;
   str: string;
 begin
-  proc := TProcess(sender);
+  proc := TCEProcess(sender);
   lst := TStringList.Create;
   try
-    processOutputToStrings(proc, lst);
+    proc.getFullLines(lst);
+    //processOutputToStrings(proc, lst);
     if proc = fRunProc then for str in lst do
       fMsgs.message(str, fDoc, amcEdit, amkBub)
     else if proc.Executable = DCompiler then
@@ -1316,24 +1317,11 @@ end;
 
 procedure TCEMainForm.asyncprocTerminate(sender: TObject);
 var
-  proc: TProcess;
-  lst: TStringList;
-  str: string;
+  proc: TCEProcess;
   inph: TObject;
 begin
-  proc := TProcess(sender);
-  lst := TStringList.Create;
-  try
-    processOutputToStrings(proc, lst);
-    // runnable module
-    if proc = fRunProc then
-    begin
-      for str in lst do
-        fMsgs.message(str, fDoc, amcEdit, amkBub);
-    end;
-  finally
-    lst.Free;
-  end;
+  proc := TCEProcess(sender);
+  asyncprocOutput(sender);
   inph := EntitiesConnector.getSingleService('ICEProcInputHandler');
   if (inph <> nil) then
     (inph as ICEProcInputHandler).removeProcess(proc);
@@ -1389,7 +1377,7 @@ end;
 procedure TCEMainForm.compileAndRunFile(unittest: boolean = false; redirect: boolean = true;
 	const runArgs: string = '');
 var
-  dmdproc: TProcess;
+  dmdproc: TCEProcess;
   fname: string;
 begin
 
@@ -1397,7 +1385,7 @@ begin
   FreeRunnableProc;
   if fDoc = nil then exit;
 
-  fRunProc := TCheckedAsyncProcess.Create(nil);
+  fRunProc := TCEProcess.Create(nil);
   if redirect then
   begin
   	fRunProc.Options := [poStderrToOutPut, poUsePipes];
@@ -1411,7 +1399,7 @@ begin
     {$ENDIF}
   end;
 
-  dmdproc := TProcess.Create(nil);
+  dmdproc := TCEProcess.Create(nil);
   try
 
     fMsgs.message('compiling ' + shortenPath(fDoc.fileName, 25), fDoc, amcEdit, amkInf);
@@ -1425,6 +1413,8 @@ begin
     {$IFDEF RELEASE}
     dmdProc.ShowWindow := swoHIDE;
     {$ENDIF}
+  	dmdproc.OnReadData := @asyncprocOutput;
+  	dmdproc.OnTerminate:= @asyncprocTerminate;
     dmdproc.Options := [poStdErrToOutput, poUsePipes];
     dmdproc.Executable := DCompiler;
     dmdproc.Parameters.Add(fDoc.fileName);
@@ -1440,8 +1430,8 @@ begin
     LibMan.getLibFiles(nil, dmdproc.Parameters);
     LibMan.getLibSources(nil, dmdproc.Parameters);
     dmdproc.Execute;
-    while dmdproc.Running do;
-    asyncprocOutput(dmdProc);
+    while dmdproc.Running do
+      application.ProcessMessages;
 
     if (dmdProc.ExitStatus = 0) then
     begin
