@@ -5,14 +5,14 @@ unit ce_tools;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, process, menus,
+  Classes, SysUtils, FileUtil, process, menus, ce_processes,
   ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_inspectors;
 
 type
 
   TCEToolItem = class(TCollectionItem)
   private
-    fProcess: TCheckedAsyncProcess;
+    fProcess: TCEProcess;
     fExecutable: TCEFilename;
     fWorkingDir: TCEPathname;
     fShowWin: TShowWindowOptions;
@@ -102,7 +102,7 @@ begin
   fParameters.Free;
   fChainAfter.Free;
   fChainBefore.Free;
-  killProcess(fProcess);
+  ce_processes.killProcess(fProcess);
   inherited;
 end;
 
@@ -157,12 +157,12 @@ var
   i: Integer;
   prms: string;
 begin
-  killProcess(fProcess);
+  ce_processes.killProcess(fProcess);
   //
   if fClearMessages then
     getMessageDisplay(fMsgs).clearByContext(amcMisc);
   //
-  fProcess := TCheckedAsyncProcess.Create(nil);
+  fProcess := TCEProcess.Create(nil);
   fProcess.OnReadData:= @processOutput;
   fProcess.OnTerminate:= @processOutput;
   fProcess.Options := fOpts;
@@ -188,7 +188,7 @@ begin
   getMessageDisplay(fMsgs);
   lst := TStringList.Create;
   try
-    processOutputToStrings(fProcess, lst);
+    fProcess.getFullLines(lst);
     for str in lst do
       fMsgs.message(str, nil, amcMisc, amkAuto);
   finally
