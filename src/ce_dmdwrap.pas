@@ -5,7 +5,7 @@ unit ce_dmdwrap;
 interface
 
 uses
-  classes, sysutils, process, asyncprocess, ce_common, ce_inspectors;
+  classes, sysutils, process, asyncprocess, ce_common, ce_inspectors, ce_processes;
 
 (*
 
@@ -276,6 +276,7 @@ type
     procedure setProcess(var aProcess: TProcess);
     procedure setProcess(var aProcess: TAsyncProcess);
     procedure setProcess(var aProcess: TCheckedAsyncProcess);
+    procedure setProcess(var aProcess: TCEProcess);
   end;
 
   (*****************************************************************************
@@ -1021,6 +1022,17 @@ begin
 end;
 
 procedure TCustomProcOptions.setProcess(var aProcess: TCheckedAsyncProcess);
+begin
+  aProcess.Parameters.Clear;
+  aProcess.Parameters.AddText(symbolExpander.get(Parameters.Text));
+  aProcess.Executable := fExecutable;
+  aProcess.ShowWindow := fShowWin;
+  aProcess.Options    := fOptions;
+  aProcess.CurrentDirectory := fWorkDir;
+  aProcess.StartupOptions := aProcess.StartupOptions + [suoUseShowWindow];
+end;
+
+procedure TCustomProcOptions.setProcess(var aProcess: TCEProcess);
 begin
   aProcess.Parameters.Clear;
   aProcess.Parameters.AddText(symbolExpander.get(Parameters.Text));

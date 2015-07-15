@@ -9,7 +9,7 @@ uses
   LclProc,
   {$ENDIF}
   Classes, SysUtils, process, strUtils, ce_common, ce_writableComponent,
-  ce_dmdwrap, ce_observer, ce_interfaces;
+  ce_dmdwrap, ce_observer, ce_interfaces, ce_processes;
 
 type
 
@@ -33,7 +33,7 @@ type
     fConfIx: Integer;
     fUpdateCount: NativeInt;
     fProjectSubject: TCEProjectSubject;
-    fRunner: TCheckedAsyncProcess;
+    fRunner: TCEProcess;
     fOutputFilename: string;
     fCanBeRun: boolean;
     procedure updateOutFilename;
@@ -693,7 +693,7 @@ begin
   result := false;
   killProcess(fRunner);
   //
-  fRunner := TCheckedAsyncProcess.Create(nil); // fRunner can use the input process widget.
+  fRunner := TCEProcess.Create(nil); // fRunner can use the input process widget.
   currentConfiguration.runOptions.setProcess(fRunner);
   if runArgs <> '' then
   begin
@@ -730,16 +730,16 @@ end;
 
 procedure TCENativeProject.runProcOutput(sender: TObject);
 var
-  proc: TProcess;
+  proc: TCEProcess;
   lst: TStringList;
   str: string;
   msgs: ICEMessagesDisplay;
 begin
-  proc := TProcess(sender);
+  proc := TCEProcess(sender);
   lst := TStringList.Create;
   msgs := getMessageDisplay;
   try
-    processOutputToStrings(proc, lst);
+    proc.getFullLines(lst);
     for str in lst do
       msgs.message(str, Self, amcProj, amkBub);
   finally
