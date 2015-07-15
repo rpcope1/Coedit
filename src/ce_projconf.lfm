@@ -34,7 +34,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
           Height = 23
           Hint = 'select a configuration'
           Top = 1
-          Width = 316
+          Width = 324
           Align = alClient
           BorderSpacing.Top = 1
           BorderSpacing.Right = 1
@@ -44,41 +44,41 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
           TabOrder = 0
         end
         object btnAddConf: TSpeedButton
-          Left = 317
+          Left = 325
           Height = 24
           Hint = 'add an empty configuration'
           Top = 0
-          Width = 30
+          Width = 28
           Align = alRight
           OnClick = btnAddConfClick
           ShowCaption = False
         end
         object btnDelConf: TSpeedButton
-          Left = 347
+          Left = 353
           Height = 24
           Hint = 'remove selected configuration'
           Top = 0
-          Width = 30
+          Width = 28
           Align = alRight
           OnClick = btnDelConfClick
           ShowCaption = False
         end
         object btnCloneConf: TSpeedButton
-          Left = 377
+          Left = 381
           Height = 24
           Hint = 'clone selected configuration'
           Top = 0
-          Width = 30
+          Width = 28
           Align = alRight
           OnClick = btnCloneCurrClick
           ShowCaption = False
         end
         object btnSyncEdit: TSpeedButton
-          Left = 407
+          Left = 409
           Height = 24
           Hint = 'syncrhonize each configuration'
           Top = 0
-          Width = 30
+          Width = 28
           Align = alRight
           OnClick = btnSyncEditClick
           ShowCaption = False

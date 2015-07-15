@@ -18,19 +18,19 @@ inherited CETodoListWidget: TCETodoListWidget
       ClientWidth = 584
       object Panel1: TPanel[0]
         Left = 2
-        Height = 26
+        Height = 28
         Top = 2
         Width = 580
         Align = alTop
         BorderSpacing.Around = 2
         BevelOuter = bvNone
-        ClientHeight = 26
+        ClientHeight = 28
         ClientWidth = 580
         PopupMenu = contextMenu
         TabOrder = 0
         object btnRefresh: TBitBtn
           Left = 2
-          Height = 22
+          Height = 24
           Hint = 'refresh the list'
           Top = 2
           Width = 28
@@ -42,7 +42,7 @@ inherited CETodoListWidget: TCETodoListWidget
         end
         object lstfilter: TListFilterEdit
           Left = 62
-          Height = 22
+          Height = 24
           Top = 2
           Width = 516
           ButtonWidth = 28
@@ -55,7 +55,7 @@ inherited CETodoListWidget: TCETodoListWidget
         end
         object btnGo: TBitBtn
           Left = 32
-          Height = 22
+          Height = 24
           Hint = 'refresh the list'
           Top = 2
           Width = 28
@@ -68,8 +68,8 @@ inherited CETodoListWidget: TCETodoListWidget
       end
       object lstItems: TListView[1]
         Left = 4
-        Height = 301
-        Top = 32
+        Height = 299
+        Top = 34
         Width = 576
         Align = alClient
         BorderSpacing.Around = 4
@@ -77,7 +77,7 @@ inherited CETodoListWidget: TCETodoListWidget
           item
             AutoSize = True
             Caption = 'text'
-            Width = 31
+            Width = 572
           end        
           item
             AutoSize = True
@@ -97,7 +97,6 @@ inherited CETodoListWidget: TCETodoListWidget
           item
             AutoSize = True
             Caption = 'priority'
-            Width = 383
           end>
         ReadOnly = True
         SortType = stText

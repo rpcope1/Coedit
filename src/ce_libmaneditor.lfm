@@ -141,12 +141,12 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           item
             AutoSize = True
             Caption = 'Library file'
-            Width = 82
+            Width = 67
           end        
           item
             AutoSize = True
             Caption = 'Sources root'
-            Width = 95
+            Width = 78
           end>
         GridLines = True
         HideSelection = False
