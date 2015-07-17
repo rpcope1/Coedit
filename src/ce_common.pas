@@ -636,20 +636,26 @@ procedure listDrives(aList: TStrings);
 var
   drv: char;
   ltr, nme: string;
+  OldMode : Word;
   {$ENDIF}
 begin
   {$IFDEF WINDOWS}
   setLength(nme, 255);
-  for drv := 'A' to 'Z' do
-  begin
-    ltr := drv + ':\';
-    if not GetVolumeInformation(PChar(ltr), PChar(nme), 255, nil, nil, nil, nil, 0) then
-      continue;
-    case GetDriveType(PChar(ltr)) of
-       DRIVE_REMOVABLE,
-       DRIVE_FIXED,
-       DRIVE_REMOTE: aList.Add(ltr);
+  OldMode := SetErrorMode(SEM_FAILCRITICALERRORS);
+  try
+    for drv := 'A' to 'Z' do
+    begin
+      ltr := drv + ':\';
+      if not GetVolumeInformation(PChar(ltr), PChar(nme), 255, nil, nil, nil, nil, 0) then
+        continue;
+      case GetDriveType(PChar(ltr)) of
+         DRIVE_REMOVABLE,
+         DRIVE_FIXED,
+         DRIVE_REMOTE: aList.Add(ltr);
+      end;
     end;
+  finally
+    SetErrorMode(OldMode);
   end;
   {$ELSE}
   aList.Add('//');
