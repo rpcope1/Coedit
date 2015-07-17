@@ -132,7 +132,7 @@ type
   (**
    * Returns the user data dir.
    *)
-  function getUserDocPath: string;
+  function getUserDataPath: string;
 
   (**
    * Returns the documents and settings folder for Coedit.
@@ -502,33 +502,26 @@ begin
   exit( format('%s%s...%s',[drv,directorySeparator,pth1]) );
 end;
 
-function getUserDocPath: string;
-{$IFDEF WINDOWS}
-var
-  PIDL : PItemIDList;
-  Folder : array[0..MAX_PATH] of Char;
-const
-  CSIDL_APPDATA = $001A;
-{$ENDIF}
+function getUserDataPath: string;
 begin
   {$IFDEF WINDOWS}
-  PIDL := nil;
-  SHGetSpecialFolderLocation(0, CSIDL_APPDATA, PIDL);
-  SHGetPathFromIDList(PIDL, Folder);
-  result := Folder;
+  result := sysutils.GetEnvironmentVariable('APPDATA');
   {$ENDIF}
-  {$IFDEF UNIX}
-  result := ExpandFileName('~/');
+  {$IFDEF LINUX}
+  result := sysutils.GetEnvironmentVariable('HOME');
   {$ENDIF}
   {$IFDEF DARWIN}
-  raise Exception.Create('darwin: getUserDocPath() has to be implemented');
+  result := sysutils.GetEnvironmentVariable('HOME') + '/Library';
   {$ENDIF}
-  result += directorySeparator;
+  if not DirectoryExists(result) then
+    raise Exception.Create('Coedit failed to retrieve the user data folder');
+  if result[length(result)] <> DirectorySeparator then
+    result += directorySeparator;
 end;
 
 function getCoeditDocPath: string;
 begin
-  result := getUserDocPath + 'Coedit' + directorySeparator;
+  result := getUserDataPath + 'Coedit' + directorySeparator;
 end;
 
 function isFolder(sr: TSearchRec): boolean;
