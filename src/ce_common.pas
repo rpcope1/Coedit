@@ -638,13 +638,15 @@ begin
   try
     for drv := 'A' to 'Z' do
     begin
-      ltr := drv + ':\';
-      if not GetVolumeInformation(PChar(ltr), PChar(nme), 255, nil, nil, nil, nil, 0) then
-        continue;
-      case GetDriveType(PChar(ltr)) of
-         DRIVE_REMOVABLE,
-         DRIVE_FIXED,
-         DRIVE_REMOTE: aList.Add(ltr);
+      try
+        ltr := drv + ':\';
+        if not GetVolumeInformation(PChar(ltr), PChar(nme), 255, nil, nil, nil, nil, 0) then
+          continue;
+        case GetDriveType(PChar(ltr)) of
+           DRIVE_REMOVABLE, DRIVE_FIXED, DRIVE_REMOTE: aList.Add(ltr);
+        end;
+      except
+        // SEM_FAILCRITICALERRORS: exception is sent to application.
       end;
     end;
   finally
