@@ -101,6 +101,8 @@ type
     fOldMousePos: TPoint;
     fSyncEdit: TSynPluginSyncroEdit;
     fCompletion: TSynCompletion;
+    fD2Highlighter: TSynD2Syn;
+    fTxtHighlighter: TSynTxtSyn;
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
@@ -161,14 +163,16 @@ type
     property TextView;
     //
     property MouseStart: Integer read getMouseFileBytePos;
+    property D2Highlighter: TSynD2Syn read fD2Highlighter;
+    property TxtHighlighter: TSynTxtSyn read fTxtHighlighter;
   end;
 
   procedure SetDefaultCoeditKeystrokes(ed: TSynEdit);
 
 var
-  D2Syn: TSynD2Syn;
+  D2Syn: TSynD2Syn;     // used as model to set the options when no editor exists.
   LfmSyn: TSynLfmSyn;
-  TxtSyn: TSynTxtSyn;
+  TxtSyn: TSynTxtSyn;   // used as model to set the options when no editor exists.
 
 implementation
 
@@ -410,8 +414,9 @@ begin
     ShiftMask := [ssCtrl];
   end;
   //
-  Highlighter := D2Syn;
-  Highlighter.ResetRange;
+  fD2Highlighter := TSynD2Syn.create(self);
+  fTxtHighlighter := TSynTxtSyn.Create(self);
+  Highlighter := fD2Highlighter;
   //
   fTempFileName := GetTempDir(false) + 'temp_' + uniqueObjStr(self) + '.d';
   fFilename := '<new document>';
@@ -557,15 +562,9 @@ begin
 end;
 
 procedure TCESynMemo.setFocus;
-var
-  saved: TSynCustomHighlighter;
 begin
   inherited;
   checkFileDate;
-  //
-  saved := Highlighter;
-  Highlighter := nil;
-  Highlighter := saved;
   //
   identifierToD2Syn;
   subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
@@ -714,18 +713,17 @@ end;
 procedure TCESynMemo.SetHighlighter(const Value: TSynCustomHighlighter);
 begin
   inherited;
-  fIsDSource := Highlighter = D2Syn;
-  fIsConfig  := Highlighter = LfmSyn;
-  fIsTxtFile := Highlighter = TxtSyn;
+  fIsDSource := Highlighter = fD2Highlighter;
+  fIsTxtFile := Highlighter = fTxtHighlighter;
 end;
 
 procedure TCESynMemo.identifierToD2Syn;
 begin
   fIdentifier := GetWordAtRowCol(LogicalCaretXY);
-  if Highlighter = D2Syn then
-    D2Syn.CurrentIdentifier := fIdentifier
-  else if Highlighter = TxtSyn then
-    TxtSyn.CurrIdent := fIdentifier;
+  if Highlighter = fD2Highlighter then
+    fD2Highlighter.CurrentIdentifier := fIdentifier
+  else if Highlighter = fTxtHighlighter then
+    fTxtHighlighter.CurrIdent := fIdentifier;
 end;
 
 procedure TCESynMemo.changeNotify(Sender: TObject);
@@ -762,7 +760,7 @@ begin
   fFilename := aFilename;
   ext := extractFileExt(aFilename);
   if dExtList.IndexOf(ext) <> -1 then
-    Highlighter := D2Syn;
+    Highlighter := fD2Highlighter;
   FileAge(fFilename, fFileDate);
   fModified := false;
   if fFilename <> fTempFileName then

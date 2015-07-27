@@ -463,6 +463,9 @@ var
   shc: TCEPersistentShortcut;
   kst: TSynEditKeyStroke;
 begin
+  anEditor.D2Highlighter.Assign(D2Syn);
+  anEditor.TxtHighlighter.Assign(TxtSyn);
+
   anEditor.completionMenuCaseCare:=fCompletionMenuCaseCare;
   anEditor.autoDotDelay:=fAutoDotDelay;
   anEditor.hintDelay:=fHintDelay;
