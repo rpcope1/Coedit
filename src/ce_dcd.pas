@@ -27,11 +27,13 @@ type
     fServerWasRunning: boolean;
     fClient, fServer: TProcess;
     fAvailable: boolean;
+    fServerListening: boolean;
     fDoc: TCESynMemo;
     fProj: TCENativeProject;
     procedure killServer;
     procedure terminateClient;
     procedure waitClient;
+    procedure updateServerlistening;
     //
     procedure projNew(aProject: ICECommonProject);
     procedure projChanged(aProject: ICECommonProject);
@@ -61,11 +63,12 @@ var
 
 implementation
 
-{$REGION Standard Comp/Obj------------------------------------------------------}
-constructor TCEDcdWrapper.create(aOwner: TComponent);
 const
   clientName = 'dcd-client' + exeExt;
   serverName = 'dcd-server' + exeExt;
+
+{$REGION Standard Comp/Obj------------------------------------------------------}
+constructor TCEDcdWrapper.create(aOwner: TComponent);
 begin
   inherited;
   //
@@ -92,8 +95,14 @@ begin
 
   if (fServer <> nil) then
     fServer.Execute;
+  updateServerlistening;
   //
   EntitiesConnector.addObserver(self);
+end;
+
+procedure TCEDcdWrapper.updateServerlistening;
+begin
+  fServerListening := AppIsRunning((serverName));
 end;
 
 destructor TCEDcdWrapper.destroy;
@@ -204,6 +213,7 @@ end;
 procedure TCEDcdWrapper.killServer;
 begin
   if not fAvailable then exit;
+  if not fServerListening then exit;
   //
   fClient.Parameters.Clear;
   fClient.Parameters.Add('--shutdown');
@@ -226,6 +236,7 @@ end;
 procedure TCEDcdWrapper.addImportFolder(const aFolder: string);
 begin
   if not fAvailable then exit;
+  if not fServerListening then exit;
   //
   if fImportCache.IndexOf(aFolder) <> -1 then exit;
   fImportCache.Add(aFolder);
@@ -238,6 +249,7 @@ end;
 procedure TCEDcdWrapper.getCallTip(out tips: string);
 begin
   if not fAvailable then exit;
+  if not fServerListening then exit;
   if fDoc = nil then exit;
   //
   fTempLines.Assign(fDoc.Lines);
@@ -252,7 +264,11 @@ begin
   fClient.Execute;
   //
   fTempLines.LoadFromStream(fClient.Output);
-  if fTempLines.Count = 0 then exit;
+  if fTempLines.Count = 0 then
+  begin
+    updateServerlistening;
+    exit;
+  end;
   if not (fTempLines.Strings[0] = 'calltips') then exit;
   //
   fTempLines.Delete(0);
@@ -267,6 +283,7 @@ var
   item: string;
 begin
   if not fAvailable then exit;
+  if not fServerListening then exit;
   if fDoc = nil then exit;
   //
   fTempLines.Assign(fDoc.Lines);
@@ -281,7 +298,11 @@ begin
   fClient.Execute;
   //
   fTempLines.LoadFromStream(fClient.Output);
-  if fTempLines.Count = 0 then exit;
+  if fTempLines.Count = 0 then
+  begin
+    updateServerlistening;
+    exit;
+  end;
   if not (fTempLines.Strings[0] = 'identifiers') then exit;
   //
   aList.Clear;
@@ -318,6 +339,7 @@ var
   i: Integer;
 begin
   if not fAvailable then exit;
+  if not fServerListening then exit;
   if fDoc = nil then exit;
   //
   i := fDoc.MouseStart;
@@ -337,6 +359,8 @@ begin
   //
   aComment := '';
   fTempLines.LoadFromStream(fClient.Output);
+  if fTempLines.Count = 0 then
+    updateServerlistening;
   for i := 0 to fTempLines.Count-1 do
     aComment += ReplaceStr(fTempLines.Strings[i], '\n', LineEnding);
 end;
@@ -347,6 +371,7 @@ var
    str, loc: string;
 begin
   if not fAvailable then exit;
+  if not fServerListening then exit;
   if fDoc = nil then exit;
   //
   fTempLines.Assign(fDoc.Lines);
@@ -364,6 +389,8 @@ begin
   str := 'a';
   setlength(str, 256);
   i := fClient.Output.Read(str[1], 256);
+  if i = 0 then
+    updateServerlistening;
   setLength(str, i);
   if str <> '' then
   begin
