@@ -337,6 +337,7 @@ end;
 procedure TCEDcdWrapper.getDdocFromCursor(out aComment: string);
 var
   i: Integer;
+  str: string;
 begin
   if not fAvailable then exit;
   if not fServerListening then exit;
@@ -361,8 +362,12 @@ begin
   fTempLines.LoadFromStream(fClient.Output);
   if fTempLines.Count = 0 then
     updateServerlistening;
-  for i := 0 to fTempLines.Count-1 do
-    aComment += ReplaceStr(fTempLines.Strings[i], '\n', LineEnding);
+  for str in fTempLines do
+  begin
+    if (length(str) < 9) and AnsiSameText(str[1..5], 'DITTO') then
+      continue;
+    aComment += ReplaceStr(str, '\n', LineEnding);
+  end;
 end;
 
 procedure TCEDcdWrapper.getDeclFromCursor(out aFilename: string; out aPosition: Integer);
