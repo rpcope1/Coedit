@@ -364,7 +364,8 @@ begin
     updateServerlistening;
   for str in fTempLines do
   begin
-    if (length(str) < 9) and AnsiSameText(str[1..5], 'DITTO') then
+    i := length(str);
+    if (i > 4) and (i < 9) and AnsiSameText(str[1..5], 'DITTO') then
       continue;
     aComment += ReplaceStr(str, '\n', LineEnding);
   end;
