@@ -217,7 +217,10 @@ begin
           str.Add(fname);
         end;
         fSymbols[CPFS] := str.Text;
-        fSymbols[CPCD] := commonFolder(str);
+        if str.Count = 1 then
+          fSymbols[CPCD] := ExtractFileDir(Str.Strings[0])
+        else
+          fSymbols[CPCD] := commonFolder(str);
       finally
         str.Free;
       end;
