@@ -187,8 +187,14 @@ begin
   try
     for i := 0 to fProj.Sources.Count-1 do
       str.Add(fProj.getAbsoluteSourceName(i));
-    root := commonFolder(str);
-    root := ExtractFileDir(root);
+    // single source libs usually have the structure "src/<fname>"
+    if str.Count = 1 then
+      root := ExtractFileDir(str.Strings[0])
+    // multi source libs have the structure "src/LibName/<fname>"/...
+    else begin
+      root := commonFolder(str);
+      root := ExtractFileDir(root);
+    end;
     if root = '' then
     begin
       dlgOkInfo('the static library can not be registered because its source files have no common folder');
