@@ -56,7 +56,7 @@ private struct TodoItem
      * They must match the published member of the widget-side class TTodoItem.
      */
     private static enum TodoField {filename, line, text, category, assignee, priority, status}
-    private static string[TodoField] fFieldNames;
+    private __gshared static string[TodoField] fFieldNames;
     private string[TodoField] fFields;
     
     static this()
@@ -99,7 +99,7 @@ private struct TodoItem
      * Params:
      * LfmString = the string containing the LFM script.
      */
-    @safe public void serialize(ref Appender!string lfmApp)
+    public void serialize(ref Appender!string lfmApp)
     {
         lfmApp.put("  \r    item\r");
         foreach(member; EnumMembers!TodoField)

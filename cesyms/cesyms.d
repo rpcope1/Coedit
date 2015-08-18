@@ -160,7 +160,7 @@ class SymbolListBuilder : ASTVisitor
     Symbol * parent;
     
     // for some reason (?) the .name of a (static Symbol* []) item was lost 
-    static Symbol[] illFormed;
+    __gshared static Symbol[] illFormed;
     
     size_t count;
     
