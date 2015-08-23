@@ -487,6 +487,15 @@ begin
   if fTokStop > length(fLineBuf) then exit;
   readerReset;
 
+  // script line
+  if LineIndex = 0 then if fTokStart = 1 then
+    if readDelim(reader, fTokStop, '#!') then
+    begin
+      fTokKind := tkCommt;
+      readLine(reader, fTokStop);
+      exit;
+    end else readerReset;
+
   // spaces
   if (isWhite(reader^)) then
   begin
