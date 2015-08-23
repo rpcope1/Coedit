@@ -52,17 +52,20 @@ type
     fTokList: TLexTokenList;
     fErrList: TLexErrorList;
     fModStart: boolean;
+    fLastCommand: TSynEditorCommand;
     {$IFDEF LINUX}
     procedure pageCloseBtnClick(Sender: TObject);
     {$ENDIF}
     procedure lexFindToken(const aToken: PLexToken; out doStop: boolean);
     procedure memoKeyPress(Sender: TObject; var Key: char);
     procedure memoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure memoKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure memoMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure memoCtrlClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure memoMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure getSymbolLoc;
     procedure focusedEditorChanged;
+    procedure memoCmdProcessed(Sender: TObject; var Command: TSynEditorCommand; var AChar: TUTF8Char; Data: pointer);
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
@@ -161,10 +164,12 @@ begin
   aDoc.Parent := sheet;
   //
   aDoc.OnKeyDown := @memoKeyDown;
+  aDoc.OnKeyUp := @memoKeyUp;
   aDoc.OnKeyPress := @memoKeyPress;
   aDoc.OnMouseDown := @memoMouseDown;
   aDoc.OnMouseMove := @memoMouseMove;
   aDoc.OnClickLink := @memoCtrlClick;
+  aDoc.OnCommandProcessed:= @memoCmdProcessed;
   //
   fDoc := aDoc;
   pageControl.ActivePage := sheet;
@@ -297,6 +302,18 @@ begin
     beginDelayedUpdate
   else if (Key = VK_UP) and (shift = [ssShift,ssCtrl]) then
     getSymbolLoc;
+end;
+
+procedure TCEEditorWidget.memoKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  case fLastCommand of
+    ecSelectionStart..ecSelectionEnd: updateImperative;
+  end;
+end;
+
+procedure TCEEditorWidget.memoCmdProcessed(Sender: TObject; var Command: TSynEditorCommand; var AChar: TUTF8Char; Data: pointer);
+begin
+  fLastCommand := Command;
 end;
 
 procedure TCEEditorWidget.memoKeyPress(Sender: TObject; var Key: char);
