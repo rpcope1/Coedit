@@ -337,6 +337,7 @@ var
   i: Integer;
   ex_files: TStringList;
   ex_folds: TStringList;
+  libAliasesPtr: TStringList;
   str: string;
 begin
   if fConfIx = -1 then exit;
@@ -365,11 +366,17 @@ begin
         if ex_folds.IndexOf(ExtractFilePath(abs)) = -1
           then aList.Add(abs); // note: process.inc ln 249. double quotes are added if there's a space.
     end;
-    // libraries
-    LibMan.getLibFiles(fLibAliases, aList);
-    LibMan.getLibSources(fLibAliases, aList);
+    // libraries: an asterisk in list selects all the entries
+    libAliasesPtr := fLibAliases;
+    if (fLibAliases.Count > 0) and (fLibAliases.Strings[0] = '*') then
+      libAliasesPtr := nil;
+    // only link lib file if executable/shared lib
+    if currentConfiguration.outputOptions.binaryKind in [executable, sharedlib] then
+      LibMan.getLibFiles(libAliasesPtr, aList);
+    // but always adds -I<path>
+    LibMan.getLibSources(libAliasesPtr, aList);
     // config
-    TCompilerConfiguration(fOptsColl.Items[fConfIx]).getOpts(aList);
+    currentConfiguration.getOpts(aList);
   finally
     ex_files.Free;
     ex_folds.Free;
