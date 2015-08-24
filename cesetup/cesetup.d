@@ -5,7 +5,7 @@ import std.file: mkdir, exists, remove, rmdir, getSize, FileException;
 import std.stream: File, FileMode;
 import std.process: environment, executeShell;
 import std.path: dirSeparator;
-import std.string: strip, toLower;
+import std.string: strip, toLower, center, leftJustify, rightJustify;
 import std.getopt;
 
 version(X86)    version(linux)  version = nux32;
@@ -15,28 +15,62 @@ version(X86)    version(Windows)version = win32;
 version(win32) enum exeExt = ".exe";
 else enum exeExt = "";
 
+alias ImpType = immutable ubyte[];
+alias ResType = immutable Resource;
+
 struct Resource
 {
-    ubyte[] data;
-    string destName;
-    bool isExe;
+    ImpType data;
+    immutable string destName;
+    immutable bool isExe;
 }
 
-auto coedit = Resource(cast(ubyte[]) import("coedit" ~ exeExt), "coedit" ~ exeExt, true);
-auto cesyms = Resource(cast(ubyte[]) import("cesyms" ~ exeExt), "cesyms" ~ exeExt, true);
-auto cetodo = Resource(cast(ubyte[]) import("cetodo" ~ exeExt), "cetodo" ~ exeExt, true);
+ResType coedit = Resource(cast(ImpType) import("coedit" ~ exeExt), "coedit" ~ exeExt, true);
+ResType cesyms = Resource(cast(ImpType) import("cesyms" ~ exeExt), "cesyms" ~ exeExt, true);
+ResType cetodo = Resource(cast(ImpType) import("cetodo" ~ exeExt), "cetodo" ~ exeExt, true);
 
-auto dcd_server = Resource(cast(ubyte[]) import("dcd-server" ~ exeExt), "dcd-server" ~ exeExt, true);
-auto dcd_client = Resource(cast(ubyte[]) import("dcd-client" ~ exeExt), "dcd-client" ~ exeExt, true);
+ResType dcd_server = Resource(cast(ImpType) import("dcd-server" ~ exeExt), "dcd-server" ~ exeExt, true);
+ResType dcd_client = Resource(cast(ImpType) import("dcd-client" ~ exeExt), "dcd-client" ~ exeExt, true);
 
-auto icon   = Resource(cast(ubyte[]) import("coedit.ico"), "coedit.ico", false);
-auto png    = Resource(cast(ubyte[]) import("coedit.png"), "coedit.png", false);
+ResType icon   = Resource(cast(ImpType) import("coedit.ico"), "coedit.ico", false);
+ResType png    = Resource(cast(ImpType) import("coedit.png"), "coedit.png", false);
 
-auto celic   = Resource(cast(ubyte[]) import("coedit.license.txt"), "coedit.license.txt", false);
-auto dcdlic  = Resource(cast(ubyte[]) import("dcd.license.txt"), "dcd.license.txt", false);
+ResType celic   = Resource(cast(ImpType) import("coedit.license.txt"), "coedit.license.txt", false);
+ResType dcdlic  = Resource(cast(ImpType) import("dcd.license.txt"), "dcd.license.txt", false);
 
 
-static string exePath, appDataPath, shortCutPath;
+static struct Formater
+{
+    private enum width = 48;
+    private static __gshared char[] separator;
+    
+    static this()
+    {
+        separator.length = width + 4;
+        separator[] =  '-';
+        separator[0] = '+';
+        separator[$-1] = '+';
+    }
+    
+    static void justify(char A, string s)()
+    {
+        static assert (s.length <= width, "too long to fit on a line...");
+        static if (A == 'L') 
+            writeln("| ",  leftJustify(s, width, ' '), " |");
+        else static if (A == 'C') 
+            writeln("| ",  center(s, width, ' '), " |");
+        else static if (A == 'R') 
+            writeln("| ",  rightJustify(s, width, ' '), " |");  
+        else static assert(0, "invalid justification, L|C|R expected");      
+    }  
+    
+    static void separate(){separator.writeln;}
+    
+    static void emptyLine(){justify!('L', "");}
+}
+
+
+static immutable string exePath, appDataPath, shortCutPath;
 version(win32){} else immutable bool asSu;
 
 static this()
@@ -75,76 +109,81 @@ void main(string[] args)
         "u|uninstall", &uninstall
     );
     
-    writeln("|---------------------------------------------|");
-    if (!uninstall)
-    writeln("|             Coedit 1 gold setup             |");
-    else
-    writeln("|             Coedit uninstaller              |");
-    writeln("|---------------------------------------------|");
+    Formater.separate;
+    if (!uninstall) Formater.justify!('C', "Coedit 1 update 2 setup");
+    else Formater.justify!('C', "Coedit uninstaller");
     
-    version(win32)
-    writeln("| the setup program must be run as admin      |");
-    else if(!asSu)
-    writeln("| the program can be setup globally (sudo)    |");
+    Formater.separate;
+    version(win32) Formater.justify!('L', "the setup program must be run as admin");
+    else 
+    {   
+        if(!asSu) Formater.justify!('L', "Coedit can also be setup globally (sudo)");
+        else Formater.justify!('L', "Coedit will be accessible from all the accounts");
+    }
     
-    writeln("| options:                                    |");
-    writeln("| --nodcd: skip DCD setup                     |");
-    writeln("| -u: uninstall                               |");
-    writeln("| press A to abort or another key to start... |");
-    writeln("|---------------------------------------------|");   
+    Formater.separate;
+    Formater.justify!('L', "options:");
+    Formater.emptyLine;
+    if (!uninstall) 
+    {
+        if (!nodcd) Formater.justify!('L', "--nodcd: skip DCD setup");
+        Formater.justify!('L', "-u: uninstall");
+    }
+    else if (!nodcd) Formater.justify!('L', "--nodcd: do nort remove DCD");
+    Formater.justify!('L', "press A to abort or another key to start...");
+    Formater.separate;   
     
     const string inp = readln.strip;
     if (inp.toLower == "a") return;
     
-    writeln("|---------------------------------------------|");    
+    Formater.separate;    
     size_t failures; 
     if(!uninstall)
     {
         if (installResource(coedit, exePath))
-            writeln("| Coedit main application extracted           |");
+            Formater.justify!('L', "Coedit main application extracted");
         else failures++;
         if (installResource(cesyms, exePath))
-            writeln("| Coedit symbol list builder extracted        |");
+            Formater.justify!('L', "Coedit symbol list builder extracted");
         else failures++;        
         if (installResource(cetodo, exePath))
-            writeln("| Coedit todo comment parser extracted        |");
+            Formater.justify!('L', "Coedit todo comment parser extracted");
         else failures++;
         if (installResource(celic, appDataPath))
-            writeln("| Coedit license file extracted               |");
+            Formater.justify!('L', "Coedit license file extracted");
         else failures++;   
         if (installResource(icon, appDataPath))
-            writeln("| Coedit icon file extracted                  |");
+            Formater.justify!('L', "Coedit icon file extracted");
         else failures++;  
         if (installResource(png, appDataPath))
-            writeln("| Coedit big png logo extracted               |");
+            Formater.justify!('L', "Coedit big png logo extracted");
         else failures++;                       
         
         if (!nodcd)
         {
             if (installResource(dcd_server, exePath))
-                writeln("| Completion daemon server extracted          |");
+                Formater.justify!('L', "Completion daemon server extracted");
             else failures++; 
             if (installResource(dcd_client, exePath))
-                writeln("| Completion daemon client extracted          |");
+                Formater.justify!('L', "Completion daemon client extracted");
             else failures++;  
             if (installResource(dcdlic, appDataPath))
-                writeln("| Completion daemon license extracted         |");
+                Formater.justify!('L', "Completion daemon license extracted");
             else failures++;                                     
         }
         
-        writeln("|---------------------------------------------|");
+        Formater.separate;
         if (failures)
-        {
-            writeln("| there are ERRORS, plz contact the support   |");
-        }
+            Formater.justify!('L', "there are ERRORS, plz contact the support");
         else
         {
             version(win32) win32PostInstall();
             else nuxPostInstall();
-            writeln("| the files are correctly extracted           |");
+            Formater.justify!('L', "the files are correctly extracted...");
         }
-        writeln("| press a key to exit...                      |");
-        writeln("|---------------------------------------------|");
+        Formater.emptyLine;
+        Formater.justify!('R', "...press a key to exit");
+        Formater.separate;
         readln;  
     }
     else
@@ -155,9 +194,12 @@ void main(string[] args)
         failures += !uninstallResource(celic, appDataPath);
         failures += !uninstallResource(icon, appDataPath);
         failures += !uninstallResource(png, appDataPath);
-        failures += !uninstallResource(dcd_client, exePath);
-        failures += !uninstallResource(dcd_server, exePath);
-        failures += !uninstallResource(dcdlic, appDataPath); 
+        if (!nodcd)
+        {
+            failures += !uninstallResource(dcd_client, exePath);
+            failures += !uninstallResource(dcd_server, exePath);
+            failures += !uninstallResource(dcdlic, appDataPath);
+        } 
         
         version(win32) 
         {
@@ -166,19 +208,23 @@ void main(string[] args)
         }
         
         if (failures)
-        {
-            writeln("| there are ERRORS, plz contact the support   |");
-        }
+            Formater.justify!('L', "there are ERRORS, plz contact the support");
         else
         {
             version(win32) win32PostUninstall();
             else nuxPostUninstall();
-            writeln("| the files are correctly removed             |");
+            Formater.justify!('L', "the files are correctly removed...");
         }
-        writeln("| press a key to exit...                      |");
-        writeln("|---------------------------------------------|");
+        Formater.emptyLine;
+        Formater.justify!('R', "...press a key to exit");
+        Formater.separate;
         readln;         
     }
+}
+
+string extractedName(Resource resource, string path)
+{
+    return path ~ dirSeparator ~ resource.destName;    
 }
 
 bool installResource(Resource resource, string path)
@@ -190,18 +236,14 @@ bool installResource(Resource resource, string path)
     
     try 
     {
-        const string fname = path ~ dirSeparator ~ resource.destName;
+        const string fname = extractedName(resource, path);
         File f = new File(fname, FileMode.OutNew);
         f.write(resource.data);
         f.close;
         
-        version(win32) {} else 
-            if (resource.isExe)
-                if (fname.exists)
-                {
-                    string cmd = "chmod a+x " ~ fname;
-                    executeShell(cmd);
-                }
+        version(win32) {} 
+        else if (resource.isExe && fname.exists)
+            executeShell("chmod a+x " ~ fname);
     } 
     catch (Exception e) 
         return false;
@@ -211,7 +253,7 @@ bool installResource(Resource resource, string path)
 
 bool uninstallResource(Resource resource, string path)
 { 
-    string fname = path ~ dirSeparator ~ resource.destName;
+    const string fname = extractedName(resource, path);
     if (!fname.exists) return true;
     try remove(fname);
     catch (FileException e) return false;
@@ -239,7 +281,7 @@ void nuxPostUninstall()
 
 void win32PostInstall()
 {
-    // notice: this is not a true shortcut, other options are
+    // note: this is not a true shortcut, other options are
     // - create a true lnk by generating and executing a vbs
     // - use winapi...
     string target = exePath ~ "coedit.exe";
