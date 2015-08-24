@@ -435,31 +435,25 @@ procedure TCEMainForm.getCMdParams;
 var
   value: string;
   lst: TStringList;
-  hdl: THandle;
-  str: string;
 begin
   if application.ParamCount > 0 then
   begin
     value := application.Params[1];
     if value <> '' then
     begin
-      setLength(str, 6);
       lst := TStringList.Create;
       try
         lst.DelimitedText := value;
         for value in lst do
         begin
-          if not fileExists(value) then
-            continue;
-          hdl := FileOpen(value, fmOpenRead);
-          if hdl = 0 then
-            continue;
-          FileRead(hdl, str[1], length(str));
-          FileClose(hdl);
-          if str = 'object' then
-            openProj(value)
-          else
-            openFile(value);
+          if isEditable(ExtractFileExt(value)) then
+            openFile(value)
+          else if isValidNativeProject(value) then
+          begin
+            // so far CE can only open 1 project at a time
+            openProj(value);
+            break;
+          end;
         end;
       finally
         lst.Free;
@@ -1202,10 +1196,17 @@ end;
 
 procedure TCEMainForm.FormDropFiles(Sender: TObject;const FileNames: array of String);
 var
-  i: NativeInt;
+  fname: string;
 begin
-  for i:= low(FileNames) to high(FileNames) do
-    openFile(FileNames[i]);
+  for fname in FileNames do
+  begin
+    if isValidNativeProject(fname) then
+    begin
+      openProj(fname);
+      break;
+    end
+    else openFile(fname);
+  end;
 end;
 {$ENDREGION}
 
