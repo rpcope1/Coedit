@@ -161,13 +161,10 @@ end;
 
 procedure TCENativeProject.addSource(const aFilename: string);
 var
-  relSrc, absSrc, ext: string;
+  relSrc, absSrc: string;
 begin
-  ext := ExtractFileExt(aFilename);
-  if (dExtList.IndexOf(ext) = -1) and
-    (ext <> '.obj') and (ext <> '.o')
-      and (ext <> '.lib') and (ext <> '.a') then
-        exit;
+  if not isDlangCompilable(ExtractFileExt(aFilename)) then
+    exit;
   for relSrc in fSrcs do
   begin
     absSrc := expandFilenameEx(fBasePath,relsrc);

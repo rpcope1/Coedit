@@ -223,9 +223,8 @@ begin
     i := fProject.Sources.IndexOf(fname);
     if i > -1 then
       fname := fProject.getAbsoluteSourceName(i);
-    if dExtList.IndexOf(ExtractFileExt(fname)) <> -1 then
-      if fileExists(fname) then
-        getMultiDocHandler.openDocument(fname);
+    if isEditable(ExtractFileExt(fname)) and fileExists(fname) then
+      getMultiDocHandler.openDocument(fname);
   end
   else if Tree.Selected.Parent = fConfNode then
   begin
@@ -267,7 +266,7 @@ end;
 
 procedure TCEProjectInspectWidget.btnAddFoldClick(Sender: TObject);
 var
-  dir, fname, ext: string;
+  dir, fname: string;
   lst: TStringList;
   i: NativeInt;
 begin
@@ -289,8 +288,7 @@ begin
       for i := 0 to lst.Count-1 do
       begin
         fname := lst.Strings[i];
-        ext := extractFileExt(fname);
-        if dExtList.IndexOf(ext) <> -1 then
+        if isDlangCompilable(extractFileExt(fname)) then
           fProject.addSource(fname);
       end;
     finally
@@ -349,12 +347,10 @@ var
   ext: string;
 begin
   ext := ExtractFileExt(aFilename);
-  if (dExtList.IndexOf(ext) = -1)
-    and (ext <> '.obj') and (ext <> '.o')
-      and (ext <> '.a') and (ext <> '.lib') then
-        exit;
+  if not isDlangCompilable(ext) then
+    exit;
   fProject.addSource(aFilename);
-  if (dExtList.IndexOf(ext) <> -1) then
+  if isEditable(ext) then
     getMultiDocHandler.openDocument(aFilename);
 end;
 var

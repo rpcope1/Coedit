@@ -739,7 +739,7 @@ var
   ext: string;
 begin
   ext := extractFileExt(aFilename);
-  if (dExtList.IndexOf(ext) = -1) or (ext = '.dd') then
+  if not hasDlangSyntax(ext) then
     Highlighter := TxtSyn;
   Lines.LoadFromFile(aFilename);
   fFilename := aFilename;
@@ -759,7 +759,7 @@ begin
   Lines.SaveToFile(aFilename);
   fFilename := aFilename;
   ext := extractFileExt(aFilename);
-  if dExtList.IndexOf(ext) <> -1 then
+  if hasDlangSyntax(ext) then
     Highlighter := fD2Highlighter;
   FileAge(fFilename, fFileDate);
   fModified := false;

@@ -24,8 +24,6 @@ const
   dynExt = {$IFDEF WINDOWS} '.dll' {$ENDIF} {$IFDEF LINUX}'.so'{$ENDIF} {$IFDEF DARWIN}'.dylib'{$ENDIF};
 
 var
-
-  dExtList: TStringList;
   DCompiler: string = 'dmd';
 
 type
@@ -219,6 +217,21 @@ type
    * Returns the common folder of the file names stored in aList
    *)
   function commonFolder(const someFiles: TStringList): string;
+
+  (**
+   * Returns true if ext matches a file extension whose type is highlightable
+   *)
+  function hasDlangSyntax(const ext: string): boolean;
+
+  (**
+   * Returns true if ext matches a file extension whose type can be passed as source.
+   *)
+  function isDlangCompilable(const ext: string): boolean;
+
+  (**
+   * Returns true if ext matches a file extension whose type is editable in Coedit
+   *)
+  function isEditable(const ext: string): boolean;
 
 
 implementation
@@ -990,18 +1003,36 @@ begin
 end;
 {$ENDIF}
 
-
-
 function AppIsRunning(const ExeName: string):Boolean;
 begin
   Result:= internalAppIsRunning(ExeName) > 0;
 end;
 
+function hasDlangSyntax(const ext: string): boolean;
+begin
+  result := false;
+  case ext of
+    '.d', '.di': result := true;
+  end;
+end;
+
+
+function isDlangCompilable(const ext: string): boolean;
+begin
+  result := false;
+  case ext of
+    '.d', '.di', '.dd', '.obj', '.o', '.a', '.lib': result := true;
+  end;
+end;
+
+function isEditable(const ext: string): boolean;
+begin
+  result := false;
+  case ext of
+    '.d', '.di', '.dd': result := true;
+  end;
+end;
 
 initialization
-  dExtList := TStringList.Create;
-  dExtList.AddStrings(['.d', '.di', '.dd']);
   registerClasses([TCEPersistentShortcut]);
-finalization
-  dExtList.Free;
 end.

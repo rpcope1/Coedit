@@ -828,12 +828,19 @@ end;
 procedure TPathsOpts.getOpts(const aList: TStrings);
 var
   str: string;
+  exts: TStringList;
 begin
-  for str in fExtraSrcs do
-  begin
-    str := symbolExpander.get(str);
-    if not listAsteriskPath(str, aList, dExtList) then
-      aList.Add(str);
+  exts := TStringList.Create;
+  try
+    exts.AddStrings(['.d', '.di', '.dd']);
+    for str in fExtraSrcs do
+    begin
+      str := symbolExpander.get(str);
+      if not listAsteriskPath(str, aList, exts) then
+        aList.Add(str);
+    end;
+  finally
+    exts.Free;
   end;
   for str in fImpMod do
     aList.Add('-I'+ symbolExpander.get(str));

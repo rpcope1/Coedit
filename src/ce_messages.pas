@@ -899,7 +899,6 @@ function openFileFromDmdMessage(const aMessage: string): boolean;
 var
   i: Integer;
   ident: string;
-  ext: string;
 begin
   ident := '';
   i := 0;
@@ -913,8 +912,7 @@ begin
     begin
       if not fileExists(ident) then
         exit;
-      ext := extractFileExt(ident);
-      if dExtList.IndexOf(ext) = -1 then
+      if not isEditable(extractFileExt(ident)) then
         exit;
       getMultiDocHandler.openDocument(ident);
       result := true;

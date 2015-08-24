@@ -212,7 +212,7 @@ begin
         for i := 0 to fProj.Sources.Count-1 do
         begin
           fname := fProj.getAbsoluteSourceName(i);
-          if dExtList.IndexOf(ExtractFileExt(fname)) = -1 then
+          if not isEditable(ExtractFileExt(fname)) then
             continue;
           str.Add(fname);
         end;
