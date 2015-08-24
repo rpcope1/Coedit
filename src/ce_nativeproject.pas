@@ -91,6 +91,9 @@ type
     property outputFilename: string read fOutputFilename;
   end;
 
+  // native project have no ext constraint, this function tells if filename is project
+  function isValidNativeProject(const filename: string): boolean;
+
 implementation
 
 uses
@@ -768,6 +771,24 @@ begin
       msgs.message(str, Self, amcProj, amkAuto);
   finally
     lst.Free;
+  end;
+end;
+
+function isValidNativeProject(const filename: string): boolean;
+var
+  maybe: TCENativeProject;
+begin
+  result := false;
+  // avoid the project to notify the observers, current project is not replaced
+  EntitiesConnector.beginUpdate;
+  maybe := TCENativeProject.create(nil);
+  EntitiesConnector.removeSubject(maybe);
+  try
+    maybe.loadFromFile(filename);
+    result := maybe.hasLoaded;
+  finally
+    maybe.Free;
+    EntitiesConnector.endUpdate;
   end;
 end;
 
