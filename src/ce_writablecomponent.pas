@@ -107,21 +107,15 @@ begin
 end;
 
 procedure TCustomWritableComponent.loadFromFile(const aFilename: string);
-var
-  err: boolean;
 begin
-  err := false;
-  fHasLoaded := false;
+  fHasLoaded := true;
   beforeLoad;
   setFilename(aFilename);
   try
     customLoadFromFile(aFilename);
   except
-    err := true;
     fHasLoaded := false;
   end;
-  if not err then
-    fHasLoaded := true;
   afterLoad;
 end;
 {$ENDREGION}

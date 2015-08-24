@@ -317,6 +317,7 @@
       <Unit34>
         <Filename Value="..\src\ce_writablecomponent.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="ce_writableComponent"/>
       </Unit34>
       <Unit35>
         <Filename Value="..\src\ce_sharedres.pas"/>
