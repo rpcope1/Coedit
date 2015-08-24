@@ -336,7 +336,7 @@ begin
   try
     str1.LoadFromFile(aFilename);
     str1.Position := 0;
-    ObjectTextToBinary(str1,str2);
+    ObjectTextToBinary(str1, str2);
     str2.Position := 0;
     try
       rdr := TReader.Create(str2, 4096);
