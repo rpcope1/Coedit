@@ -1,7 +1,7 @@
 inherited CEProjectInspectWidget: TCEProjectInspectWidget
-  Left = 1390
+  Left = 1563
   Height = 258
-  Top = 26
+  Top = 8
   Width = 341
   AllowDropFiles = True
   Caption = 'Project inspector'
@@ -21,13 +21,12 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
       PopupMenu = nil
       object Tree: TTreeView[0]
         Left = 2
-        Height = 228
-        Top = 28
+        Height = 226
+        Top = 30
         Width = 337
         Align = alClient
         AutoExpand = True
         BorderSpacing.Around = 2
-        DefaultItemHeight = 18
         Images = imgList
         ReadOnly = True
         RightClickSelect = True
@@ -50,18 +49,18 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
       end
       object pnlToolBar: TPanel[1]
         Left = 2
-        Height = 24
+        Height = 26
         Top = 2
         Width = 337
         Align = alTop
         BorderSpacing.Around = 2
         BevelOuter = bvNone
-        ClientHeight = 24
+        ClientHeight = 26
         ClientWidth = 337
         TabOrder = 1
         object btnAddFile: TSpeedButton
           Left = 0
-          Height = 24
+          Height = 26
           Hint = 'add a source file to the project'
           Top = 0
           Width = 28
@@ -71,7 +70,7 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
         end
         object btnProjOpts: TSpeedButton
           Left = 112
-          Height = 24
+          Height = 26
           Top = 0
           Width = 28
           Action = CEMainForm.actProjOpts
@@ -80,7 +79,7 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
         end
         object btnAddFold: TSpeedButton
           Left = 56
-          Height = 24
+          Height = 26
           Hint = 'add a folder of source  to the project'
           Top = 0
           Width = 28
@@ -90,7 +89,7 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
         end
         object TreeFilterEdit1: TTreeFilterEdit
           Left = 142
-          Height = 20
+          Height = 22
           Top = 2
           Width = 193
           ButtonWidth = 28
@@ -105,7 +104,7 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
         end
         object btnRemFile: TSpeedButton
           Left = 28
-          Height = 24
+          Height = 26
           Hint = 'remove selected sources file(s) from the project'
           Top = 0
           Width = 28
@@ -114,7 +113,7 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
         end
         object btnRemFold: TSpeedButton
           Left = 84
-          Height = 24
+          Height = 26
           Hint = 'remove a folder of source  from the project'
           Top = 0
           Width = 28

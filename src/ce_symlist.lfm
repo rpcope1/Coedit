@@ -1,7 +1,7 @@
 inherited CESymbolListWidget: TCESymbolListWidget
-  Left = 985
+  Left = 984
   Height = 430
-  Top = 215
+  Top = 189
   Width = 310
   Caption = 'Symbol list'
   ClientHeight = 430
@@ -19,12 +19,11 @@ inherited CESymbolListWidget: TCESymbolListWidget
       PopupMenu = nil
       object Tree: TTreeView[0]
         Left = 4
-        Height = 394
-        Top = 32
+        Height = 390
+        Top = 36
         Width = 302
         Align = alClient
         BorderSpacing.Around = 4
-        DefaultItemHeight = 18
         HideSelection = False
         Images = imgList
         ReadOnly = True
@@ -57,19 +56,19 @@ inherited CESymbolListWidget: TCESymbolListWidget
       end
       object Panel1: TPanel[1]
         Left = 2
-        Height = 26
+        Height = 30
         Top = 2
         Width = 306
         Align = alTop
         BorderSpacing.Around = 2
         BevelOuter = bvNone
-        ClientHeight = 26
+        ClientHeight = 30
         ClientWidth = 306
         PopupMenu = contextMenu
         TabOrder = 1
         object TreeFilterEdit1: TTreeFilterEdit
           Left = 32
-          Height = 22
+          Height = 26
           Top = 2
           Width = 272
           OnAfterFilter = TreeFilterEdit1AfterFilter
@@ -86,7 +85,7 @@ inherited CESymbolListWidget: TCESymbolListWidget
         end
         object btnRefresh: TBitBtn
           Left = 2
-          Height = 22
+          Height = 26
           Hint = 'refresh the list'
           Top = 2
           Width = 28

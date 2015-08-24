@@ -1,7 +1,7 @@
 inherited CEToolsEditorWidget: TCEToolsEditorWidget
-  Left = 1143
+  Left = 1560
   Height = 280
-  Top = 343
+  Top = 303
   Width = 441
   Caption = 'Tools editor'
   ClientHeight = 280
@@ -18,42 +18,38 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
       ClientWidth = 441
       object Panel1: TPanel[0]
         Left = 4
-        Height = 24
+        Height = 26
         Top = 4
         Width = 433
         Align = alTop
         BorderSpacing.Around = 4
         BevelOuter = bvNone
-        ClientHeight = 24
+        ClientHeight = 26
         ClientWidth = 433
         TabOrder = 0
         object BtnAddTool: TBitBtn
           Left = 0
-          Height = 24
+          Height = 26
           Hint = 'add a tool'
           Top = 0
           Width = 28
           Align = alLeft
-          Layout = blGlyphBottom
           OnClick = BtnAddToolClick
-          Spacing = 0
           TabOrder = 0
         end
         object btnRemTool: TBitBtn
           Left = 28
-          Height = 24
+          Height = 26
           Hint = 'remove selected tool'
           Top = 0
           Width = 28
           Align = alLeft
-          Layout = blGlyphBottom
           OnClick = btnRemToolClick
-          Spacing = 0
           TabOrder = 1
         end
         object btnRun: TBitBtn
           Left = 405
-          Height = 24
+          Height = 26
           Hint = 'execute selected tool'
           Top = 0
           Width = 28
@@ -65,73 +61,69 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
         end
         object btnMoveDown: TBitBtn
           Left = 56
-          Height = 24
+          Height = 26
           Hint = 'move selected tool down'
           Top = 0
           Width = 28
           Align = alLeft
-          Layout = blGlyphBottom
           OnClick = btnMoveDownClick
-          Spacing = 0
           TabOrder = 3
         end
         object btnMoveUp: TBitBtn
           Left = 84
-          Height = 24
+          Height = 26
           Hint = 'move selected tool up'
           Top = 0
           Width = 28
           Align = alLeft
-          Layout = blGlyphBottom
           OnClick = btnMoveUpClick
-          Spacing = 0
           TabOrder = 4
         end
         object btnClone: TBitBtn
           Left = 112
-          Height = 24
+          Height = 26
           Hint = 'clone selected tool'
           Top = 0
           Width = 28
           Align = alLeft
-          Layout = blGlyphBottom
           OnClick = btnCloneClick
-          Spacing = 0
           TabOrder = 5
         end
       end
       object Panel2: TPanel[1]
         Left = 4
-        Height = 244
-        Top = 32
+        Height = 242
+        Top = 34
         Width = 433
         Align = alClient
         BorderSpacing.Around = 4
         BevelOuter = bvNone
-        ClientHeight = 244
+        ClientHeight = 242
         ClientWidth = 433
         TabOrder = 1
         object lstTools: TListBox
           Left = 0
-          Height = 244
+          Height = 242
           Top = 0
           Width = 160
           Align = alLeft
           ItemHeight = 0
           OnDblClick = lstToolsDblClick
           OnSelectionChange = lstToolsSelectionChange
+          ScrollWidth = 158
           TabOrder = 0
+          TopIndex = -1
         end
         object Splitter1: TSplitter
           Left = 160
-          Height = 244
+          Height = 242
           Top = 0
           Width = 5
           AutoSnap = False
         end
         object propsEd: TTIPropertyGrid
           Left = 165
-          Height = 244
+          Height = 242
           Top = 0
           Width = 268
           Align = alClient

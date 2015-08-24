@@ -1,7 +1,7 @@
 inherited CELibManEditorWidget: TCELibManEditorWidget
-  Left = 699
+  Left = 698
   Height = 349
-  Top = 362
+  Top = 336
   Width = 466
   Caption = 'Library manager'
   ClientHeight = 349
@@ -18,18 +18,18 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
       ClientWidth = 466
       object Panel1: TPanel[0]
         Left = 4
-        Height = 24
+        Height = 26
         Top = 4
         Width = 458
         Align = alTop
         BorderSpacing.Around = 4
         BevelOuter = bvNone
-        ClientHeight = 24
+        ClientHeight = 26
         ClientWidth = 458
         TabOrder = 0
         object btnAddLib: TBitBtn
           Left = 0
-          Height = 24
+          Height = 26
           Hint = 'add library alias'
           Top = 0
           Width = 28
@@ -40,7 +40,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
         end
         object btnRemLib: TBitBtn
           Left = 28
-          Height = 24
+          Height = 26
           Hint = 'remove library alias'
           Top = 0
           Width = 28
@@ -51,7 +51,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
         end
         object btnSelFile: TBitBtn
           Left = 374
-          Height = 24
+          Height = 26
           Hint = 'select the library file'
           Top = 0
           Width = 28
@@ -62,7 +62,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
         end
         object btnSelRoot: TBitBtn
           Left = 430
-          Height = 24
+          Height = 26
           Hint = 'select the sources root'
           Top = 0
           Width = 28
@@ -73,7 +73,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
         end
         object btnEditAlias: TBitBtn
           Left = 346
-          Height = 24
+          Height = 26
           Hint = 'edit the library alias'
           Top = 0
           Width = 28
@@ -84,7 +84,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
         end
         object btnMoveDown: TBitBtn
           Left = 56
-          Height = 24
+          Height = 26
           Top = 0
           Width = 28
           Align = alLeft
@@ -94,7 +94,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
         end
         object btnMoveUp: TBitBtn
           Left = 84
-          Height = 24
+          Height = 26
           Top = 0
           Width = 28
           Align = alLeft
@@ -104,7 +104,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
         end
         object btnSelfoldOfFiles: TBitBtn
           Left = 402
-          Height = 24
+          Height = 26
           Hint = 'select a folder of library files'
           Top = 0
           Width = 28
@@ -115,7 +115,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
         end
         object btnReg: TBitBtn
           Left = 112
-          Height = 24
+          Height = 26
           Hint = 'register from the current project'
           Top = 0
           Width = 28
@@ -127,8 +127,8 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
       end
       object List: TListView[1]
         Left = 4
-        Height = 313
-        Top = 32
+        Height = 311
+        Top = 34
         Width = 458
         Align = alClient
         BorderSpacing.Around = 4
@@ -136,7 +136,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           item
             AutoSize = True
             Caption = 'Alias'
-            Width = 454
+            Width = 35
           end        
           item
             AutoSize = True
@@ -146,7 +146,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           item
             AutoSize = True
             Caption = 'Sources root'
-            Width = 78
+            Width = 340
           end>
         GridLines = True
         HideSelection = False

@@ -1,7 +1,7 @@
 inherited CETodoListWidget: TCETodoListWidget
-  Left = 631
+  Left = 630
   Height = 337
-  Top = 222
+  Top = 196
   Width = 584
   Caption = 'Todo list'
   ClientHeight = 337
@@ -18,19 +18,19 @@ inherited CETodoListWidget: TCETodoListWidget
       ClientWidth = 584
       object Panel1: TPanel[0]
         Left = 2
-        Height = 28
+        Height = 30
         Top = 2
         Width = 580
         Align = alTop
         BorderSpacing.Around = 2
         BevelOuter = bvNone
-        ClientHeight = 28
+        ClientHeight = 30
         ClientWidth = 580
         PopupMenu = contextMenu
         TabOrder = 0
         object btnRefresh: TBitBtn
           Left = 2
-          Height = 24
+          Height = 26
           Hint = 'refresh the list'
           Top = 2
           Width = 28
@@ -42,7 +42,7 @@ inherited CETodoListWidget: TCETodoListWidget
         end
         object lstfilter: TListFilterEdit
           Left = 62
-          Height = 24
+          Height = 26
           Top = 2
           Width = 516
           ButtonWidth = 28
@@ -55,7 +55,7 @@ inherited CETodoListWidget: TCETodoListWidget
         end
         object btnGo: TBitBtn
           Left = 32
-          Height = 24
+          Height = 26
           Hint = 'refresh the list'
           Top = 2
           Width = 28
@@ -68,8 +68,8 @@ inherited CETodoListWidget: TCETodoListWidget
       end
       object lstItems: TListView[1]
         Left = 4
-        Height = 299
-        Top = 34
+        Height = 297
+        Top = 36
         Width = 576
         Align = alClient
         BorderSpacing.Around = 4
@@ -77,26 +77,27 @@ inherited CETodoListWidget: TCETodoListWidget
           item
             AutoSize = True
             Caption = 'text'
-            Width = 572
+            Width = 29
           end        
           item
             AutoSize = True
             Caption = 'category'
-            Width = 58
-          end        
-          item
-            AutoSize = True
-            Caption = 'assignee'
             Width = 57
           end        
           item
             AutoSize = True
+            Caption = 'assignee'
+            Width = 58
+          end        
+          item
+            AutoSize = True
             Caption = 'status'
-            Width = 43
+            Width = 42
           end        
           item
             AutoSize = True
             Caption = 'priority'
+            Width = 374
           end>
         ReadOnly = True
         SortType = stText

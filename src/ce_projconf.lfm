@@ -1,7 +1,7 @@
 inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
-  Left = 632
+  Left = 631
   Height = 273
-  Top = 322
+  Top = 296
   Width = 445
   Caption = 'Project configuration'
   ClientHeight = 273
@@ -18,7 +18,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
       ClientWidth = 445
       object pnlToolBar: TPanel[0]
         Left = 4
-        Height = 24
+        Height = 26
         Top = 2
         Width = 437
         Align = alTop
@@ -26,26 +26,26 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
         BorderSpacing.Right = 2
         BorderSpacing.Around = 2
         BevelOuter = bvNone
-        ClientHeight = 24
+        ClientHeight = 26
         ClientWidth = 437
         TabOrder = 0
         object selConf: TComboBox
           Left = 0
-          Height = 23
+          Height = 25
           Hint = 'select a configuration'
           Top = 1
           Width = 324
           Align = alClient
           BorderSpacing.Top = 1
           BorderSpacing.Right = 1
-          ItemHeight = 15
+          ItemHeight = 0
           OnChange = selConfChange
           Style = csDropDownList
           TabOrder = 0
         end
         object btnAddConf: TSpeedButton
           Left = 325
-          Height = 24
+          Height = 26
           Hint = 'add an empty configuration'
           Top = 0
           Width = 28
@@ -55,7 +55,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
         end
         object btnDelConf: TSpeedButton
           Left = 353
-          Height = 24
+          Height = 26
           Hint = 'remove selected configuration'
           Top = 0
           Width = 28
@@ -65,7 +65,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
         end
         object btnCloneConf: TSpeedButton
           Left = 381
-          Height = 24
+          Height = 26
           Hint = 'clone selected configuration'
           Top = 0
           Width = 28
@@ -75,7 +75,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
         end
         object btnSyncEdit: TSpeedButton
           Left = 409
-          Height = 24
+          Height = 26
           Hint = 'syncrhonize each configuration'
           Top = 0
           Width = 28
@@ -86,24 +86,23 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
       end
       object Panel2: TPanel[1]
         Left = 4
-        Height = 239
-        Top = 30
+        Height = 237
+        Top = 32
         Width = 437
         Align = alClient
         BorderSpacing.Around = 4
         BevelOuter = bvNone
-        ClientHeight = 239
+        ClientHeight = 237
         ClientWidth = 437
         TabOrder = 1
         object Tree: TTreeView
           Left = 0
-          Height = 239
+          Height = 237
           Hint = 'filter configuration elements'
           Top = 0
           Width = 160
           Align = alLeft
           AutoExpand = True
-          DefaultItemHeight = 18
           HideSelection = False
           ReadOnly = True
           ScrollBars = ssAutoBoth
@@ -132,14 +131,14 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
         end
         object Splitter1: TSplitter
           Left = 160
-          Height = 239
+          Height = 237
           Top = 0
           Width = 5
           AutoSnap = False
         end
         object inspector: TTIPropertyGrid
           Left = 165
-          Height = 239
+          Height = 237
           Top = 0
           Width = 272
           Align = alClient

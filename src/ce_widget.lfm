@@ -1,7 +1,7 @@
 object CEWidget: TCEWidget
-  Left = 1159
+  Left = 1158
   Height = 121
-  Top = 91
+  Top = 65
   Width = 332
   BorderIcons = [biMinimize, biMaximize]
   Caption = 'CEWidget'
@@ -9,7 +9,7 @@ object CEWidget: TCEWidget
   ClientWidth = 332
   ShowHint = True
   ShowInTaskBar = stNever
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.4.2.0'
   object Back: TPanel
     Left = 0
     Height = 121
