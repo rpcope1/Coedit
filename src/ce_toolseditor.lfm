@@ -1,7 +1,7 @@
 inherited CEToolsEditorWidget: TCEToolsEditorWidget
-  Left = 1560
+  Left = 1434
   Height = 280
-  Top = 303
+  Top = 688
   Width = 441
   Caption = 'Tools editor'
   ClientHeight = 280
@@ -34,7 +34,9 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
           Top = 0
           Width = 28
           Align = alLeft
+          Layout = blGlyphBottom
           OnClick = BtnAddToolClick
+          Spacing = 0
           TabOrder = 0
         end
         object btnRemTool: TBitBtn
@@ -44,7 +46,9 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
           Top = 0
           Width = 28
           Align = alLeft
+          Layout = blGlyphBottom
           OnClick = btnRemToolClick
+          Spacing = 0
           TabOrder = 1
         end
         object btnRun: TBitBtn
@@ -66,7 +70,9 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
           Top = 0
           Width = 28
           Align = alLeft
+          Layout = blGlyphBottom
           OnClick = btnMoveDownClick
+          Spacing = 0
           TabOrder = 3
         end
         object btnMoveUp: TBitBtn
@@ -76,7 +82,9 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
           Top = 0
           Width = 28
           Align = alLeft
+          Layout = blGlyphBottom
           OnClick = btnMoveUpClick
+          Spacing = 0
           TabOrder = 4
         end
         object btnClone: TBitBtn
@@ -86,7 +94,9 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
           Top = 0
           Width = 28
           Align = alLeft
+          Layout = blGlyphBottom
           OnClick = btnCloneClick
+          Spacing = 0
           TabOrder = 5
         end
       end
@@ -112,7 +122,6 @@ inherited CEToolsEditorWidget: TCEToolsEditorWidget
           OnSelectionChange = lstToolsSelectionChange
           ScrollWidth = 158
           TabOrder = 0
-          TopIndex = -1
         end
         object Splitter1: TSplitter
           Left = 160

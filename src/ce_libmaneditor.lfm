@@ -1,7 +1,7 @@
 inherited CELibManEditorWidget: TCELibManEditorWidget
-  Left = 698
+  Left = 1424
   Height = 349
-  Top = 336
+  Top = 284
   Width = 466
   Caption = 'Library manager'
   ClientHeight = 349
@@ -136,7 +136,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           item
             AutoSize = True
             Caption = 'Alias'
-            Width = 35
+            Width = 454
           end        
           item
             AutoSize = True
@@ -146,7 +146,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           item
             AutoSize = True
             Caption = 'Sources root'
-            Width = 340
+            Width = 78
           end>
         GridLines = True
         HideSelection = False

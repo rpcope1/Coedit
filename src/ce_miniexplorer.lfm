@@ -61,6 +61,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           Top = 32
           Width = 335
           Align = alTop
+          DefaultItemHeight = 18
           Images = imgList
           ReadOnly = True
           ScrollBars = ssAutoBoth
@@ -114,7 +115,9 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
             Top = 0
             Width = 28
             Align = alLeft
+            Layout = blGlyphBottom
             OnClick = btnAddFavClick
+            Spacing = 0
             TabOrder = 0
           end
           object btnEdit: TBitBtn
@@ -124,7 +127,9 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
             Top = 0
             Width = 28
             Align = alLeft
+            Layout = blGlyphBottom
             OnClick = btnEditClick
+            Spacing = 0
             TabOrder = 1
           end
           object btnShellOpen: TBitBtn
@@ -134,7 +139,9 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
             Top = 0
             Width = 28
             Align = alLeft
+            Layout = blGlyphBottom
             OnClick = btnShellOpenClick
+            Spacing = 0
             TabOrder = 2
           end
           object btnRemFav: TBitBtn
@@ -144,7 +151,9 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
             Top = 0
             Width = 28
             Align = alLeft
+            Layout = blGlyphBottom
             OnClick = btnRemFavClick
+            Spacing = 0
             TabOrder = 3
           end
           object lstFilter: TListFilterEdit

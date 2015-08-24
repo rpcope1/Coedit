@@ -1,5 +1,5 @@
 inherited CEMessagesWidget: TCEMessagesWidget
-  Left = 694
+  Left = 708
   Height = 172
   Top = 198
   Width = 763
