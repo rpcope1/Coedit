@@ -20,3 +20,7 @@ doc
 lib
 temp
 ppas.bat
+.directory
+lazproj/cetodo
+lazproj/cesyms
+lazproj/coedit

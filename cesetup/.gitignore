@@ -22,4 +22,7 @@ backup
 doc
 lib
 temp
+nux32
+nux64
+win32
 ppas.bat
