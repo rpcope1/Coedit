@@ -1,4 +1,4 @@
-ver=$(<version.txt)
+ver=`cat version.txt`
 cd nux64
 zip -9 -j \
 ../output/coedit.$ver.linux64.zip \
