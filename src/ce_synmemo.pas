@@ -637,13 +637,6 @@ begin
   fCanShowHint := false;
   DcdWrapper.getDdocFromCursor(str);
   //
-  if (length(str) > 0) then
-    if str[1] = #13 then
-      str := str[2..length(str)];
-  if (length(str) > 0) then
-    if str[1] = #10 then
-      str := str[2..length(str)];
-  //
   if str <> '' then
   begin
     fDDocWin.FontSize := Font.Size;

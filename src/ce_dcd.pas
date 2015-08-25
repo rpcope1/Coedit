@@ -363,12 +363,12 @@ begin
   if fTempLines.Count = 0 then
     updateServerlistening;
   for str in fTempLines do
-  begin
-    i := length(str);
-    if (i > 4) and (i < 9) and AnsiSameText(str[1..5], 'DITTO') then
-      continue;
     aComment += ReplaceStr(str, '\n', LineEnding);
-  end;
+  //
+  aComment := ReplaceText(aComment, 'ditto' + LineEnding + LineEnding, '');
+  aComment := ReplaceText(aComment, 'ditto', '');
+  aComment := TrimLeft(aComment);
+  aComment := TrimRight(aComment);
 end;
 
 procedure TCEDcdWrapper.getDeclFromCursor(out aFilename: string; out aPosition: Integer);
