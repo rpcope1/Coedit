@@ -1,0 +1,55 @@
+**Content**
+__________
+
+**General**
+
+* [Setup](https://github.com/BBasile/Coedit/wiki#detailed-setup-procedure)
+	* [setup program](https://github.com/BBasile/Coedit/wiki#setup-program)
+	* [from binaries](https://github.com/BBasile/Coedit/wiki#binaries)
+	* [build the sources](https://github.com/BBasile/Coedit/wiki#build-the-sources)
+* [Contribute](https://github.com/BBasile/Coedit/wiki#how-to-contribute)
+* [Menu reference](https://github.com/BBasile/Coedit/wiki#menu-reference)
+	* [File](https://github.com/BBasile/Coedit/wiki#file)
+	* [Project](https://github.com/BBasile/Coedit/wiki#project)
+* [Runnable module](https://github.com/BBasile/Coedit/wiki#runnable-module)
+* [Native projects](https://github.com/BBasile/Coedit/wiki#native-projects)
+* [Completion daemon](https://github.com/BBasile/Coedit/wiki#d-completion-daemon-integration)
+* [Symbolic strings](https://github.com/BBasile/Coedit/wiki#symbolic-strings)
+
+__________
+
+**Widgets**
+
+* [Technical notes](https://github.com/BBasile/Coedit/wiki#technical-notes)
+* [Editor](https://github.com/BBasile/Coedit/wiki#editor-widget)
+* [Find](https://github.com/BBasile/Coedit/wiki#find--replace-widget)
+* [Library manager](https://github.com/BBasile/Coedit/wiki#library-manager-widget)
+* [Symbol list](https://github.com/BBasile/Coedit/wiki#symbol-list-widget)
+* [Project inspector](https://github.com/BBasile/Coedit/wiki#project-inspector-widget)
+* [Project configuration](https://github.com/BBasile/Coedit/wiki#project-configuration-widget)
+ * [General](https://github.com/BBasile/Coedit/wiki#general-options)
+ * [Messages](https://github.com/BBasile/Coedit/wiki#message-options)
+ * [Debugging](https://github.com/BBasile/Coedit/wiki#debugging-options)
+ * [Documentation](https://github.com/BBasile/Coedit/wiki#documentation-options)
+ * [Output](https://github.com/BBasile/Coedit/wiki#output-options)
+ * [Others](https://github.com/BBasile/Coedit/wiki#other-options)
+ * [Path](https://github.com/BBasile/Coedit/wiki#path-options)
+ * [Pre&Post processes](https://github.com/BBasile/Coedit/wiki#prepost-build-process-options)
+ * [Run](https://github.com/BBasile/Coedit/wiki#run-options)
+ * [All](https://github.com/BBasile/Coedit/wiki#all-categories)
+* [Messages](https://github.com/BBasile/Coedit/wiki#message-widget)
+* [Custom tools](https://github.com/BBasile/Coedit/wiki#custom-tools-widget)
+* [Todo list](https://github.com/BBasile/Coedit/wiki#todo-list)
+* [Process input](https://github.com/BBasile/Coedit/wiki#process-input-widget)
+* [Explorer](https://github.com/BBasile/Coedit/wiki#mini-explorer-widget)
+* [Options editor](https://github.com/BBasile/Coedit/wiki#options-editor-widget)
+
+__________
+
+**Tutorials**
+
+* [a project from scratch](https://github.com/BBasile/Coedit/wiki#new-project-flow)
+* [build with DUB](https://github.com/BBasile/Coedit/wiki#using-dub-in-coedit-as-a-project-pre-build-process)
+* [harbored-mod as a tool](https://github.com/BBasile/Coedit/wiki#integration-of-the-documentation-generator-harbored-mod-to-coedit)
+* [runnable command interpreter](https://github.com/BBasile/Coedit/wiki#using-a-runnable-module-as-an-interactive-command-interpreter)
+* [using the library manager](https://github.com/BBasile/Coedit/wiki#introduction-to-the-library-manager)

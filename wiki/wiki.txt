@@ -1,0 +1,1097 @@
+[lnk_dcd]:	https://github.com/BBasile/Coedit/wiki#d-completion-daemon-integration
+[lnk_sym]:	https://github.com/BBasile/Coedit/wiki#symbolic-strings
+[lnk_runa]:	https://github.com/BBasile/Coedit/wiki#runnable-module
+
+[lnk_widg_edit]:	https://github.com/BBasile/Coedit/wiki#editor-widget
+[lnk_widg_find]:	https://github.com/BBasile/Coedit/wiki#find--replace-widget
+[lnk_widg_lib]:		https://github.com/BBasile/Coedit/wiki#library-manager-widget
+[lnk_widg_symlist]:	https://github.com/BBasile/Coedit/wiki#symbol-list-widget
+[lnk_widg_prjinsp]:	https://github.com/BBasile/Coedit/wiki#project-inspector-widget
+[lnk_widg_prjconf]:	https://github.com/BBasile/Coedit/wiki#project-configuration-widget
+[lnk_widg_prjconf_gen]:	https://github.com/BBasile/Coedit/wiki#general-options
+[lnk_widg_prjconf_msg]:	https://github.com/BBasile/Coedit/wiki#message-options
+[lnk_widg_prjconf_dbg]:	https://github.com/BBasile/Coedit/wiki#debugging-options
+[lnk_widg_prjconf_doc]:	https://github.com/BBasile/Coedit/wiki#documentation-options
+[lnk_widg_prjconf_out]:	https://github.com/BBasile/Coedit/wiki#output-options
+[lnk_widg_prjconf_misc]: https://github.com/BBasile/Coedit/wiki#other-options
+[lnk_widg_prjconf_pth]:	https://github.com/BBasile/Coedit/wiki#path-options
+[lnk_widg_prjconf_proc]: https://github.com/BBasile/Coedit/wiki#prepost-build-process-options
+[lnk_widg_prjconf_run]:	https://github.com/BBasile/Coedit/wiki#run-options
+[lnk_widg_msg]:		https://github.com/BBasile/Coedit/wiki#message-widget
+[lnk_widg_tools]:	https://github.com/BBasile/Coedit/wiki#custom-tools-widget
+[lnk_widg_todo]: 	https://github.com/BBasile/Coedit/wiki#todo-list
+[lnk_widg_procinp]:	https://github.com/BBasile/Coedit/wiki#process-input-widget
+[lnk_widg_miniexpl]:https://github.com/BBasile/Coedit/wiki#mini-explorer-widget
+[lnk_widg_opts]:	https://github.com/BBasile/Coedit/wiki#options-editor-widget
+
+[lnk_metad]:	https://github.com/BBasile/metad
+[lnk_cetodo]:	https://github.com/BBasile/Coedit/tree/master/cetodo
+[lnk_cesyms]:	https://github.com/BBasile/Coedit/tree/master/cesyms
+
+Welcome to Coedit Wiki, the documentation source for the small Windows & Linux IDE for the D programming language.
+A summary of the content is accessible in the right side-bar.
+
+*Note that this document is based on Coedit _gold 1_ and it does not represent yet the changes made to the development version*
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/coedit.win7.33.png) ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/coedit.linux.kde.33.png)
+
+# Detailed setup procedure
+
+There are three ways to get the program, from the simplest to the most complex:
+* download and run the setup program build for each release.
+* download and extract the binaries build for each release.
+* build the program from the sources.
+
+In the three cases, the _DMD_ D2 compiler must setup and its location added to your environment PATH variable:
+If it's not already installed, [download](http://dlang.org/download.html) and setup DMD2 for your platform. 
+The latest Coedit version requires at least DMD 2.066.
+
+## Setup program
+
+* Go to [the release page](https://github.com/BBasile/Coedit/releases),
+* Choose the zipped setup for your platform (at the bottom of a release log, the buttons labeled `coedit.<version>.<platform>.setup.zip`).
+* The content must be extracted and executed:
+	* notice that the option `--nodcd` can be typed to skip the installation of the completion daemon.
+	* Linux, all users, in a console `cd` to the file location and type `sudo .\coedit.<version>.<platform>.setup`.
+	* Linux, only you, in a console `cd` to the file location and type: `.\coedit.<version>.<platform>.setup`.
+	* Windows: double click, and confirm in the UAC dialog box.
+* To uninstall, run the same program but with the `-u` option.
+	* Linux: if coedit has been setup with `sudo` you must also uninstall with elevated privileges: `sudo .\coedit.<version>.<platform>.setup -u`.
+	* Windows: start a console as administrator and execute: `coedit.<version>.win32.setup -u`.
+	
+Note for the future versions:
+* Updating doesn't require to uninstall.
+* it's possible to uninstall from a newer setup program.
+
+## Binaries
+ 
+* Go to [the release page](https://github.com/BBasile/Coedit/releases), 
+* Choose the binaries for your platform (at the bottom of an entry, the buttons labeled `coedit.<version>.<platform>.zip`).
+* Extract the executables.
+	* Linux: it's recommended to put them in `/home/<your account>/bin`, since it's a known system PATH and that it doesn't require the super user privileges.
+	* Windows: the target folder must be added to your system PATH variable. When the location is not known the background tools won't work (symbol list, todo list, DCD).
+
+Under Windows, the releases are compressed with the latest [7-zip beta](http://www.7-zip.org/) with the options _deflate-ultra_. In case of problem try to use 7zip. 
+Under Linux, the command line tool *zip* is used (_deflate_ and _-9_).
+
+Under Linux you could have to set the files permission to allow their execution. This used to be necessary when
+the early alpha zip were all done on Windows (files attributes were lost) but it shouldn't be the case anymore.
+
+If they are not correctly set, for each of the following file **coedit**, **dcd-client**, **dcd-server**, **cetodo** and **cesyms**,
+either set the permission in the context menu (check _allow execution_ or _executable_ depending on the desktop)
+or `chmod a+x` the file in a console.
+
+Under linux, since no **.deb** or **.rpm** are provided, you can verify that the following packages are already present.
+Since they are mostly related to gtk2, they already should be installed:
+>
+libpthread.so.0'
+libX11.so.6
+libgdk_pixbuf-2.0.so.0
+libgtk-x11-2.0.so.0
+libgdk-x11-2.0.so.0
+libgobject-2.0.so.0
+libglib-2.0.so.0
+libgthread-2.0.so.0
+libgmodule-2.0.so.0
+libpango-1.0.so.0
+libcairo.so.2
+libatk-1.0.so.0
+libdl.so.2
+libc.so.6
+
+## Build the sources
+
+Download ans setup the tools:
+
+* [Download](http://lazarus.freepascal.org/index.php?page=downloads) and setup the latest Lazarus (1.4) version and  FPC / FPC sources (2.6.4) for your platform.
+	* Windows: the three packages are bundled in an installer. Even on Windows 64 bit, the 32 version must be setup.
+	* Linux: the three packages must be downloaded and setup individually. Take care of the version number because the official rpm/deb source of a Linux distribution don't always propose the latest version !
+
+* [Clone](https://github.com/BBasile/Coedit.git) Coedit git repository. There are two ways to do it (console or a git GUI).
+If you've never used Git at all, you can try [Source-Tree](http://www.sourcetreeapp.com/), a freeware Git/Mercurial GUI that is distributed with a Git copy.
+
+When using a console:
+
+* `cd <user dir where to clone>`
+* `git clone https://github.com/BBasile/Coedit.git`
+* `git submodule init`
+* `git submodule update`
+
+You're now ready to build Coedit. This can be done in the IDE or using the _lazbuild_ utility.
+
+* _using the IDE_: 
+	* start Lazarus, 
+	* in the **project** menu, click *open...* and select the file **Coedit.lpi**, which is located in the sub-folder **lazproj**.
+	* in the menu **Execute** click **Create**.
+
+* _using Lazbuild_: 
+	* open a console.
+	* `cd` to the repository location, sub folder **lazproj**.
+	* type `lazbuild -B coedit.lpi` and <kbd>ENTER</kbd>. note that the path to _lazbuild_ may have to be specified.
+
+After what Coedit executable should be build and stand in the same folder as the _*.lpi_ file you've just compiled.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/builddone1.png)
+
+Note that additionally you'll have to build [the completion daemon **DCD**][lnk_dcd], [the symbol list builder **cesyms**][lnk_cesyms] and [the todo comment parser **cetodo**][lnk_cetodo]. 
+See the products documentation for more information.
+
+# How to contribute
+
+## Programming
+
+Any Pascal or Delphi programmer who has interest to the D language can contribute.
+The process is based on _git_ and _Github_, using what's often called the _fork push pull_ model:
+
+- _fork_ the _Coedit_ repository in your _Github_ account.
+- clone this fork to your computer.
+- using Lazarus and FPC, develop, fix, optimize, do whatever could improve Coedit.
+- _push_ your changes to your online fork.
+- propose a _pull_ request to the main Coedit repository: in [this page](https://github.com/BBasile/Coedit/compare), 
+- click on the link **compare across forks** and select your modified fork as *HEAD* and Coedit/master as *base* repository and validate with **Create pull request**.
+
+[This tutorial](http://codingdiscovery.blogspot.fr/2015/01/how-to-contribute-to-github-project.html) exactly describes the procedure.
+
+The maintainer will be notified of the request, which could be merged after review.
+
+## Documentation
+
+The documentation (the sources of this wiki) need to be reviewed, as it's currently written by a non native English speaker.
+The wiki can be edited locally by cloning [this git repository](https://github.com/BBasile/Coedit.wiki.git).
+As tool, one of the numerous markdown editor available on the web can be used, 
+for example [StackEdit](https://stackedit.io/editor) as it supports the specific GitHub markdown extensions.
+
+There is also a huge need to split the wiki in pages. Because the page became huge and a long to load,
+the browsers often fail to scroll to a particular anchor.
+
+## Bug reports
+
+Bugs can be reported using [this dedicated online utility](https://github.com/BBasile/Coedit/issues).
+It can be a bug report (BR), a feature request (FR). 
+General questions and discussions (Q, BLA) about the use are also allowed since there is no other dedicated place to talk about CE.
+
+# Menu reference
+
+## File
+
+- **"New empty file"**: adds a new, untyped file to the source editor.
+- **"New runnable module"**: adds a new file with a main() procedure. See [runnable modules][lnk_runa].
+- **"Open file..."**: open a D source file from a dialog. If the file is already opened then the matching editor gets the focus.
+- **"Open recent"**: displays the list of the Most Recently Used (MRU) files.
+- **"Close file"**: closes the current editor with an optional warning if its content is modified.
+- **"Save file"**: saves the current editor to the disk.
+- **"Save all"**: saves all the files currently opened in the source editor.
+- **"Save file as..."**: save the current editor using a dialog.
+- **"Export html..."**: export the current editor to a html file with html-based highlighting.
+- **"Add file to project"**: adds the file matching to the current editor to the project. If the current editor has been created using **"New empty file"** or **"New runnable module"** then the operation fails.
+- **"Compile file and run"**: compiles the current file and execute. See [runnable modules][lnk_runa].
+- **"Compile file and run outside"**: compiles the current file and execute without redirection. See [runnable modules][lnk_runa].
+- **"Compile file and run..."**: compiles the current file and execute with a set of options defined in a simple input-query dialog. The arguments must be separated with spaces and can include some double quotes.
+- **"Run file unittests": compiles and run the file with the options **-main -unittest**. This is useful to test a module that is part of a project and that doesn't already contain the _main()_ function.
+- **"Set runnable switches"**: allows to modify the switches passed to DMD when compiling a runnable module. One switch by line, invalid or duplicated switches are removed, such as _-main_ and _-unittest_ since they are set with _Run file unittests_.
+- **"View in mini explorer"**: expands the [mini-explorer][lnk_widg_miniexpl] tree on the folder containing the file.
+
+## Project
+
+- **"New project"**: closes and creates a new project. Optionally a warning is displayed if the current project is not saved.
+- **"Open project"**: opens a project from a dialog.
+- **"Open recent"**: displays the list of the most recently used projects.
+- **"Close project"**: closes the current project. Optionally a warning is displayed if the current project is not saved.
+- **"Save project"**: saves the current project.
+- **"Save project as"**: saves the current project from a dialog.
+- **"Project configuration"**: displays the project configuration widget.
+- **"View project source"**: opens the project file in a new editor. The project files use the Pascal format called _"lfm"_ (Lazarus form module). Initially created to serialize the properties of the visual components it is also used to store some configurations because it has an advantageous readable aspect. When saved from a source editor, a project file is directly reloaded. It means that a particular care must be taken during the edition. Coedit will skip any error in the project file, without warnings.
+- **"View project command line"**: displays the list of the switches and their arguments, as passed to DMD before the compilation. Note that under Windows, the content can be copied using the <kbd>Ctrl</kbd>+<kbd>C</kbd> shortcut on the dialog.
+- **"View in mini explorer"**: expands the [mini-explorer][lnk_widg_miniexpl] tree on the folder containing the project file.
+- **"Compile project"**: compiles the project using the current configuration.
+- **"Compile and run project"**: compiles the project using the current configuration and execute the output if the option _binaryKind_ is set to _executable_. 
+- **"Compile and run project..."**: Ditto. Before the execution of the output file an input-query dialog lets you pass some options to the process. Note that this command was added before the _runOptions_ of the project configuration, which allows to specify the parameters in a more advantageous way.
+- **"Run project"**: tries to execute the output if the project output option _binaryKind_ is set to _executable_.
+- **"Run project..."**: Ditto. Before the execution of the output file, an input-query dialog lets you specify  some switches and arguments to the process.
+
+# Runnable module
+
+Coedit has the ability to compile and execute the module that's currently edited even if it's not part of a project. Such a module is called a **runnable** module.
+A runnable module has not to be explicitly saved because Coedit will handle the task automatically, using an unique temporary file name.
+For example it's possible to call the action _Compile and run file_ directly after the action _New runnable module_.
+
+This feature is useful to test quickly an idea or to use a module as a script without messing with all the parameters that a project would require.
+
+To be runnable, a module must verify the following requirements:
+- a **void main()** is present.
+- the modules to import must be known, either by the [library manager][lnk_widg_lib] or by the DMD configuration file.
+- _import expression_ ( ```import(myFile);``` ) is allowed if _myFile_ stands in the same folder as the file being edited.
+- the module should be a simple console program. When executed, the process output is redirected to the [message widget][lnk_widg_msg] and the input can be passed using the [process input widget][lnk_widg_procinp].
+
+The action _Compile file and run outside_ can be used to execute in an external console.
+This must be used if the runnable outputs thousands of lines, for properly displaying UTF8 chars or if the runnable has a GUI.
+
+The version identifier **runnable_module** is automatically defined when a runnable is compiled.
+It can be used to adjust the source according to the execution context, for example:
+
+```D
+version(runnable_module)
+{
+    stdout.writeln("to output stream");
+}
+else
+{
+    myFile.writeln("to a file");
+}
+```
+
+The executable produced is deleted after each run unless the file has been saved explicitly in a non-temporary folder.
+
+Note that the action _Run file unittest_ is based on the same internal function excepted that the **-main** and **-unittest** switches are automatically added to the runnable switches list (menu **File**, action **Set runnable switches**).
+
+# Native projects
+
+Coedit features a native project format completely based on the _DMD_ options.
+Actually almost each DMD switch is represented by a project option.
+
+The project features some common parameters:
+- the source files. Either some modules, interfaces, static libraries or objects.
+- library aliases: a list of aliases to specify which [_libman_ entries][lnk_widg_lib] are used by the project.
+
+but most of them are specific to each configuration.
+
+Two widgets are related to the native projects:
+- [the project inspector][lnk_widg_prjinsp], allows to manage and maintain the source files list and to open them in an editor.
+- [the project configuration widget][lnk_widg_prjconf], allows to manage accurately the configurations, their options 
+and how to execute the project output when launched from _Coedit_. For more information about the project format, 
+see the [project configuration][lnk_widg_prjconf] and the [project inspector][lnk_widg_prjinsp] descriptions.
+
+The file names and directory paths can be relative. 
+The base directory of a relative path is always the folder where is saved the project.
+They can often include a [symbolic string][lnk_sym] and a path can be itself relative to a symbol.
+The project format is cross-platform, path separators are internally converted.
+It means that a project file saved under _Windows_ can be opened and compiled under _Linux_ and vice-versa.
+
+Here are some more or less complex examples which illustrates the project format:
+- the tutorials written for the wiki.
+- the [metad][lnk_metad] meta repository.
+- the tools written for Coedit: [cesyms][lnk_cesyms] and [cetodo][lnk_cetodo].
+
+# D Completion Daemon integration
+
+The **D Completion Daemon** (DCD) is used for the completion, the function call tips, to find the declaration of a symbol and to display the _DDOC_ comment associated to a symbol.
+
+### Setup
+
+_DCD_ is a third part software, it's bundled in the archives distributed for each new [release](https://github.com/BBasile/Coedit/releases).
+However, _DCD_ may have to be build manually, for example if a new version is released while _Coedit_ development is paused for a while.
+Visit the product [homepage](https://github.com/Hackerpilot/DCD) for more information.
+ 
+Once DCD build or extracted from the release archive, copy the two executables (_dcd-client_ and _dcd-server_) in the folder where the Coedit executable stands.
+They can be put elsewhere, as long as the target directory is a known operating system PATH. Under a _Linux_ OS it's common to put them in the _user/bin_ folder.
+
+### Imports
+
+In _Coedit_, _DCD_ relies on the [library manager][lnk_widg_lib] entries and on the project parameters. 
+If the [_libman_][lnk_widg_lib] is empty then the DCD features will be limited to the content of the current editor or to the content of the other project modules.
+To prevent that, it's absolutely necessary to add at least _phobos_ and _core_ to the [_libman_][lnk_widg_lib].
+
+_DCD_ also has a native configuration system. Refer to the official [_Readme_](https://github.com/Hackerpilot/DCD#configuration-files).
+
+### Usage
+ 
+- <kbd>CTRL</kbd> + <kbd>SPACE</kbd>: invokes the completion. 
+- <kbd>.</kbd> invokes the completion if the editor option _autoDotDelay_ is greater than 0. 
+- <kbd>CTRL</kbd> + <kbd>SHIFT</kbd> + <kbd>UP</kbd>: quick jump to the declaration of the symbol located at the cursor position.
+- <kbd>CTRL</kbd> + <kbd>LEFT MOUSE BUTTON</kbd>: ditto. 
+- <kbd>(</kbd>: gets the function call tips.
+- <kbd>)</kbd>: closes the call tips window.
+- <kbd>ESC</kbd>: ditto.
+ 
+Documentation comments associated to a symbol are displayed when hovering the symbol with the mouse.
+
+![DCD completion](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dcd1.png)
+
+![DCD ddoc hint](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dcd2.png)
+
+![DCD call tip](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dcd3.png)
+
+When Coedit starts and if the DCD server is not already listening then it's launched automatically.
+When Coedit stops, the server is automatically shut-down if it was not already running when starting.
+
+It's also advisable to setup [DScanner](https://github.com/Hackerpilot/Dscanner), from the same author, 
+as a Coedit [custom tool][lnk_widg_tools].
+
+# Symbolic strings
+
+The symbolic strings represent some variables defined by the software. They are used by several widgets:
+- the processes: pre/post build [processes](https://github.com/BBasile/Coedit/wiki#prepost-build-process-options), runnable module processes, etc. The parameters (arguments) and the process name can include a symbol.
+- the [project](https://github.com/BBasile/Coedit/wiki#project-configuration-widget): the documentation folder, the json file, the output path, the object directory and the custom switches can include a symbol.
+- the [custom tools][lnk_widg_tools]: used similarly to the processes (parameters, working directory).
+- the [process input][lnk_widg_procinp]  input fields can include a symbol.
+
+Possible symbols, by context, include:
+
+Application:
+- **`<CAF>`**: also _`<CoeditApplicationFile>`_. Expanded to Coedit filename.
+- **`<CAP>`**: also _`<CoeditApplicationPath>`_. Expanded to Coedit path.
+
+Current file:
+- **`<CFF>`**: also _`<CurrentFileFile>`_. Expanded to the current file filename.
+- **`<CFP>`**: also _`<CurrentFilePath>`_. Expanded to the current file path.
+- **`<CI>`**: also _`<CurrentIdentifier>`_. Expanded to the identifier located at the caret position.
+
+Current project:
+- **`<CPF>`**: also _`<CurrentProjectFile>`_. Expanded to the project filename.
+- **`<CPFS>`**: also _`<CurrentProjectFiles>`_. Expanded to a list that contains each D source of the project. Each item is separated by a line ending.
+- **`<CPN>`**: also _`<CurrentProjectName>`_. Expanded to the project name (it's filename minus its path and extension)
+- **`<CPO>`**: also _`<CurrentProjectOutput>`_. Expanded to the project output filename (a static library filename, a program name, etc.)
+- **`<CPP>`**: also _`<CurrentProjectPath>`_. Expanded to the project path.
+- **`<CPR>`**: also _`<CurrentProjectRoot>`_. Expanded to the field defined by the project configuration _RootFolder_.
+- **`<CPCD>`**: also _`<CurrentProjectCommonFilesDirectory>`_. Expanded to the sources common directory.
+
+The expanded form of a symbol is never empty. When a symbol expands to nothing it's set to a pair of back-quote, 
+e.g **\``** for a **`<CPP>`** without any project opened.
+
+The slices located before and after the symbols are passed in their original form, e.g: 
+
+`http://www.google.com/search?q="dlang.org"<CI>&btnI=Im+Feeling+Lucky`
+
+is expanded to: 
+
+`http://www.google.com/search?q="dlang.org"indexOf&btnI=Im+Feeling+Lucky` if **indexOf** is the current identifier.
+
+# Widgets
+
+## Technical notes
+
+Coedit interface is divided into a small dozen of dockable widgets.
+Internally, widgets are connected between themselves as **entities**, proposing and using some **services** to/from each others.
+This allows Coedit to be very **safe** because the pointers to the the project or to the files are accurately defined in each
+widget with a set of **interface-based** observers/subjects.
+
+As a beneficial side-effect, Coedit can work without any file loaded or without any project opened.
+You might know some IDE that forces you to open a project, a file, or to create and save a project at the beginning of the run time:
+this is not the case with Coedit.
+
+On the mid term this design will also allow to get rid of the [**God object**](http://en.wikipedia.org/wiki/God_object) anti-pattern, 
+which often suffer GUI programs, when organized around a **main form**.
+
+## Editor widget
+
+The _source editor widget_ is a standard code editor, specialized for highlighting D source files.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/sourceditor1.png)
+
+It's based on the [**Synedit**](http://wiki.freepascal.org/SynEdit) suite, a powerful set of Pascal components and classes, 
+which can be described as a _"Scintilla for Pascal"_. It features:
+
+- folding (curly brackets blocks, multi-line strings, block comments).
+- colorization of the following categories: keywords, numbers, symbols, comments, ASM operands and identifiers, DDoc comments.
+- colorization of the current identifier in the whole view.
+- standard keyboard navigation shortcuts <kbd>CTRL</kbd> + (<kbd>SHIFT</kbd> +) <kbd>LEFT</kbd>/<kbd>RIGHT</kbd>, <kbd>CTRL</kbd> + <kbd>HOME</kbd>, <kbd>CTRL</kbd> + <kbd>END</kbd> etc.
+- macro recording and playback using  <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>R</kbd> (start/stop recording) or <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>P</kbd> (play).
+- synchro-edit (activated when clicking the pen icon located in the gutter).
+- zoom: (<kbd>CTRL</kbd>+<kbd>WHEEL</kbd>, <kbd>CTRL</kbd>+<kbd>MIDDLE MB</kbd>, <kbd>CTRL</kbd>+<kbd>+</kbd>, <kbd>CTRL</kbd>+<kbd>-</kbd>, <kbd>CTRL</kbd>+<kbd>.</kbd>).
+- display cache: for each document, the zoom ratio, the folds and the caret position are saved between two sessions. A cache file has a fixed life-time of three months from its last modification.
+- drag drop editing.
+- external modification tracking. Each time the focus is put on a document (switch document, show & hide application), Coedit verifies if its time stamp has changed.
+- static macros.
+- custom folded regions.
+- huge amount of options.
+
+The custom folded regions can be defined in a single line comments.
+A region starts with a comment ending with at least three hyphens and a add symbol 
+and stops with a comment ending with at least four hyphens.
+For example:
+
+```D
+// ctor/dtor -------------+
+this(string s){}
+this(uint u){}
+~this(){}
+// ------------------------
+
+// operators overloads ---+
+void opIndexAssign(size_t i; T t){}
+T opIndex(size_t i){}
+// ----
+```
+
+The static macros can be described as *parameter-less code snippets*.
+A static macro starts with the dollar symbol and ends with an alphabetic character.
+For example after typing `$a`, `auto` is inserted. 
+Confer with the [source code](https://github.com/BBasile/Coedit/blob/master/src/ce_staticmacro.pas#L57) too see the hard-coded macros list.
+Custom macros can be edited in the [options editor][lnk_widg_opts]:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optmacros.png)
+
+The editor options as well:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/opted.png)
+
+The editor shortcuts are listed there:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optshortcut.png)
+
+Note that you can edit text files in Coedit too (as well as any other file type)
+A simple highlighter is automatically set for this purpose:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/sourceditor2.png)
+
+It's also customizable in the option editor but the colorizer only recognizes identifiers and symbols.
+
+## Find & replace widget
+
+The _find and replace_ widget allows to find and replace text patterns in the focused source editor.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/search1.png)
+
+- top field: the expression to find. Note that it can be a regular expression.
+- second field: the expression used as replacement. Only active when **"replace with"** is checked.
+- whole word: only search for the whole expression.
+- backward: search from the bottom to the top.
+- from cursor: when unchecked, the operation always starts from the top of the document.
+- case sensitive: when unchecked, character case is ignored.
+- prompt: a confirmation is required to replace an expression.
+
+By default <kbd>CTRL</kbd> + <kbd>F</kbd> is used to pass the current source code editor selection to the top field 
+and <kbd>F3</kbd> to execute a search.
+The most recent searches and replacements are saved between each session.
+
+Note that to find a symbol, <kbd>Ctrl</kbd>+<kbd>MB Right</kbd> or the [symbol list][lnk_widg_symlist] are faster.
+
+## Library manager widget
+
+The library manager (aka the _libman_) is designed to replace the _sc.ini_ or the _sc.conf_ file to manage the static libraries. 
+Despite of its simplistic look it's a central component of the software.
+
+The _libman_ links the library files (_*.lib_ or _*.a_) to their D sources and are represented with a simple **alias** that is used in different part of the software. 
+For example, in a project, you don't need anymore to specify the **-I** path nor its matching library file name. 
+Coedit handles the task automatically (see later in the project configuration widget, [general options][lnk_widg_prjconf_gen]).
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/libman1.png)
+
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_add.png): add a library item, by default its fields are initialized with _n/a_.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_delete.png): remove the selected item.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_up.png) **/** ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_down.png): change selected entry position.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_link.png): if the current project output type is set to _staticlib_ then the libman will use its parameters to create an entry. This avoids to browse in the dialogs, for example if you wish to setup several [metad][lnk_metad] items. Note that sometimes the sources root folder has to be adjusted.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_edit.png): edit the item alias.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_brick.png): select the library file. In some rare case, this field can be omitted. 
+This can be skipped if the library is only a small orphan _d_ source that's not been compiled as a static lib or if the entry is only used for the [DCD][lnk_dcd] completion.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/bricks.png): select a folder that contains several libraries files or several orphans modules.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_add.png): select the sources root folder. (the one commonly named 'import').
+
+If they're not automatically detected, it's recommended to add the _runtime library_ and _phobos_.
+A bunch of third party libraries are provided by the [_metad_][lnk_metad] repository. 
+All of them can be easily build in Coedit and setup in the _libman_.
+
+The library entries are saved in the user folder[ (see options)][lnk_widg_opts] as _libraryManager.txt_.
+
+## Symbol list widget
+
+The symbol list enumerates the declarations found in a D module (imports, classes, variables, and so on).
+The widget is a GUI front end for the [cesyms][lnk_cesyms] tool.
+It can be used to quickly find and go to the declaration of a symbol but also as a basic linter since the
+syntactic errors are displayed (in real time if the option _refresh on change_ is checked).
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/symlist1.png)
+
+The way the widget refreshes the list can be tweaked in the context menu or in the [options editor][lnk_widg_opts].
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optsymlist.png)
+
+## Project inspector widget
+
+The project inspector widget is mostly designed to manipulate the project source files. It can also be used to select a compiler configuration.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projectinspector1.png)
+
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/file/document_add.png): adds a D source to the project from a dialog. The new source is not directly opened in the editor. To add a file that is already edited, rather use **"Add file to project"** from the **File** menu.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/file/document_delete.png): removes the selected source (_selected_ in the widget tree, not in the editor) from the project.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_add.png): adds a folder of D source to the project from a dialog. The procedure is recursive.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/cog/wrench_orange.png): shows the project configuration widget.
+
+Notice that instead of using the dialogs to add some files, it's also possible to drop some items from a file explorer.
+
+## Project configuration widget
+
+The project configuration widget is a powerful editor for the compiler options. By design it uses an "_Object Inspector_" GUI element (_TIPropertyGrid_). 
+If this choice has avoided a painful GUI designing work, it also perfectly represents the way the classes that encapsulates the compiler options have been programmed. (see _ce_dmdwrap.pas_).
+
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/cog/cog_add.png): adds a new compiler configuration. An input-query dialog allows to directly set its name (see the above note about the configuration name).
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/cog/cog_delete.png): removes the current compiler configuration.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/cog/cog_go.png): clones the current compiler configuration.
+- ![](https://github.com/BBasile/Coedit/blob/master/icons/link/link_break.png) **/** ![](https://github.com/BBasile/Coedit/blob/master/icons/link/link.png): de/activates the synchro-mode. When activated, each particular option edited will be copied to the other configurations.
+
+Notes: 
+- changing the configuration name is only possible in the section [**All Categories**](https://github.com/BBasile/Coedit/wiki#all-categories), field **name**.
+
+### General options:
+
+The general options are common to each configuration.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.general1.png)
+
+- Configuration index: selects a configuration by its index. This property exists only for the project persistence. 
+To select a configuration, rather uses the project inspector or the combo-box at the top of the widget.
+- libraryAliases: shows a small editor used to specify the aliases of the libraries used by the project. 
+One item per line. An item text must match to an entry of the [libman][lnk_widg_lib]. 
+It avoids the addition of the **-I** options and the additional sources.
+- RootFolder: the project file is not necessarily indicating the root of the project folder. 
+This field can be used to specify another one, either relative or absolute. This is useful to run a custom tool using the *CPR* [symbolic string][lnk_sym] (e.g: git, recursive cleaning).
+- Sources: shows a dialog used to edit the filenames of the project sources. Relative paths are automatically handled. Only one item must stand by line.
+It's recommended to use the [project inspector][lnk_widg_prjinsp] instead of this archaic editor. To include a folder of source it's also possible to specify a path with a asterisk in the **Paths** options, **extraSources** editor.
+This avoids to manually remove the obsolete source or to manually add the new source files.
+
+### Message options:
+
+Groups the options related to the messages emitted by the compiler.
+These options are defined per-configuration.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.messages1.png)
+
+- additionalWarnings: sets if the additional warnings must be displayed. (**-wi**)
+- depreciationHandling: sets the way depreciations must be handled (among _silent_ or _error_, **-ds** or **-de**, the default value, _warning_, does not produce a switch)
+- quiet: sets if non essential compiler messages are skipped. (**-quiet**)
+- showColumnsNumber: sets if the horizontal position is shown in the messages. (**-vcolumns**)
+- showHiddenAlloc: if sets then display potentially hidden GC allocations. (**-vgc**)
+- tlsInformations: sets if thread local storage informations are displayed. (**-vtls**)
+- verbose: sets if verbose. (**-v**)
+- warnings: sets if the warnings are displayed. (**-w**)
+
+### Debugging options:
+
+Groups the options related to the debugging information added to the output binary.
+These options are defined per-configuration.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.debug1.png)
+
+- codeviewCformat: generate debug info using the _codeview_ format. (**-gc**)
+- codeviewDexts: adds D _codeview_ extensions. (**-g**)
+- debug: sets if debug informations are generated. (**-debug**)
+- debugLevel: sets the debugging level. (**-debug=x**)
+- debugIdentifiers: list of debug identifier. (for each item **-debug=item**). One item per line.
+- generateMapFile: sets if a map file is generated. (**-map**)
+
+### Documentation options:
+
+Groups the options related to the generation of the project documentation.
+These options are defined per-configuration.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.doc1.png)
+
+- documentationDirectory: sets the directory where the documentation is generated. It can be a relative path. (**-Dd**)
+- generateDocumentation: sets if the documentation is generated. This field is constrained to _true_ if the doc path is defined. (**-D**)
+- generateJSON: sets if the JSON documentation is generated. This field is constrained to _true_ if the JSON file name is defined. (**-X**)
+- JSONFilename: sets the JSON file name. (**-Xf**)
+
+### Output options:
+
+Groups the options related to the code generation.
+These options are defined per-configuration.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.output1.png)
+
+- addMain: adds an empty _main()_ procedure. (**-main**)
+- binaryKind: sets the compiler output kind among: **"staticlib"**, **"sharedlib"**, **"executable"** and **"object"**. (it matches respectively to **-lib**, **-shared**, nothing, **-c**).
+- boundsCheck: sets the bounds checking mode, among **"alwaysON"**, **"alwaysOFF"** and **"safeOnly"**. (**-boundscheck=on** or **-boundscheck=off** or **-boundscheck=safeonly**). The switch is not generated when it's a default value.
+- generateStackFrame: forces the generation of stack frames. (**-gs**)
+- inlining: try to inline functions and procedures. (**-inline**)
+- Optimizations: optimize. (**-O**)
+- release: do not generate the assertions and the contracts. (**-release**)
+- targetKind: sets the target registry size, among **auto**(same as current OS) **os32** (targets a 32 bit OS) and **os64** (targets a 64 bit OS). It should usually remain to **auto** however this can be used to verify the portability of the project. (**-m32**, **-m64**)
+- unittest: generates the unittest code. (**-unittest**)
+- versionIdentifiers: list of version identifiers. One per line, the switches **-version=** are added automatically. An entry can be disabled by prefixing it with a semicolon or a pair of backslash.
+
+### Other Options:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.others1.png)
+
+Most of the existing switches are hard-coded however for the few missing ones this field can be used (e.g: the linker flags). In the dialog respect the following rules:
+- the switches must be included. (e.g: an additional version identifier must include the whole prefix _-version=_)
+- an entry must not be double quoted, even if it contains a file name with spaces. (they are automatically added later)
+- one item per line.
+- no leading or trailing spaces.
+- an entry can be disabled if it's prefixed by a semicolon or a by pair of backslash.
+
+These custom switches are defined per-configuration.
+
+### Path options:
+
+Groups the options defining the location of the files used or produced by the compiler.
+These options are defined per-configuration.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.paths1.png)
+
+- exclusions: some paths or some file to exclude from the main sources. A file can be relative or include [a symbolic string][lnk_sym]. A path is only handled if it's the direct parent of a file.
+- extraSources: either some _*.lib_ / _*.a files_ or  _*.d_/_*.di_ source files. If a path ending with an asterisk is added (e.g: _folderA\folderB\*_) then every source files located in this folder and its sub-folders will be passed to the compiler.
+- importModulePaths: a list of paths where _DMD_ has to look for the libraries sources. (**-I**)
+- importStringPaths: a list of paths used to solve the _import(file)_ expressions. (**-J**)
+- objectDirectory: the directory where object files (_*.o_ or _*.obj_) must be written. (**-od**)
+- outputFilename: the output filename. The identifier should only include a period to specify a non default extension otherwise it prevents _DMD_ to add the default one. (**-of**)
+
+### Pre/Post build process options:
+
+They define the options of two processes, respectively executed before and after the compilation.
+These options are defined per-configuration.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.preprocess1.png)
+
+- executable: the executable filename. If the system cannot solve its path using the environment variables then it must be included.
+It can also be substituted by a [symbolic string][lnk_sym].
+- options: a set of options. Activate **poUsesPipe** and **poStdErrToOutput** if you wish to redirect the process output to the messages widget.
+- parameters: a list of switches and arguments. As usual, one item per line, no double quotes.
+- showWindow: sets how the program window is displayed.
+
+Even when a project has no sources files, the pre-build process is always executed. 
+This can be used as a trick to compile from another tool.
+
+An interesting post-build process feature is that it can be set on the executable that's just been build, like in the example named _cleaner.coedit_.
+This is possible by using the [symbolic string][lnk_sym] **<CPO>** (Current Project Output).
+
+### Run options:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.runoptions1.png)
+
+They define the options applied when running the project output (e.g: menu **"project"**, **"compile and run"**). 
+The _executable_ field is not present because it's defined by the project option **-of** (or by default using the name of the source that implements _main()_). 
+If the output is piped then the [process input widget][lnk_widg_procinp] can be used to pass the input to the program being executed.
+These options are defined per-configuration.
+
+### All categories
+
+Unfiltered options, sub categories can be expanded or collapsed. The field ***name*** matches the current configurations name. Actually this is the only place (except if you directly edit the project file) where it's possible to modify the identifier.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.all1.png)
+
+## Message widget
+
+The message widget displays a stream of information about the current file or about the current project.
+The messages can be filtered according to a context, including:
+
+- All: no filter.
+- Editor: filter the messages related to the focused editor (compilation, standard output of the module when executed as a _runnable_).
+- Project: filter the messages related to the current project (DMD messages, pre/post process i/o, project execution).
+- Application: filter the Coedit-specific messages (applications warnings, application exceptions).
+- Misc: other messages (various messages emitted by the widgets ones and the custom tools standard output). 
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/messages3.png)
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/messages1.png)
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/messages2.png)
+
+When double-clicked, a message is parsed in order to extract a *position* and a *file name*.
+If the operation is successful then the *file* will be opened at a *position*.
+So far, only *DMD* and *[_Dscanner_](https://www.github.com/Hackerpilot/Dscanner)* messages can be analyzed but other syntaxes could be supported if needed.
+
+The context menu contains a few useful actions, such as *copy messages*, *save message(s) to file*.
+By default only the last 500 messages are displayed, regardless of the categories. 
+This value can be changed in the [options editor][lnk_widg_opts]:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optmesg.png)
+
+The option _autoSelect_ allows the widget to change dynamically the messages category.
+This is a recommended setting because if a run-time error happens, it will be immediately displayed.
+
+## Custom tools widget
+
+This widget allows to define a set of third party applications that can be launched from Coedit.
+Thanks to the [symbolic strings][lnk_sym] it's possible for a tool to be aware of the document location or even to get the list of the sources used by a project.
+
+A few typical examples:
+- launch a console with its working directory set to the project file directory.
+- analyze the current document in _Dscanner_. (see the tutorials).
+- generate the documentation for all the project D sources.
+- use a custom build tool (_make_, _DUB_). 
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/toolseditor1.png)
+
+Toolbar:
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/window/application_add.png): adds a new tool.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/window/application_delete.png): removes selected tool.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_up.png) **/** ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_down.png) : change selected tool position.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/window/application_flash.png): executes selected tool, according to the options it's associated to. This also works by double-clicking a tool alias.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/window/application_double.png): clones selected tool.
+
+A tool can be selected from the left side of the widget. If selected, a property inspector displays the options that can be defined:
+- chainBefore: allow to define a list of tool to execute before the item. A list item has to match one of the *toolAlias* already defined. By default a tool is executed asynchronously. If it's desirable that a tool must finish before the next starts then **poWaitOnExit** must be set in the options.
+- chainAfter. Idem but the tools defined in the list are executed after the item. 
+- clearMessages: if the tool standard output is redirected to the [messages widget][lnk_widg_msg] then the previous messages are cleared before the execution.
+- executable: the tool file name. If the system cannot find its path in the environment variables then it must be included. The field can include a [symbolic string][lnk_sym].
+- options: various options for the process to create. If you set **popUsePipes** and **poStdErrToOutput** to true, then the standard output will be redirected to the message widget, category Misc.
+- parameters: allows to define the parameters, switches and options passed to the process. As usual, one item per line, no quotes. The items can include a [symbolic string][lnk_sym].
+- queryParameters: if set to true then a small input query dialog will be shown before executing the tool. It can be filled with more _--para --meters_.
+- shortcut: allow to define the keystroke to launch the tool. The shortcut can also be edited in the [options editor][lnk_widg_opts].
+- showWindow: allow to define how the tool window is displayed. Set to swoHIDE if the tool std out is redirected.
+- toolAlias: the friendly name associated to the tool.
+- workingDirectory: directory in which starts the tool. Not to mismatch with its path. The field can include a [symbolic string][lnk_sym].
+
+The tools configuration is saved between each cession, in the same folder as the application [options][lnk_widg_opts].
+
+## Todo list
+
+The _todo list_ widget displays the _todo comments_ located in the source files.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/todo1.png)
+
+When no source file is opened but a project is, the widget displays the comments of the whole project. 
+When a source file has the focus but is not part of the project the widget only displays the items located in this file.
+Otherwise if a file has the focus and if it's part of the project then the whole project *todos* are displayed.
+
+By default the list is refreshed automatically but it can be advisable to disable this option
+if the project contain a huge SLOC count. This can be deactivated in the context menu or in the [options editor][lnk_widg_opts]:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/opttodolist.png)
+
+It's possible to jump to a particular item in its file with a double click.
+The items cannot be edited in the widget.
+
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_update.png): refreshes the list manually .
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_pen.png): jump to the item declaration.
+
+The _todo comments_ must follow this format:
+> TODO -cCategory -aAssignee -pPriority -sStatus : what
+
+The fields (-a -c -p -s) are optional but the _what_ is mandatory.
+The format is more detailed in the [tool source code](https://github.com/BBasile/Coedit/blob/master/cetodo/cetodo.d#L7). 
+The tool itself can be build with Coedit.
+
+## Process input widget
+
+This simple utility allows to send the input to a process that's executed from Coedit and redirected to Coedit.
+It works for the runnable modules and the project output, when launched from Coedit.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/processinput1.png)
+
+The input is passed with the <kbd>ENTER</kbd> key or the **Send** button.
+The input text can include a [symbolic string][lnk_sym].
+
+## Mini explorer widget
+
+The mini explorer provides basic file browsing within the IDE.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/miniexplorer1.png)
+
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_add.png): adds the selected folder to the favorites.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_delete.png): removes the selected favorite folder.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/flash.png): lets the shell open or execute the selected file.
+-  ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/pencil.png): opens the selected file in a _"Coedit-or"_.
+- ***input field***: filter the current folder entries.
+
+The favorite folders are persistent.
+
+## Options editor widget
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optdock.png)
+
+The _Option editor_ is a special, non-dockable, widget that allows the other widgets to expose their options.
+The list at the left displays the categories. A category often matches to a single widget but not only (for example the shortcuts).
+The options are applied in real time but are reversible until the green checker icon is clicked.
+
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/accept.png): validates the modifications made to the current category, after what they can't be canceled anymore.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/cancel.png): cancels and restores the previous state of the current category.
+
+The options are persistent and saved in a distinct folder:
+- Linux: **`/home/<your account>/Coedit/`**.
+- Windows: **`?:\Users\<your account>\AppData\Roaming\Coedit\`**.
+
+Some of the options are not editable in the widget but as they are saved in a readable format they can be edited in a text editor.
+Each widget or each software component saves its own file with a self-explanatory name so it's easy to find the file matching a particular settings.
+
+for example, in the file _mostrecents.txt_ it's possible to tweak the maximum count of files or projects standing in the MRU menus.
+
+# Detailed and illustrated tutorials
+
+## New project flow
+
+In this tutorial will see how to start a _Coedit_ project from scratch.
+
+- Start _Coedit_ or create a new project.
+- In the **File** menu, click **New empty file**.
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut1_1.png)
+- Add the `main()` function. 
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut1_2.png)
+- Save the file where you wish to, using the action **Save as**.
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut1_3.png)
+- Still in the **File** menu, click **Add file to project**. The file we've just saved will be added to the project sources.
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut1_4.png)
+- At this time, the project can be already compiled, even without being saved.
+However save it somewhere. In the project inspector, the source path will be displayed relatively to the project location.
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut1_5.png)
+- You can now compile the project.
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut1_6.png)
+
+## using DUB in Coedit as a project pre-build process
+
+In this tutorial we'll see that [DUB](https://github.com/D-Programming-Language/dub-registry) can be used in Coedit to build a project.
+
+- Start Coedit or create a new project.
+- Do not add any source file. If some sources are specified then the internal build system will not be bypassed !
+- In the _project configuration_ widget, select the **pre-build process** category.
+- Set the field **executable** to **dub** if it's in the _PATH_ otherwise type the fully qualified executable filename.
+- Set the field **working directory** to a path containing a json DUB project. In this example we've chosen the _test\1-exec-simple\source_.
+- To redirect DUB console output to Coedit, activate the options **poUsePipes** and **poStderrToOutput**. Take care not to activate **poWaitOnExit** otherwise you wont get anything.
+- Finally in Coedit menu **run** click **Compile project**.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut.dub.1.png)
+
+In this example we've removed the right parenthesis of the _main()_ procedure to get more output messages.
+
+The Coedit project can be saved, reloaded and rebuild later. It doesn't matter if it has no source files, only the pre-process options will be used.
+
+Note that it's also possible to define DUB as a [custom tool][lnk_widg_tools]. Thanks to the [symbolic strings][lnk_sym], DUB can be launched in a directory containing a description file.
+
+## Integration of the documentation generator *harbored-mod* to Coedit
+
+[Harbored-mod][harbMain] is a documentation generator for the D documentation comments ([DDoc][dlangDDoc]).
+
+This tutorial will cover, from A to Z the integration of this tool to the Coedit [custom tools][wikiCustTools].
+
+####Prepare the Coedit Project to build harbored
+
+- [Clone][harbGit] harbored-mod repository and its submodules.
+- Open Coedit and initialize a new project. Start by adding the **src/** folder to the project files. 
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut3_1.png)
+
+- To add the submodules, got to the *project configuration widget*, click to select the **Paths** category, then in the **extraSources** editor add the three submodules source path with an asterisk: 
+  - **`<path_to>\harbored-mod\libdparse\src\*`**
+  - **`<path_to>\harbored-mod\libddoc\src\*`**
+  - **`<path_to>\harbored-mod\dmarkdown\source\*`**
+  
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut3_2.png)
+
+- still in this category, open the **ImportStringPaths** editor add **`<path_to>\harbored-mod\strings`** .
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut3_3.png)
+
+- Go to the **output** category. Set the **outputKind** to **executable** and tweak the other code generation options as you wish (inlining, optimizations, etc.)
+- In the menu **Project**, click to save. It's recommended to save it out of the repository structure, otherwise you risk not to be able to pull future project commits.
+- finally, go back to the *project configuration widget*, click to select the **Paths** category, and set the **outputFilename** field according to your needs, e.g: **`<CPP>\bin\harbored.exe`**, using the *CurrentProjectPath* [symbolic string][lnk_sym].
+- You can check what will be passed to DMD by clicking in the menu **Project**,  **view project command line** and you should get something similar to this:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut3_4.png)
+
+- save again the project and in the menu **Run** click **Compile project** .
+
+Harbored-mod is now build.
+
+####Add harbored as a Coedit custom tool.
+
+We'll define *harbored* as a tool designed to generate the documentation of a Coedit project.
+
+- in the menu **Windows**, click on **Tools editor**
+- click on the icon **application +** to add a new item
+- set the field **toolAlias** to **harbored doc project** or something similar.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut3_5.png)
+
+- set the field **executable** to the executable we've just build. 
+If its can be solved by the system environment variables then simply type the executable name.
+- click to open the **Parameters** editor.
+- as a first parameter type **`-o<CPP>\doc`**. Harbored-mod will output the documentation to **`<the path where the project is saved>\doc`**. 
+This field can be tweaked according to your needs. In the screen capture it's set to a common documentation folder with the `<CPN>` sym-string
+(with this parameter, the documentation is output to a distinct folder named as the project that's generated.)
+- on a new line type **`<CPFS>`** (*CurrentProjectFiles*). When running the tool, this symbol will be expanded to a set of parameters, 
+each one representing a file of the project, for each of them, harbored-mod will generate the documentation.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut3_6.png)
+
+Open the project created in the previous section (or any other project). 
+Back to the **Tools editor** widget, select the item we've just defined 
+and click on the **application flash** icon to run the tool and check what's been generated.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut3_7.png)
+
+[harbMain]:https://github.com/kiith-sa/harbored-mod
+[harbGit]:https://github.com/kiith-sa/harbored-mod.git
+[dlangDDoc]:http://dlang.org/ddoc.html
+[wikiCustTools]:https://github.com/BBasile/Coedit/wiki#custom-tools-widget
+
+## Using a runnable module as an interactive command interpreter
+
+In this tutorial, we'll see that a Coedit runnable module can
+be used to program an interactive command interpreter, completely
+integrated to the IDE thanks to the automatic redirection of
+the input and the output streams.
+
+Create a new runnable module.
+In a first time we need a loop that waits for a command to process. 
+The input is split into command and arguments. 
+The raw input is used to test the program termination:
+
+```D
+module interactive.command.interpreter;
+
+import std.stdio;
+import std.array;
+
+string[] arguments;
+string command;
+
+void main(string[] args)
+{
+    string input;    
+    while (true)  
+    {
+        input = readln;
+        if (input == "exit\n") return;
+        // split command and args
+        auto s = split(input);
+        if (s.length){
+            command = s[0];
+            if (s.length > 1)
+                arguments = s[1..$];
+            else
+                arguments.length = 0;   
+        }
+    }
+}
+```
+
+Now we add a bunch of trivial command processors. They are dispatched with the help of an associative array:
+
+```D
+module interactive.command.interpreter;
+
+import std.stdio;
+import std.array;
+
+string[] arguments;
+string command;
+void function()[string] dispatcher;
+
+static this(){
+    dispatcher["hello"] = &hello;
+    dispatcher["showargs"] = &showArgs;
+}
+
+void showArgs(){
+    foreach(arg;arguments) writeln(arg);
+}
+void hello(){
+    writeln("hello world");
+}
+
+void main(string[] args)
+{
+    string input;    
+    while (true)  
+    {
+        input = readln;
+        if (input == "exit\n") return;
+        // split command and args
+        auto s = split(input);
+        if (s.length){
+            command = s[0];
+            if (s.length > 1)
+                arguments = s[1..$];
+            else
+                arguments.length = 0;   
+            if (command in dispatcher)
+                dispatcher[command]();
+            else
+                writeln("unrecognized command: ", command);
+            stdout.flush;
+        }
+    }
+}
+```
+
+You can now click, in the **run** menu **compile and run file**.
+Use the [process input widget][lnk_widg_procinp] to pass a command and their optional arguments to the interpreter,
+for example `hello` and press <kbd>ENTER</kbd>:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut4_1.png)
+
+Then, if not already done, save the module written for this tutorial and type
+`showargs <CFF> <CAF> <CAP>` and press <kbd>ENTER</kbd>, the [symbolic strings][lnk_sym] will be expanded by the process-input-widget before being
+sent as input.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut4_2.png)
+
+To finish type "exit" and press <kbd>ENTER</kbd>.
+
+
+## Introduction to the library manager
+
+In this tutorial, we'll see how to use the library manager.
+
+### Let's build a static library
+
+We'll add a new item to the [_libman_][lnk_widg_lib], we choose the library
+[**libdparse**](https://github.com/Hackerpilot/libdparse). It's a lexer and an AST builder for the D language.
+
+Clone the repository. Start a new project. 
+Add the folder **`<path to libdparse>\src\std`**
+using the project inspector. Save the project where you wish to.
+The project inspector should now display the relative source filenames.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut5_1.png)
+
+In the project configuration widget, select the **output** category
+and set the **binaryKind** to **staticlib**.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut5_2.png)
+
+Still in this widget, select the category **Paths** and define the outputFilename
+to **`<apath>\libdparse`**.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut5_3.png)
+
+In the menu **Project** click **Compile project**.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut5_4.png)
+
+The static library is build. We'll add it to the [_libman_][lnk_widg_lib]. 
+Start by adding a new item (icon add). 
+Click on to select the library file produced previously (icon brick). 
+The alias will be set automatically to the library filename, without its extension.
+
+Click to select the path to the sources. 
+Select **`<path to libdparse>\src`**,
+(since the identifier **std** is part of the module names, it must not be included).
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut5_5.png)
+
+The item is now handled by Coedit.
+
+### Let's build a program using the lib
+
+Clone the repository [**dfmt**](https://github.com/Hackerpilot/dfmt). 
+D formatter is a D source code formatter based on **libdparse**, 
+hence the prefect candidate to demonstrate how the [_libman_][lnk_widg_lib] is working.
+
+Start a new project. Add the folder **`<path to dfmt>\src`** using the project inspector. 
+Save the project where you wish to.
+The project inspector should now display the relative source filenames.
+
+In the project configuration widget, select the **General** category,
+click to open the **libraryAliases** editor. Type **libdparse** (this is the alias defined previously).
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut5_6.png)
+
+Select the **Output** category and sets the **outputFilename**.
+
+In the menu **Project** click **Compile project**. 
+**dfmt** is now build.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut5_7.png)
+
+Using the **libraryAlias** has avoided to specify manually the import path (-I...)
+as well as the additional source (the _libdparse.lib_).
+
+### Completion and runnable
+
+In the **File** menu click **New runnable module**.
+type import **std.d** and hit <kbd>CTRL</kbd>+<kbd>SCPACE</kbd> to invoke the completion.
+[DCD][lnk_dcd], automatically aware of _libdparse_, will propose the item **lexer**,
+which matches to one of the module of the library (the D language lexer). 
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut5_8.png)
+
+Click to validate the completion, add the final semicolon.
+You can also duplicate the code sample from the screen capture but this is optional because
+the point here is only to show that the `import` is automatically handled by the software.
+
+In the **File** menu, click **Compile and run file**.
+
+The operation is successful because _Coedit_ exposes
+all the [_libman_][lnk_widg_lib] entries to _DMD_ when compiling a _runnable_ module.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut5_9.png)
