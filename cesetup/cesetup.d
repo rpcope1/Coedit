@@ -87,13 +87,13 @@ static this()
         if (asSu)
         {
             exePath = "/usr/bin";
-            appDataPath = "/home/" ~ environment.get("SUDO_USER") ~ "/Coedit/";
+            appDataPath = "/home/" ~ environment.get("SUDO_USER") ~ "/.config/Coedit/";
             shortCutPath = "/usr/share/applications/";
         }
         else
         {
             exePath = "/home/" ~ environment.get("USER") ~ "/bin/";
-            appDataPath = "/home/" ~ environment.get("USER") ~ "/Coedit/";
+            appDataPath = "/home/" ~ environment.get("USER") ~ "/.config/Coedit/";
             shortCutPath = "/home/" ~ environment.get("USER") ~ "/.local/share/applications/";
         }
     }

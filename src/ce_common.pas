@@ -11,7 +11,7 @@ uses
   Windows, JwaTlHelp32,
   {$ENDIF}
   {$IFDEF LINUX}
-  ExtCtrls,
+  ExtCtrls, FileUtil,
   {$ENDIF}
   dialogs, forms, process, asyncprocess;
 
@@ -235,6 +235,36 @@ type
 
 
 implementation
+
+{$IFDEF LINUX}
+var
+  // flag that indicates that migration is to be done on first call to getCoeditData...
+  doneLinuxDataMigration: boolean = false;
+
+procedure MigrateOldData;
+var
+  oldLocation: string;
+  newLocation: string;
+  err: boolean;
+begin
+  err := false;
+  doneLinuxDataMigration := true;
+  oldLocation := sysutils.GetEnvironmentVariable('HOME') +'/Coedit';
+  if not DirectoryExists(oldLocation) then exit;
+  newLocation := getUserDataPath + 'Coedit';
+  try
+    try
+      CopyDirTree(oldLocation, newLocation,
+        [cffOverwriteFile,cffCreateDestDirectory,cffPreserveTime]);
+    except
+      err := true;
+    end;
+  finally
+    if not err then
+      FileUtil.DeleteDirectory(oldLocation, false);
+  end;
+end;
+{$ENDIF}
 
 procedure TCEPersistentShortcut.assign(aValue: TPersistent);
 var
@@ -521,7 +551,7 @@ begin
   result := sysutils.GetEnvironmentVariable('APPDATA');
   {$ENDIF}
   {$IFDEF LINUX}
-  result := sysutils.GetEnvironmentVariable('HOME');
+  result := sysutils.GetEnvironmentVariable('HOME') + '/.config';
   {$ENDIF}
   {$IFDEF DARWIN}
   result := sysutils.GetEnvironmentVariable('HOME') + '/Library';
@@ -534,6 +564,10 @@ end;
 
 function getCoeditDocPath: string;
 begin
+  {$IFDEF LINUX}
+  if not doneLinuxDataMigration then
+    MigrateOldData;
+  {$ENDIF}
   result := getUserDataPath + 'Coedit' + directorySeparator;
 end;
 
