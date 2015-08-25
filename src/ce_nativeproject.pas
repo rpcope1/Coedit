@@ -615,7 +615,9 @@ begin
     for i:= 0 to j do
       process.Parameters.Delete(0);
     if process.CurrentDirectory = '' then
-      process.CurrentDirectory := extractFilePath(process.Executable);
+      process.CurrentDirectory := extractFilePath(process.Executable)
+    else
+      process.CurrentDirectory := symbolExpander.get(process.CurrentDirectory);
     ensureNoPipeIfWait(process);
     process.Execute;
     while process.Running do
