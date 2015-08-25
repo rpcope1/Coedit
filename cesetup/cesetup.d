@@ -110,7 +110,7 @@ void main(string[] args)
     );
     
     Formater.separate;
-    if (!uninstall) Formater.justify!('C', "Coedit 1 update 2 setup");
+    if (!uninstall) Formater.justify!('C', "Coedit 1 update 2 - setup");
     else Formater.justify!('C', "Coedit uninstaller");
     
     Formater.separate;
@@ -129,7 +129,7 @@ void main(string[] args)
         if (!nodcd) Formater.justify!('L', "--nodcd: skip DCD setup");
         Formater.justify!('L', "-u: uninstall");
     }
-    else if (!nodcd) Formater.justify!('L', "--nodcd: do nort remove DCD");
+    else if (!nodcd) Formater.justify!('L', "--nodcd: do not remove DCD");
     Formater.justify!('L', "press A to abort or another key to start...");
     Formater.separate;   
     

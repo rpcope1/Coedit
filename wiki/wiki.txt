@@ -31,7 +31,7 @@
 Welcome to Coedit Wiki, the documentation source for the small Windows & Linux IDE for the D programming language.
 A summary of the content is accessible in the right side-bar.
 
-*Note that this document is based on Coedit _gold 1_ and it does not represent yet the changes made to the development version*
+*Note that this document is based on Coedit 1 update 2 and it does not represent yet the changes made to the development version*
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/coedit.win7.33.png) ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/coedit.linux.kde.33.png)
 
@@ -62,6 +62,7 @@ The latest Coedit version requires at least DMD 2.066.
 Note for the future versions:
 * Updating doesn't require to uninstall.
 * it's possible to uninstall from a newer setup program.
+* always use the same privileges to uninstall or update as previously.
 
 ## Binaries
  
@@ -83,8 +84,9 @@ or `chmod a+x` the file in a console.
 
 Under linux, since no **.deb** or **.rpm** are provided, you can verify that the following packages are already present.
 Since they are mostly related to gtk2, they already should be installed:
+
 >
-libpthread.so.0'
+libpthread.so.0
 libX11.so.6
 libgdk_pixbuf-2.0.so.0
 libgtk-x11-2.0.so.0
@@ -429,7 +431,7 @@ The editor shortcuts are listed there:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optshortcut.png)
 
-Note that you can edit text files in Coedit too (as well as any other file type)
+Note that you can edit text files in Coedit too (as well as any other file type suc as _*.dd_ D documentation files)
 A simple highlighter is automatically set for this purpose:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/sourceditor2.png)
@@ -470,7 +472,7 @@ Coedit handles the task automatically (see later in the project configuration wi
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_add.png): add a library item, by default its fields are initialized with _n/a_.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_delete.png): remove the selected item.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_up.png) **/** ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_down.png): change selected entry position.
-- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_link.png): if the current project output type is set to _staticlib_ then the libman will use its parameters to create an entry. This avoids to browse in the dialogs, for example if you wish to setup several [metad][lnk_metad] items. Note that sometimes the sources root folder has to be adjusted.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_link.png): if the current project _binaryKind_ is set to _staticlib_ then the _libman_ will use its parameters to create an entry. This avoids to browse in the dialogs, for example if you wish to setup several [_metad_][lnk_metad] items. Note that sometimes the sources root folder has to be adjusted.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_edit.png): edit the item alias.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_brick.png): select the library file. In some rare case, this field can be omitted. 
 This can be skipped if the library is only a small orphan _d_ source that's not been compiled as a static lib or if the entry is only used for the [DCD][lnk_dcd] completion.
@@ -486,7 +488,7 @@ The library entries are saved in the user folder[ (see options)][lnk_widg_opts] 
 ## Symbol list widget
 
 The symbol list enumerates the declarations found in a D module (imports, classes, variables, and so on).
-The widget is a GUI front end for the [cesyms][lnk_cesyms] tool.
+The widget is a GUI front end for the [_cesyms_][lnk_cesyms] tool.
 It can be used to quickly find and go to the declaration of a symbol but also as a basic linter since the
 syntactic errors are displayed (in real time if the option _refresh on change_ is checked).
 
@@ -531,8 +533,10 @@ The general options are common to each configuration.
 - Configuration index: selects a configuration by its index. This property exists only for the project persistence. 
 To select a configuration, rather uses the project inspector or the combo-box at the top of the widget.
 - libraryAliases: shows a small editor used to specify the aliases of the libraries used by the project. 
-One item per line. An item text must match to an entry of the [libman][lnk_widg_lib]. 
-It avoids the addition of the **-I** options and the additional sources.
+One item per line. An item text must match to an entry of the [_libman_][lnk_widg_lib]. It avoids the addition of the **-I** options and the additional sources.
+When dependencies are complex, it's possible to select all the entries by setting the first line of the editor to a single asterisk `*`.
+Thanks to this shortcut you don't have to remember if an aliased library is using another library but be warned  that compilation speed can be impacted.
+Note that unless the project _binaryKind_ is set to _executable_ or _sharedlib_ the static libraries selected from this list are not linked.
 - RootFolder: the project file is not necessarily indicating the root of the project folder. 
 This field can be used to specify another one, either relative or absolute. This is useful to run a custom tool using the *CPR* [symbolic string][lnk_sym] (e.g: git, recursive cleaning).
 - Sources: shows a dialog used to edit the filenames of the project sources. Relative paths are automatically handled. Only one item must stand by line.
@@ -681,12 +685,17 @@ So far, only *DMD* and *[_Dscanner_](https://www.github.com/Hackerpilot/Dscanner
 
 The context menu contains a few useful actions, such as *copy messages*, *save message(s) to file*.
 By default only the last 500 messages are displayed, regardless of the categories. 
-This value can be changed in the [options editor][lnk_widg_opts]:
+This value and several other options can be changed in the [options editor][lnk_widg_opts]:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optmesg.png)
 
-The option _autoSelect_ allows the widget to change dynamically the messages category.
+- autoSelect: defines if the widget change dynamically the message categories.
 This is a recommended setting because if a run-time error happens, it will be immediately displayed.
+- colorXXX: allows to associate a message kind to a particular color.
+- fast display: if set, the new messages are displayed fast but by block. When not set the same amount of message takes longer to be displayed but smoothly.
+- font: tweak the font used in this widget: the size, the family, etc.
+- maxMessageCount: allows to limit the maximum number of messages kept by the list. A small value can improve the performances.
+- singleMessageClick: allows to open the file the message parser has found by a single click.
 
 ## Custom tools widget
 
@@ -787,7 +796,7 @@ The options are applied in real time but are reversible until the green checker 
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/cancel.png): cancels and restores the previous state of the current category.
 
 The options are persistent and saved in a distinct folder:
-- Linux: **`/home/<your account>/Coedit/`**.
+- Linux: **`/home/<your account>/.config/Coedit/`** (hidden by default).
 - Windows: **`?:\Users\<your account>\AppData\Roaming\Coedit\`**.
 
 Some of the options are not editable in the widget but as they are saved in a readable format they can be edited in a text editor.
