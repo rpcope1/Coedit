@@ -17,6 +17,7 @@
 *.png
 *.ico
 *.txt
+*.zip
 Thumbs.db
 backup
 doc
