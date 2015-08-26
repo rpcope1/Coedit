@@ -255,12 +255,17 @@ bool uninstallResource(Resource resource, string path)
 { 
     const string fname = extractedName(resource, path);
     if (!fname.exists) return true;
-    try remove(fname);
-    catch (FileException e) return false;
+    tryRemove(fname);
     return true;  
 }
 
-void nuxPostInstall()
+void tryRemove(string fname)
+{
+    try remove(fname);
+    catch (FileException e) {}  
+}
+
+version(linux) void nuxPostInstall()
 {
     File f = new File(shortCutPath ~ "coedit.desktop", FileMode.OutNew);
     f.writeLine("[Desktop Entry]");
@@ -273,30 +278,42 @@ void nuxPostInstall()
     f.close;    
 }
 
-void nuxPostUninstall()
+version(linux) void nuxPostUninstall()
 {
-    try remove(shortCutPath ~ "coedit.desktop");
-    catch (FileException e) {}
+    tryRemove(shortCutPath ~ "coedit.desktop");
 }
 
-void win32PostInstall()
+version (win32) void win32PostInstall()
 {
-    // note: this is not a true shortcut, other options are
-    // - create a true lnk by generating and executing a vbs
-    // - use winapi...
+    import std.conv: to;
+    import std.random: uniform;
+    
+    // shortcut prior to v 1 upd 2 was actually and url.
+    tryRemove(shortCutPath ~ "Coedit.url");
+    
     string target = exePath ~ "coedit.exe";
-    File f = new File(shortCutPath ~ "Coedit.url", FileMode.OutNew);
-    f.writeLine("[InternetShortcut]");
-    f.writeString("URL=");
-    f.writeLine("\"" ~ target ~ "\"");
-    f.writeString("IconFile=");
-    f.writeLine("\"" ~ target ~ "\"");
-    f.writeLine("IconIndex=0");
-    f.close;
+    string vbsName;
+    do vbsName = environment.get("TEMP") ~ r"\cesh" ~ uniform(0,int.max).to!string ~ ".vbs";
+    while (vbsName.exists);
+    
+    string vbsCode = "
+        set WshShell = CreateObject(\"WScript.shell\")
+        strDesktop = WshShell.SpecialFolders(\"Desktop\")
+        set lnk = WshShell.CreateShortcut(strDesktop + \"\\Coedit.lnk\")
+        lnk.TargetPath = \"%s\" 
+        lnk.Save
+    ";
+    File vbs = new File(vbsName, FileMode.OutNew);
+    vbs.writefln(vbsCode, target);
+    vbs.close;
+    executeShell(vbsName);
+    
+    tryRemove(vbsName); 
 }
 
-void win32PostUninstall()
+version (win32) void win32PostUninstall()
 {
-    try remove(shortCutPath ~ "Coedit.url");
-    catch (FileException e) {}
+    // shortcut prior to v 1 upd 2 was actually and url.
+    tryRemove(shortCutPath ~ "Coedit.url"); 
+    tryRemove(shortCutPath ~ "Coedit.lnk");
 }

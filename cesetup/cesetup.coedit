@@ -53,5 +53,5 @@ object CurrentProject: TCENativeProject
   Sources.Strings = (
     'cesetup.d'
   )
-  ConfigurationIndex = 2
+  ConfigurationIndex = 0
 end
