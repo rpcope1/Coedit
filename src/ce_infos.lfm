@@ -1,7 +1,7 @@
 inherited CEInfoWidget: TCEInfoWidget
-  Left = 714
+  Left = 713
   Height = 282
-  Top = 271
+  Top = 245
   Width = 337
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   Caption = 'About'
@@ -25,14 +25,14 @@ inherited CEInfoWidget: TCEInfoWidget
         Align = alTop
         BorderSpacing.Around = 4
         Caption = 'about'
-        ClientHeight = 85
-        ClientWidth = 325
+        ClientHeight = 87
+        ClientWidth = 327
         TabOrder = 0
         object Label1: TLabel
           Left = 0
-          Height = 85
+          Height = 87
           Top = 0
-          Width = 325
+          Width = 327
           Align = alClient
           Alignment = taCenter
           AutoSize = False
@@ -52,14 +52,14 @@ inherited CEInfoWidget: TCEInfoWidget
         Align = alClient
         BorderSpacing.Around = 4
         Caption = 'tools status'
-        ClientHeight = 145
-        ClientWidth = 325
+        ClientHeight = 147
+        ClientWidth = 327
         TabOrder = 1
         object boxTools: TScrollBox
           Left = 4
-          Height = 137
+          Height = 139
           Top = 4
-          Width = 317
+          Width = 319
           HorzScrollBar.Page = 1
           VertScrollBar.Page = 1
           Align = alClient

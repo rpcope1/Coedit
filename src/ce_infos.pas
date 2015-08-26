@@ -75,6 +75,7 @@ begin
   fStatus.BorderSpacing.Around := 2;
   fStatus.BorderStyle := sbsSunken;
   fStatus.AutoSize:=false;
+  fStatus.Width:= 800;
   //
   fKind:=kind;
   fToolName:=toolName;
@@ -113,12 +114,12 @@ begin
       pth := exeFullName(fToolName + exeExt);
       if pth = '' then
       begin
-        fStatus.Caption:= 'the tool cannot be found';
+        fStatus.Caption:= ' the tool cannot be found';
         png.LoadFromLazarusResource('bullet_red');
       end
       else
       begin
-        fStatus.Caption:= 'the tool is available';
+        fStatus.Caption:= ' the tool is available';
         png.LoadFromLazarusResource('bullet_green');
       end;
     end;
@@ -127,17 +128,17 @@ begin
       pth := exeFullName(fToolName + exeExt);
       if pth = '' then
       begin
-        fStatus.Caption:= 'the tool cannot be found';
+        fStatus.Caption:= ' the tool cannot be found';
         png.LoadFromLazarusResource('bullet_red');
       end
       else if AppIsRunning(fToolName + exeExt) then
       begin
-        fStatus.Caption:= 'the tool is available and running';
+        fStatus.Caption:= ' the tool is available and running';
         png.LoadFromLazarusResource('bullet_green');
       end
       else
       begin
-        fStatus.Caption:= 'the tool is available but is not running';
+        fStatus.Caption:= ' the tool is available but is not running';
         png.LoadFromLazarusResource('bullet_yellow');
       end;
     end;
