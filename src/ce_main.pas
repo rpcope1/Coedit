@@ -11,7 +11,8 @@ uses
   ce_common, ce_dmdwrap, ce_nativeproject, ce_dcd, ce_synmemo, ce_writableComponent,
   ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
   ce_search, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist, ce_observer,
-  ce_toolseditor, ce_procinput, ce_optionseditor, ce_symlist, ce_mru, ce_processes;
+  ce_toolseditor, ce_procinput, ce_optionseditor, ce_symlist, ce_mru, ce_processes,
+  ce_infos;
 
 type
 
@@ -205,6 +206,7 @@ type
     fTodolWidg: TCETodoListWidget;
     fOptEdWidg: TCEOptionEditorWidget;
     fSymlWidg: TCESymbolListWidget;
+    fInfoWidg: TCEInfoWidget;
 
     fInitialized: boolean;
     fRunnableSw: string;
@@ -509,6 +511,7 @@ begin
   fTodolWidg:= TCETodoListWidget.create(self);
   fOptEdWidg:= TCEOptionEditorWidget.create(self);
   fSymlWidg := TCESymbolListWidget.create(self);
+  fInfoWidg := TCEInfoWidget.create(self);
 
   getMessageDisplay(fMsgs);
 
@@ -524,6 +527,7 @@ begin
   fWidgList.addWidget(@fTodolWidg);
   fWidgList.addWidget(@fOptEdWidg);
   fWidgList.addWidget(@fSymlWidg);
+  fWidgList.addWidget(@fInfoWidg);
   fWidgList.sort(@CompareWidgCaption);
 
   for widg in fWidgList do

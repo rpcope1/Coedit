@@ -135,7 +135,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="38">
+    <Units Count="39">
       <Unit0>
         <Filename Value="coedit.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -334,6 +334,13 @@
         <Filename Value="..\src\ce_processes.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit37>
+      <Unit38>
+        <Filename Value="..\src\ce_infos.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="CEInfoWidget"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit38>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
