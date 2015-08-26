@@ -17,6 +17,10 @@ object CurrentProject: TCENativeProject
         '/c'
         ' zip-win32.bat'
       )
+      postBuildProcess.executable = 'zipsetup-win32.bat'
+      postBuildProcess.parameters.Strings = (
+        '<CPO>'
+      )
     end  
     item
       name = 'nux32'
@@ -33,6 +37,11 @@ object CurrentProject: TCENativeProject
       preBuildProcess.parameters.Strings = (
         'zip-nux32.sh'
       )
+      postBuildProcess.executable = 'sh'
+      postBuildProcess.parameters.Strings = (
+        'setupzip-nux-noarch.sh'
+        '<CPO>'
+      )
     end  
     item
       name = 'nux64'
@@ -48,6 +57,23 @@ object CurrentProject: TCENativeProject
       preBuildProcess.workingDirectory = '<CPP>'
       preBuildProcess.parameters.Strings = (
         'zip-nux64.sh'
+      )
+      postBuildProcess.executable = 'sh'
+      postBuildProcess.parameters.Strings = (
+        'setupzip-nux-noarch.sh'
+        '<CPO>'
+      )
+    end  
+    item
+      name = 'devel-win32'
+      messagesOptions.tlsInformations = True
+      outputOptions.inlining = True
+      outputOptions.boundsCheck = offAlways
+      outputOptions.optimizations = True
+      outputOptions.release = True
+      pathsOptions.outputFilename = 'output\coedit.1update2.win32.setup.exe'
+      pathsOptions.importStringPaths.Strings = (
+        'win32\'
       )
     end>
   Sources.Strings = (
