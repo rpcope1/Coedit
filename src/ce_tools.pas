@@ -177,6 +177,7 @@ begin
   end;
   for i:= 0 to fParameters.Count-1 do
       fProcess.Parameters.AddText(symbolExpander.get(fParameters.Strings[i]));
+  ensureNoPipeIfWait(fProcess);
   fProcess.Execute;
 end;
 

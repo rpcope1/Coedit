@@ -196,10 +196,9 @@ type
   procedure killProcess(var aProcess: TCheckedAsyncProcess);
 
   (**
-   * Ensures that the in/out process pipes are not redirected, that it has a console, if it waits on exit.
+   * Ensures that the i/o process pipes are not redirected if it waits on exit.
    *)
   procedure ensureNoPipeIfWait(aProcess: TProcess);
-
 
   (**
    * Returns true if Exename is running under Windows or Linux
@@ -853,9 +852,7 @@ procedure ensureNoPipeIfWait(aProcess: TProcess);
 begin
   if not (poWaitonExit in aProcess.Options) then
     exit;
-  //
   aProcess.Options := aProcess.Options - [poStderrToOutPut, poUsePipes];
-  aProcess.Options := aProcess.Options + [poNewConsole];
 end;
 
 function getLineEndingLength(const aFilename: string): byte;

@@ -621,7 +621,6 @@ begin
     ensureNoPipeIfWait(process);
     process.Execute;
     while process.Running do
-    if not (poWaitOnExit in process.Options) then
       if poUsePipes in process.Options then
         runProcOutput(process);
   finally
