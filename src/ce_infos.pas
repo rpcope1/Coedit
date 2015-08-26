@@ -56,7 +56,7 @@ begin
   fLabel.AutoSize:=false;
   fLabel.Parent := self;
   fLabel.Align:= alLeft;
-  fLabel.Width:= 60;
+  fLabel.Width:= 70;
   fLabel.BorderSpacing.Around := 2;
   //
   fIco := TSpeedButton.Create(self);
