@@ -746,7 +746,7 @@ var
   env: string;
 begin
   ext := extractFileExt(anExeName);
-  if ext <> exeExt then
+  if ext = '' then
     anExeName += exeExt;
   if FileExists(anExeName) then
     exit(anExeName)

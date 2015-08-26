@@ -1,4 +1,4 @@
-object _1: TCEProject
+object _1: TCENativeProject
   OptionsCollection = <  
     item
       name = 'default'
@@ -11,7 +11,6 @@ object _1: TCEProject
       )
       debugingOptions.debugLevel = 2
       messagesOptions.additionalWarnings = True
-      outputOptions.noBoundsCheck = False
       outputOptions.boundsCheck = onAlways
       outputOptions.unittest = True
       outputOptions.versionIdentifiers.Strings = (
@@ -19,13 +18,11 @@ object _1: TCEProject
       )
       pathsOptions.outputFilename = '..\output\main.exe'
       preBuildProcess.executable = 'C:\Dev\pasproj\Coedit\lazproj\test\coeditproj\pre.bat'
+      preBuildProcess.workingDirectory = '<CPP>'
       preBuildProcess.options = [poWaitOnExit]
-      preBuildProcess.showWindow = swoNone
       postBuildProcess.executable = 'C:\Dev\pasproj\Coedit\lazproj\test\coeditproj\post.bat'
+      postBuildProcess.workingDirectory = '<CPP>'
       postBuildProcess.options = [poWaitOnExit]
-      postBuildProcess.showWindow = swoNone
-      runOptions.options = []
-      runOptions.showWindow = swoNone
     end  
     item
       name = 'alternative'
@@ -35,7 +32,6 @@ object _1: TCEProject
       debugingOptions.debugLevel = 3
       messagesOptions.additionalWarnings = True
       outputOptions.inlining = True
-      outputOptions.noBoundsCheck = True
       outputOptions.boundsCheck = onAlways
       outputOptions.optimizations = True
       outputOptions.unittest = True
@@ -43,12 +39,6 @@ object _1: TCEProject
         'revision_2'
       )
       pathsOptions.outputFilename = '..\output\main.exe'
-      preBuildProcess.options = []
-      preBuildProcess.showWindow = swoNone
-      postBuildProcess.options = []
-      postBuildProcess.showWindow = swoNone
-      runOptions.options = []
-      runOptions.showWindow = swoNone
     end>
   Sources.Strings = (
     '..\src\main.d'
