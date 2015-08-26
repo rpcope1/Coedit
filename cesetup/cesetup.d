@@ -255,14 +255,15 @@ bool uninstallResource(Resource resource, string path)
 { 
     const string fname = extractedName(resource, path);
     if (!fname.exists) return true;
-    tryRemove(fname);
-    return true;  
+    else return tryRemove(fname);  
 }
 
-void tryRemove(string fname)
+bool tryRemove(string fname)
 {
+    bool result = true;
     try remove(fname);
-    catch (FileException e) {}  
+    catch (FileException e) {result = false;}
+    return result;  
 }
 
 version(linux) void nuxPostInstall()
