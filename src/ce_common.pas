@@ -71,7 +71,7 @@ type
   procedure saveCompToTxtFile(const aComp: TComponent; const aFilename: string);
 
   (**
-   * Load a component.
+   * Load a component. Works in pair with saveCompToTxtFile().
    *)
   procedure loadCompFromTxtFile(const aComp: TComponent; const aFilename: string;
     aPropNotFoundHandler: TPropertyNotFoundEvent = nil; anErrorHandler: TReaderError = nil);
@@ -133,7 +133,7 @@ type
   function getUserDataPath: string;
 
   (**
-   * Returns the documents and settings folder for Coedit.
+   * Returns the folder where Coedit stores the data, the cache, the settings.
    *)
   function getCoeditDocPath: string;
 
@@ -148,7 +148,7 @@ type
   procedure listFolders(aList: TStrings; const aPath: string);
 
   (**
-   * Checks if aPath contains at least one sub-folder.
+   * Returns true if aPath contains at least one sub-folder.
    *)
   function hasFolder(const aPath: string): boolean;
 
@@ -164,7 +164,7 @@ type
   function listAsteriskPath(const aPath: string; aList: TStrings; someExts: TStrings = nil): boolean;
 
   (**
-   * Lets the shell open a file
+   * Lets the shell open a file.
    *)
   function shellOpen(const aFilename: string): boolean;
 
@@ -174,7 +174,7 @@ type
   function exeInSysPath(anExeName: string): boolean;
 
   (**
-   * Returns the full to anExeName. Works if exeInSysPath().
+   * Returns the full path to anExeName. Works if exeInSysPath() returns true.
    *)
   function exeFullName(anExeName: string): string;
 
@@ -192,7 +192,6 @@ type
    * Terminates and frees aProcess.
    *)
   procedure killProcess(var aProcess: TAsyncProcess);
-
   procedure killProcess(var aProcess: TCheckedAsyncProcess);
 
   (**
@@ -201,24 +200,27 @@ type
   procedure ensureNoPipeIfWait(aProcess: TProcess);
 
   (**
-   * Returns true if Exename is running under Windows or Linux
+   * Returns true if ExeName is already running.
    *)
   function AppIsRunning(const ExeName: string):Boolean;
 
   (**
-   * Returns the length of the line ending in aFilename;
+   * Returns the length of the line ending in aFilename.
    *)
   function getLineEndingLength(const aFilename: string): byte;
 
+  (**
+   * Returns the length of the line ending for the current platform.
+   *)
   function getSysLineEndLen: byte;
 
   (**
-   * Returns the common folder of the file names stored in aList
+   * Returns the common folder of the file names stored in aList.
    *)
   function commonFolder(const someFiles: TStringList): string;
 
   (**
-   * Returns true if ext matches a file extension whose type is highlightable
+   * Returns true if ext matches a file extension whose type is highlightable.
    *)
   function hasDlangSyntax(const ext: string): boolean;
 
@@ -228,7 +230,7 @@ type
   function isDlangCompilable(const ext: string): boolean;
 
   (**
-   * Returns true if ext matches a file extension whose type is editable in Coedit
+   * Returns true if ext matches a file extension whose type is editable in Coedit.
    *)
   function isEditable(const ext: string): boolean;
 

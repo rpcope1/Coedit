@@ -315,6 +315,8 @@ Documentation comments associated to a symbol are displayed when hovering the sy
 
 When Coedit starts and if the DCD server is not already listening then it's launched automatically.
 When Coedit stops, the server is automatically shut-down if it was not already running when starting.
+Under Linux it's recommended not to let Coedit start the server.
+If DCD server crashes while Coedit is running then both must be restarted.
 
 It's also advisable to setup [DScanner](https://github.com/Hackerpilot/Dscanner), from the same author, 
 as a Coedit [custom tool][lnk_widg_tools].
