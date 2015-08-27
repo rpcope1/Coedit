@@ -1,5 +1,6 @@
 
-***a DMD GUI for the free electrons !*** [](https://github.com/BBasile/Coedit/raw/master/logo/coedit.png)
+***a DMD GUI for the free electrons !*** 
+[](https://github.com/BBasile/Coedit/raw/master/logo/coedit.png)
 
 Coedit is an IDE for the _DMD_ [D2](http://dlang.org)  compiler.
 
