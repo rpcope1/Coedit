@@ -1,5 +1,5 @@
 
-***Compile*** & ***Edit*** in _D_![](https://github.com/BBasile/Coedit/raw/master/logo/coedit.png)
+***a DMD GUI for the free electrons !***[](https://github.com/BBasile/Coedit/raw/master/logo/coedit.png)
 
 Coedit is an IDE for the _DMD_ [D2](http://dlang.org)  compiler.
 
@@ -26,20 +26,20 @@ Coedit is an IDE for the _DMD_ [D2](http://dlang.org)  compiler.
 
 **Project information**
 ---
-- status:  version 1 update 1.
+- status:  version 1 update 2, stable.
 - licensed under the term of the MIT license.
 - programmed in Object Pascal with [FPC & Lazarus](http://www.lazarus.freepascal.org) as compiler & IDE.
 
-**Setup version 1**
+**Download**
 ---
 Download the zipped binaries or the zipped setup program for you platform:
 
-- :package: [setup program for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/1_update_1/coedit.1update1.linux32.setup.zip)
-- :package: [binaries for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/1_update_1/coedit.1update1.linux32.zip)
-- :package: [setup program for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/1_update_1/coedit.1update1.linux64.setup.zip)
-- :package: [binaries for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/1_update_1/coedit.1update1.linux64.zip)
-- :package: [setup program for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/1_update_1/coedit.1update1.win32.setup.zip)
-- :package: [binaries for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/1_update_1/coedit.1update1.win32.zip)
+- :package: [setup program for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/1_update_2/coedit.1update2.linux32.setup.zip)
+- :package: [binaries for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/1_update_2/coedit.1update2.linux32.zip)
+- :package: [setup program for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/1_update_2/coedit.1update2.linux64.setup.zip)
+- :package: [binaries for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/1_update_2/coedit.1update2.linux64.zip)
+- :package: [setup program for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/1_update_2/coedit.1update2.win32.setup.zip)
+- :package: [binaries for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/1_update_2/coedit.1update2.win32.zip)
 
 [**See the wiki**](https://github.com/BBasile/Coedit/wiki#detailed-setup-procedure) for more information about the setup.
 
