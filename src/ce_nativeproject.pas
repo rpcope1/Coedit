@@ -370,9 +370,14 @@ begin
     libAliasesPtr := fLibAliases;
     if (fLibAliases.Count > 0) and (fLibAliases.Strings[0] = '*') then
       libAliasesPtr := nil;
+
+    {$IFDEF WINDOWS}
     // only link lib file if executable/shared lib
+    // OS switch: read more @ http://forum.dlang.org/post/ooekdkwrefposmchekrp@forum.dlang.org
     if currentConfiguration.outputOptions.binaryKind in [executable, sharedlib] then
+    {$ENDIF}
       LibMan.getLibFiles(libAliasesPtr, aList);
+
     // but always adds -I<path>
     LibMan.getLibSources(libAliasesPtr, aList);
     // config
