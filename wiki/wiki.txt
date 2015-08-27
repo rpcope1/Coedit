@@ -595,6 +595,7 @@ These options are defined per-configuration.
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.output1.png)
 
 - addMain: adds an empty _main()_ procedure. (**-main**)
+- alwaysLinkStaticLibs: under Windows this option forces to link a static library selected in the _LibraryAliases_ even if not required (for example if the project is itself a static library).
 - binaryKind: sets the compiler output kind among: **"staticlib"**, **"sharedlib"**, **"executable"** and **"object"**. (it matches respectively to **-lib**, **-shared**, nothing, **-c**).
 - boundsCheck: sets the bounds checking mode, among **"alwaysON"**, **"alwaysOFF"** and **"safeOnly"**. (**-boundscheck=on** or **-boundscheck=off** or **-boundscheck=safeonly**). The switch is not generated when it's a default value.
 - generateStackFrame: forces the generation of stack frames. (**-gs**)

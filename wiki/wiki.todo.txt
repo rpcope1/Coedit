@@ -1,2 +1,3 @@
 - setup: screenshots.
 - small paragraph about docking, docking options & known issues.
+- project, output options, screenshot is outdated.

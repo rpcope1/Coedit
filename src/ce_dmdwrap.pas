@@ -130,6 +130,8 @@ type
     fRelease: boolean;
     fAllInst: boolean;
     fStackStomp: boolean;
+    fAlwayLinkLibs: boolean;
+    procedure setAlwaysLinkLibs(const aValue: boolean);
     procedure setAllInst(const aValue: boolean);
     procedure setUnittest(const aValue: boolean);
     procedure setTrgKind(const aValue: TTargetSystem);
@@ -143,6 +145,7 @@ type
     procedure setVerIds(const aValue: TStringList);
     procedure setStackStomp(const aValue: boolean);
   published
+    property alwaysLinkStaticLibs: boolean read fAlwayLinkLibs write setAlwaysLinkLibs default false;
     property targetKind: TTargetSystem read fTrgKind write setTrgKind default auto;
     property binaryKind: TBinaryKind read fBinKind write setBinKind default executable;
     property inlining: boolean read fInline write setInline default false;
@@ -611,10 +614,11 @@ begin
     fBoundsCheck:= src.fBoundsCheck;
     fOptimz     := src.fOptimz;
     fGenStack   := src.fGenStack;
-    fAddMain       := src.fAddMain;
+    fAddMain    := src.fAddMain;
     fRelease    := src.fRelease;
     fAllinst    := src.fAllInst;
     fStackStomp := src.fStackStomp;
+    fAlwayLinkLibs := src.fAlwayLinkLibs;
   end
   else inherited;
 end;
@@ -630,6 +634,13 @@ procedure TOutputOpts.setAllInst(const aValue: boolean);
 begin
   if fAllinst = aValue then exit;
   fAllinst := aValue;
+  doChanged;
+end;
+
+procedure TOutputOpts.setAlwaysLinkLibs(const aValue: boolean);
+begin
+  if fAlwayLinkLibs = aValue then exit;
+  fAlwayLinkLibs := aValue;
   doChanged;
 end;
 
