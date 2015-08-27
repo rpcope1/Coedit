@@ -1,6 +1,5 @@
 - main screenshots are outdated. add a third made on Mint.
 - screenshot 'build done' is outdated.
-- screenshot: tutos, intro to libman, reference to the static explorer must be removed (sym list doesn't use the libman).
 - setup: screenshots.
 - small paragraph about docking, docking options & known issues.
-- messages: screenshot is outdated (https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optmesg.png).
+- messages: screenshots is outdated (https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optmesg.png).
