@@ -1,5 +1,2 @@
-- main screenshots are outdated. add a third made on Mint.
-- screenshot 'build done' is outdated.
 - setup: screenshots.
 - small paragraph about docking, docking options & known issues.
-- messages: screenshots is outdated (https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optmesg.png).
