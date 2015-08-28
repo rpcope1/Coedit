@@ -17,7 +17,8 @@ object CurrentProject: TCENativeProject
         '/c'
         ' zip-win32.bat'
       )
-      postBuildProcess.executable = 'zipsetup-win32.bat'
+      postBuildProcess.executable = 'setupzip-win32.bat'
+      postBuildProcess.workingDirectory = '<CPP>'
       postBuildProcess.parameters.Strings = (
         '<CPO>'
       )
