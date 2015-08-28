@@ -744,24 +744,26 @@ end;
 
 procedure TCENativeProject.runProcOutput(sender: TObject);
 var
-  proc: TCEProcess;
   lst: TStringList;
   str: string;
   msgs: ICEMessagesDisplay;
 begin
-  proc := TCEProcess(sender);
+
   lst := TStringList.Create;
   msgs := getMessageDisplay;
   try
-    proc.getFullLines(lst);
+    if (sender is TCEProcess) then
+      (sender as TCEProcess).getFullLines(lst)
+    else
+      processOutputToStrings(TProcess(sender), lst);
     for str in lst do
       msgs.message(str, Self, amcProj, amkBub);
   finally
     lst.Free;
   end;
   //
-  if not proc.Active then
-    getprocInputHandler.removeProcess(proc);
+  if not TProcess(sender).Active then
+    getprocInputHandler.removeProcess(TProcess(sender));
 end;
 
 procedure TCENativeProject.compProcOutput(proc: TProcess);
