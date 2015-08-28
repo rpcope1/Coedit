@@ -3,7 +3,7 @@
 
 Coedit is an IDE for the _DMD_ [D2](http://dlang.org)  compiler.
 
-[![](https://github.com/BBasile/Coedit/raw/master/lazproj/coedit.win7.33.png)](https://github.com/BBasile/Coedit/raw/master/lazproj/coedit.win7.png)
+[![](https://github.com/BBasile/CoeditWikiData/raw/master/coedit.win7.33.png)](https://github.com/BBasile/CoeditWikiData/raw/master/coedit.win7.png)
 
 **Features**
 ---
@@ -51,7 +51,10 @@ The procedure is described in the [**first section of the wiki**](https://github
 **GUI preview**
 ---
 Windows version (Windows 7, x86):
-![Win screen-cap](https://github.com/BBasile/Coedit/raw/master/lazproj/coedit.win7.png "Coedit GUI preview")
+![Win screen-cap](https://github.com/BBasile/CoeditWikiData/raw/master/coedit.win7.png "Coedit GUI preview")
 
 Linux version (OpenSuse 13.2, KDE, x86_64):
-![Nux screen-cap](https://github.com/BBasile/Coedit/raw/master/lazproj/coedit.linux.kde.png "Coedit GUI preview")
+![Nux screen-cap](https://github.com/BBasile/CoeditWikiData/raw/master/coedit.linux.kde.png "Coedit GUI preview")
+
+Linux version (Mint 17.2, Cinnamon, x86):
+![Nux screen-cap](https://github.com/BBasile/CoeditWikiData/raw/master/coedit.linux.cinnamon.png "Coedit GUI preview")
