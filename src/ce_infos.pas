@@ -37,6 +37,9 @@ type
     GroupBox2: TGroupBox;
     Label1: TLabel;
   private
+    procedure RefreshAllStatus;
+  protected
+    procedure SetVisible(Value: Boolean); override;
   public
     constructor create(aOwner: TComponent); override;
   end;
@@ -147,6 +150,8 @@ begin
     fIco.Glyph.Assign(png);
     png.Free;
   end;
+  ReAlign;
+  Invalidate;
 end;
 
 constructor TCEInfoWidget.create(aOwner: TComponent);
@@ -174,6 +179,25 @@ begin
   toolItem.ReAlign;
   //
   Realign;
+end;
+
+procedure TCEInfoWidget.RefreshAllStatus;
+var
+  i: integer;
+begin
+  for i := 0 to boxTools.ControlCount -1 do
+  begin
+    if not (boxTools.Controls[i] is TToolInfo) then
+      continue;
+    TToolInfo(boxTools.Controls[i]).refreshStatus;
+  end;
+end;
+
+procedure TCEInfoWidget.SetVisible(Value: Boolean);
+begin
+  inherited;
+  if Visible then
+    RefreshAllStatus;
 end;
 
 end.
