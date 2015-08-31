@@ -154,8 +154,8 @@ var
   toolItem: TToolInfo;
 begin
   inherited;
-  fModal := true;
-  fDockable := false;
+  fIsModal := true;
+  fIsDockable := false;
   //
   toolItem := TToolInfo.Construct(self, tikRunning, 'dcd-server');
   toolItem.Parent := boxTools;

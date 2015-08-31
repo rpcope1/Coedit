@@ -31,10 +31,10 @@ type
     procedure updaterAutoProc(Sender: TObject);
     procedure updaterLatchProc(Sender: TObject);
   protected
-    fDockable: boolean;
-    fModal: boolean;
+    fIsDockable: boolean;
+    fIsModal: boolean;
     fID: string;
-    // a descendant overrides to implementi a periodic update.
+    // a descendant overrides to implement a periodic update.
     procedure updateLoop; virtual;
     // a descendant overrides to implement an imperative update.
     procedure updateImperative; virtual;
@@ -52,6 +52,8 @@ type
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
+    // prevent closing when 'locked' is cjecked in the header context menu
+    function closeQuery: boolean; override;
     // restarts the wait period to the delayed update event.
     // if not re-called during 'updaterByDelayDuration' ms then
     // 'UpdateByDelay' is called once.
@@ -77,7 +79,7 @@ type
     // returns true if one of the three updater is processing.
     property updating: boolean read fUpdating;
     // true by default, allow a widget to be docked.
-    property isDockable: boolean read fDockable;
+    property isDockable: boolean read fIsDockable;
     // not if isDockable, otherwise a the widget is shown as modal form.
     property isModal: boolean read getIfModal;
   end;
@@ -118,7 +120,7 @@ var
   itm: TmenuItem;
 begin
   inherited;
-  fDockable := true;
+  fIsDockable := true;
   fUpdaterAuto := TTimer.Create(self);
   fUpdaterAuto.Interval := 70;
   fUpdaterAuto.OnTimer := @updaterAutoProc;
@@ -144,10 +146,18 @@ begin
   inherited;
 end;
 
+function TCEWidget.closeQuery: boolean;
+begin
+  result := inherited;
+  if fIsDockable and (not DockMaster.AllowDragging) and not
+    (DockMaster.GetAnchorSite(self).GetTopParent = DockMaster.GetAnchorSite(self)) then
+      result := false;
+end;
+
 function TCEWidget.getIfModal: boolean;
 begin
   if isDockable then result := false
-  else result := fModal;
+  else result := fIsModal;
 end;
 
 procedure TCEWidget.showWidget;

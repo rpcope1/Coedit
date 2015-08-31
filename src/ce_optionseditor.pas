@@ -66,8 +66,8 @@ var
   png: TPortableNetworkGraphic;
 begin
   inherited;
-  fDockable := false;
-  fModal:= true;
+  fIsDockable := false;
+  fIsModal:= true;
   fEdOptsSubj := TCEEditableOptionsSubject.create;
   inspector.CheckboxForBoolean := true;
   inspector.PropertyEditorHook.AddHandlerModified(@inspectorModified);
