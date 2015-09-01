@@ -210,6 +210,8 @@ type
     fSymlWidg: TCESymbolListWidget;
     fInfoWidg: TCEInfoWidget;
 
+    //TODO-cDUB: widget to edit and view, select config of, a DUB project
+
     fInitialized: boolean;
     fRunnableSw: string;
     fRunProc: TCEProcess;
@@ -1509,21 +1511,19 @@ end;
 
 procedure TCEMainForm.actProjCompileAndRunExecute(Sender: TObject);
 begin
-  //TODO-cDUB: implement compile proj and run for DUB projects
-  if fNativeProject.compile then
-    fNativeProject.runProject;
+  if fProjectInterface.compile then
+    fProjectInterface.run;
 end;
 
 procedure TCEMainForm.actProjCompAndRunWithArgsExecute(Sender: TObject);
 var
   runargs: string;
 begin
-  // TODO-cDUB: implement compile proj and run with arg for DUB projects
-  if not fNativeProject.compile then
+  if not fProjectInterface.compile then
     exit;
   runargs := '';
   if InputQuery('Execution arguments', '', runargs) then
-    fNativeProject.runProject(runargs);
+    fProjectInterface.run(runargs);
 end;
 
 procedure TCEMainForm.actProjRunExecute(Sender: TObject);
@@ -1534,33 +1534,40 @@ label
   _rbld,
   _run;
 begin
-  // TODO-cDUB: implement proj run for DUB projects
-  if fNativeProject.currentConfiguration.outputOptions.binaryKind <> executable then
+  if fProjectInterface.getBinaryKind <> executable then
   begin
     dlgOkInfo('Non executable projects cant be run');
     exit;
   end;
-  if not fileExists(fNativeProject.getOutputFilename) then
+  if not fileExists(fProjectInterface.getOutputFilename) then
   begin
     if dlgOkCancel('The project output is missing, build ?') <> mrOK then
       exit;
     goto _rbld;
   end;
-  dt := fileAge(fNativeProject.getOutputFilename);
-  for i := 0 to fNativeProject.Sources.Count-1 do
+
+  // TODO-cICECommonInterface, add function to check if rebuild needed.
+  if fProjectInterface.getFormat = pfNative then
   begin
-    if fileAge(fNativeProject.getAbsoluteSourceName(i)) > dt then
-      if dlgOkCancel('The project sources have changed since last build, rebuild ?') = mrOK then
-        goto _rbld
-      else
-        break;
-  end;
+    dt := fileAge(fNativeProject.getOutputFilename);
+    for i := 0 to fNativeProject.Sources.Count-1 do
+    begin
+      if fileAge(fNativeProject.getAbsoluteSourceName(i)) > dt then
+        if dlgOkCancel('The project sources have changed since last build, rebuild ?') = mrOK then
+          goto _rbld
+        else
+          break;
+    end;
+  end
+  // DUB checks this automatically
+  else fProjectInterface.compile;
+
   goto _run;
   _rbld:
-    fNativeProject.compile;
+    fProjectInterface.compile;
   _run:
-    if fileExists(fNativeProject.getOutputFilename) then
-      fNativeProject.runProject;
+    if fileExists(fProjectInterface.getOutputFilename) then
+      fProjectInterface.run;
 end;
 
 procedure TCEMainForm.actProjRunWithArgsExecute(Sender: TObject);
@@ -1568,9 +1575,8 @@ var
   runargs: string;
 begin
   runargs := '';
-  // TODO-cDUB: change to fProjInterface.runProject when sub routine implemented
   if InputQuery('Execution arguments', '', runargs) then
-    fNativeProject.runProject(runargs);
+    fProjectInterface.run(runargs);
 end;
 {$ENDREGION}
 
@@ -1724,12 +1730,11 @@ end;
 
 procedure TCEMainForm.saveProjSource(const aEditor: TCESynMemo);
 begin
-  //TODO-cDUB: implement save project source for a DUB json file edited in CE
-  if fNativeProject = nil then exit;
-  if fNativeProject.fileName <> aEditor.fileName then exit;
+  if fProjectInterface = nil then exit;
+  if fProjectInterface.getFilename <> aEditor.fileName then exit;
   //
-  aEditor.saveToFile(fNativeProject.fileName);
-  openProj(fNativeProject.fileName);
+  aEditor.saveToFile(fProjectInterface.getFilename);
+  openProj(fProjectInterface.getFilename);
 end;
 
 procedure TCEMainForm.closeProj;
@@ -1773,9 +1778,10 @@ end;
 procedure TCEMainForm.openProj(const aFilename: string);
 begin
   closeProj;
-  if ExtractFileExt(aFilename) = '.json' then newDubProj
-  else newNativeProj;
-
+  if LowerCase(ExtractFileExt(aFilename)) = '.json' then
+    newDubProj
+  else
+    newNativeProj;
   //
   fProjectInterface.loadFromFile(aFilename);
   showProjTitle;
@@ -1856,11 +1862,11 @@ end;
 
 procedure TCEMainForm.actProjSourceExecute(Sender: TObject);
 begin
-  //TODO-cDUB: add json highligher to edit json project in CE
-  if fNativeProject = nil then exit;
-  if not fileExists(fNativeProject.fileName) then exit;
+  if fProjectInterface = nil then exit;
+  if not fileExists(fProjectInterface.getFilename) then exit;
   //
-  openFile(fNativeProject.fileName);
+  openFile(fProjectInterface.getFilename);
+  //TODO-cDUB: add json highligher to edit json project in CE
   fDoc.Highlighter := LfmSyn;
 end;
 

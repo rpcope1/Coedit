@@ -80,7 +80,7 @@ type
     procedure addSource(const aFilename: string);
     function addConfiguration: TCompilerConfiguration;
     procedure getOpts(const aList: TStrings);
-    function runProject(const runArgs: string = ''): Boolean;
+    function run(const runArgs: string = ''): Boolean;
     function compile: Boolean;
     //
     function getIfModified: boolean;
@@ -89,6 +89,7 @@ type
     procedure setActiveConfiguration(index: integer);
     function getConfigurationName(index: integer): string;
     function getFilename: string;
+    function getBinaryKind: TProjectBinaryKind;
     //
     property configuration[ix: integer]: TCompilerConfiguration read getConfig;
     property currentConfiguration: TCompilerConfiguration read getCurrConf;
@@ -705,7 +706,7 @@ begin
   end;
 end;
 
-function TCENativeProject.runProject(const runArgs: string = ''): Boolean;
+function TCENativeProject.run(const runArgs: string = ''): Boolean;
 var
   prm: string;
   i: Integer;
@@ -819,6 +820,11 @@ end;
 function TCENativeProject.getFilename: string;
 begin
   exit(fFilename);
+end;
+
+function TCENativeProject.getBinaryKind: TProjectBinaryKind;
+begin
+  exit(currentConfiguration.outputOptions.binaryKind);
 end;
 
 function isValidNativeProject(const filename: string): boolean;

@@ -13,6 +13,9 @@ type
   // describes the project kind. Used as a hint to cast ICECommonProject.getProject()
   TCEProjectFormat = (pfNative, pfDub);
 
+  // describes the binary kind produces when compiling a project
+  TProjectBinaryKind = (executable, staticlib, sharedlib, obj);
+
   (**
    * Common project interface.
    *
@@ -28,7 +31,10 @@ type
 
     // sub routines for the actions --------------------------------------------
 
+    // tries to compile and returns true if it does
     function compile: boolean;
+    // tries to un the project and returns true if it did
+    function run(const runArgs: string = ''): boolean;
 
     // project file - allows main form to create/load/save ---------------------
 
@@ -55,6 +61,8 @@ type
     function getIfIsSource(const aFilename: string): boolean;
     // returns the name of the file produced when a project is compiled
     function getOutputFilename: string;
+    // returns the binary kind produced according to the current configuration
+    function getBinaryKind: TProjectBinaryKind;
 
     // configs -----------------------------------------------------------------
 

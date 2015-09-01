@@ -30,6 +30,7 @@ type
     procedure loadFromFile(const aFilename: string);
     procedure saveToFile(const aFilename: string);
     function getIfModified: boolean;
+    function getBinaryKind: TProjectBinaryKind;
     //
     function getIfIsSource(const aFilename: string): boolean;
     function getOutputFilename: string;
@@ -39,6 +40,7 @@ type
     function getConfigurationName(index: integer): string;
     //
     function compile: boolean;
+    function run(const runArgs: string = ''): boolean;
   end;
 
 implementation
@@ -93,6 +95,12 @@ begin
   exit(fFilename);
 end;
 
+function TCEDubProject.getBinaryKind: TProjectBinaryKind;
+begin
+  //TODO-cDUB: implement
+  exit(executable);
+end;
+
 procedure TCEDubProject.loadFromFile(const aFilename: string);
 var
   loader: TMemoryStream;
@@ -116,7 +124,6 @@ begin
   end;
 end;
 
-//TODO -cDUB: conserve pretty formatting
 procedure TCEDubProject.saveToFile(const aFilename: string);
 var
   saver: TMemoryStream;
@@ -125,7 +132,7 @@ begin
   saver := TMemoryStream.Create;
   try
     fFilename := aFilename;
-    str := fJson.AsJSON;
+    str := fJson.FormatJSON;
     saver.Write(str[1], length(str));
     saver.SaveToFile(fFilename);
   finally
@@ -201,6 +208,12 @@ begin
     chDir(olddir);
     dubproc.Free;
   end;
+end;
+
+function TCEDubProject.run(const runArgs: string = ''): boolean;
+begin
+  //TODO-cDUB: implement
+  result := false;
 end;
 
 end.
