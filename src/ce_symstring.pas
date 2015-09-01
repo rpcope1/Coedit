@@ -21,6 +21,7 @@ type
   TCESymbolExpander = class(ICEMultiDocObserver, ICEProjectObserver)
   private
     fProj: TCENativeProject;
+    fProjInterface: ICECommonProject;
     fDoc: TCESynMemo;
     fNeedUpdate: boolean;
     fSymbols: array[TCESymbol] of string;
@@ -69,6 +70,7 @@ end;
 {$REGION ICEProjectObserver ----------------------------------------------------}
 procedure TCESymbolExpander.projNew(aProject: ICECommonProject);
 begin
+  fProjInterface := aProject;
   case aProject.getFormat of
     pfNative: fProj := TCENativeProject(aProject.getProject);
     pfDub: fProj := nil;
@@ -78,6 +80,7 @@ end;
 
 procedure TCESymbolExpander.projClosing(aProject: ICECommonProject);
 begin
+  fProjInterface := nil;
   if fProj <> aProject.getProject then
     exit;
   fProj := nil;
@@ -86,6 +89,7 @@ end;
 
 procedure TCESymbolExpander.projFocused(aProject: ICECommonProject);
 begin
+  fProjInterface := aProject;
   case aProject.getFormat of
     pfNative: fProj := TCENativeProject(aProject.getProject);
     pfDub: fProj := nil;
@@ -95,6 +99,7 @@ end;
 
 procedure TCESymbolExpander.projChanged(aProject: ICECommonProject);
 begin
+  fProjInterface := aProject;
   if fProj <> aProject.getProject then
     exit;
   fNeedUpdate := true;
@@ -184,11 +189,11 @@ begin
   begin
     if fileExists(fProj.fileName) then
     begin
-      fSymbols[CPF] := fProj.fileName;
-      fSymbols[CPP] := ExtractFilePath(fProj.fileName);
+      fSymbols[CPF] := fProjInterface.getFilename;
+      fSymbols[CPP] := ExtractFilePath(fProjInterface.getFilename);
       fSymbols[CPR] := fProj.getAbsoluteFilename(fProj.RootFolder);
       fSymbols[CPN] := stripFileExt(extractFileName(fProj.fileName));
-      fSymbols[CPO] := fProj.outputFilename;
+      fSymbols[CPO] := fProj.getOutputFilename;
       if fSymbols[CPR] = '' then
         fSymbols[CPR] := fSymbols[CPP];
     end

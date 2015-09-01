@@ -12,7 +12,7 @@ uses
   ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
   ce_search, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist, ce_observer,
   ce_toolseditor, ce_procinput, ce_optionseditor, ce_symlist, ce_mru, ce_processes,
-  ce_infos;
+  ce_infos, ce_dubproject;
 
 type
 
@@ -190,7 +190,9 @@ type
     fMultidoc: ICEMultiDocHandler;
     fScCollectCount: Integer;
     fUpdateCount: NativeInt;
-    fProject: TCENativeProject;
+    fProjectInterface: ICECommonProject;
+    fDubProject: TCEDubProject;
+    fNativeProject: TCENativeProject;
     fProjMru: TCEMRUProjectList;
     fFileMru: TCEMRUDocumentList;
     fWidgList: TCEWidgetList;
@@ -259,7 +261,8 @@ type
 
     // project sub routines
     procedure saveProjSource(const aEditor: TCESynMemo);
-    procedure newProj;
+    procedure newNativeProj;
+    procedure newDubProj;
     procedure saveProj;
     procedure saveProjAs(const aFilename: string);
     procedure openProj(const aFilename: string);
@@ -417,7 +420,7 @@ begin
   EntitiesConnector.forceUpdate;
   //
   getCMdParams;
-  if fProject = nil then newProj;
+  if fNativeProject = nil then newNativeProj;
   //
   fInitialized := true;
 end;
@@ -795,7 +798,7 @@ var
   i: Integer;
 begin
   canClose := false;
-  if fProject <> nil then if fProject.modified then
+  if fProjectInterface <> nil then if fProjectInterface.getIfModified then
     if ce_common.dlgOkCancel(
       'The project modifications are not saved, quit anyway ?') <> mrOK then
           exit;
@@ -814,7 +817,7 @@ end;
 
 procedure TCEMainForm.updateProjectBasedAction(sender: TObject);
 begin
-  TAction(sender).Enabled := fProject <> nil;
+  TAction(sender).Enabled := fProjectInterface <> nil;
 end;
 
 procedure TCEMainForm.updateDocEditBasedAction(sender: TObject);
@@ -1112,11 +1115,11 @@ end;
 
 procedure TCEMainForm.actProjOpenContFoldExecute(Sender: TObject);
 begin
-  if fProject = nil then exit;
-  if not fileExists(fProject.fileName) then exit;
+  if fProjectInterface = nil then exit;
+  if not fileExists(fProjectInterface.getFilename) then exit;
   //
   DockMaster.GetAnchorSite(fExplWidg).Show;
-  fExplWidg.expandPath(extractFilePath(fProject.fileName));
+  fExplWidg.expandPath(extractFilePath(fProjectInterface.getFilename));
 end;
 
 procedure TCEMainForm.actFileNewExecute(Sender: TObject);
@@ -1173,10 +1176,10 @@ procedure TCEMainForm.actFileAddToProjExecute(Sender: TObject);
 begin
   if fDoc = nil then exit;
   if fDoc.isProjectSource then exit;
-  if fProject = nil then exit;
+  if fNativeProject = nil then exit;
   //
   if fileExists(fDoc.fileName) and (not fDoc.isTemporary) then
-    fProject.addSource(fDoc.fileName)
+    fNativeProject.addSource(fDoc.fileName)
   else dlgOkInfo('the file has not been added to the project because it does not exist');
 end;
 
@@ -1500,24 +1503,24 @@ end;
 
 procedure TCEMainForm.actProjCompileExecute(Sender: TObject);
 begin
-  fProject.compileProject;
+  fProjectInterface.compile;
 end;
 
 procedure TCEMainForm.actProjCompileAndRunExecute(Sender: TObject);
 begin
-  if fProject.compileProject then
-    fProject.runProject;
+  if fNativeProject.compile then
+    fNativeProject.runProject;
 end;
 
 procedure TCEMainForm.actProjCompAndRunWithArgsExecute(Sender: TObject);
 var
   runargs: string;
 begin
-  if not fProject.compileProject then
+  if not fNativeProject.compile then
     exit;
   runargs := '';
   if InputQuery('Execution arguments', '', runargs) then
-    fProject.runProject(runargs);
+    fNativeProject.runProject(runargs);
 end;
 
 procedure TCEMainForm.actProjRunExecute(Sender: TObject);
@@ -1528,21 +1531,21 @@ label
   _rbld,
   _run;
 begin
-  if fProject.currentConfiguration.outputOptions.binaryKind <> executable then
+  if fNativeProject.currentConfiguration.outputOptions.binaryKind <> executable then
   begin
     dlgOkInfo('Non executable projects cant be run');
     exit;
   end;
-  if not fileExists(fProject.outputFilename) then
+  if not fileExists(fNativeProject.getOutputFilename) then
   begin
     if dlgOkCancel('The project output is missing, build ?') <> mrOK then
       exit;
     goto _rbld;
   end;
-  dt := fileAge(fProject.outputFilename);
-  for i := 0 to fProject.Sources.Count-1 do
+  dt := fileAge(fNativeProject.getOutputFilename);
+  for i := 0 to fNativeProject.Sources.Count-1 do
   begin
-    if fileAge(fProject.getAbsoluteSourceName(i)) > dt then
+    if fileAge(fNativeProject.getAbsoluteSourceName(i)) > dt then
       if dlgOkCancel('The project sources have changed since last build, rebuild ?') = mrOK then
         goto _rbld
       else
@@ -1550,10 +1553,10 @@ begin
   end;
   goto _run;
   _rbld:
-    fProject.compileProject;
+    fNativeProject.compile;
   _run:
-    if fileExists(fProject.outputFilename) then
-      fProject.runProject;
+    if fileExists(fNativeProject.getOutputFilename) then
+      fNativeProject.runProject;
 end;
 
 procedure TCEMainForm.actProjRunWithArgsExecute(Sender: TObject);
@@ -1562,7 +1565,7 @@ var
 begin
   runargs := '';
   if InputQuery('Execution arguments', '', runargs) then
-    fProject.runProject(runargs);
+    fNativeProject.runProject(runargs);
 end;
 {$ENDREGION}
 
@@ -1708,58 +1711,73 @@ end;
 {$REGION project ---------------------------------------------------------------}
 procedure TCEMainForm.showProjTitle;
 begin
-  if (fProject <> nil) and fileExists(fProject.Filename) then
-    caption := format('Coedit - %s', [shortenPath(fProject.Filename, 30)])
+  if (fProjectInterface <> nil) and fileExists(fProjectInterface.getFilename) then
+    caption := format('Coedit - %s', [shortenPath(fProjectInterface.getFilename, 30)])
   else
     caption := 'Coedit';
 end;
 
 procedure TCEMainForm.saveProjSource(const aEditor: TCESynMemo);
 begin
-  if fProject = nil then exit;
-  if fProject.fileName <> aEditor.fileName then exit;
+  if fNativeProject = nil then exit;
+  if fNativeProject.fileName <> aEditor.fileName then exit;
   //
-  aEditor.saveToFile(fProject.fileName);
-  openProj(fProject.fileName);
+  aEditor.saveToFile(fNativeProject.fileName);
+  openProj(fNativeProject.fileName);
 end;
 
 procedure TCEMainForm.closeProj;
 begin
-  fProject.Free;
-  fProject := nil;
+  if fProjectInterface = nil then exit;
+  //
+  fProjectInterface.getProject.Free;
+  fProjectInterface := nil;
+  fNativeProject := nil;
+  fDubProject := nil;
   showProjTitle;
 end;
 
-procedure TCEMainForm.newProj;
+procedure TCEMainForm.newNativeProj;
 begin
-  fProject := TCENativeProject.Create(nil);
-  fProject.Name := 'CurrentProject';
+  fNativeProject := TCENativeProject.Create(nil);
+  fNativeProject.Name := 'CurrentProject';
+  fProjectInterface := fNativeProject as ICECommonProject;
+  showProjTitle;
+end;
+
+procedure TCEMainForm.newDubProj;
+begin
+  fDubProject := TCEDubProject.Create(nil);
+  fDubProject.Name := 'CurrentProject';
+  fProjectInterface := fDubProject as ICECommonProject;
   showProjTitle;
 end;
 
 procedure TCEMainForm.saveProj;
 begin
-  fProject.saveToFile(fProject.fileName);
+  fProjectInterface.saveToFile(fNativeProject.fileName);
 end;
 
 procedure TCEMainForm.saveProjAs(const aFilename: string);
 begin
-  fProject.fileName := aFilename;
-  fProject.saveToFile(fProject.fileName);
+  fProjectInterface.saveToFile(aFilename);
   showProjTitle;
 end;
 
 procedure TCEMainForm.openProj(const aFilename: string);
 begin
   closeProj;
-  newProj;
-  fProject.loadFromFile(aFilename);
+  if ExtractFileExt(aFilename) = '.json' then newDubProj
+  else newNativeProj;
+
+  //
+  fProjectInterface.loadFromFile(aFilename);
   showProjTitle;
 end;
 
 procedure TCEMainForm.mruProjItemClick(Sender: TObject);
 begin
-  if fProject <> nil then if fProject.modified then if dlgOkCancel(
+  if fProjectInterface <> nil then if fProjectInterface.getIfModified then if dlgOkCancel(
     'The project modifications are not saved, continue ?')
       = mrCancel then exit;
   openProj(TMenuItem(Sender).Hint);
@@ -1767,17 +1785,17 @@ end;
 
 procedure TCEMainForm.actProjNewExecute(Sender: TObject);
 begin
-  if fProject <> nil then if fProject.modified then if dlgOkCancel(
+  if fProjectInterface <> nil then if fProjectInterface.getIfModified then if dlgOkCancel(
     'The project modifications are not saved, continue ?')
       = mrCancel then exit;
   closeProj;
-  newProj;
+  newNativeProj;
 end;
 
 procedure TCEMainForm.actProjCloseExecute(Sender: TObject);
 begin
-  if fProject = nil then exit;
-  if fProject.modified then if dlgOkCancel(
+  if fProjectInterface = nil then exit;
+  if fProjectInterface.getIfModified then if dlgOkCancel(
     'The project modifications are not saved, continue ?')
       = mrCancel then exit;
   closeProj;
@@ -1785,8 +1803,8 @@ end;
 
 procedure TCEMainForm.addSource(const aFilename: string);
 begin
-  if fProject.Sources.IndexOf(aFilename) >= 0 then exit;
-  fProject.addSource(aFilename);
+  if fNativeProject.Sources.IndexOf(aFilename) >= 0 then exit;
+  fNativeProject.addSource(aFilename);
 end;
 
 procedure TCEMainForm.actProjSaveAsExecute(Sender: TObject);
@@ -1801,13 +1819,14 @@ end;
 
 procedure TCEMainForm.actProjSaveExecute(Sender: TObject);
 begin
-  if fProject.fileName <> '' then saveProj
+  if fProjectInterface = nil then exit;
+  if fProjectInterface.getFilename <> '' then saveProj
   else actProjSaveAs.Execute;
 end;
 
 procedure TCEMainForm.actProjOpenExecute(Sender: TObject);
 begin
-  if fProject <> nil then if fProject.modified then if dlgOkCancel(
+  if fProjectInterface <> nil then if fProjectInterface.getIfModified then if dlgOkCancel(
     'The project modifications are not saved, continue ?')
       = mrCancel then exit;
   with TOpenDialog.Create(nil) do
@@ -1830,10 +1849,10 @@ end;
 
 procedure TCEMainForm.actProjSourceExecute(Sender: TObject);
 begin
-  if fProject = nil then exit;
-  if not fileExists(fProject.fileName) then exit;
+  if fNativeProject = nil then exit;
+  if not fileExists(fNativeProject.fileName) then exit;
   //
-  openFile(fProject.fileName);
+  openFile(fNativeProject.fileName);
   fDoc.Highlighter := LfmSyn;
 end;
 
@@ -1843,7 +1862,7 @@ var
 begin
   lst := TStringList.Create;
   try
-    fProject.getOpts(lst);
+    fNativeProject.getOpts(lst);
     dlgOkInfo(lst.Text);
   finally
     lst.Free;
