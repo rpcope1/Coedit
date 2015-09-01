@@ -22,6 +22,7 @@ type
   TCEDcdWrapper = class(TWritableLfmTextComponent, ICEProjectObserver, ICEMultiDocObserver)
   private
     fTempLines: TStringList;
+    fInputSource: string;
     fImportCache: TStringList;
     //fPortNum: Word;
     fServerWasRunning: boolean;
@@ -31,9 +32,10 @@ type
     fDoc: TCESynMemo;
     fProj: TCENativeProject;
     procedure killServer;
-    procedure terminateClient;
-    procedure waitClient;
+    procedure terminateClient; inline;
+    procedure waitClient; inline;
     procedure updateServerlistening;
+    procedure writeSourceToInput; inline;
     //
     procedure projNew(aProject: ICECommonProject);
     procedure projChanged(aProject: ICECommonProject);
@@ -233,6 +235,13 @@ begin
     sleep(5);
 end;
 
+procedure TCEDcdWrapper.writeSourceToInput;
+begin
+  fInputSource := fDoc.Text;
+  fClient.Input.Write(fInputSource[1], length(fInputSource));
+  fClient.CloseInput;
+end;
+
 procedure TCEDcdWrapper.addImportFolder(const aFolder: string);
 begin
   if not fAvailable then exit;
@@ -252,16 +261,13 @@ begin
   if not fServerListening then exit;
   if fDoc = nil then exit;
   //
-  fTempLines.Assign(fDoc.Lines);
-  fTempLines.SaveToFile(fDoc.tempFilename);
-  //
   terminateClient;
   //
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-c');
   fClient.Parameters.Add(intToStr(fDoc.SelStart - 1));
-  fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
+  writeSourceToInput;
   //
   fTempLines.LoadFromStream(fClient.Output);
   if fTempLines.Count = 0 then
@@ -286,16 +292,13 @@ begin
   if not fServerListening then exit;
   if fDoc = nil then exit;
   //
-  fTempLines.Assign(fDoc.Lines);
-  fTempLines.SaveToFile(fDoc.tempFilename);
-  //
   terminateClient;
   //
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-c');
   fClient.Parameters.Add(intToStr(fDoc.SelStart - 1));
-  fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
+  writeSourceToInput;
   //
   fTempLines.LoadFromStream(fClient.Output);
   if fTempLines.Count = 0 then
@@ -346,17 +349,14 @@ begin
   i := fDoc.MouseStart;
   if i = 0 then exit;
   //
-  fTempLines.Assign(fDoc.Lines);
-  fTempLines.SaveToFile(fDoc.tempFilename);
-  //
   terminateClient;
   //
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-d');
   fClient.Parameters.Add('-c');
   fClient.Parameters.Add(intToStr(i - 1));
-  fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
+  writeSourceToInput;
   //
   aComment := '';
   fTempLines.LoadFromStream(fClient.Output);
@@ -380,17 +380,14 @@ begin
   if not fServerListening then exit;
   if fDoc = nil then exit;
   //
-  fTempLines.Assign(fDoc.Lines);
-  fTempLines.SaveToFile(fDoc.tempFilename);
-  //
   terminateClient;
   //
   fClient.Parameters.Clear;
   fClient.Parameters.Add('-l');
   fClient.Parameters.Add('-c');
   fClient.Parameters.Add(intToStr(fDoc.SelStart - 1));
-  fClient.Parameters.Add(fDoc.tempFilename);
   fClient.Execute;
+  writeSourceToInput;
   //
   str := 'a';
   setlength(str, 256);
