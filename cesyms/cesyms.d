@@ -6,19 +6,28 @@ import std.traits;
 
 void main(string[] args)
 {
-    if (args.length < 2) return;
-    auto fname = args[1];
-    if (!fname.exists) return;
+    // get either the module from stdin or from first arg
+    string fname;
+    ubyte[] source;
+    if (args.length == 1)
+    {
+        source.length = cast(size_t)stdin.size;
+        source = stdin.rawRead(source);
+    }
+    else
+    {
+        fname = args[1];
+        if (!fname.exists) return;
+        source = cast(ubyte[]) read(fname, size_t.max);
+    }
 
     // load and parse the file
     auto config = LexerConfig(fname, StringBehavior.source, WhitespaceBehavior.skip);
-    auto source = cast(ubyte[]) read(fname, size_t.max);
     auto scache = StringCache(StringCache.defaultBucketCount);
-    
     auto ast = parseModule(getTokensForParser(source, config, &scache), fname, null, &(SymbolListBuilder.astError));
 
     // visit each root member
-    auto slb = construct!SymbolListBuilder; 
+    SymbolListBuilder slb = construct!SymbolListBuilder;
     foreach(Declaration decl; ast.declarations)
     {
         slb.resetRoot;

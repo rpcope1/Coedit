@@ -652,14 +652,13 @@ end;
 
 procedure TCESymbolListWidget.callToolProc;
 var
-  srcFname: string;
+  str: string;
 begin
   if not fHasToolExe then exit;
   if fDoc = nil then exit;
   if fDoc.Lines.Count = 0 then exit;
   if not fDoc.isDSource then exit;
-
-  // standard process options
+  //
   killProcess(fToolProc);
   fToolProc := TCEProcess.Create(nil);
   fToolProc.ShowWindow := swoHIDE;
@@ -667,15 +666,10 @@ begin
   fToolProc.Executable := exeFullName(toolExeName);
   fToolProc.OnTerminate := @toolTerminated;
   fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);
-
-  // focused source
-  srcFname := fDoc.fileName;
-  if not fileExists(srcFname) or (srcFname = fDoc.tempFilename) then
-    fDoc.saveTempFile;
-  srcFname := fDoc.fileName;
-  fToolProc.Parameters.Add(srcFname);
-
   fToolProc.Execute;
+  str := fDoc.Text;
+  fToolProc.Input.Write(str[1], length(str));
+  fToolProc.CloseInput;
 end;
 
 procedure TCESymbolListWidget.toolTerminated(sender: TObject);
