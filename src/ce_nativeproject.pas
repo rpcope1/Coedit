@@ -74,7 +74,7 @@ type
     procedure endUpdate;
     procedure reset;
     procedure addDefaults;
-    function isProjectSource(const aFilename: string): boolean;
+    function getIfIsSource(const aFilename: string): boolean;
     function getAbsoluteSourceName(aIndex: integer): string;
     function getAbsoluteFilename(const aFilename: string): string;
     procedure addSource(const aFilename: string);
@@ -395,7 +395,7 @@ begin
   end;
 end;
 
-function TCENativeProject.isProjectSource(const aFilename: string): boolean;
+function TCENativeProject.getIfIsSource(const aFilename: string): boolean;
 var
   i: Integer;
 begin

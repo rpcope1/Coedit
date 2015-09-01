@@ -31,6 +31,7 @@ type
     procedure saveToFile(const aFilename: string);
     function getIfModified: boolean;
     //
+    function getIfIsSource(const aFilename: string): boolean;
     function getOutputFilename: string;
     //
     function getConfigurationCount: integer;
@@ -138,23 +139,32 @@ begin
   exit(fModified);
 end;
 
+function TCEDubProject.getIfIsSource(const aFilename: string): boolean;
+begin
+  //TODO-cDUB: implement
+  exit(false);
+end;
+
 function TCEDubProject.getOutputFilename: string;
 begin
+  //TODO-cDUB: implement
   exit('');
 end;
 
 function TCEDubProject.getConfigurationCount: integer;
 begin
+  //TODO-cDUB: implement
   exit(0);
 end;
 
 procedure TCEDubProject.setActiveConfiguration(index: integer);
 begin
-
+  //TODO-cDUB: implement
 end;
 
 function TCEDubProject.getConfigurationName(index: integer): string;
 begin
+  //TODO-cDUB: implement
   exit('');
 end;
 

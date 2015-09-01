@@ -51,6 +51,8 @@ type
     //function moduleImportCount: integer;
     //function moduleImport(index: integer): string;
 
+    // returns true if aFilename is a project source
+    function getIfIsSource(const aFilename: string): boolean;
     // returns the name of the file produced when a project is compiled
     function getOutputFilename: string;
 

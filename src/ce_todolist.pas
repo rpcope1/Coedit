@@ -81,7 +81,7 @@ type
   private
     fAutoRefresh: Boolean;
     fSingleClick: Boolean;
-    fProj: TCENativeProject;
+    fProj: ICECommonProject;
     fDoc: TCESynMemo;
     fToolProc: TCEProcess;
     fTodos: TTodoItems;
@@ -336,15 +336,12 @@ end;
 {$REGION ICEProjectObserver ----------------------------------------------------}
 procedure TCETodoListWidget.projNew(aProject: ICECommonProject);
 begin
-  fProj := nil;
-  if aProject.getFormat <> pfNative then
-    exit;
-  fProj := TCENativeProject(aProject.getProject);
+  fProj := aProject;
 end;
 
 procedure TCETodoListWidget.projChanged(aProject: ICECommonProject);
 begin
-  if fProj <> aProject.getProject then
+  if fProj <> aProject then
     exit;
   if Visible and fAutoRefresh then
     callToolProcess;
@@ -352,7 +349,7 @@ end;
 
 procedure TCETodoListWidget.projClosing(aProject: ICECommonProject);
 begin
-  if fProj <> aProject.getProject then
+  if fProj <> aProject then
     exit;
   fProj := nil;
   if Visible and fAutoRefresh then
@@ -361,12 +358,9 @@ end;
 
 procedure TCETodoListWidget.projFocused(aProject: ICECommonProject);
 begin
-  if aProject.getProject = fProj then
+  if aProject = fProj then
     exit;
-  fProj := nil;
-  if aProject.getFormat <> pfNative then
-    exit;
-  fProj := TCENativeProject(aProject.getProject);
+  fProj := aProject;
   if Visible and fAutoRefresh then
     callToolProcess;
 end;
@@ -386,7 +380,7 @@ begin
   if ((fProj <> nil) and (fDoc = nil)) then
     exit(tcProject);
   //
-  if fProj.isProjectSource(fDoc.fileName) then
+  if fProj.getIfIsSource(fDoc.fileName) then
     exit(tcProject)
   else
     exit(tcFile);
