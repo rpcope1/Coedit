@@ -393,7 +393,7 @@ begin
   curr := '';
   getDir(0, curr);
   try
-    if curr <> aBasePath then
+    if (curr <> aBasePath) and DirectoryExists(aBasePath) then
       chDir(aBasePath);
     result := expandFileName(aFilename);
   finally
