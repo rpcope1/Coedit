@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, TreeFilterEdit,
   Buttons, math,ce_writableComponent, ce_common, ce_nativeproject, ce_synmemo, GraphType,
-  ce_dlangutils, ce_interfaces, ce_observer;
+  ce_dlangutils, ce_interfaces, ce_observer, ce_symstring;
 
 type
 
@@ -812,7 +812,7 @@ begin
   case idt of
     'ERROR', 'error', 'Error', 'Invalid', 'invalid',
     'exception', 'Exception', 'illegal', 'Illegal',
-    'fatal', 'Fatal', 'Critical', 'critical':
+    'fatal', 'Fatal', 'Critical', 'critical', 'errorlevel':
       exit(amkErr);
     'Warning', 'warning', 'caution', 'Caution', 'warn', 'Warn':
       exit(amkWarn);
@@ -897,26 +897,50 @@ end;
 
 function openFileFromDmdMessage(const aMessage: string): boolean;
 var
-  i: Integer;
-  ident: string;
+  i: integer = 0;
+  ident: string = '';
+  absName: string;
 begin
-  ident := '';
-  i := 0;
   result := false;
-  while(true) do
+  while (true) do
   begin
     inc(i);
     if i > length(aMessage) then
       exit;
-    if (aMessage[i] = '(') or (aMessage[i..i+5] = '-mixin') then
+    // '(': line will be indicated after fname
+    // -mixin: dmd, error in mixin(token string) '<fname>-mixinXX<index>('
+    if isEditable(extractFileExt(ident)) and ((aMessage[i] = '(') or
+      ((aMessage[i] = '-') and (i < length(aMessage)-5)
+        and (aMessage[i..i+5] = '-mixin'))) then
     begin
-      if not fileExists(ident) then
-        exit;
-      if not isEditable(extractFileExt(ident)) then
-        exit;
-      getMultiDocHandler.openDocument(ident);
-      result := true;
+      // absolute fname
+      if fileExists(ident) then
+      begin
+        getMultiDocHandler.openDocument(ident);
+        exit(true);
+      end;
+      // relative fname if project file is the base path to a rel. fname
+      absName := ExpandFileName(ident);
+      if fileExists(absName) then
+      begin
+        getMultiDocHandler.openDocument(absName);
+        exit(true);
+      end;
+      // if fname relative to native project path or project filed 'root'
+      absName := expandFilenameEx(symbolExpander.get('<CPR>') + DirectorySeparator, ident);
+      if fileExists(absName) then
+      begin
+        getMultiDocHandler.openDocument(absName);
+        exit(true);
+      end;
+      absName := expandFilenameEx(symbolExpander.get('<CPP>') + DirectorySeparator, ident);
+      if fileExists(absName) then
+      begin
+        getMultiDocHandler.openDocument(absName);
+        exit(true);
+      end;
     end
+    // <assertion failure messg>@<filename>
     else if aMessage[i] = '@' then
       ident := ''
     else
