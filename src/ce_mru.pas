@@ -210,14 +210,12 @@ end;
 
 procedure TCEMRUProjectList.projClosing(aProject: ICECommonProject);
 var
-  natProj: TCENativeProject;
+  fname: string;
 begin
-  if aProject.getFormat = pfNative then
-  begin
-    natProj := TCENativeProject(aProject.getProject);
-    if FileExists(natProj.fileName) then
-      Insert(0, natProj.fileName);
-  end;
+  if aProject = nil then exit;
+  //
+  fname := aProject.getFilename;
+  if FileExists(fname) then Insert(0, fname);
 end;
 
 initialization
