@@ -37,6 +37,7 @@ type
     procedure ListEdited(Sender: TObject; Item: TListItem; var AValue: string);
   private
     fProj: TCENativeProject;
+    //TODO-cDUB: register a static lib in libman via a DUB project
     procedure updateRegistrable;
     procedure projNew(aProject: ICECommonProject);
     procedure projChanged(aProject: ICECommonProject);

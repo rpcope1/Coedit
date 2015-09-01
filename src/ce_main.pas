@@ -1174,6 +1174,7 @@ end;
 
 procedure TCEMainForm.actFileAddToProjExecute(Sender: TObject);
 begin
+  //TODO-cDUB: update 'add file to project' for a DUB project
   if fDoc = nil then exit;
   if fDoc.isProjectSource then exit;
   if fNativeProject = nil then exit;
@@ -1508,6 +1509,7 @@ end;
 
 procedure TCEMainForm.actProjCompileAndRunExecute(Sender: TObject);
 begin
+  //TODO-cDUB: implement compile proj and run for DUB projects
   if fNativeProject.compile then
     fNativeProject.runProject;
 end;
@@ -1516,6 +1518,7 @@ procedure TCEMainForm.actProjCompAndRunWithArgsExecute(Sender: TObject);
 var
   runargs: string;
 begin
+  // TODO-cDUB: implement compile proj and run with arg for DUB projects
   if not fNativeProject.compile then
     exit;
   runargs := '';
@@ -1531,6 +1534,7 @@ label
   _rbld,
   _run;
 begin
+  // TODO-cDUB: implement proj run for DUB projects
   if fNativeProject.currentConfiguration.outputOptions.binaryKind <> executable then
   begin
     dlgOkInfo('Non executable projects cant be run');
@@ -1564,6 +1568,7 @@ var
   runargs: string;
 begin
   runargs := '';
+  // TODO-cDUB: change to fProjInterface.runProject when sub routine implemented
   if InputQuery('Execution arguments', '', runargs) then
     fNativeProject.runProject(runargs);
 end;
@@ -1719,6 +1724,7 @@ end;
 
 procedure TCEMainForm.saveProjSource(const aEditor: TCESynMemo);
 begin
+  //TODO-cDUB: implement save project source for a DUB json file edited in CE
   if fNativeProject = nil then exit;
   if fNativeProject.fileName <> aEditor.fileName then exit;
   //
@@ -1755,7 +1761,7 @@ end;
 
 procedure TCEMainForm.saveProj;
 begin
-  fProjectInterface.saveToFile(fNativeProject.fileName);
+  fProjectInterface.saveToFile(fProjectInterface.getFilename);
 end;
 
 procedure TCEMainForm.saveProjAs(const aFilename: string);
@@ -1803,6 +1809,7 @@ end;
 
 procedure TCEMainForm.addSource(const aFilename: string);
 begin
+  //TODO-cDUB: add addSource() method to ICECommonProject
   if fNativeProject.Sources.IndexOf(aFilename) >= 0 then exit;
   fNativeProject.addSource(aFilename);
 end;
@@ -1849,6 +1856,7 @@ end;
 
 procedure TCEMainForm.actProjSourceExecute(Sender: TObject);
 begin
+  //TODO-cDUB: add json highligher to edit json project in CE
   if fNativeProject = nil then exit;
   if not fileExists(fNativeProject.fileName) then exit;
   //
