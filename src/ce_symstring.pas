@@ -145,72 +145,57 @@ end;
 {$REGION Symbol things ---------------------------------------------------------}
 procedure TCESymbolExpander.updateSymbols;
 var
-  hasProj: boolean;
+  hasNativeProj: boolean;
+  hasProjItf: boolean;
   hasDoc: boolean;
   fname: string;
   i: Integer;
+  e: TCESymbol;
   str: TStringList;
 const
   na = '``';
 begin
   if not fNeedUpdate then exit;
   fNeedUpdate := false;
-  hasProj := fProj <> nil;
+  //
+  hasNativeProj := fProj <> nil;
+  hasProjItf := fProjInterface <> nil;
   hasDoc := fDoc <> nil;
+  //
+  for e := low(TCESymbol) to high(TCESymbol) do
+    fSymbols[e] := na;
+  //
   // application
   fSymbols[CAF] := Application.ExeName;
-  fSymbols[CAP] := ExtractFilePath(Application.ExeName);
+  fSymbols[CAP] := ExtractFilePath(fSymbols[CAF]);
   // document
   if hasDoc then
   begin
-    if fileExists(fDoc.fileName) then
-    begin
-      fSymbols[CFF] := fDoc.fileName;
-      fSymbols[CFP] := ExtractFilePath(fDoc.fileName);
-    end
-    else
-    begin
-      fSymbols[CFF] := na;
-      fSymbols[CFP] := na;
-    end;
+    if not fileExists(fDoc.fileName) then
+      fDoc.saveTempFile;
+    fSymbols[CFF] := fDoc.fileName;
+    fSymbols[CFP] := ExtractFilePath(fDoc.fileName);
     if fDoc.Identifier <> '' then
-      fSymbols[CI] := fDoc.Identifier
-    else
-      fSymbols[CI] := na;
-  end
-  else
-  begin
-    fSymbols[CFF] := na;
-    fSymbols[CFP] := na;
-    fSymbols[CI] := na;
+      fSymbols[CI] := fDoc.Identifier;
   end;
-  // project
-  if hasProj then
+  // project interface
+  if hasProjItf then
+  begin
+    fSymbols[CPF] := fProjInterface.getFilename;
+    fSymbols[CPP] := ExtractFilePath(fSymbols[CPF]);
+    fSymbols[CPN] := stripFileExt(extractFileName(fSymbols[CPF]));
+  end;
+  // TODO-cDUB: move to upper block expansion of CPO, CPFS & CPCD when implemented in ICECOmmonProject
+  if hasNativeProj then
   begin
     if fileExists(fProj.fileName) then
     begin
-      fSymbols[CPF] := fProjInterface.getFilename;
-      fSymbols[CPP] := ExtractFilePath(fProjInterface.getFilename);
       fSymbols[CPR] := fProj.getAbsoluteFilename(fProj.RootFolder);
-      fSymbols[CPN] := stripFileExt(extractFileName(fProj.fileName));
       fSymbols[CPO] := fProj.getOutputFilename;
       if fSymbols[CPR] = '' then
         fSymbols[CPR] := fSymbols[CPP];
-    end
-    else
-    begin
-      fSymbols[CPF] := na;
-      fSymbols[CPP] := na;
-      fSymbols[CPR] := na;
-      fSymbols[CPN] := na;
-      fSymbols[CPO] := na;
     end;
-    if fProj.Sources.Count = 0 then
-    begin
-      fSymbols[CPFS] := na;
-      fSymbols[CPCD] := na;
-    end
-    else
+    if fProj.Sources.Count <> 0 then
     begin
       str := TStringList.Create;
       try
@@ -230,16 +215,6 @@ begin
         str.Free;
       end;
     end;
-  end
-  else
-  begin
-    fSymbols[CPF] := na;
-    fSymbols[CPP] := na;
-    fSymbols[CPR] := na;
-    fSymbols[CPN] := na;
-    fSymbols[CPO] := na;
-    fSymbols[CPFS] := na;
-    fSymbols[CPCD] := na;
   end;
 end;
 
@@ -292,16 +267,16 @@ begin
           'CAF', 'CoeditApplicationFile': Result += fSymbols[CAF];
           'CAP', 'CoeditApplicationPath': Result += fSymbols[CAP];
           //
-          'CFF', 'CurrentFileFile': Result += fSymbols[CFF];
-          'CFP', 'CurrentFilePath': Result += fSymbols[CFP];
-          'CI', 'CurrentIdentifier': Result += fSymbols[CI];
+          'CFF', 'CurrentFileFile'    : Result += fSymbols[CFF];
+          'CFP', 'CurrentFilePath'    : Result += fSymbols[CFP];
+          'CI', 'CurrentIdentifier'   : Result += fSymbols[CI];
           //
-          'CPF', 'CurrentProjectFile': Result += fSymbols[CPF];
-          'CPFS', 'CurrentProjectFiles': Result += fSymbols[CPFS];
-          'CPN', 'CurrentProjectName': Result += fSymbols[CPN];
-          'CPO', 'CurrentProjectOutput': Result += fSymbols[CPO];
-          'CPP', 'CurrentProjectPath': Result += fSymbols[CPP];
-          'CPR', 'CurrentProjectRoot': Result += fSymbols[CPR];
+          'CPF', 'CurrentProjectFile'   : Result += fSymbols[CPF];
+          'CPFS', 'CurrentProjectFiles' : Result += fSymbols[CPFS];
+          'CPN', 'CurrentProjectName'   : Result += fSymbols[CPN];
+          'CPO', 'CurrentProjectOutput' : Result += fSymbols[CPO];
+          'CPP', 'CurrentProjectPath'   : Result += fSymbols[CPP];
+          'CPR', 'CurrentProjectRoot'   : Result += fSymbols[CPR];
           'CPCD','CurrentProjectCommonDirectory': Result += fSymbols[CPCD];
         end;
     end;
