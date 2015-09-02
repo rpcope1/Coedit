@@ -28,7 +28,7 @@ type
     fRootFolder: string;
     fBasePath: string;
     fLibAliases: TStringList;
-    fOptsColl: TCollection;
+    fConfigs: TCollection;
     fSrcs, fSrcsCop: TStringList;
     fConfIx: Integer;
     fUpdateCount: NativeInt;
@@ -63,7 +63,7 @@ type
       var PropName: string; IsPath: Boolean; var Handled, Skip: Boolean); override;
   published
     property RootFolder: string read fRootFolder write setRoot;
-    property OptionsCollection: TCollection read fOptsColl write setOptsColl;
+    property OptionsCollection: TCollection read fConfigs write setOptsColl;
     property Sources: TStringList read fSrcs write setSrcs; // 'read' should return a copy to avoid abs/rel errors
     property ConfigurationIndex: Integer read fConfIx write setConfIx;
     property LibraryAliases: TStringList read fLibAliases write setLibAliases;
@@ -74,21 +74,28 @@ type
     procedure endUpdate;
     procedure reset;
     procedure addDefaults;
-    function isProjectSource(const aFilename: string): boolean;
+    function getIfIsSource(const aFilename: string): boolean;
     function getAbsoluteSourceName(aIndex: integer): string;
     function getAbsoluteFilename(const aFilename: string): string;
     procedure addSource(const aFilename: string);
     function addConfiguration: TCompilerConfiguration;
     procedure getOpts(const aList: TStrings);
-    function runProject(const runArgs: string = ''): Boolean;
-    function compileProject: Boolean;
+    function run(const runArgs: string = ''): Boolean;
+    function compile: Boolean;
+    //
+    function getIfModified: boolean;
+    function getOutputFilename: string;
+    function getConfigurationCount: integer;
+    procedure setActiveConfiguration(index: integer);
+    function getConfigurationName(index: integer): string;
+    function getFilename: string;
+    function getBinaryKind: TProjectBinaryKind;
     //
     property configuration[ix: integer]: TCompilerConfiguration read getConfig;
     property currentConfiguration: TCompilerConfiguration read getCurrConf;
     property onChange: TNotifyEvent read fOnChange write fOnChange;
     property modified: Boolean read fModified;
     property canBeRun: Boolean read fCanBeRun;
-    property outputFilename: string read fOutputFilename;
   end;
 
   // native project have no ext constraint, this function tells if filename is project
@@ -109,7 +116,7 @@ begin
   fSrcs := TStringList.Create;
   fSrcs.OnChange := @subMemberChanged;
   fSrcsCop := TStringList.Create;
-  fOptsColl := TCollection.create(TCompilerConfiguration);
+  fConfigs := TCollection.create(TCompilerConfiguration);
   //
   reset;
   addDefaults;
@@ -132,7 +139,7 @@ begin
   fLibAliases.Free;
   fSrcs.free;
   fSrcsCop.Free;
-  fOptsColl.free;
+  fConfigs.free;
   killProcess(fRunner);
   inherited;
 end;
@@ -149,7 +156,7 @@ end;
 
 function TCENativeProject.addConfiguration: TCompilerConfiguration;
 begin
-  result := TCompilerConfiguration(fOptsColl.Add);
+  result := TCompilerConfiguration(fConfigs.Add);
   result.onChanged := @subMemberChanged;
 end;
 
@@ -157,8 +164,8 @@ procedure TCENativeProject.setOptsColl(const aValue: TCollection);
 var
   i: nativeInt;
 begin
-  fOptsColl.Assign(aValue);
-  for i:= 0 to fOptsColl.Count-1 do
+  fConfigs.Assign(aValue);
+  for i:= 0 to fConfigs.Count-1 do
     Configuration[i].onChanged := @subMemberChanged;
 end;
 
@@ -226,7 +233,7 @@ procedure TCENativeProject.setConfIx(aValue: Integer);
 begin
   beginUpdate;
   if aValue < 0 then aValue := 0;
-  if aValue > fOptsColl.Count-1 then aValue := fOptsColl.Count-1;
+  if aValue > fConfigs.Count-1 then aValue := fConfigs.Count-1;
   fConfIx := aValue;
   endUpdate;
 end;
@@ -282,31 +289,31 @@ end;
 
 function TCENativeProject.getConfig(const ix: integer): TCompilerConfiguration;
 begin
-  result := TCompilerConfiguration(fOptsColl.Items[ix]);
+  result := TCompilerConfiguration(fConfigs.Items[ix]);
   result.onChanged := @subMemberChanged;
 end;
 
 function TCENativeProject.getCurrConf: TCompilerConfiguration;
 begin
-  result := TCompilerConfiguration(fOptsColl.Items[fConfIx]);
+  result := TCompilerConfiguration(fConfigs.Items[fConfIx]);
 end;
 
 procedure TCENativeProject.addDefaults;
 begin
-  with TCompilerConfiguration(fOptsColl.Add) do
+  with TCompilerConfiguration(fConfigs.Add) do
   begin
     Name := 'debug';
     debugingOptions.debug := true;
     debugingOptions.codeviewCformat := true;
     outputOptions.boundsCheck := onAlways;
   end;
-  with TCompilerConfiguration(fOptsColl.Add) do
+  with TCompilerConfiguration(fConfigs.Add) do
   begin
     Name := 'unittest';
     outputOptions.unittest := true;
     outputOptions.boundsCheck := onAlways;
   end;
-  with TCompilerConfiguration(fOptsColl.Add) do
+  with TCompilerConfiguration(fConfigs.Add) do
   begin
     Name := 'release';
     outputOptions.release := true;
@@ -322,7 +329,7 @@ var
 begin
   beginUpdate;
   fConfIx := 0;
-  fOptsColl.Clear;
+  fConfigs.Clear;
   defConf := addConfiguration;
   defConf.name := 'default';
   fSrcs.Clear;
@@ -389,7 +396,7 @@ begin
   end;
 end;
 
-function TCENativeProject.isProjectSource(const aFilename: string): boolean;
+function TCENativeProject.getIfIsSource(const aFilename: string): boolean;
 var
   i: Integer;
 begin
@@ -635,7 +642,7 @@ begin
   end;
 end;
 
-function TCENativeProject.compileProject: Boolean;
+function TCENativeProject.compile: Boolean;
 var
   config: TCompilerConfiguration;
   compilproc: TProcess;
@@ -649,7 +656,7 @@ begin
   if config = nil then
   begin
     msgs.message('unexpected project error: no active configuration',
-      Self, amcProj, amkErr);
+      self as ICECommonProject, amcProj, amkErr);
     exit;
   end;
   //
@@ -658,7 +665,7 @@ begin
   //
   if not runPrePostProcess(config.preBuildProcess) then
     msgs.message('project warning: the pre-compilation process has not been properly executed',
-      Self, amcProj, amkWarn);
+      self as ICECommonProject, amcProj, amkWarn);
   //
   if (Sources.Count = 0) and (config.pathsOptions.extraSources.Count = 0) then
     exit;
@@ -668,7 +675,7 @@ begin
   olddir := '';
   getDir(0, olddir);
   try
-    msgs.message('compiling ' + prjname, Self, amcProj, amkInf);
+    msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
     prjpath := extractFilePath(fileName);
     if directoryExists(prjpath) then
     begin
@@ -683,14 +690,14 @@ begin
     while compilProc.Running do
       compProcOutput(compilproc);
     if compilproc.ExitStatus = 0 then begin
-      msgs.message(prjname + ' has been successfully compiled', Self, amcProj, amkInf);
+      msgs.message(prjname + ' has been successfully compiled', self as ICECommonProject, amcProj, amkInf);
       result := true;
     end else
-      msgs.message(prjname + ' has not been compiled', Self, amcProj, amkWarn);
+      msgs.message(prjname + ' has not been compiled', self as ICECommonProject, amcProj, amkWarn);
 
     if not runPrePostProcess(config.PostBuildProcess) then
       msgs.message( 'project warning: the post-compilation process has not been properly executed',
-        Self, amcProj, amkWarn);
+        self as ICECommonProject, amcProj, amkWarn);
 
   finally
     updateOutFilename;
@@ -699,7 +706,7 @@ begin
   end;
 end;
 
-function TCENativeProject.runProject(const runArgs: string = ''): Boolean;
+function TCENativeProject.run(const runArgs: string = ''): Boolean;
 var
   prm: string;
   i: Integer;
@@ -722,14 +729,14 @@ begin
     until prm = '';
   end;
   //
-  if not fileExists(outputFilename) then
+  if not fileExists(getOutputFilename) then
   begin
-    getMessageDisplay.message('output executable missing: ' + shortenPath(outputFilename, 25),
-      Self, amcProj, amkErr);
+    getMessageDisplay.message('output executable missing: ' + shortenPath(getOutputFilename, 25),
+      self as ICECommonProject, amcProj, amkErr);
     exit;
   end;
   //
-  fRunner.Executable := outputFilename;
+  fRunner.Executable := getOutputFilename;
   if fRunner.CurrentDirectory = '' then
     fRunner.CurrentDirectory := extractFilePath(fRunner.Executable);
   if poUsePipes in fRunner.Options then begin
@@ -757,7 +764,7 @@ begin
     else
       processOutputToStrings(TProcess(sender), lst);
     for str in lst do
-      msgs.message(str, Self, amcProj, amkBub);
+      msgs.message(str, self as ICECommonProject, amcProj, amkBub);
   finally
     lst.Free;
   end;
@@ -777,10 +784,47 @@ begin
   try
     processOutputToStrings(proc, lst);
     for str in lst do
-      msgs.message(str, Self, amcProj, amkAuto);
+      msgs.message(str, self as ICECommonProject, amcProj, amkAuto);
   finally
     lst.Free;
   end;
+end;
+
+function TCENativeProject.getIfModified: boolean;
+begin
+  exit(fModified);
+end;
+
+function TCENativeProject.getOutputFilename: string;
+begin
+  exit(fOutputFilename);
+end;
+
+function TCENativeProject.getConfigurationCount: integer;
+begin
+  exit(fConfigs.Count);
+end;
+
+procedure TCENativeProject.setActiveConfiguration(index: integer);
+begin
+  setConfIx(index);
+end;
+
+function TCENativeProject.getConfigurationName(index: integer): string;
+begin
+  if index > fConfigs.Count -1 then index := fConfigs.Count -1;
+  if index < 0 then index := 0;
+  result := getConfig(index).name;
+end;
+
+function TCENativeProject.getFilename: string;
+begin
+  exit(fFilename);
+end;
+
+function TCENativeProject.getBinaryKind: TProjectBinaryKind;
+begin
+  exit(currentConfiguration.outputOptions.binaryKind);
 end;
 
 function isValidNativeProject(const filename: string): boolean;

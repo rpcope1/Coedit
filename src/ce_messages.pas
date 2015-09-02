@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, TreeFilterEdit,
-  Buttons, math,ce_writableComponent, ce_common, ce_nativeproject, ce_synmemo, GraphType,
+  Buttons, math,ce_writableComponent, ce_common, ce_synmemo, GraphType,
   ce_dlangutils, ce_interfaces, ce_observer, ce_symstring;
 
 type
@@ -83,7 +83,7 @@ type
     fActCopyMsg: TAction;
     fActSelAll: TAction;
     fMaxMessCnt: Integer;
-    fProj: TCENativeProject;
+    fProj: ICECommonProject;
     fDoc: TCESynMemo;
     fCtxt: TCEAppMessageCtxt;
     fAutoSelect: boolean;
@@ -586,16 +586,13 @@ end;
 {$REGION ICEProjectObserver ----------------------------------------------------}
 procedure TCEMessagesWidget.projNew(aProject: ICECommonProject);
 begin
-  case aProject.getFormat of
-    pfNative: fProj := TCENativeProject(aProject.getProject);
-    pfDub:fProj := nil;
-  end;
+  fProj := aProject;
   filterMessages(fCtxt);
 end;
 
 procedure TCEMessagesWidget.projClosing(aProject: ICECommonProject);
 begin
-  if fProj <> aProject.getProject then
+  if fProj <> aProject then
     exit;
   //
   clearbyData(fProj);
@@ -605,11 +602,8 @@ end;
 
 procedure TCEMessagesWidget.projFocused(aProject: ICECommonProject);
 begin
-  if fProj = aProject.getProject then exit;
-  case aProject.getFormat of
-    pfNative: fProj := TCENativeProject(aProject.getProject);
-    pfDub:fProj := nil;
-  end;
+  if fProj = aProject then exit;
+  fProj := aProject;
   filterMessages(fCtxt);
 end;
 
@@ -795,7 +789,7 @@ begin
       Itm.Visible := true
     else case msgdt^.ctxt of
       amcEdit: itm.Visible := (fDoc  = TCESynMemo(msgdt^.data)) and (aCtxt = amcEdit);
-      amcProj: itm.Visible := (fProj = TCENativeProject(msgdt^.data)) and (aCtxt = amcProj);
+      amcProj: itm.Visible := (fProj = ICECommonProject(msgdt^.data)) and (aCtxt = amcProj);
       amcApp:  itm.Visible := aCtxt = amcApp;
       amcMisc: itm.Visible := aCtxt = amcMisc;
     end;
@@ -927,13 +921,13 @@ begin
         exit(true);
       end;
       // if fname relative to native project path or project filed 'root'
-      absName := expandFilenameEx(symbolExpander.get('<CPR>') + DirectorySeparator, ident);
+      absName := expandFilenameEx(symbolExpander.get('<CPP>') + DirectorySeparator, ident);
       if fileExists(absName) then
       begin
         getMultiDocHandler.openDocument(absName);
         exit(true);
       end;
-      absName := expandFilenameEx(symbolExpander.get('<CPP>') + DirectorySeparator, ident);
+      absName := expandFilenameEx(symbolExpander.get('<CPR>') + DirectorySeparator, ident);
       if fileExists(absName) then
       begin
         getMultiDocHandler.openDocument(absName);

@@ -5,7 +5,8 @@ unit ce_dmdwrap;
 interface
 
 uses
-  classes, sysutils, process, asyncprocess, ce_common, ce_inspectors, ce_processes;
+  classes, sysutils, process, asyncprocess, ce_common, ce_inspectors,
+  ce_processes, ce_interfaces;
 
 (*
 
@@ -104,11 +105,6 @@ type
   TTargetSystem = (auto, os32bit, os64bit);
 
   (**
-   * Describes the output kind.
-   *)
-  TBinaryKind = (executable, staticlib, sharedlib, obj);
-
-  (**
    * Describes the bounds check kinds.
    *)
   TBoundCheckKind = (onAlways, safeOnly, offAlways);
@@ -119,7 +115,7 @@ type
   TOutputOpts = class(TOptsGroup)
   private
     fTrgKind: TTargetSystem;
-    fBinKind: TBinaryKind;
+    fBinKind: TProjectBinaryKind;
     fUnittest: boolean;
     fVerIds: TStringList;
     fInline: boolean;
@@ -135,7 +131,7 @@ type
     procedure setAllInst(const aValue: boolean);
     procedure setUnittest(const aValue: boolean);
     procedure setTrgKind(const aValue: TTargetSystem);
-    procedure setBinKind(const aValue: TBinaryKind);
+    procedure setBinKind(const aValue: TProjectBinaryKind);
     procedure setInline(const aValue: boolean);
     procedure setBoundsCheck(const aValue: TBoundCheckKind);
     procedure setOptims(const aValue: boolean);
@@ -147,7 +143,7 @@ type
   published
     property alwaysLinkStaticLibs: boolean read fAlwayLinkLibs write setAlwaysLinkLibs default false;
     property targetKind: TTargetSystem read fTrgKind write setTrgKind default auto;
-    property binaryKind: TBinaryKind read fBinKind write setBinKind default executable;
+    property binaryKind: TProjectBinaryKind read fBinKind write setBinKind default executable;
     property inlining: boolean read fInline write setInline default false;
     property boundsCheck: TBoundCheckKind read fBoundsCheck write setBoundsCheck default safeOnly;
     property optimizations: boolean read fOptimz write setOptims default false;
@@ -562,7 +558,7 @@ var
   opt: string;
 const
   trgKindStr: array[TTargetSystem] of string = ('', '-m32','-m64');
-  binKindStr: array[TBinaryKind] of string = ('', '-lib', '-shared', '-c');
+  binKindStr: array[TProjectBinaryKind] of string = ('', '-lib', '-shared', '-c');
   bchKindStr: array[TBoundCheckKind] of string = ('on', 'safeonly', 'off');
 begin
   opt := binKindStr[fBinKind];
@@ -657,7 +653,7 @@ begin
   doChanged;
 end;
 
-procedure TOutputOpts.setBinKind(const aValue: TBinaryKind);
+procedure TOutputOpts.setBinKind(const aValue: TProjectBinaryKind);
 begin
   if fBinKind = aValue then exit;
   fBinKind := aValue;

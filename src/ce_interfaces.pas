@@ -13,8 +13,14 @@ type
   // describes the project kind. Used as a hint to cast ICECommonProject.getProject()
   TCEProjectFormat = (pfNative, pfDub);
 
+  // describes the binary kind produces when compiling a project
+  TProjectBinaryKind = (executable, staticlib, sharedlib, obj);
+
   (**
-   * Common project interface
+   * Common project interface.
+   *
+   * Each project format has its own dedicated editors.
+   * The few common properties allow some generic operations whatever is the format.
    *)
   ICECommonProject = interface
   ['ICECommonProject']
@@ -23,12 +29,26 @@ type
     // returns an untyped object that can be casted using getFormat()
     function getProject: TObject;
 
-    //// project file
-    //function filename: string;
-    //procedure loadFromFile(const aFilename: string);
-    //procedure saveToFile(const aFilename: string);
-    //procedure save;
-    //
+    // sub routines for the actions --------------------------------------------
+
+    // tries to compile and returns true if it does
+    function compile: boolean;
+    // tries to un the project and returns true if it did
+    function run(const runArgs: string = ''): boolean;
+
+    // project file - allows main form to create/load/save ---------------------
+
+    // returns the project filename
+    function getFilename: string;
+    // loads project from filename
+    procedure loadFromFile(const aFilename: string);
+    // saves project to filename
+    procedure saveToFile(const aFilename: string);
+    // indicates of the project is modified (should be saved or not)
+    function getIfModified: boolean;
+
+    // various properties used by several widgets (todo ana, dcd, ...)----------
+
     //// common project properties
     //function sourceCount: integer;
     //function source(index: integer): string;
@@ -36,9 +56,23 @@ type
     //function stringImport(index: integer): string;
     //function moduleImportCount: integer;
     //function moduleImport(index: integer): string;
-    //function configurationCount: integer;
-    //function configuration(index: integer): string;
-    //function outputFilename: string;
+
+    // returns true if aFilename is a project source
+    function getIfIsSource(const aFilename: string): boolean;
+    // returns the name of the file produced when a project is compiled
+    function getOutputFilename: string;
+    // returns the binary kind produced according to the current configuration
+    function getBinaryKind: TProjectBinaryKind;
+
+    // configs -----------------------------------------------------------------
+
+    // returns the count of configuration
+    function getConfigurationCount: integer;
+    // sets the active configuration
+    procedure setActiveConfiguration(index: integer);
+    // returns the name of the index-th configuration
+    function getConfigurationName(index: integer): string;
+
   end;
 
   (**

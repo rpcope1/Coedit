@@ -37,6 +37,7 @@ type
     procedure ListEdited(Sender: TObject; Item: TListItem; var AValue: string);
   private
     fProj: TCENativeProject;
+    //TODO-cDUB: register a static lib in libman via a DUB project
     procedure updateRegistrable;
     procedure projNew(aProject: ICECommonProject);
     procedure projChanged(aProject: ICECommonProject);
@@ -204,10 +205,10 @@ begin
     with List.Items.Add do
     begin
       Caption := ExtractFileNameOnly(fProj.Filename);
-      if ExtractFileExt(fProj.outputFilename) <> libExt then
-        SubItems.add(fProj.outputFilename + libExt)
+      if ExtractFileExt(fProj.getOutputFilename) <> libExt then
+        SubItems.add(fProj.getOutputFilename + libExt)
       else
-        SubItems.add(fProj.outputFilename);
+        SubItems.add(fProj.getOutputFilename);
       SubItems.add(root);
       if not FileExists(SubItems[0]) then
         dlgOkInfo('the library file does not exist, maybe the project not been already compiled ?');

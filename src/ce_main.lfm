@@ -3755,7 +3755,7 @@ object CEMainForm: TCEMainForm
     end
     object actProjSource: TAction
       Category = 'Project'
-      Caption = 'View project source'
+      Caption = 'Edit project file'
       ImageIndex = 12
       OnExecute = actProjSourceExecute
       OnUpdate = updateProjectBasedAction
@@ -5037,5 +5037,6 @@ object CEMainForm: TCEMainForm
   object ApplicationProperties1: TApplicationProperties
     OnException = ApplicationProperties1Exception
     left = 96
+    top = 1
   end
 end
