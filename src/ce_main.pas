@@ -244,6 +244,8 @@ type
     procedure SaveSettings;
     procedure LoadDocking;
     procedure SaveDocking;
+    procedure LoadLastDocsAndProj;
+    procedure SaveLastDocsAndProj;
     procedure FreeRunnableProc;
 
     // widget interfaces subroutines
@@ -317,6 +319,26 @@ type
     procedure setTargets(projs: TCEMRUFileList; files: TCEMRUFileList);
   end;
 
+  TCELastDocsAndProjs = class(TWritableLfmTextComponent)
+  private
+    fDocuments: TStringList;
+    fProject: string;
+    //fProjectGRoup: string;
+    procedure setDocuments(aValue: TStringList);
+  protected
+    procedure beforeSave; override;
+    procedure afterLoad; override;
+  published
+    property documents: TStringList read fDocuments write setDocuments;
+    property project: string read fProject write fProject;
+    // property projectGroup: string read fProjectGroup write fProjectGroup;
+  public
+    constructor create(aOwner: TComponent); override;
+    destructor destroy; override;
+    procedure Assign(aSource: TPersistent); override;
+    procedure AssignTo(aDestination: TPersistent); override;
+  end;
+
 var
   CEMainForm: TCEMainForm;
 
@@ -325,6 +347,79 @@ implementation
 
 uses
   SynMacroRecorder, ce_symstring;
+
+{$REGION TCELastDocsAndProjs ---------------------------------------------------}
+constructor TCELastDocsAndProjs.create(aOwner: TComponent);
+begin
+  inherited;
+  fDocuments := TStringList.Create;
+end;
+
+destructor TCELastDocsAndProjs.destroy;
+begin
+  fDocuments.Free;
+  inherited;
+end;
+
+procedure TCELastDocsAndProjs.Assign(aSource: TPersistent);
+var
+  itf: ICECommonProject = nil;
+begin
+  if aSource is TCEMainForm then
+  begin
+    itf := TCEMainForm(aSource).fProjectInterface;
+    if itf = nil then exit;
+    fProject := itf.getFilename;
+  end else
+    inherited;
+end;
+
+procedure TCELastDocsAndProjs.AssignTo(aDestination: TPersistent);
+var
+  itf: ICECommonProject = nil;
+begin
+  if aDestination is TCEMainForm then
+  begin
+    itf := TCEMainForm(aDestination).fProjectInterface;
+    if (itf <> nil) and (itf.getFilename = fProject) then
+      exit;
+    TCEMainForm(aDestination).openProj(fProject);
+  end else
+    inherited;
+end;
+
+procedure TCELastDocsAndProjs.setDocuments(aValue: TStringList);
+begin
+  fDocuments.Assign(aValue);
+end;
+
+procedure TCELastDocsAndProjs.beforeSave;
+var
+  i: integer;
+  mdh: ICEMultiDocHandler;
+  str: string;
+begin
+  mdh := getMultiDocHandler;
+  if mdh = nil then exit;
+  for i:= 0 to mdh.documentCount-1 do
+  begin
+    str := mdh.document[i].fileName;
+    if str <> mdh.document[i].tempFilename then
+      fDocuments.Add(str);
+  end;
+end;
+
+procedure TCELastDocsAndProjs.afterLoad;
+var
+  mdh: ICEMultiDocHandler;
+  str: string;
+begin
+  mdh := getMultiDocHandler;
+  if mdh = nil then exit;
+  for str in fDocuments do
+    mdh.openDocument(str);
+end;
+{$ENDREGION}
 
 {$REGION Actions shortcuts -----------------------------------------------------}
 constructor TCEPersistentMainShortcuts.create(aOwner: TComponent);
@@ -423,6 +518,10 @@ begin
   //
   getCMdParams;
   if fNativeProject = nil then newNativeProj;
+  {$WARNINGS OFF}
+  // TODO-cOptions: reopen last stuff according to an option
+  if false then LoadLastDocsAndProj;
+  {$WARNINGS ON}
   //
   fInitialized := true;
 end;
@@ -766,6 +865,28 @@ begin
       sysutils.DeleteFile(fname);
 end;
 
+procedure TCEMainForm.SaveLastDocsAndProj;
+begin
+  with TCELastDocsAndProjs.create(nil) do
+  try
+    assign(self);
+    saveToFile(getCoeditDocPath + 'lastdocsandproj.txt');
+  finally
+    free;
+  end;
+end;
+
+procedure TCEMainForm.LoadLastDocsAndProj;
+begin
+  with TCELastDocsAndProjs.create(nil) do
+  try
+    loadFromFile(getCoeditDocPath + 'lastdocsandproj.txt');
+    assignTo(self);
+  finally
+    free;
+  end;
+end;
+
 destructor TCEMainForm.destroy;
 begin
   SaveSettings;
@@ -800,6 +921,7 @@ var
   i: Integer;
 begin
   canClose := false;
+  SaveLastDocsAndProj;
   if fProjectInterface <> nil then if fProjectInterface.getIfModified then
     if ce_common.dlgOkCancel(
       'The project modifications are not saved, quit anyway ?') <> mrOK then
