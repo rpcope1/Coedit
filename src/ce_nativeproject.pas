@@ -8,6 +8,9 @@ uses
   {$IFDEF DEBUG}
   LclProc,
   {$ENDIF}
+  {$IFNDEF CEBUILD}
+  ce_dialogs,
+  {$ENDIF}
   Classes, SysUtils, process, strUtils, ce_common, ce_writableComponent,
   ce_dmdwrap, ce_observer, ce_interfaces, ce_processes;
 
@@ -433,6 +436,7 @@ end;
 procedure TCENativeProject.afterLoad;
 var
   hasPatched: Boolean;
+  {$IFNDEF CEBUILD}
   // either all the source files have moved or only the project file
   procedure checkMissingAllSources;
   var
@@ -510,11 +514,13 @@ var
       end;
     end;
   end;
+  {$ENDIF}
 //
 begin
   patchPlateformPaths(fSrcs);
   fModified := false;
   hasPatched := false;
+  {$IFNDEF CEBUILD}
   //
   // TODO-cfeature: a modal form with the file list, green checkers and red crosses to indicate the state
   // and some actions to apply to a particular selection: patch root, remove from project, replace, etc...
@@ -526,6 +532,7 @@ begin
     'paths or file may still exist (-of, -od, extraSources, etc)' +
     'but cannot be automatically handled. Note that the modifications have not been saved.');
   end;
+  {$ENDIF}
   //
   updateOutFilename;
   endUpdate;

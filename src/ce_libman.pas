@@ -5,7 +5,8 @@ unit ce_libman;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, ce_common, ce_writableComponent, ce_dcd;
+  Classes, SysUtils, FileUtil, ce_common, ce_writableComponent, ce_dcd,
+  ce_dialogs;
 
 type
 
@@ -116,7 +117,7 @@ begin
   end;
   if fCol.Count = 0 then
   begin
-    ce_common.dlgOkError(
+    dlgOkError(
       'Coedit failed to automatically add "druntime" and "phobos" to the library manager.'
     + 'These two items have to be added manually following the procedure described in the wiki.'
     );

@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Menus, ComCtrls, Buttons, ce_widget, ce_interfaces, ce_nativeproject, ce_dmdwrap,
-  ce_common;
+  ce_common, ce_dialogs;
 
 type
 

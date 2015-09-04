@@ -13,11 +13,12 @@ uses
   {$IFDEF LINUX}
   ExtCtrls, FileUtil,
   {$ENDIF}
-  dialogs, forms, process, asyncprocess;
+  {$IFNDEF CEBUILD}
+  forms,
+  {$ENDIF}
+  process, asyncprocess;
 
 const
-
-  DdiagFilter = 'D source|*.d|D interface|*.di|All files|*.*';
   exeExt = {$IFDEF WINDOWS} '.exe' {$ELSE} ''   {$ENDIF};
   objExt = {$IFDEF WINDOWS} '.obj' {$ELSE} '.o' {$ENDIF};
   libExt = {$IFDEF WINDOWS} '.lib' {$ELSE} '.a' {$ENDIF};
@@ -100,21 +101,6 @@ type
    * Returns aFilename without its extension.
    *)
   function stripFileExt(const aFilename: string): string;
-
-  (**
-   * Ok/Cancel modal dialog
-   *)
-  function dlgOkCancel(const aMsg: string): TModalResult;
-
-  (**
-   * Info message
-   *)
-  function dlgOkInfo(const aMsg: string): TModalResult;
-
-  (**
-   * Error message
-   *)
-  function dlgOkError(const aMsg: string): TModalResult;
 
   (**
    * Returns an unique object identifier, based on its heap address.
@@ -494,27 +480,6 @@ begin
     exit(aFilename);
 end;
 
-function dlgOkCancel(const aMsg: string): TModalResult;
-const
-  Btns = [mbOK,mbCancel];
-begin
-  exit( MessageDlg('Coedit', aMsg, mtConfirmation, Btns, ''));
-end;
-
-function dlgOkInfo(const aMsg: string): TModalResult;
-const
-  Btns = [mbOK];
-begin
-  exit( MessageDlg('Coedit', aMsg, mtInformation, Btns, ''));
-end;
-
-function dlgOkError(const aMsg: string): TModalResult;
-const
-  Btns = [mbOK];
-begin
-  exit( MessageDlg('Coedit', aMsg, mtError, Btns, ''));
-end;
-
 function uniqueObjStr(const aObject: Tobject): string;
 begin
   {$HINTS OFF}{$WARNINGS OFF}
@@ -753,8 +718,10 @@ begin
   else
   begin
     env := sysutils.GetEnvironmentVariable('PATH');
+    {$IFNDEF CEBUILD}
     if Application <> nil then
       env += PathSeparator + ExtractFileDir(ExtractFilePath(application.ExeName));
+    {$ENDIF}
     exit(ExeSearch(anExeName, env));
   end;
 end;

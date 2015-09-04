@@ -12,7 +12,7 @@ uses
   ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
   ce_search, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist, ce_observer,
   ce_toolseditor, ce_procinput, ce_optionseditor, ce_symlist, ce_mru, ce_processes,
-  ce_infos, ce_dubproject;
+  ce_infos, ce_dubproject, ce_dialogs;
 
 type
 
@@ -911,7 +911,7 @@ end;
 procedure TCEMainForm.ApplicationProperties1Exception(Sender: TObject;E: Exception);
 begin
   if fMesgWidg = nil then
-    ce_common.dlgOkError(E.Message)
+    dlgOkError(E.Message)
   else
     fMsgs.message(E.Message, nil, amcApp, amkErr);
 end;
@@ -923,7 +923,7 @@ begin
   canClose := false;
   SaveLastDocsAndProj;
   if fProjectInterface <> nil then if fProjectInterface.getIfModified then
-    if ce_common.dlgOkCancel(
+    if dlgOkCancel(
       'The project modifications are not saved, quit anyway ?') <> mrOK then
           exit;
   for i := fMultidoc.documentCount-1 downto 0 do

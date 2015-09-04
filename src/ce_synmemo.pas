@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
   SynPluginSyncroEdit, SynCompletion, SynEditKeyCmds, LazSynEditText, SynEdit,
   SynHighlighterLFM, SynEditHighlighter, SynEditMouseCmds, SynEditFoldedView,
-  ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn;
+  ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs;
 
 type
 

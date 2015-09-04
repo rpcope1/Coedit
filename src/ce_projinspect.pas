@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Graphics, actnlist,
   Dialogs, ExtCtrls, ComCtrls, Menus, Buttons, lcltype, ce_nativeproject, ce_interfaces,
-  ce_common, ce_widget, ce_observer;
+  ce_common, ce_widget, ce_observer, ce_dialogs;
 
 type
   TCEProjectInspectWidget = class(TCEWidget, ICEProjectObserver)

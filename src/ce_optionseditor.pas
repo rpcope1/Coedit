@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, RTTIGrids, Forms, Controls, Graphics, ExtCtrls,
-  Menus, ComCtrls, Buttons, ce_common, ce_widget, ce_interfaces,
-  ce_observer, PropEdits, ObjectInspector;
+  Menus, ComCtrls, Buttons, PropEdits, ObjectInspector,
+  ce_common, ce_widget, ce_interfaces, ce_observer, ce_dialogs;
 
 type
 

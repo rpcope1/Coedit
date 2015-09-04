@@ -305,6 +305,16 @@ type
   end;
 
 
+
+  (**
+   * Single service that allows objects with a short life-time
+   * to get the project information.
+   *)
+  //ICEProjectInfos = interface(ICESingleService)
+  //  function getCurrentProjectInterface: ICECommonProject;
+  //end;
+
+
 {
   subject primitives:
 
