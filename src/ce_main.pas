@@ -708,22 +708,22 @@ end;
 
 procedure TCEMainForm.LoadSettings;
 var
-  fname1: string;
+  fname: string;
 begin
   // project and files MRU
-  fname1 := getCoeditDocPath + 'mostrecent.txt';
-  if fileExists(fname1) then with TCEPersistentMainMrus.create(nil) do
+  fname := getCoeditDocPath + 'mostrecent.txt';
+  if fileExists(fname) then with TCEPersistentMainMrus.create(nil) do
   try
     setTargets(fFileMru, fProjMru);
-    loadFromFile(fname1);
+    loadFromFile(fname);
   finally
     Free;
   end;
   // shortcuts for the actions standing in the main action list
-  fname1 := getCoeditDocPath + 'mainshortcuts.txt';
-  if fileExists(fname1) then with TCEPersistentMainShortcuts.create(nil) do
+  fname := getCoeditDocPath + 'mainshortcuts.txt';
+  if fileExists(fname) then with TCEPersistentMainShortcuts.create(nil) do
   try
-    loadFromFile(fname1);
+    loadFromFile(fname);
     assignTo(self);
   finally
     Free;
@@ -973,9 +973,8 @@ procedure TCEMainForm.updateMainMenuProviders;
 var
   i, j: Integer;
   itm: TMenuItem;
-  doneUpdate: boolean;
+  doneUpdate: boolean = false;
 begin
-  doneUpdate := false;
   for j := 0 to fMainMenuSubj.observersCount-1 do
   begin
     // try to update existing entry.
@@ -1157,7 +1156,6 @@ var
     act := nil;
     cat := '';
   end;
-
 begin
   for i:= 0 to fActionHandler.observersCount-1 do
   begin
@@ -1609,10 +1607,9 @@ end;
 
 procedure TCEMainForm.actFileCompAndRunWithArgsExecute(Sender: TObject);
 var
-  runargs: string;
+  runargs: string = '';
 begin
   if fDoc = nil then exit;
-  runargs := '';
   if InputQuery('Execution arguments', '', runargs) then
     compileAndRunFile(false, true, runargs);
 end;
@@ -1639,11 +1636,10 @@ end;
 
 procedure TCEMainForm.actProjCompAndRunWithArgsExecute(Sender: TObject);
 var
-  runargs: string;
+  runargs: string = '';
 begin
   if not fProjectInterface.compile then
     exit;
-  runargs := '';
   if InputQuery('Execution arguments', '', runargs) then
     fProjectInterface.run(runargs);
 end;
@@ -1694,9 +1690,8 @@ end;
 
 procedure TCEMainForm.actProjRunWithArgsExecute(Sender: TObject);
 var
-  runargs: string;
+  runargs: string = '';
 begin
-  runargs := '';
   if InputQuery('Execution arguments', '', runargs) then
     fProjectInterface.run(runargs);
 end;
@@ -1827,9 +1822,8 @@ end;
 
 procedure TCEMainForm.actLayoutSaveExecute(Sender: TObject);
 var
-  fname: string;
+  fname: string = '';
 begin
-  fname := '';
   if not InputQuery('New layout name', '', fname) then
     exit;
   //

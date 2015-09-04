@@ -231,17 +231,14 @@ end;
 
 procedure TCELibManEditorWidget.btnSelFileClick(Sender: TObject);
 var
-  ini: string;
+  ini: string = '';
 begin
   if List.Selected = nil then
     exit;
   if List.Selected.SubItems.Count > 0 then
     ini := List.Selected.SubItems[0]
   else
-  begin
-    ini := '';
     List.Selected.SubItems.Add(ini);
-  end;
   with TOpenDialog.Create(nil) do
     try
       filename := ini;

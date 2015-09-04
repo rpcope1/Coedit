@@ -389,7 +389,6 @@ begin
   fClient.Execute;
   writeSourceToInput;
   //
-  str := 'a';
   setlength(str, 256);
   i := fClient.Output.Read(str[1], 256);
   if i = 0 then

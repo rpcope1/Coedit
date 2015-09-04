@@ -374,9 +374,8 @@ end;
 
 function expandFilenameEx(const aBasePath, aFilename: string): string;
 var
-  curr: string;
+  curr: string = '';
 begin
-  curr := '';
   getDir(0, curr);
   try
     if (curr <> aBasePath) and DirectoryExists(aBasePath) then
@@ -490,11 +489,10 @@ end;
 function shortenPath(const aPath: string; charThresh: Word = 60): string;
 var
   i: NativeInt;
-  sepCnt: NativeInt;
+  sepCnt: integer = 0;
   drv: string;
   pth1: string;
 begin
-  sepCnt := 0;
   if length(aPath) <= charThresh then
     exit(aPath);
 
@@ -729,7 +727,7 @@ end;
 procedure processOutputToStrings(aProcess: TProcess; var aList: TStringList);
 var
   str: TMemoryStream;
-  sum: Integer;
+  sum: Integer = 0;
   cnt: Integer;
   buffSz: Integer;
 begin
@@ -752,7 +750,6 @@ begin
     Detects last line terminator in the accumation.
     Load TStrings from this stream range.
   }
-  sum := 0;
   str := TMemoryStream.Create;
   try
     buffSz := aProcess.PipeBufferSize;
@@ -826,11 +823,9 @@ end;
 
 function getLineEndingLength(const aFilename: string): byte;
 var
-  value: char;
-  le: string;
+  value: char = #0;
+  le: string = LineEnding;
 begin
-  value := #0;
-  le := LineEnding;
   result := length(le);
   if not fileExists(aFilename) then
     exit;

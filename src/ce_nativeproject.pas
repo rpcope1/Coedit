@@ -725,7 +725,6 @@ begin
   currentConfiguration.runOptions.setProcess(fRunner);
   if runArgs <> '' then
   begin
-    prm := '';
     i := 1;
     repeat
       prm := ExtractDelimited(i, runArgs, [' ']);

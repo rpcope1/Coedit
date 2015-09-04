@@ -541,9 +541,8 @@ end;
 procedure TCEMessagesWidget.actCopyMsgExecute(Sender: TObject);
 var
   i: Integer;
-  str: string;
+  str: string = '';
 begin
-  str := '';
   for i := 0 to List.Items.Count-1 do
     if List.Items[i].MultiSelected then
       str += List.Items[i].Text + LineEnding;
@@ -654,7 +653,7 @@ procedure TCEMessagesWidget.message(const aValue: string; aData: Pointer;
   aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
 var
   dt: PMessageData;
-   item: TTreeNode;
+  item: TTreeNode;
 begin
   showWidget;
   if aKind = amkAuto then
@@ -799,8 +798,8 @@ end;
 
 function guessMessageKind(const aMessg: string): TCEAppMessageKind;
 var
-  pos: Integer;
-  idt: string;
+  pos: Integer = 1;
+  idt: string = '';
 function checkIdent: TCEAppMessageKind;
 begin
   case idt of
@@ -820,8 +819,6 @@ begin
   end;
 end;
 begin
-  idt := '';
-  pos := 1;
   result := amkBub;
   while(true) do
   begin
@@ -852,11 +849,10 @@ end;
 function getLineFromMessage(const aMessage: string): TPoint;
 var
   i, j: Integer;
-  ident: string;
+  ident: string = '';
 begin
   result.x := 0;
   result.y := 0;
-  ident := '';
   i := 1;
   while (true) do
   begin

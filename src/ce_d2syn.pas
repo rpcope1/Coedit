@@ -434,7 +434,6 @@ begin
   fAsblrAttrib.Assign(aValue);
 end;
 
-
 procedure TSynD2Syn.setCurrIdent(const aValue: string);
 begin
   if fCurrIdent = aValue then Exit;

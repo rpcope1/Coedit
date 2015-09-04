@@ -559,11 +559,10 @@ end;
 
 procedure TCETodoListWidget.lstItemsCompare(Sender: TObject; item1, item2: TListItem; Data: Integer; var Compare: Integer);
 var
-  txt1, txt2: string;
+  txt1: string = '';
+  txt2: string = '';
   col: Integer;
 begin
-  txt1 := '';
-  txt2 := '';
   col := lstItems.SortColumn;
   if col = 0 then
   begin

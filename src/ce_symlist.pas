@@ -720,9 +720,9 @@ var
   node: TTreeNode;
   i: Integer;
 begin
-  cat   := getCatNode(origin, sym.symType);
+  cat := getCatNode(origin, sym.symType);
   {$HINTS OFF}
-  node  := tree.Items.AddChildObject(cat, sym.name, Pointer(sym.fline));
+  node := tree.Items.AddChildObject(cat, sym.name, Pointer(sym.fline));
   {$HINTS ON}
   if not fShowChildCategories then node := nil;
   cat.Visible:=true;
