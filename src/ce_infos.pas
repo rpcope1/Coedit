@@ -174,6 +174,9 @@ begin
   toolItem := TToolInfo.Construct(self, tikFindable, 'cetodo');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
+  toolItem := TToolInfo.Construct(self, tikFindable, 'dub');
+  toolItem.Parent := boxTools;
+  toolItem.ReAlign;
   toolItem := TToolInfo.Construct(self, tikFindable, 'dmd');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
