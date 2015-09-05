@@ -31,7 +31,7 @@ type
   protected
     property onChange: TNotifyEvent read fOnChange write fOnChange;
   public
-    procedure getOpts(const aList: TStrings); virtual; abstract;
+    procedure getOpts(aList: TStrings; base: TOptsGroup = nil); virtual; abstract;
   end;
 
   (*****************************************************************************
@@ -54,7 +54,7 @@ type
     property JSONFilename: TCEFilename read fJsonFname write setJSONFile;
   public
     procedure assign(aValue: TPersistent); override;
-    procedure getOpts(const aList: TStrings); override;
+    procedure getOpts(aList: TStrings; base: TOptsGroup = nil); override;
   end;
 
 
@@ -96,7 +96,7 @@ type
   public
     constructor create;
     procedure assign(aValue: TPersistent); override;
-    procedure getOpts(const aList: TStrings); override;
+    procedure getOpts(aList: TStrings; base: TOptsGroup = nil); override;
   end;
 
   (**
@@ -158,7 +158,7 @@ type
     constructor create;
     destructor destroy; override;
     procedure assign(aValue: TPersistent); override;
-    procedure getOpts(const aList: TStrings); override;
+    procedure getOpts(aList: TStrings; base: TOptsGroup = nil); override;
   end;
 
   (*****************************************************************************
@@ -179,7 +179,7 @@ type
     procedure setDbgC(const aValue: boolean);
     procedure setGenMap(const aValue: boolean);
     procedure setDbgLevel(const aValue: Integer);
-    procedure setDbgIdents(const aValue: TStringList);
+    procedure setDbgIdents(aValue: TStringList);
   published
     property debug: boolean read fDebug write setDebug default false;
     property debugIdentifiers: TStringList read fDbgIdents write setDbgIdents;
@@ -191,7 +191,7 @@ type
     constructor create;
     destructor destroy; override;
     procedure assign(aValue: TPersistent); override;
-    procedure getOpts(const aList: TStrings); override;
+    procedure getOpts(aList: TStrings;base: TOptsGroup = nil); override;
   end;
 
   (*****************************************************************************
@@ -223,7 +223,7 @@ type
     constructor create;
     destructor destroy; override;
     procedure assign(aValue: TPersistent); override;
-    procedure getOpts(const aList: TStrings); override;
+    procedure getOpts(aList: TStrings; base: TOptsGroup = nil); override;
   end;
 
   (*****************************************************************************
@@ -232,14 +232,14 @@ type
   TOtherOpts = class(TOptsGroup)
   private
     fCustom: TStringList;
-    procedure setCustom(const aValue: TStringList);
+    procedure setCustom(aValue: TStringList);
   published
     property customOptions: TStringList read fCustom write setCustom;
   public
     constructor create;
     destructor destroy; override;
     procedure assign(aValue: TPersistent); override;
-    procedure getOpts(const aList: TStrings); override;
+    procedure getOpts(aList: TStrings; base: TOptsGroup = nil); override;
   end;
 
   (*****************************************************************************
@@ -261,14 +261,14 @@ type
   protected
     property executable: TCEFilename read fExecutable write setExecutable;
     property workingDirectory: TCEPathname read fWorkDir write setWorkDir;
-    property options: TProcessOptions read fOptions write setOptions;
+    property options: TProcessOptions read fOptions write setOptions default [];
     property parameters: TStringList read fParameters write setParameters;
-    property showWindow: TShowWindowOptions read fShowWin write setShowWin;
+    property showWindow: TShowWindowOptions read fShowWin write setShowWin default swoNone;
   public
     constructor create;
     destructor destroy; override;
     procedure assign(source: TPersistent); override;
-    procedure getOpts(const aList: TStrings); override;
+    procedure getOpts(aList: TStrings; base: TOptsGroup = nil); override;
     { TAsyncProcess "Parameters" inherits from UTF8 process,
       and the property reader is not anymore "fParameters" but "fUTF8Parameters"
       without the overload aProcess does not get the Parameters if aProcess is TAsynProcess...}
@@ -318,6 +318,8 @@ type
     fPreProcOpt: TCompileProcOptions;
     fPostProcOpt: TCompileProcOptions;
     fRunProjOpt: TProjectRunOptions;
+    fIsBaseConfiguration: boolean;
+    fIsOverriddenConfiguration: boolean;
     procedure doChanged;
     procedure subOptsChanged(sender: TObject);
     procedure setName(const aValue: string);
@@ -330,6 +332,8 @@ type
     procedure setPreProcOpt(const aValue: TCompileProcOptions);
     procedure setPostProcOpt(const aValue: TCompileProcOptions);
     procedure setRunProjOpt(const aValue: TProjectRunOptions);
+    procedure setisBaseConfiguration(const aValue: boolean);
+    procedure setisOverriddenConfiguration(const aValue: boolean);
   protected
     function nameFromID: string;
   published
@@ -343,11 +347,13 @@ type
     property preBuildProcess: TCompileProcOptions read fPreProcOpt write setPreProcOpt;
     property postBuildProcess: TCompileProcOptions read fPostProcOpt write setPostProcOpt;
     property runOptions: TProjectRunOptions read fRunProjOpt write setRunProjOpt;
+    property isBaseConfiguration: boolean read fIsBaseConfiguration write setisBaseConfiguration default false;
+    property isOverriddenConfiguration: boolean read fIsOverriddenConfiguration write setisOverriddenConfiguration default false;
   public
     constructor create(aCollection: TCollection); override;
     destructor destroy; override;
     procedure assign(aValue: TPersistent); override;
-    procedure getOpts(const aList: TStrings);
+    procedure getOpts(aList: TStrings; base: TCompilerConfiguration = nil);
     property onChanged: TNotifyEvent read fOnChanged write fOnChanged;
   end;
 
@@ -362,16 +368,40 @@ begin
 end;
 
 {$REGION TDocOpts --------------------------------------------------------------}
-procedure TDocOpts.getOpts(const aList: TStrings);
+procedure TDocOpts.getOpts(aList: TStrings; base: TOptsGroup = nil);
+var
+  baseopt: TDocOpts;
 begin
-  if fGenDoc then
-    aList.Add('-D');
-  if fGenJson then
-    aList.Add('-X');
-  if fDocDir <> '' then
-    aList.Add('-Dd' + symbolExpander.get(fDocDir));
-  if fJsonFname <> '' then
-    aList.Add('-Xf' + symbolExpander.get(fJsonFname));
+  if base = nil then
+  begin
+    if fGenDoc then
+      aList.Add('-D');
+    if fGenJson then
+      aList.Add('-X');
+    if fDocDir <> '' then
+      aList.Add('-Dd' + symbolExpander.get(fDocDir));
+    if fJsonFname <> '' then
+      aList.Add('-Xf' + symbolExpander.get(fJsonFname));
+  end else
+  begin
+    baseopt := TDocOpts(base);
+    if baseopt.fGenDoc or fGenDoc then
+      aList.Add('-D');
+    if baseopt.fGenJson or fGenJson then
+      aList.Add('-X');
+    if (baseopt.fDocDir <> '') and (fDocDir <> '') then
+      aList.Add('-Dd' + symbolExpander.get(fDocDir))
+    else if (fDocDir <> '') then
+      aList.Add('-Dd' + symbolExpander.get(fDocDir))
+    else if (baseopt.fDocDir <> '') then
+      aList.Add('-Dd' + symbolExpander.get(baseopt.fDocDir));
+    if (baseopt.fJsonFname <> '') and (fJsonFname <> '') then
+      aList.Add('-Xf' + symbolExpander.get(fJsonFname))
+    else if fJsonFname <> '' then
+      aList.Add('-Xf' + symbolExpander.get(fJsonFname))
+    else if (baseopt.fJsonFname <> '') then
+      aList.Add('-Dd' + symbolExpander.get(baseopt.fJsonFname));
+  end;
 end;
 
 procedure TDocOpts.assign(aValue: TPersistent);
@@ -446,21 +476,38 @@ begin
   fWarnings := true;
 end;
 
-procedure TMsgOpts.getOpts(const aList: TStrings);
+procedure TMsgOpts.getOpts(aList: TStrings; base: TOptsGroup = nil);
 var
-  opt : string;
+  dep, depbase: string;
+  baseopt: TMsgOpts;
 const
   DepStr : array[TDepHandling] of string = ('-d', '', '-de');
 begin
-  opt := DepStr[fDepHandling];
-  if opt <> '' then aList.Add(opt);
-  if fVerbose then aList.Add('-v');
-  if fWarnings then aList.Add('-w');
-  if fWarnEx then aList.Add('-wi');
-  if fVtls then aList.Add('-vtls');
-  if fQuiet then aList.Add('-quiet');
-  if fVgc then aList.Add('-vgc');
-  if fCol then aList.Add('-vcolumns');
+  if base = nil then
+  begin
+    dep := DepStr[fDepHandling];
+    if dep <> '' then aList.Add(dep);
+    if fVerbose then aList.Add('-v');
+    if fWarnings then aList.Add('-w');
+    if fWarnEx then aList.Add('-wi');
+    if fVtls then aList.Add('-vtls');
+    if fQuiet then aList.Add('-quiet');
+    if fVgc then aList.Add('-vgc');
+    if fCol then aList.Add('-vcolumns');
+  end else
+  begin
+    baseopt := TMsgOpts(base);
+    dep := DepStr[fDepHandling];
+    depbase := DepStr[baseopt.fDepHandling];
+    if dep <> depbase then aList.Add(dep) else aList.Add(depbase);
+    if baseopt.fVerbose or fVerbose then aList.Add('-v');
+    if baseopt.fWarnings or fWarnings then aList.Add('-w');
+    if baseopt.fWarnEx or fWarnEx then aList.Add('-wi');
+    if baseopt.fVtls or fVtls then aList.Add('-vtls');
+    if baseopt.fQuiet or fQuiet then aList.Add('-quiet');
+    if baseopt.fVgc or fVgc then aList.Add('-vgc');
+    if baseopt.fCol or fCol then aList.Add('-vcolumns');
+  end;
 end;
 
 procedure TMsgOpts.assign(aValue: TPersistent);
@@ -553,45 +600,51 @@ begin
   inherited;
 end;
 
-procedure TOutputOpts.getOpts(const aList: TStrings);
+procedure TOutputOpts.getOpts(aList: TStrings; base: TOptsGroup = nil);
 var
-  opt: string;
+  str, strbase: string;
+  baseopt: TOutputOpts;
 const
   trgKindStr: array[TTargetSystem] of string = ('', '-m32','-m64');
   binKindStr: array[TProjectBinaryKind] of string = ('', '-lib', '-shared', '-c');
   bchKindStr: array[TBoundCheckKind] of string = ('on', 'safeonly', 'off');
 begin
-  opt := binKindStr[fBinKind];
-  if opt <> '' then aList.Add(opt);
-  opt := trgKindStr[fTrgKind];
-  if opt <> '' then aList.Add(opt);
-  if fUnittest then aList.Add('-unittest');
-  if fInline then aList.Add('-inline');
-  if fOptimz then aList.Add('-O');
-  if fGenStack then aList.Add('-gs');
-  if fStackStomp then aList.Add('-gx');
-  if fAllInst then aList.Add('-allinst');
-  if fAddMain then aList.Add('-main');
-  if fRelease then aList.Add('-release');
-  for opt in fVerIds do begin
-    if length(opt) > 0 then
-      if opt[1] = ';' then
-        continue;
-    if length(opt) > 1 then
-      if opt[1..2] = '//' then
-        continue;
-    aList.Add('-version=' + opt );
-  end;
-  //
-  if fRelease then
-    begin
-      if fBoundsCheck <> safeOnly then
+  if base = nil then
+  begin
+    str := binKindStr[fBinKind];
+    if str <> '' then aList.Add(str);
+    str := trgKindStr[fTrgKind];
+    if str <> '' then aList.Add(str);
+    if fUnittest then aList.Add('-unittest');
+    if fInline then aList.Add('-inline');
+    if fOptimz then aList.Add('-O');
+    if fGenStack then aList.Add('-gs');
+    if fStackStomp then aList.Add('-gx');
+    if fAllInst then aList.Add('-allinst');
+    if fAddMain then aList.Add('-main');
+    if fRelease then aList.Add('-release');
+    for str in fVerIds do begin
+      if length(str) > 0 then
+        if str[1] = ';' then
+          continue;
+      if length(str) > 1 then
+        if str[1..2] = '//' then
+          continue;
+      aList.Add('-version=' + str);
+    end;
+    //
+    if fRelease then
+      begin
+        if fBoundsCheck <> safeOnly then
+          aList.Add('-boundscheck=' + bchKindStr[fBoundsCheck] );
+      end
+    else
+      if fBoundsCheck <> onAlways then
         aList.Add('-boundscheck=' + bchKindStr[fBoundsCheck] );
-    end
-  else
-    if fBoundsCheck <> onAlways then
-      aList.Add('-boundscheck=' + bchKindStr[fBoundsCheck] );
-
+  end else
+  begin
+    //TODO-cNativeProjects: get output options if base config is specified.
+  end;
 end;
 
 procedure TOutputOpts.assign(aValue: TPersistent);
@@ -722,18 +775,25 @@ begin
   inherited;
 end;
 
-procedure TDebugOpts.getOpts(const aList: TStrings);
+procedure TDebugOpts.getOpts(aList: TStrings; base: TOptsGroup = nil);
 var
-  idt: string;
+  idt, idtbase: string;
+  baseopt: TDebugOpts;
 begin
-  if fDebug then aList.Add('-debug');
-  if fDbgLevel <> 0 then
-    aList.Add('-debug=' + intToStr(fDbgLevel));
-  for idt in fDbgIdents do
-    aList.Add('-debug=' + idt);
-  if fDbgD then aList.Add('-g');
-  if fDbgC then aList.Add('-gc');
-  if fGenMap then aList.Add('-map');
+  if base = nil then
+  begin
+    if fDebug then aList.Add('-debug');
+    if fDbgLevel <> 0 then
+      aList.Add('-debug=' + intToStr(fDbgLevel));
+    for idt in fDbgIdents do
+      aList.Add('-debug=' + idt);
+    if fDbgD then aList.Add('-g');
+    if fDbgC then aList.Add('-gc');
+    if fGenMap then aList.Add('-map');
+  end else
+  begin
+    //TODO-cNativeProjects: get debug options if base config is specified.
+  end;
 end;
 
 procedure TDebugOpts.assign(aValue: TPersistent);
@@ -802,7 +862,7 @@ begin
   doChanged;
 end;
 
-procedure TDebugOpts.setDbgIdents(const aValue: TStringList);
+procedure TDebugOpts.setDbgIdents(aValue: TStringList);
 begin
   fDbgIdents.Assign(aValue);
   updateForceDbgBool;
@@ -832,31 +892,38 @@ begin
   // EndUpdate is not called to avoid an infinite loop
 end;
 
-procedure TPathsOpts.getOpts(const aList: TStrings);
+procedure TPathsOpts.getOpts(aList: TStrings; base: TOptsGroup = nil);
 var
   str: string;
   exts: TStringList;
+  baseopt: TPathsOpts;
 begin
-  exts := TStringList.Create;
-  try
-    exts.AddStrings(['.d', '.di', '.dd']);
-    for str in fExtraSrcs do
-    begin
-      str := symbolExpander.get(str);
-      if not listAsteriskPath(str, aList, exts) then
-        aList.Add(str);
+  if base = nil then
+  begin
+    exts := TStringList.Create;
+    try
+      exts.AddStrings(['.d', '.di', '.dd']);
+      for str in fExtraSrcs do
+      begin
+        str := symbolExpander.get(str);
+        if not listAsteriskPath(str, aList, exts) then
+          aList.Add(str);
+      end;
+    finally
+      exts.Free;
     end;
-  finally
-    exts.Free;
+    for str in fImpMod do
+      aList.Add('-I'+ symbolExpander.get(str));
+    for str in fImpStr do
+      aList.Add('-J'+ symbolExpander.get(str));
+    if fFname <> '' then
+      aList.Add('-of' + symbolExpander.get(fFname));
+    if fObjDir <> '' then
+      aList.Add('-od' + symbolExpander.get(fObjDir));
+  end else
+  begin
+    //TODO-cNativeProjects: get paths options if base config is specified.
   end;
-  for str in fImpMod do
-    aList.Add('-I'+ symbolExpander.get(str));
-  for str in fImpStr do
-    aList.Add('-J'+ symbolExpander.get(str));
-  if fFname <> '' then
-    aList.Add('-of' + symbolExpander.get(fFname));
-  if fObjDir <> '' then
-    aList.Add('-od' + symbolExpander.get(fObjDir));
 end;
 
 procedure TPathsOpts.assign(aValue: TPersistent);
@@ -954,27 +1021,34 @@ begin
   inherited;
 end;
 
-procedure TOtherOpts.getOpts(const aList: TStrings);
+procedure TOtherOpts.getOpts(aList: TStrings; base: TOptsGroup = nil);
 var
   str1, str2: string;
+  baseopt: TOtherOpts;
 begin
-  for str1 in fCustom do if str1 <> '' then
+  if base = nil then
+    begin
+    for str1 in fCustom do if str1 <> '' then
+    begin
+      if length(str1) > 0 then
+        if str1[1] = ';' then
+          continue;
+      if length(str1) > 1 then
+        if str1[1..2] = '//' then
+          continue;
+      if str1[1] <> '-' then
+        str2 := '-' + str1
+      else
+        str2 := str1;
+      aList.AddText(symbolExpander.get(str2));
+    end;
+  end else
   begin
-    if length(str1) > 0 then
-      if str1[1] = ';' then
-        continue;
-    if length(str1) > 1 then
-      if str1[1..2] = '//' then
-        continue;
-    if str1[1] <> '-' then
-      str2 := '-' + str1
-    else
-      str2 := str1;
-    aList.AddText(symbolExpander.get(str2));
+    //TODO-cNativeProjects: get others options if base config is specified.
   end;
 end;
 
-procedure TOtherOpts.setCustom(const aValue: TStringList);
+procedure TOtherOpts.setCustom(aValue: TStringList);
 begin
   fCustom.Assign(aValue);
   doChanged;
@@ -1009,12 +1083,13 @@ begin
   else inherited;
 end;
 
-procedure TCustomProcOptions.getOpts(const aList: TStrings);
+procedure TCustomProcOptions.getOpts(aList: TStrings; base: TOptsGroup = nil);
 begin
 end;
 
 procedure TCustomProcOptions.setProcess(var aProcess: TProcess);
 begin
+  //TODO-cNativeProjects: adapt TCustomProcOptions.setProcess to base/override system
   aProcess.Parameters.Clear;
   aProcess.Parameters.AddText(symbolExpander.get(Parameters.Text));
   aProcess.Executable := fExecutable;
@@ -1152,6 +1227,8 @@ begin
     fPreProcOpt.assign(src.fPreProcOpt);
     fPostProcOpt.assign(src.fPostProcOpt);
     fRunProjOpt.assign(src.fRunProjOpt);
+    //
+    // isBase / isOverriden not copied by purpose.
   end
   else inherited;
 end;
@@ -1161,14 +1238,25 @@ begin
   result := format('<configuration %d>', [ID]);
 end;
 
-procedure TCompilerConfiguration.getOpts(const aList: TStrings);
+procedure TCompilerConfiguration.getOpts(aList: TStrings; base: TCompilerConfiguration = nil);
 begin
-  fDocOpts.getOpts(aList);
-  fDebugOpts.getOpts(aList);
-  fMsgOpts.getOpts(aList);
-  fOutputOpts.getOpts(aList);
-  fPathsOpts.getOpts(aList);
-  fOthers.getOpts(aList);
+  if (base = nil) or (base = self) then
+  begin
+    fDocOpts.getOpts(aList);
+    fDebugOpts.getOpts(aList);
+    fMsgOpts.getOpts(aList);
+    fOutputOpts.getOpts(aList);
+    fPathsOpts.getOpts(aList);
+    fOthers.getOpts(aList);
+  end else
+  begin
+    fDocOpts.getOpts(aList, base.fDocOpts);
+    fDebugOpts.getOpts(aList, base.fDebugOpts);
+    fMsgOpts.getOpts(aList, base.fMsgOpts);
+    fOutputOpts.getOpts(aList, base.fOutputOpts);
+    fPathsOpts.getOpts(aList, base.fPathsOpts);
+    fOthers.getOpts(aList, base.fOthers);
+  end;
 end;
 
 procedure TCompilerConfiguration.setName(const aValue: string);
@@ -1234,6 +1322,19 @@ end;
 procedure TCompilerConfiguration.setRunProjOpt(const aValue: TProjectRunOptions);
 begin
   fRunProjOpt.assign(aValue);
+end;
+
+procedure TCompilerConfiguration.setisBaseConfiguration(const aValue: boolean);
+begin
+  fIsBaseConfiguration := aValue;
+  doChanged;
+end;
+
+procedure TCompilerConfiguration.setisOverriddenConfiguration(const aValue: boolean);
+begin
+  fIsBaseConfiguration := false;
+  fIsOverriddenConfiguration := aValue;
+  doChanged;
 end;
 {$ENDREGION}
 

@@ -39,8 +39,10 @@ type
     fRunner: TCEProcess;
     fOutputFilename: string;
     fCanBeRun: boolean;
+    fBaseConfig: TCompilerConfiguration;
     procedure updateOutFilename;
     procedure doChanged;
+    procedure getBaseConfig;
     procedure setLibAliases(const aValue: TStringList);
     procedure subMemberChanged(sender : TObject);
     procedure setOptsColl(const aValue: TCollection);
@@ -241,6 +243,20 @@ begin
   endUpdate;
 end;
 
+procedure TCENativeProject.getBaseConfig;
+var
+  i: integer;
+begin
+  fBaseConfig := nil;
+  for i:= 0 to fConfigs.Count-1 do
+    if configuration[i].isBaseConfiguration then
+      fBaseConfig := configuration[i];
+  for i := 0 to fConfigs.Count-1 do
+    if configuration[i].isBaseConfiguration then
+      if configuration[i] <> fBaseConfig then
+        configuration[i].isBaseConfiguration := false;
+end;
+
 procedure TCENativeProject.subMemberChanged(sender : TObject);
 begin
   beginUpdate;
@@ -275,6 +291,7 @@ var
 begin
   fModified := true;
   updateOutFilename;
+  getBaseConfig;
   subjProjChanged(fProjectSubject, self);
   if assigned(fOnChange) then fOnChange(Self);
   {$IFDEF DEBUG}
@@ -392,7 +409,10 @@ begin
     // but always adds -I<path>
     LibMan.getLibSources(libAliasesPtr, aList);
     // config
-    currentConfiguration.getOpts(aList);
+    if currentConfiguration.isOverriddenConfiguration then
+      currentConfiguration.getOpts(aList, fBaseConfig)
+    else
+      currentConfiguration.getOpts(aList);
   finally
     ex_files.Free;
     ex_folds.Free;
