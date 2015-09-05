@@ -636,7 +636,33 @@ begin
         aList.Add('-boundscheck=' + bchKindStr[fBoundsCheck] );
   end else
   begin
-    //TODO-cNativeProjects: get output options if base config is specified.
+    baseopt := TOutputOpts(base);
+    str := binKindStr[fBinKind];
+    strbase := binKindStr[baseopt.fBinKind];
+    if (str <> strbase) then aList.Add(str) else aList.Add(strbase);
+    str := trgKindStr[fTrgKind];
+    strbase := trgKindStr[baseopt.fTrgKind];
+    if (str <> strbase) then aList.Add(str) else aList.Add(strbase);
+    if baseopt.fUnittest or fUnittest then aList.Add('-unittest');
+    if baseopt.fInline or fInline then aList.Add('-inline');
+    if baseopt.fOptimz or fOptimz then aList.Add('-O');
+    if baseopt.fGenStack or fGenStack then aList.Add('-gs');
+    if baseopt.fStackStomp or fStackStomp then aList.Add('-gx');
+    if baseopt.fAllInst or fAllInst then aList.Add('-allinst');
+    if baseopt.fAddMain or fAddMain then aList.Add('-main');
+    if baseopt.fRelease or fRelease then aList.Add('-release');
+    if (fVerIds.Count > 0) then
+      for str in fVerIds do begin
+        if not isStringDisabled(str) then aList.Add('-version=' + str);
+      end
+    else for str in baseopt.fVerIds do begin
+      if not isStringDisabled(str) then aList.Add('-version=' + str);
+    end;
+    // default values are not handled here, TODO
+    if fBoundsCheck <> baseopt.fBoundsCheck then
+      aList.Add('-boundscheck=' + bchKindStr[fBoundsCheck] )
+    else
+      aList.Add('-boundscheck=' + bchKindStr[baseopt.fBoundsCheck] );
   end;
 end;
 
@@ -785,7 +811,15 @@ begin
     if fGenMap then aList.Add('-map');
   end else
   begin
-    //TODO-cNativeProjects: get debug options if base config is specified.
+    baseopt := TDebugOpts(base);
+    if baseopt.fDebug or fDebug then aList.Add('-debug');
+    if (baseopt.fDbgLevel <> 0) and (fDbgLevel = 0) then
+      aList.Add('-debug=' + intToStr(baseopt.fDbgLevel))
+    else if fDbgLevel <> 0 then
+      aList.Add('-debug=' + intToStr(fDbgLevel));
+    if baseopt.fDbgD or fDbgD then aList.Add('-g');
+    if baseopt.fDbgC or fDbgC then aList.Add('-gc');
+    if baseopt.fGenMap or fGenMap then aList.Add('-map');
   end;
 end;
 
@@ -1035,7 +1069,29 @@ begin
     end;
   end else
   begin
-    //TODO-cNativeProjects: get others options if base config is specified.
+    baseopt := TOtherOpts(base);
+    if fCustom.Count > 0 then
+    begin
+      for str1 in fCustom do if str1 <> '' then
+      begin
+        if isStringDisabled(str1) then
+          continue;
+        if str1[1] <> '-' then
+          str2 := '-' + str1
+        else
+          str2 := str1;
+        aList.AddText(symbolExpander.get(str2));
+      end;
+    end else for str1 in baseopt.fCustom do if str1 <> '' then
+    begin
+      if isStringDisabled(str1) then
+        continue;
+      if str1[1] <> '-' then
+        str2 := '-' + str1
+      else
+        str2 := str1;
+      aList.AddText(symbolExpander.get(str2));
+    end;
   end;
 end;
 
