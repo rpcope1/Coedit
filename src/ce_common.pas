@@ -224,6 +224,13 @@ type
    *)
   function isEditable(const ext: string): boolean;
 
+  (**
+   * Returns true if str starts with a semicolon or a double slash.
+   * This is used to disable TStringList items in several places
+   *)
+  function isStringDisabled(const str: string): boolean;
+
+
 
 implementation
 
@@ -1030,6 +1037,17 @@ begin
   case ext of
     '.d', '.di', '.dd': result := true;
   end;
+end;
+
+function isStringDisabled(const str: string): boolean;
+begin
+  result := false;
+  if str = '' then
+    exit;
+  if str[1] = ';' then
+    result := true;
+  if (length(str) > ) and (str[1..2] = '//') then
+    result := true;
 end;
 
 initialization
