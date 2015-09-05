@@ -1046,7 +1046,7 @@ begin
     exit;
   if str[1] = ';' then
     result := true;
-  if (length(str) > ) and (str[1..2] = '//') then
+  if (length(str) > 1) and (str[1..2] = '//') then
     result := true;
 end;
 
