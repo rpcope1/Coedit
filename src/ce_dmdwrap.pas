@@ -623,15 +623,8 @@ begin
     if fAllInst then aList.Add('-allinst');
     if fAddMain then aList.Add('-main');
     if fRelease then aList.Add('-release');
-    for str in fVerIds do begin
-      if length(str) > 0 then
-        if str[1] = ';' then
-          continue;
-      if length(str) > 1 then
-        if str[1..2] = '//' then
-          continue;
-      aList.Add('-version=' + str);
-    end;
+    for str in fVerIds do
+      if not isStringDisabled(str) then aList.Add('-version=' + str);
     //
     if fRelease then
       begin
@@ -905,6 +898,8 @@ begin
       exts.AddStrings(['.d', '.di', '.dd']);
       for str in fExtraSrcs do
       begin
+        if isStringDisabled(str) then
+          continue;
         str := symbolExpander.get(str);
         if not listAsteriskPath(str, aList, exts) then
           aList.Add(str);
@@ -912,9 +907,9 @@ begin
     finally
       exts.Free;
     end;
-    for str in fImpMod do
+    for str in fImpMod do if not isStringDisabled(str) then
       aList.Add('-I'+ symbolExpander.get(str));
-    for str in fImpStr do
+    for str in fImpStr do if not isStringDisabled(str) then
       aList.Add('-J'+ symbolExpander.get(str));
     if fFname <> '' then
       aList.Add('-of' + symbolExpander.get(fFname));
@@ -1030,12 +1025,8 @@ begin
     begin
     for str1 in fCustom do if str1 <> '' then
     begin
-      if length(str1) > 0 then
-        if str1[1] = ';' then
-          continue;
-      if length(str1) > 1 then
-        if str1[1..2] = '//' then
-          continue;
+      if isStringDisabled(str1) then
+        continue;
       if str1[1] <> '-' then
         str2 := '-' + str1
       else
