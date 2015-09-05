@@ -120,6 +120,7 @@ end;
 
 procedure TCEProjectConfigurationWidget.projClosing(aProject: ICECommonProject);
 begin
+  if fProj = nil then exit;
   if fProj <> aProject.getProject then
     exit;
   inspector.TIObject := nil;
@@ -132,6 +133,7 @@ end;
 
 procedure TCEProjectConfigurationWidget.projChanged(aProject: ICECommonProject);
 begin
+  if fProj = nil then exit;
   if fProj <> aProject.getProject then
     exit;
   if Visible then updateImperative;

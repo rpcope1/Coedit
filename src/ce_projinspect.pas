@@ -159,6 +159,7 @@ end;
 
 procedure TCEProjectInspectWidget.projClosing(aProject: ICECommonProject);
 begin
+  if fProject = nil then exit;
   if fProject <> aProject.getProject then
     exit;
   fProject := nil;
@@ -179,6 +180,7 @@ end;
 
 procedure TCEProjectInspectWidget.projChanged(aProject: ICECommonProject);
 begin
+  if fProject = nil then exit;
   if fProject <> aProject.getProject then
     exit;
   if Visible then beginDelayedUpdate;

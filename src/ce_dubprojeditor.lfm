@@ -1,0 +1,79 @@
+inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
+  Left = 816
+  Height = 417
+  Top = 191
+  Width = 411
+  ClientHeight = 417
+  ClientWidth = 411
+  inherited Back: TPanel
+    Height = 417
+    Width = 411
+    ClientHeight = 417
+    ClientWidth = 411
+    inherited Content: TPanel
+      Height = 417
+      Width = 411
+      ClientHeight = 417
+      ClientWidth = 411
+      object pnlToolBar: TPanel[0]
+        Left = 4
+        Height = 26
+        Top = 2
+        Width = 403
+        Align = alTop
+        BorderSpacing.Left = 2
+        BorderSpacing.Right = 2
+        BorderSpacing.Around = 2
+        BevelOuter = bvNone
+        ClientHeight = 26
+        ClientWidth = 403
+        TabOrder = 0
+        object btnAddProp: TSpeedButton
+          Left = 0
+          Height = 26
+          Hint = 'add an empty configuration'
+          Top = 0
+          Width = 28
+          Align = alLeft
+          Layout = blGlyphBottom
+          ShowCaption = False
+        end
+        object btnDelProp: TSpeedButton
+          Left = 28
+          Height = 26
+          Hint = 'remove selected configuration'
+          Top = 0
+          Width = 28
+          Align = alLeft
+          Layout = blGlyphBottom
+          ShowCaption = False
+        end
+      end
+      object propTree: TTreeView[1]
+        Left = 4
+        Height = 284
+        Top = 32
+        Width = 403
+        Align = alClient
+        BorderSpacing.Around = 4
+        DefaultItemHeight = 18
+        HideSelection = False
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 1
+        OnSelectionChanged = propTreeSelectionChanged
+        Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+      end
+      object edValue: TMemo[2]
+        Left = 4
+        Height = 93
+        Top = 320
+        Width = 403
+        Align = alBottom
+        BorderSpacing.Around = 4
+        ScrollBars = ssAutoVertical
+        TabOrder = 2
+      end
+    end
+  end
+end

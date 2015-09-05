@@ -12,7 +12,7 @@ uses
   ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
   ce_search, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist, ce_observer,
   ce_toolseditor, ce_procinput, ce_optionseditor, ce_symlist, ce_mru, ce_processes,
-  ce_infos, ce_dubproject, ce_dialogs;
+  ce_infos, ce_dubproject, ce_dialogs, ce_dubprojeditor;
 
 type
 
@@ -209,8 +209,13 @@ type
     fOptEdWidg: TCEOptionEditorWidget;
     fSymlWidg: TCESymbolListWidget;
     fInfoWidg: TCEInfoWidget;
+    fDubProjWidg: TCEDubProjectEditorWidget;
 
-    //TODO-cDUB: widget to edit and view, select config of, a DUB project
+    //TODO-cDUB: widget to edit and view, select config of, a DUB project.
+    // DUB format can't be wrapped as published prop so...
+    // ...visually: displayed as a tree. node = prop name.
+    // prop value editor in sync with slected node,
+    // treeview filter. add node, etc.
 
     fInitialized: boolean;
     fRunnableSw: string;
@@ -616,6 +621,7 @@ begin
   fOptEdWidg:= TCEOptionEditorWidget.create(self);
   fSymlWidg := TCESymbolListWidget.create(self);
   fInfoWidg := TCEInfoWidget.create(self);
+  fDubProjWidg:= TCEDubProjectEditorWidget.create(self);
 
   getMessageDisplay(fMsgs);
 
@@ -632,6 +638,7 @@ begin
   fWidgList.addWidget(@fOptEdWidg);
   fWidgList.addWidget(@fSymlWidg);
   fWidgList.addWidget(@fInfoWidg);
+  fWidgList.addWidget(@fDubProjWidg);
   fWidgList.sort(@CompareWidgCaption);
 
   for widg in fWidgList do

@@ -41,6 +41,8 @@ type
     //
     function compile: boolean;
     function run(const runArgs: string = ''): boolean;
+    //
+    property json: TJSONObject read fJson;
   end;
 
 implementation
@@ -112,7 +114,6 @@ begin
     loader.LoadFromFile(fFilename);
     fJSon.Free;
     parser := TJSONParser.Create(loader);
-    subjProjChanged(fProjectSubject, self);
     try
       fJSon := parser.Parse as TJSONObject;
     finally
@@ -120,6 +121,7 @@ begin
     end;
   finally
     loader.Free;
+    subjProjChanged(fProjectSubject, self);
     fModified := false;
   end;
 end;
