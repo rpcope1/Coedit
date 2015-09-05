@@ -154,8 +154,7 @@ end;
 
 procedure TCEToolItem.execute;
 var
-  i: Integer;
-  prms: string;
+  prm: string;
 begin
   ce_processes.killProcess(fProcess);
   //
@@ -171,12 +170,12 @@ begin
   fProcess.CurrentDirectory := symbolExpander.get(fWorkingDir);
   if fQueryParams then
   begin
-    prms := '';
-    if InputQuery('Parameters', '', prms) then
-      if prms <> '' then fProcess.Parameters.DelimitedText := symbolExpander.get(prms);
+    prm := '';
+    if InputQuery('Parameters', '', prm) then
+      if prm <> '' then fProcess.Parameters.DelimitedText := symbolExpander.get(prm);
   end;
-  for i:= 0 to fParameters.Count-1 do
-      fProcess.Parameters.AddText(symbolExpander.get(fParameters.Strings[i]));
+  for prm in fParameters do if not isStringDisabled(prm) then
+    fProcess.Parameters.AddText(symbolExpander.get(prm));
   ensureNoPipeIfWait(fProcess);
   fProcess.Execute;
 end;
