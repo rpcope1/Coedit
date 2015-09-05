@@ -5,7 +5,7 @@ unit ce_dmdwrap;
 interface
 
 uses
-  classes, sysutils, process, asyncprocess, ce_common, ce_inspectors,
+  classes, sysutils, process, asyncprocess, ce_common,
   ce_processes, ce_interfaces;
 
 (*

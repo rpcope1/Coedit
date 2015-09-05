@@ -5,12 +5,9 @@ unit ce_inspectors;
 interface
 
 uses
-  Classes, SysUtils, Dialogs, PropEdits;
+  Classes, SysUtils, Dialogs, PropEdits, ce_common;
 
 type
-
-  TCEPathname = type string;
-  TCEFilename = type string;
 
   TCustomPathType = (ptFile, ptFolder);
 

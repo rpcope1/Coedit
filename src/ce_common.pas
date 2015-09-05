@@ -29,6 +29,10 @@ var
 
 type
 
+  // aliased to get a custom prop inspector
+  TCEPathname = type string;
+  TCEFilename = type string;
+
   (**
    * Workaround for a TAsyncProcess Linux issue: OnTerminate event not called.
    * An idle timer is started when executing and trigs the event if necessary.
