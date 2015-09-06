@@ -186,7 +186,7 @@ var
 begin
   result := false;
   msgs := getMessageDisplay;
-  msgs.clearByData(Self);
+  msgs.clearByData(Self as ICECommonProject);
   prjname := shortenPath(fFilename);
   dubproc := TProcess.Create(nil);
   getDir(0, olddir);

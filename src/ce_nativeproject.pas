@@ -687,7 +687,7 @@ begin
     exit;
   end;
   //
-  msgs.clearByData(Self);
+  msgs.clearByData(self as ICECommonProject);
   subjProjCompiling(fProjectSubject, Self);
   //
   if not runPrePostProcess(config.preBuildProcess) then
