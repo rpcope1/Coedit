@@ -651,13 +651,10 @@ begin
     if baseopt.fAllInst or fAllInst then aList.Add('-allinst');
     if baseopt.fAddMain or fAddMain then aList.Add('-main');
     if baseopt.fRelease or fRelease then aList.Add('-release');
-    if (fVerIds.Count > 0) then
-      for str in fVerIds do begin
-        if not isStringDisabled(str) then aList.Add('-version=' + str);
-      end
-    else for str in baseopt.fVerIds do begin
+    if (fVerIds.Count = 0) then for str in baseopt.fVerIds do begin
       if not isStringDisabled(str) then aList.Add('-version=' + str);
-    end;
+    end else for str in fVerIds do
+      if not isStringDisabled(str) then aList.Add('-version=' + str);
     // default values are not handled here, TODO
     if fBoundsCheck <> baseopt.fBoundsCheck then
       aList.Add('-boundscheck=' + bchKindStr[fBoundsCheck] )
@@ -796,7 +793,7 @@ end;
 
 procedure TDebugOpts.getOpts(aList: TStrings; base: TOptsGroup = nil);
 var
-  idt, idtbase: string;
+  idt: string;
   baseopt: TDebugOpts;
 begin
   if base = nil then
@@ -817,6 +814,9 @@ begin
       aList.Add('-debug=' + intToStr(baseopt.fDbgLevel))
     else if fDbgLevel <> 0 then
       aList.Add('-debug=' + intToStr(fDbgLevel));
+    if fDbgIdents.Count = 0 then
+      for idt in baseopt.fDbgIdents do aList.Add('-debug=' + idt)
+    else for idt in fDbgIdents do aList.Add('-debug=' + idt);
     if baseopt.fDbgD or fDbgD then aList.Add('-g');
     if baseopt.fDbgC or fDbgC then aList.Add('-gc');
     if baseopt.fGenMap or fGenMap then aList.Add('-map');
@@ -924,6 +924,7 @@ var
   str: string;
   exts: TStringList;
   baseopt: TPathsOpts;
+  rightList: TStringList;
 begin
   if base = nil then
   begin
@@ -951,7 +952,43 @@ begin
       aList.Add('-od' + symbolExpander.get(fObjDir));
   end else
   begin
-    //TODO-cNativeProjects: get paths options if base config is specified.
+    baseopt := TPathsOpts(base);
+    if fExtraSrcs.Count = 0 then rightList := baseopt.fExtraSrcs
+    else rightList := fExtraSrcs;
+    exts := TStringList.Create;
+    try
+      exts.AddStrings(['.d', '.di', '.dd']);
+      for str in rightList do
+      begin
+        if isStringDisabled(str) then
+          continue;
+        str := symbolExpander.get(str);
+        if not listAsteriskPath(str, aList, exts) then
+          aList.Add(str);
+      end;
+    finally
+      exts.Free;
+    end;
+    //
+    if fImpMod.Count = 0 then rightList := baseopt.fImpMod
+    else rightList := fImpMod;
+    for str in rightList do if not isStringDisabled(str) then
+      aList.Add('-I'+ symbolExpander.get(str));
+    //
+    if fImpStr.Count = 0 then rightList := baseopt.fImpStr
+    else rightList := fImpStr;
+    for str in rightList do if not isStringDisabled(str) then
+      aList.Add('-J'+ symbolExpander.get(str));
+    //
+    str := '';
+    if fFname <> '' then str := fFname else
+      if baseopt.fFname <> '' then str := baseopt.fFname;
+    if str <> '' then aList.Add('-of' + symbolExpander.get(str));
+    //
+    str := '';
+    if fObjDir <> '' then str := fObjDir else
+      if baseopt.fObjDir <> '' then str := baseopt.fObjDir;
+    if str <> '' then aList.Add('-od' + symbolExpander.get(str));
   end;
 end;
 
@@ -1054,6 +1091,7 @@ procedure TOtherOpts.getOpts(aList: TStrings; base: TOptsGroup = nil);
 var
   str1, str2: string;
   baseopt: TOtherOpts;
+  rightList: TStringList;
 begin
   if base = nil then
     begin
@@ -1070,19 +1108,9 @@ begin
   end else
   begin
     baseopt := TOtherOpts(base);
-    if fCustom.Count > 0 then
-    begin
-      for str1 in fCustom do if str1 <> '' then
-      begin
-        if isStringDisabled(str1) then
-          continue;
-        if str1[1] <> '-' then
-          str2 := '-' + str1
-        else
-          str2 := str1;
-        aList.AddText(symbolExpander.get(str2));
-      end;
-    end else for str1 in baseopt.fCustom do if str1 <> '' then
+    if fCustom.Count = 0 then rightList := baseopt.fCustom
+    else rightList := fCustom;
+    for str1 in rightList do if str1 <> '' then
     begin
       if isStringDisabled(str1) then
         continue;

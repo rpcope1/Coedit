@@ -251,10 +251,13 @@ begin
   for i:= 0 to fConfigs.Count-1 do
     if configuration[i].isBaseConfiguration then
       fBaseConfig := configuration[i];
+  // silently disables any other config. set as base without calling doChange
+  Inc(fUpdateCount);
   for i := 0 to fConfigs.Count-1 do
     if configuration[i].isBaseConfiguration then
       if configuration[i] <> fBaseConfig then
         configuration[i].isBaseConfiguration := false;
+  Dec(fUpdateCount);
 end;
 
 procedure TCENativeProject.subMemberChanged(sender : TObject);
