@@ -86,10 +86,6 @@ type
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
     //
-    function contextName: string; override;
-    function contextActionCount: integer; override;
-    function contextAction(index: integer): TAction; override;
-    //
     procedure actFindNextExecute(sender: TObject);
     procedure actReplaceNextExecute(sender: TObject);
   end;
@@ -171,6 +167,7 @@ constructor TCESearchWidget.Create(aOwner: TComponent);
 var
   fname: string;
 begin
+  inherited;
   fActFindNext := TAction.Create(self);
   fActFindNext.Caption := 'Find';
   fActFindNext.OnExecute := @actFindNextExecute;
@@ -180,7 +177,6 @@ begin
   fActReplaceAll := TAction.Create(self);
   fActReplaceAll.Caption := 'Replace all';
   fActReplaceAll.OnExecute := @actReplaceAllExecute;
-  inherited;
   //
   fSearchMru := TCEMruList.Create;
   fReplaceMru:= TCEMruList.Create;
@@ -220,26 +216,6 @@ end;
 {$ENDREGION}
 
 {$REGION ICEContextualActions---------------------------------------------------}
-function TCESearchWidget.contextName: string;
-begin
-  exit('Search');
-end;
-
-function TCESearchWidget.contextActionCount: integer;
-begin
-  exit(3);
-end;
-
-function TCESearchWidget.contextAction(index: integer): TAction;
-begin
-  case index of
-    0: exit(fActFindNext);
-    1: exit(fActReplaceNext);
-    2: exit(fActReplaceAll);
-    else exit(nil);
-  end;
-end;
-
 function TCESearchWidget.getOptions: TSynSearchOptions;
 begin
   result := [];

@@ -130,7 +130,7 @@ inherited CESearchWidget: TCESearchWidget
         Caption = 'Options'
         ClientHeight = 77
         ClientWidth = 382
-        TabOrder = 3
+        TabOrder = 4
         object chkWWord: TCheckBox
           Left = 8
           Height = 23
@@ -147,7 +147,7 @@ inherited CESearchWidget: TCESearchWidget
           Top = 24
           Width = 75
           Caption = 'backward'
-          TabOrder = 2
+          TabOrder = 1
         end
         object chkFromCur: TCheckBox
           Left = 8
@@ -157,7 +157,7 @@ inherited CESearchWidget: TCESearchWidget
           Caption = 'from cursor'
           Checked = True
           State = cbChecked
-          TabOrder = 3
+          TabOrder = 2
         end
         object chkCaseSens: TCheckBox
           Left = 128
@@ -165,7 +165,7 @@ inherited CESearchWidget: TCESearchWidget
           Top = 0
           Width = 95
           Caption = 'case sensitive'
-          TabOrder = 4
+          TabOrder = 3
         end
         object chkPrompt: TCheckBox
           Left = 128
@@ -173,7 +173,7 @@ inherited CESearchWidget: TCESearchWidget
           Top = 24
           Width = 64
           Caption = 'prompt'
-          TabOrder = 1
+          TabOrder = 4
         end
         object chkRegex: TCheckBox
           Left = 128
@@ -230,7 +230,7 @@ inherited CESearchWidget: TCESearchWidget
           4766E69547FFE69A4EFFE2904122FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
           FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
         }
-        TabOrder = 4
+        TabOrder = 3
       end
       object Panel1: TPanel[5]
         Left = 4
