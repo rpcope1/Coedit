@@ -1515,13 +1515,25 @@ end;
 procedure TCEMainForm.compileAndRunFile(unittest: boolean = false; redirect: boolean = true;
 	const runArgs: string = '');
 var
+  i: integer;
   dmdproc: TCEProcess;
-  fname: string;
+  extraArgs: TStringList;
+  fname, firstlineFlags: string;
 begin
 
   fMsgs.clearByData(fDoc);
   FreeRunnableProc;
   if fDoc = nil then exit;
+  if fDoc.Lines.Count = 0 then exit;
+
+  firstlineFlags := fDoc.Lines[0];
+  i := length(firstlineFlags);
+  if ( i > 18) then
+  begin
+    if UpperCase(firstlineFlags[1..17]) = '#!RUNNABLE-FLAGS:' then
+        firstlineFlags := symbolExpander.get(firstlineFlags[18..i])
+    else firstlineFlags:= '';
+  end else firstlineFlags:= '';
 
   fRunProc := TCEProcess.Create(nil);
   if redirect then
@@ -1537,6 +1549,7 @@ begin
     {$ENDIF}
   end;
 
+  extraArgs := TStringList.Create;
   dmdproc := TCEProcess.Create(nil);
   try
 
@@ -1558,6 +1571,8 @@ begin
     dmdproc.Parameters.Add(fDoc.fileName);
     dmdproc.Parameters.Add('-J' + ExtractFilePath(fDoc.fileName));
     dmdproc.Parameters.AddText(fRunnableSw);
+    CommandToList(firstlineFlags, extraArgs);
+    dmdproc.Parameters.AddStrings(extraArgs);
     if unittest then
     begin
       dmdproc.Parameters.Add('-main');
@@ -1567,6 +1582,7 @@ begin
     dmdproc.Parameters.Add('-of' + fname + exeExt);
     LibMan.getLibFiles(nil, dmdproc.Parameters);
     LibMan.getLibSources(nil, dmdproc.Parameters);
+    deleteDups(dmdproc.Parameters);
     dmdproc.Execute;
     while dmdproc.Running do
       application.ProcessMessages;
@@ -1577,7 +1593,11 @@ begin
         fDoc, amcEdit, amkInf);
       fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
       if runArgs <> '' then
-        fRunProc.Parameters.DelimitedText := symbolExpander.get(runArgs);
+      begin
+        extraArgs.Clear;
+        CommandToList(symbolExpander.get(runArgs), extraArgs);
+        fRunProc.Parameters.AddStrings(extraArgs);
+      end;
       fRunProc.Executable := fname + exeExt;
       if redirect then
       	getprocInputHandler.addProcess(fRunProc);
@@ -1591,6 +1611,7 @@ begin
 
   finally
     dmdproc.Free;
+    extraArgs.Free;
   end;
 end;
 
