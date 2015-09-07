@@ -372,6 +372,8 @@ var
 
 begin
 
+  if aText = '' then exit;
+
   reader.Create(@aText[1], Point(0, 0));
   while (True) do
   begin
