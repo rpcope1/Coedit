@@ -126,13 +126,17 @@ var
   builtTypes: TJSONArray = nil;
   configs: TJSONArray = nil;
   item: TJSONObject = nil;
+  itemname: string;
 begin
   fBuildTypes.Clear;
   fConfigs.Clear;
 
   // configs: builtype0 - config0, builtype0 - config1, ... , builtype0 - configN
   // builtype1 - config0, builtype1 - config1, ... , builtype1 - configN, etc
-  fConfigs.Add('(dub default)'); // default
+
+
+  //fConfigs.Add('(dub default)'); // default
+
   if fJson.Find('configurations') <> nil then
   begin
     configs := fJson.Arrays['configurations'];
@@ -141,7 +145,13 @@ begin
       item := TJSONObject(configs.Items[i]);
       fConfigs.Add(item.Strings['name']);
     end;
+  end else
+  begin
+    fConfigs.Add('(dub default)'); // default
+    // default = what dub set as 'application' or 'library'
+    // in the case a project will pass nothing to DUB: eg DUB --build=release
   end;
+
   fBuildTypes.AddStrings(DubBuiltTypeName);
   if fJson.Find('buildTypes') <> nil then
   begin
@@ -149,7 +159,10 @@ begin
     for i := 0 to builtTypes.Count-1 do
     begin
       item := TJSONObject(builtTypes.Items[i]);
-      fBuildTypes.Add(item.Strings['name']);
+      itemname := item.Strings['name'];
+      // defaults build types can be overridden
+      if fBuildTypes.IndexOf(itemname) <> -1 then continue;
+      fBuildTypes.Add(itemname);
     end;
   end;
   fConfigsCount := fConfigs.Count * fBuildTypes.Count;
