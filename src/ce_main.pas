@@ -369,6 +369,7 @@ type
     function optionedOptionsModified: boolean;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure assign(src: TPersistent); override;
     procedure assignTo(dst: TPersistent); override;
   end;
@@ -388,6 +389,12 @@ begin
   inherited;
   fBackup := TCEApplicationOptionsBase.Create(self);
   EntitiesConnector.addObserver(self);
+end;
+
+destructor TCEApplicationOptions.Destroy;
+begin
+  EntitiesConnector.removeObserver(self);
+  inherited;
 end;
 
 procedure TCEApplicationOptions.assign(src: TPersistent);
@@ -870,7 +877,7 @@ begin
   end;
   // globals opts
   fAppliOpts.assign(self);
-  fAppliOpts.saveToFile(getCoeditDocPath + 'global.txt');
+  fAppliOpts.saveToFile(getCoeditDocPath + 'application.txt');
 end;
 
 procedure TCEMainForm.SaveDocking;
