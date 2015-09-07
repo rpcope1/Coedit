@@ -109,13 +109,14 @@ end;
 procedure TCEProjectConfigurationWidget.projNew(aProject: ICECommonProject);
 begin
   fProj := nil;
+  enabled := false;
   if aProject.getFormat <> pfNative then
     exit;
+  enabled := true;
   //
   fProj := TCENativeProject(aProject.getProject);
   if Visible then updateImperative;
   syncroMode := false;
-  pnlToolBar.Enabled :=true;
 end;
 
 procedure TCEProjectConfigurationWidget.projClosing(aProject: ICECommonProject);
@@ -127,7 +128,7 @@ begin
   inspector.ItemIndex := -1;
   selConf.Clear;
   syncroMode := false;
-  pnlToolBar.Enabled:=false;
+  enabled := false;
   fProj := nil;
 end;
 
@@ -142,11 +143,12 @@ end;
 procedure TCEProjectConfigurationWidget.projFocused(aProject: ICECommonProject);
 begin
   fProj := nil;
+  enabled := false;
   if aProject.getFormat <> pfNative then
     exit;
+  enabled := true;
   //
   fProj := TCENativeProject(aProject.getProject);
-  pnlToolBar.Enabled:=true;
   if Visible then updateImperative;
 end;
 

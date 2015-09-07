@@ -149,9 +149,11 @@ end;
 procedure TCEProjectInspectWidget.projNew(aProject: ICECommonProject);
 begin
   fProject := nil;
+  enabled := false;
   fLastFileOrFolder := '';
   if aProject.getFormat <> pfNative then
     exit;
+  enabled := true;
   //
   fProject := TCENativeProject(aProject.getProject);
   if Visible then updateImperative;
@@ -164,15 +166,18 @@ begin
     exit;
   fProject := nil;
   fLastFileOrFolder := '';
+  enabled := false;
   updateImperative;
 end;
 
 procedure TCEProjectInspectWidget.projFocused(aProject: ICECommonProject);
 begin
   fProject := nil;
+  enabled := false;
   fLastFileOrFolder := '';
   if aProject.getFormat <> pfNative then
     exit;
+  enabled := true;
   //
   fProject := TCENativeProject(aProject.getProject);
   if Visible then beginDelayedUpdate;
@@ -398,7 +403,6 @@ begin
   fXtraNode.DeleteChildren;
   //
   hasProj := fProject <> nil;
-  pnlToolBar.Enabled := hasProj;
   if not hasProj then exit;
   //
   Tree.BeginUpdate;

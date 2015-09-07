@@ -3,7 +3,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
   Height = 273
   Top = 296
   Width = 445
-  Caption = 'Project configuration'
+  Caption = 'Native project configuration'
   ClientHeight = 273
   ClientWidth = 445
   inherited Back: TPanel
@@ -31,14 +31,14 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
         TabOrder = 0
         object selConf: TComboBox
           Left = 0
-          Height = 25
+          Height = 23
           Hint = 'select a configuration'
           Top = 1
           Width = 324
           Align = alClient
           BorderSpacing.Top = 1
           BorderSpacing.Right = 1
-          ItemHeight = 0
+          ItemHeight = 15
           OnChange = selConfChange
           Style = csDropDownList
           TabOrder = 0
@@ -103,6 +103,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
           Width = 160
           Align = alLeft
           AutoExpand = True
+          DefaultItemHeight = 18
           HideSelection = False
           ReadOnly = True
           ScrollBars = ssAutoBoth

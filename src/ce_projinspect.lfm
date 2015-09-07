@@ -1,10 +1,10 @@
 inherited CEProjectInspectWidget: TCEProjectInspectWidget
-  Left = 1563
+  Left = 960
   Height = 258
-  Top = 8
+  Top = 260
   Width = 341
   AllowDropFiles = True
-  Caption = 'Project inspector'
+  Caption = 'Native project inspector'
   ClientHeight = 258
   ClientWidth = 341
   OnDropFiles = FormDropFiles
@@ -27,6 +27,7 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
         Align = alClient
         AutoExpand = True
         BorderSpacing.Around = 2
+        DefaultItemHeight = 18
         Images = imgList
         ReadOnly = True
         RightClickSelect = True
