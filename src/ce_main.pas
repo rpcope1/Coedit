@@ -16,6 +16,8 @@ uses
 
 type
 
+  TCEApplicationOptions = class;
+
   { TCEMainForm }
   TCEMainForm = class(TForm, ICEMultiDocObserver, ICEEditableShortCut)
     actFileCompAndRun: TAction;
@@ -222,6 +224,7 @@ type
     fRunProc: TCEProcess;
     fMsgs: ICEMessagesDisplay;
     fMainMenuSubj: TCEMainMenuSubject;
+    fAppliOpts: TCEApplicationOptions;
     procedure updateMainMenuProviders;
 
     // action provider handling;
@@ -344,6 +347,32 @@ type
     procedure AssignTo(aDestination: TPersistent); override;
   end;
 
+  TCEApplicationOptionsBase = class(TWritableLfmTextComponent)
+  private
+    fReloadLastDocuments: boolean;
+    fMaxRecentProjs: integer;
+    fMaxRecentDocs: integer;
+  published
+    property reloadLastDocuments: boolean read fReloadLastDocuments write fReloadLastDocuments;
+    property maxRecentProjects: integer read fMaxRecentProjs write fMaxRecentProjs;
+    property maxRecentDocuments: integer read fMaxRecentDocs write fMaxRecentDocs;
+  end;
+
+  TCEApplicationOptions = class(TCEApplicationOptionsBase, ICEEditableOptions)
+  private
+    fBackup:TCEApplicationOptionsBase;
+    //
+    function optionedWantCategory(): string;
+    function optionedWantEditorKind: TOptionEditorKind;
+    function optionedWantContainer: TPersistent;
+    procedure optionedEvent(anEvent: TOptionEditorEvent);
+    function optionedOptionsModified: boolean;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure assign(src: TPersistent); override;
+    procedure assignTo(dst: TPersistent); override;
+  end;
+
 var
   CEMainForm: TCEMainForm;
 
@@ -352,6 +381,76 @@ implementation
 
 uses
   SynMacroRecorder, ce_symstring;
+
+{$REGION TCEApplicationOptions ------------------------------------------------------}
+constructor TCEApplicationOptions.Create(AOwner: TComponent);
+begin
+  inherited;
+  fBackup := TCEApplicationOptionsBase.Create(self);
+  EntitiesConnector.addObserver(self);
+end;
+
+procedure TCEApplicationOptions.assign(src: TPersistent);
+begin
+  if src = CEMainForm then
+  begin
+    fMaxRecentProjs:= CEMainForm.fProjMru.maxCount;
+    fMaxRecentDocs:= CEMainForm.fFileMru.maxCount;
+  end else if src = fBackup then
+  begin
+    fMaxRecentDocs:= fBackup.fMaxRecentDocs;
+    fMaxRecentProjs:= fBackup.fMaxRecentProjs;
+    fReloadLastDocuments:=fBackup.fReloadLastDocuments;
+  end
+  else inherited;
+end;
+
+procedure TCEApplicationOptions.assignTo(dst: TPersistent);
+begin
+  if dst = CEMainForm then
+  begin
+   CEMainForm.fProjMru.maxCount := fMaxRecentProjs;
+   CEMainForm.fFileMru.maxCount := fMaxRecentDocs;
+  end else if dst = fBackup then
+  begin
+    fBackup.fMaxRecentDocs:= fMaxRecentDocs;
+    fBackup.fMaxRecentProjs:= fMaxRecentProjs;
+    fBackup.fReloadLastDocuments:=fReloadLastDocuments;
+  end
+  else inherited;
+end;
+
+function TCEApplicationOptions.optionedWantCategory(): string;
+begin
+  exit('Application');
+end;
+
+function TCEApplicationOptions.optionedWantEditorKind: TOptionEditorKind;
+begin
+  exit(oekGeneric);
+end;
+
+function TCEApplicationOptions.optionedWantContainer: TPersistent;
+begin
+  AssignTo(fBackup);
+  exit(self);
+end;
+
+procedure TCEApplicationOptions.optionedEvent(anEvent: TOptionEditorEvent);
+begin
+  case anEvent of
+    oeeCancel: begin Assign(fBackup); AssignTo(CEMainForm); end;
+    oeeAccept: begin AssignTo(CEMainForm); AssignTo(fBackup);end;
+    oeeSelectCat: begin Assign(CEMainForm); AssignTo(fBackup); end;
+    oeeChange: AssignTo(CEMainForm);
+  end;
+end;
+
+function TCEApplicationOptions.optionedOptionsModified: boolean;
+begin
+  exit(false);
+end;
+{$ENDREGION}
 
 {$REGION TCELastDocsAndProjs ---------------------------------------------------}
 constructor TCELastDocsAndProjs.create(aOwner: TComponent);
@@ -523,10 +622,9 @@ begin
   //
   getCMdParams;
   if fNativeProject = nil then newNativeProj;
-  {$WARNINGS OFF}
-  // TODO-cOptions: reopen last stuff according to an option
-  if false then LoadLastDocsAndProj;
-  {$WARNINGS ON}
+
+  if fAppliOpts.reloadLastDocuments then
+    LoadLastDocsAndProj;
   //
   fInitialized := true;
 end;
@@ -735,6 +833,19 @@ begin
   finally
     Free;
   end;
+  // globals opts
+  fAppliOpts := TCEApplicationOptions.Create(self);
+  fname := getCoeditDocPath + 'application.txt';
+  if fileExists(fname) then
+  begin
+    fAppliOpts.loadFromFile(fname);
+    fAppliOpts.assignTo(self);
+  end;
+end;
+
+procedure initGlobalOpts;
+begin
+
 end;
 
 procedure TCEMainForm.SaveSettings;
@@ -757,6 +868,9 @@ begin
   finally
     Free;
   end;
+  // globals opts
+  fAppliOpts.assign(self);
+  fAppliOpts.saveToFile(getCoeditDocPath + 'global.txt');
 end;
 
 procedure TCEMainForm.SaveDocking;
