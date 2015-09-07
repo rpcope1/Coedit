@@ -373,6 +373,8 @@ end;
 procedure TCEEditorWidget.updateImperative;
 const
   modstr: array[boolean] of string = ('...', 'MODIFIED');
+//var
+  //md: string;
 begin
   if fDoc = nil then begin
     editorStatus.Panels[0].Text := '';
@@ -382,6 +384,19 @@ begin
     editorStatus.Panels[0].Text := format('%d : %d | %d', [fDoc.CaretY, fDoc.CaretX, fDoc.SelEnd - fDoc.SelStart]);
     editorStatus.Panels[1].Text := modstr[fDoc.modified];
     editorStatus.Panels[2].Text := fDoc.fileName;
+    // TODO-cEditor: set tab caption directly (e.g one start, if reload last docs)
+    //if Visible then if pageControl.ActivePage <> nil then
+    //if pageControl.ActivePage.Caption = '' then
+    //begin
+    //  if fDoc.isDSource then
+    //  begin
+    //    lex(fDoc.Lines.Text, fTokList, @lexFindToken);
+    //    md := getModuleName(fTokList);
+    //    fTokList.Clear;
+    //  end;
+    //  if md = '' then md := extractFileName(fDoc.fileName);
+    //  pageControl.ActivePage.Caption := md;
+    //end;
   end;
 end;
 
@@ -408,10 +423,13 @@ begin
   fKeyChanged := false;
   if fDoc.Lines.Count = 0 then exit;
   //
-  lex(fDoc.Lines.Text, fTokList, @lexFindToken);
   md := '';
   if fDoc.isDSource then
+  begin
+    fTokList.Clear;
+    lex(fDoc.Lines.Text, fTokList, @lexFindToken);
     md := getModuleName(fTokList);
+  end;
   if md = '' then md := extractFileName(fDoc.fileName);
   pageControl.ActivePage.Caption := md;
   //
