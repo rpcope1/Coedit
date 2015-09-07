@@ -15,15 +15,25 @@ type
 
   TCEDubProjectEditorWidget = class(TCEWidget, ICEProjectObserver)
     btnAddProp: TSpeedButton;
+    btnAddProp1: TSpeedButton;
     btnDelProp: TSpeedButton;
+    btnDelProp1: TSpeedButton;
     edValue: TMemo;
+    PageControl1: TPageControl;
     pnlToolBar: TPanel;
+    pnlToolBar1: TPanel;
     propTree: TTreeView;
+    treeInspect: TTreeView;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
     procedure propTreeSelectionChanged(Sender: TObject);
   private
     fSelectedNode: TTreeNode;
     fProj: TCEDubProject;
-    procedure updateGui;
+    fNodeSources: TTreeNode;
+    fNodeConfig: TTreeNode;
+    procedure updateEditor;
+    procedure updateInspector;
     procedure updateValueEditor;
     procedure setJsonValueFromEditor;
     //
@@ -36,18 +46,26 @@ type
   protected
     procedure SetVisible(Value: boolean); override;
   public
+    constructor create(aOwner: TComponent); override;
   end;
 
 implementation
 {$R *.lfm}
 
 {$REGION  Standard Comp/Obj ----------------------------------------------------}
+constructor TCEDubProjectEditorWidget.create(aOwner: TComponent);
+begin
+  inherited;
+  fNodeSources := treeInspect.Items[0];
+  fNodeConfig := treeInspect.Items[1];
+end;
+
 procedure TCEDubProjectEditorWidget.SetVisible(Value: boolean);
 begin
   inherited;
   if not Value then exit;
   //
-  updateGui;
+  updateEditor;
 end;
 {$ENDREGION}
 
@@ -55,8 +73,10 @@ end;
 procedure TCEDubProjectEditorWidget.projNew(aProject: ICECommonProject);
 begin
   fProj := nil;
+  enabled := false;
   if aProject.getFormat <> pfDub then
     exit;
+  enabled := true;
   fProj := TCEDubProject(aProject.getProject);
   //
 end;
@@ -67,9 +87,11 @@ begin
     exit;
   if aProject.getProject <> fProj then
     exit;
-  //
-  if Visible then
-    updateGui;
+  if not Visible then
+    exit;
+
+  updateEditor;
+  updateInspector;
 end;
 
 procedure TCEDubProjectEditorWidget.projClosing(aProject: ICECommonProject);
@@ -80,18 +102,24 @@ begin
     exit;
   fProj := nil;
   //
-  updateGui;
+  updateEditor;
+  updateInspector;
+  enabled := false;
 end;
 
 procedure TCEDubProjectEditorWidget.projFocused(aProject: ICECommonProject);
 begin
   fProj := nil;
+  enabled := false;
   if aProject.getFormat <> pfDub then
     exit;
   fProj := TCEDubProject(aProject.getProject);
-  //
-  if Visible then
-    updateGui;
+  enabled := true;
+  if not Visible then
+    exit;
+
+  updateEditor;
+  updateInspector;
 end;
 
 procedure TCEDubProjectEditorWidget.projCompiling(aProject: ICECommonProject);
@@ -99,7 +127,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION GUI -------------------------------------------------------------------}
+{$REGION Editor ----------------------------------------------------------------}
 procedure TCEDubProjectEditorWidget.propTreeSelectionChanged(Sender: TObject);
 begin
   fSelectedNode := nil;
@@ -168,7 +196,7 @@ begin
   end;
 end;
 
-procedure TCEDubProjectEditorWidget.updateGui;
+procedure TCEDubProjectEditorWidget.updateEditor;
 
   procedure addPropsFrom(node: TTreeNode; data: TJSONData);
   var
@@ -202,6 +230,25 @@ begin
   propTree.BeginUpdate;
   addPropsFrom(propTree.Items.Add(nil, 'project'), fProj.json);
   propTree.EndUpdate;
+end;
+{$ENDREGION}
+
+{$REGION Inspector -------------------------------------------------------------}
+procedure TCEDubProjectEditorWidget.updateInspector;
+var
+  i: integer;
+begin
+  if (fNodeConfig = nil) or (fNodeSources = nil) then
+    exit;
+  //
+  fNodeConfig.DeleteChildren;
+  fNodeSources.DeleteChildren;
+  //
+  if (fProj = nil) then
+    exit;
+  //
+  for i:= 0 to fProj.getConfigurationCount -1 do
+    treeInspect.Items.AddChild(fNodeConfig, fProj.getConfigurationName(i));
 end;
 {$ENDREGION}
 

@@ -10,13 +10,23 @@ uses
 
 type
 
+  TUpdaterTarget = (configs, files);
+
   TCEDubProject = class(TComponent, ICECommonProject)
   private
     fFilename: string;
     fModified: boolean;
     fJson: TJSONObject;
     fProjectSubject: TCEProjectSubject;
+    fConfigsCount: integer;
+    fBuildTypes: TStringList;
+    fConfigs: TStringList;
+    fBuiltTypeIx: integer;
+    fConfigIx: integer;
     //
+    procedure updateFields;
+    procedure udpateConfigsFromJson;
+    procedure updateSourcesFromJson;
     procedure dubProcOutput(proc: TProcess);
     //
     function getFormat: TCEProjectFormat;
@@ -45,12 +55,23 @@ type
     property json: TJSONObject read fJson;
   end;
 
+  // these 9 built types alway exist
+  TDubBuildType = (plain, debug, release, unittest, docs, ddox, profile, cov, unittestcov);
+
+const
+
+  DubBuiltTypeName: array[TDubBuildType] of string = ('plain', 'debug', 'release',
+    'unittest', 'docs', 'ddox', 'profile', 'cov', 'unittest-cov'
+  );
+
 implementation
 
 constructor TCEDubProject.create(aOwner: TComponent);
 begin
   inherited;
   fProjectSubject := TCEProjectSubject.Create;
+  fBuildTypes := TStringList.Create;
+  fConfigs := TStringList.Create;
   //
   subjProjNew(fProjectSubject, self);
   subjProjChanged(fProjectSubject, self);
@@ -62,6 +83,8 @@ begin
   fProjectSubject.free;
   //
   fJSon.Free;
+  fBuildTypes.Free;
+  fConfigs.Free;
   inherited;
 end;
 
@@ -97,6 +120,52 @@ begin
   exit(fFilename);
 end;
 
+procedure TCEDubProject.udpateConfigsFromJson;
+var
+  i: integer;
+  builtTypes: TJSONArray = nil;
+  configs: TJSONArray = nil;
+  item: TJSONObject = nil;
+begin
+  fBuildTypes.Clear;
+  fConfigs.Clear;
+
+  // configs: builtype0 - config0, builtype0 - config1, ... , builtype0 - configN
+  // builtype1 - config0, builtype1 - config1, ... , builtype1 - configN, etc
+  fConfigs.Add('(dub default)'); // default
+  if fJson.Find('configurations') <> nil then
+  begin
+    configs := fJson.Arrays['configurations'];
+    for i:= 0 to configs.Count-1 do
+    begin
+      item := TJSONObject(configs.Items[i]);
+      fConfigs.Add(item.Strings['name']);
+    end;
+  end;
+  fBuildTypes.AddStrings(DubBuiltTypeName);
+  if fJson.Find('buildTypes') <> nil then
+  begin
+    builtTypes := fJson.Arrays['buildTypes'];
+    for i := 0 to builtTypes.Count-1 do
+    begin
+      item := TJSONObject(builtTypes.Items[i]);
+      fBuildTypes.Add(item.Strings['name']);
+    end;
+  end;
+  fConfigsCount := fConfigs.Count * fBuildTypes.Count;
+end;
+
+procedure TCEDubProject.updateSourcesFromJson;
+begin
+  //TODO-cDUB: update the source files for the current configuration
+end;
+
+procedure TCEDubProject.updateFields;
+begin
+  udpateConfigsFromJson;
+  updateSourcesFromJson;
+end;
+
 function TCEDubProject.getBinaryKind: TProjectBinaryKind;
 begin
   //TODO-cDUB: implement
@@ -121,6 +190,7 @@ begin
     end;
   finally
     loader.Free;
+    updateFields;
     subjProjChanged(fProjectSubject, self);
     fModified := false;
   end;
@@ -150,31 +220,32 @@ end;
 
 function TCEDubProject.getIfIsSource(const aFilename: string): boolean;
 begin
-  //TODO-cDUB: implement
+  //TODO-cDUB: implement getIfIsSource
   exit(false);
 end;
 
 function TCEDubProject.getOutputFilename: string;
 begin
-  //TODO-cDUB: implement
+  //TODO-cDUB: implement getOutputFilename
   exit('');
 end;
 
 function TCEDubProject.getConfigurationCount: integer;
 begin
-  //TODO-cDUB: implement
-  exit(0);
+  exit(fConfigsCount);
 end;
 
 procedure TCEDubProject.setActiveConfiguration(index: integer);
 begin
-  //TODO-cDUB: implement
+  fBuiltTypeIx := index div fConfigs.Count;
+  fConfigIx := index mod fConfigs.Count;
+  updateSourcesFromJson;
 end;
 
 function TCEDubProject.getConfigurationName(index: integer): string;
 begin
-  //TODO-cDUB: implement
-  exit('');
+  result := fBuildTypes.Strings[index div fConfigs.Count] + ' - ' +
+    fConfigs.Strings[index mod fConfigs.Count];
 end;
 
 function TCEDubProject.compile: boolean;
