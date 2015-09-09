@@ -41,6 +41,7 @@ type
     procedure saveToFile(const aFilename: string);
     function getIfModified: boolean;
     function getBinaryKind: TProjectBinaryKind;
+    function getCommandLine: string;
     //
     function getIfIsSource(const aFilename: string): boolean;
     function getOutputFilename: string;
@@ -223,6 +224,23 @@ begin
   finally
     saver.Free;
     fModified := false;
+  end;
+end;
+
+function TCEDubProject.getCommandLine: string;
+var
+  str: TStringList;
+begin
+  str := TStringList.Create;
+  try
+    str.Add('dub' + exeExt);
+    if fBuiltTypeIx <> 0 then
+      str.Add('build=' + fBuildTypes.Strings[fBuiltTypeIx]);
+    if fConfigIx <> 0 then
+      str.Add('config=' + fConfigs.Strings[fConfigIx]);
+    result := str.Text;
+  finally
+    str.Free;
   end;
 end;
 

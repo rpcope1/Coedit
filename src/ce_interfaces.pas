@@ -63,6 +63,8 @@ type
     function getOutputFilename: string;
     // returns the binary kind produced according to the current configuration
     function getBinaryKind: TProjectBinaryKind;
+    // returns what's gonna be executed in background for this config
+    function getCommandLine: string;
 
     // configs -----------------------------------------------------------------
 

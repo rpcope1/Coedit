@@ -95,6 +95,7 @@ type
     function getConfigurationName(index: integer): string;
     function getFilename: string;
     function getBinaryKind: TProjectBinaryKind;
+    function getCommandLine: string;
     //
     property configuration[ix: integer]: TCompilerConfiguration read getConfig;
     property currentConfiguration: TCompilerConfiguration read getCurrConf;
@@ -854,6 +855,20 @@ end;
 function TCENativeProject.getBinaryKind: TProjectBinaryKind;
 begin
   exit(currentConfiguration.outputOptions.binaryKind);
+end;
+
+function TCENativeProject.getCommandLine: string;
+var
+  str: TStringList;
+begin
+  str := TStringList.Create;
+  try
+    str.Add('dmd' + exeExt);
+    getOpts(str);
+    result := str.Text;
+  finally
+    str.Free;
+  end;
 end;
 
 function isValidNativeProject(const filename: string): boolean;

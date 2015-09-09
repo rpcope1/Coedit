@@ -2136,16 +2136,9 @@ begin
 end;
 
 procedure TCEMainForm.actProjOptViewExecute(Sender: TObject);
-var
-  lst: TStringList;
 begin
-  lst := TStringList.Create;
-  try
-    fNativeProject.getOpts(lst);
-    dlgOkInfo(lst.Text);
-  finally
-    lst.Free;
-  end;
+  if fProjectInterface = nil then exit;
+  dlgOkInfo(fProjectInterface.getCommandLine);
 end;
 {$ENDREGION}
 
