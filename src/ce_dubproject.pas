@@ -153,7 +153,7 @@ begin
   begin
     fConfigs.Add('(dub default)'); // default
     // default = what dub set as 'application' or 'library'
-    // in the case a project will pass nothing to DUB: eg DUB --build=release
+    // in this case a project will pass nothing to DUB: eg DUB --build=release
   end;
 
   fBuildTypes.AddStrings(DubBuiltTypeName);
@@ -302,7 +302,10 @@ begin
     dubproc.Options := dubproc.Options + [poStderrToOutPut, poUsePipes];
     dubproc.CurrentDirectory := extractFilePath(fFilename);
     dubproc.ShowWindow := swoHIDE;
-    dubproc.Parameters.Add('build');
+    if fBuiltTypeIx <> 0 then
+      dubproc.Parameters.Add('build=' + fBuildTypes.Strings[fBuiltTypeIx]);
+    if fConfigIx <> 0 then
+      dubproc.Parameters.Add('config=' + fConfigs.Strings[fConfigIx]);
     dubproc.Execute;
     while dubproc.Running do
       dubProcOutput(dubproc);
