@@ -56,8 +56,11 @@ type
     property json: TJSONObject read fJson;
   end;
 
-  // these 9 built types alway exist
+  // these 9 built types always exist
   TDubBuildType = (plain, debug, release, unittest, docs, ddox, profile, cov, unittestcov);
+
+  // returns true iffilename is a valid dub project. Only json format is supported.
+  function isValidDubProject(const filename: string): boolean;
 
 const
 
@@ -318,6 +321,31 @@ function TCEDubProject.run(const runArgs: string = ''): boolean;
 begin
   //TODO-cDUB: implement
   result := false;
+end;
+
+function isValidDubProject(const filename: string): boolean;
+var
+  maybe: TCEDubProject;
+begin
+  result := true;
+  // avoid the project to notify the observers, current project is not replaced
+  EntitiesConnector.beginUpdate;
+  maybe := TCEDubProject.create(nil);
+  EntitiesConnector.removeSubject(maybe);
+  try
+    try
+      maybe.loadFromFile(filename);
+      if maybe.json = nil then
+        result := false
+      else if maybe.json.Find('name') = nil then
+        result := false;
+    except
+      result := false;
+    end;
+  finally
+    maybe.Free;
+    EntitiesConnector.endUpdate;
+  end;
 end;
 
 end.
