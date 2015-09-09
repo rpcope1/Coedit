@@ -664,12 +664,12 @@ begin
         begin
           if isEditable(ExtractFileExt(value)) then
             openFile(value)
-          else if isValidNativeProject(value) then
+          else if isValidNativeProject(value) or isValidDubProject(value) then
           begin
             // so far CE can only open 1 project at a time
             openProj(value);
             break;
-          end;
+          end
         end;
       finally
         lst.Free;
@@ -1458,7 +1458,7 @@ var
 begin
   for fname in FileNames do
   begin
-    if isValidNativeProject(fname) then
+    if isValidNativeProject(fname) or isValidDubProject(fname) then
     begin
       openProj(fname);
       break;
