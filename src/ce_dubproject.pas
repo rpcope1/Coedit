@@ -16,17 +16,21 @@ type
   private
     fFilename: string;
     fModified: boolean;
-    fJson: TJSONObject;
+    fJSON: TJSONObject;
+    fSrcs: TStringList;
     fProjectSubject: TCEProjectSubject;
     fConfigsCount: integer;
     fBuildTypes: TStringList;
     fConfigs: TStringList;
     fBuiltTypeIx: integer;
     fConfigIx: integer;
+    fBinKind: TProjectBinaryKind;
     //
     procedure updateFields;
     procedure udpateConfigsFromJson;
     procedure updateSourcesFromJson;
+    procedure updateTargetKindFromJson;
+    function findTargetKindIn(value: TJSONObject): boolean;
     procedure dubProcOutput(proc: TProcess);
     //
     function getFormat: TCEProjectFormat;
@@ -53,7 +57,7 @@ type
     function compile: boolean;
     function run(const runArgs: string = ''): boolean;
     //
-    property json: TJSONObject read fJson;
+    property json: TJSONObject read fJSON;
   end;
 
   // these 9 built types always exist
@@ -76,6 +80,7 @@ begin
   fProjectSubject := TCEProjectSubject.Create;
   fBuildTypes := TStringList.Create;
   fConfigs := TStringList.Create;
+  fSrcs := TStringList.Create;
   //
   subjProjNew(fProjectSubject, self);
   subjProjChanged(fProjectSubject, self);
@@ -86,9 +91,10 @@ begin
   subjProjClosing(fProjectSubject, self);
   fProjectSubject.free;
   //
-  fJSon.Free;
+  fJSON.Free;
   fBuildTypes.Free;
   fConfigs.Free;
+  fSrcs.Free;
   inherited;
 end;
 
@@ -139,11 +145,9 @@ begin
   // builtype1 - config0, builtype1 - config1, ... , builtype1 - configN, etc
 
 
-  //fConfigs.Add('(dub default)'); // default
-
-  if fJson.Find('configurations') <> nil then
+  if fJSON.Find('configurations') <> nil then
   begin
-    configs := fJson.Arrays['configurations'];
+    configs := fJSON.Arrays['configurations'];
     for i:= 0 to configs.Count-1 do
     begin
       item := TJSONObject(configs.Items[i]);
@@ -157,9 +161,9 @@ begin
   end;
 
   fBuildTypes.AddStrings(DubBuiltTypeName);
-  if fJson.Find('buildTypes') <> nil then
+  if fJSON.Find('buildTypes') <> nil then
   begin
-    builtTypes := fJson.Arrays['buildTypes'];
+    builtTypes := fJSON.Arrays['buildTypes'];
     for i := 0 to builtTypes.Count-1 do
     begin
       item := TJSONObject(builtTypes.Items[i]);
@@ -177,16 +181,65 @@ begin
   //TODO-cDUB: update the source files for the current configuration
 end;
 
+function TCEDubProject.findTargetKindIn(value: TJSONObject): boolean;
+var
+  tt: TJSONData;
+begin
+  result := true;
+  tt := value.Find('targetType');
+  if tt <> nil then
+  begin
+    case tt.AsString of
+      'executable': fBinKind := executable;
+      'staticLibrary' : fBinKind := staticlib;
+      'dynamicLibrary' : fBinKind := sharedlib;
+      'autodetect': result := false;
+      else fBinKind := executable;
+    end;
+  end else result := false;
+end;
+
+procedure TCEDubProject.updateTargetKindFromJson;
+var
+  guess: boolean = false;
+  item: TJSONData;
+  confs: TJSONArray;
+  i: integer;
+begin
+  fBinKind := executable;
+  if fJSON = nil then exit;
+
+  // actually for a DUB project this is only used to known if output can be
+  // ran from the 'project' menu
+  guess := not findTargetKindIn(fJSON);
+  if fConfigIx <> 0 then
+  begin
+    item := fJSON.Find('configurations');
+    if item <> nil then
+    begin
+      confs := TJSONArray(item);
+      for i := 0 to confs.Count-1 do
+        if TJSONObject(confs.Objects[i]).Find('name') <> nil then
+          guess := guess and findTargetKindIn(confs.Objects[i]);
+    end;
+  end;
+  if guess then
+  begin
+    // TODO-cDUB: guess target kind
+    // app.d in source ? exe : lib
+  end;
+end;
+
 procedure TCEDubProject.updateFields;
 begin
   udpateConfigsFromJson;
   updateSourcesFromJson;
+  updateTargetKindFromJson;
 end;
 
 function TCEDubProject.getBinaryKind: TProjectBinaryKind;
 begin
-  //TODO-cDUB: implement
-  exit(executable);
+  exit(fBinKind);
 end;
 
 procedure TCEDubProject.loadFromFile(const aFilename: string);
@@ -198,10 +251,10 @@ begin
   try
     fFilename:= aFilename;
     loader.LoadFromFile(fFilename);
-    fJSon.Free;
+    fJSON.Free;
     parser := TJSONParser.Create(loader);
     try
-      fJSon := parser.Parse as TJSONObject;
+      fJSON := parser.Parse as TJSONObject;
     finally
       parser.Free;
     end;
@@ -221,7 +274,7 @@ begin
   saver := TMemoryStream.Create;
   try
     fFilename := aFilename;
-    str := fJson.FormatJSON;
+    str := fJSON.FormatJSON;
     saver.Write(str[1], length(str));
     saver.SaveToFile(fFilename);
   finally
