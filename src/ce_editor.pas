@@ -146,8 +146,7 @@ end;
 
 function TCEEditorWidget.closeQuery: boolean;
 begin
-  result := inherited;
-  result := result and (Parent = nil);
+  result := inherited and (Parent = nil);
 end;
 {$ENDREGION}
 
