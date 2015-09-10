@@ -173,6 +173,7 @@ procedure TCEProjectConfigurationWidget.TreeChange(Sender: TObject;
   Node: TTreeNode);
 begin
   inspector.TIObject := getGridTarget;
+  selconf.Enabled := (inspector.TIObject <> fProj) and (fProj <> nil);
 end;
 
 procedure TCEProjectConfigurationWidget.setSyncroMode(aValue: boolean);
@@ -403,6 +404,7 @@ var
 begin
   selConf.ItemIndex:= -1;
   selConf.Clear;
+  selconf.Enabled := (inspector.TIObject <> fProj) and (fProj <> nil);
   if fProj = nil then exit;
   //
   for i:= 0 to fProj.OptionsCollection.Count-1 do
