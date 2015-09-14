@@ -79,6 +79,7 @@ type
     procedure ListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     fDemangle: boolean;
+    fDemanglerAvailable: boolean;
     fMsgColors: array[TCEAppMessageKind] of TColor;
     fActAutoSel: TAction;
     fActClearAll: TAction;
@@ -117,7 +118,7 @@ type
     function iconIndex(aKind: TCEAppMessageKind): Integer;
     procedure handleMessageClick(Sender: TObject);
     procedure callDemangler;
-    procedure freeMangler;
+    procedure freeDemangler;
     //
     procedure setColorError(aValue: TColor);
     procedure setColorInfo(aValue: TColor);
@@ -325,6 +326,7 @@ begin
   //
   fToDemangle := TStringList.Create;
   fToDemangleObjs:= TFPList.Create;
+  fDemanglerAvailable := exeInSysPath('ddemangle' + exeExt);
   //
   EntitiesConnector.addObserver(self);
   EntitiesConnector.addSingleService(self);
@@ -334,7 +336,7 @@ destructor TCEMessagesWidget.destroy;
 begin
   fToDemangle.Free;
   fToDemangleObjs.Free;
-  freeMangler;
+  freeDemangler;
   fOptions.saveToFile(getCoeditDocPath + optname);
   EntitiesConnector.removeObserver(self);
   inherited;
@@ -683,20 +685,6 @@ begin
   exit('ICEMessagesDisplay');
 end;
 
-procedure TCEMessagesWidget.demanglerOutput(sender: TObject);
-var
-  itm: TTreeNode;
-  i: integer;
-begin
-  fToDemangle.LoadFromStream(fDemangler.OutputStack);
-  for i := 0 to fToDemangleObjs.Count -1 do
-  begin
-    itm := TTreeNode(fToDemangleObjs.Items[i]);
-    if itm = nil then continue;
-    itm.Text := fToDemangle.Strings[i];
-  end;
-end;
-
 procedure TCEMessagesWidget.message(const aValue: string; aData: Pointer;
   aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
 var
@@ -772,47 +760,61 @@ var
   i: integer;
   str: string;
 begin
-  freeMangler;
+  if not fDemanglerAvailable then
+    exit;
+  //
+  freeDemangler;
   fDemangler := TCEProcess.Create(nil);
   fDemangler.Executable := 'ddemangle' + exeExt;
   fDemangler.OnTerminate:= @demanglerOutput;
   fDemangler.Options:= fDemangler.Options + [poUsePipes];
   fDemangler.ShowWindow:= swoHIDE;
-  if exeInSysPath(fDemangler.Executable) then
+  fToDemangle.Clear;
+  fToDemangleObjs.Clear;
+  for i := 0 to list.Items.Count-1 do
   begin
-    fToDemangle.Clear;
-    fToDemangleObjs.Clear;
-    for i := 0 to list.Items.Count-1 do
+    dat := PMessageData(list.Items.Item[i].Data);
+    if dat^.demangled then continue;
+    dat^.demangled := true;
+    str := list.Items.Item[i].Text;
+    fToDemangleObjs.add(list.Items.Item[i]);
+    fToDemangle.Add(str);
+  end;
+  if fToDemangle.Count > 0 then
+  begin
+    fDemangler.Execute;
+    for i := 0 to fToDemangle.Count-1 do
     begin
-      dat := PMessageData(list.Items.Item[i].Data);
-      if dat^.demangled then continue;
-      dat^.demangled := true;
-      str := list.Items.Item[i].Text;
-      fToDemangleObjs.add(list.Items.Item[i]);
-      fToDemangle.Add(str);
+      str := fToDemangle.Strings[i] + LineEnding;
+      fDemangler.Input.Write(str[1], length(str));
     end;
-    if fToDemangle.Count > 0 then
-    begin
-      fDemangler.Execute;
-      for i := 0 to fToDemangle.Count-1 do
-      begin
-        str := fToDemangle.Strings[i] + LineEnding;
-        fDemangler.Input.Write(str[1], length(str));
-      end;
-      fDemangler.CloseInput;
-    end;
+    fDemangler.CloseInput;
   end;
 end;
 
-procedure TCEMessagesWidget.freeMangler;
+procedure TCEMessagesWidget.demanglerOutput(sender: TObject);
+var
+  itm: TTreeNode;
+  i: integer;
 begin
-  if fDemangler <> nil then
-   begin
-     if fDemangler.Active then
-       fDemangler.Terminate(0);
-     fDemangler.Free;
-     fDemangler := nil;
-   end;
+  fToDemangle.LoadFromStream(fDemangler.OutputStack);
+  for i := 0 to fToDemangleObjs.Count -1 do
+  begin
+    itm := TTreeNode(fToDemangleObjs.Items[i]);
+    if itm = nil then continue;
+    itm.Text := fToDemangle.Strings[i];
+  end;
+end;
+
+procedure TCEMessagesWidget.freeDemangler;
+begin
+  if fDemangler = nil then
+    exit;
+  //
+  if fDemangler.Active then
+    fDemangler.Terminate(0);
+  fDemangler.Free;
+  fDemangler := nil;
 end;
 
 procedure TCEMessagesWidget.updateLoop;
