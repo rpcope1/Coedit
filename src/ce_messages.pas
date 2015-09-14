@@ -7,8 +7,8 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, TreeFilterEdit,
-  Buttons, math,ce_writableComponent, ce_common, ce_synmemo, GraphType,
-  ce_dlangutils, ce_interfaces, ce_observer, ce_symstring;
+  Buttons, math, process, ce_writableComponent, ce_common, ce_synmemo, GraphType,
+  ce_dlangutils, ce_interfaces, ce_observer, ce_symstring, ce_processes;
 
 type
 
@@ -19,6 +19,7 @@ type
   TMessageData = record
     ctxt: TCEAppMessageCtxt;
     data: Pointer;
+    demangled: boolean;
   end;
 
   TCEMessagesOptions = class(TWritableLfmTextComponent)
@@ -27,6 +28,7 @@ type
     fMaxCount: Integer;
     fAutoSelect: boolean;
     fSingleClick: boolean;
+    fDemangle: boolean;
     fFont: TFont;
     fMsgColors: array[TCEAppMessageKind] of TColor;
     procedure setFont(aValue: TFont);
@@ -41,6 +43,7 @@ type
     property colorHint: TColor read fMsgColors[amkHint] write fMsgColors[amkHint];
     property colorWarning: TColor read fMsgColors[amkWarn] write fMsgColors[amkWarn];
     property colorError: TColor read fMsgColors[amkErr] write fMsgColors[amkErr];
+    property demangle: boolean read fDemangle write fDemangle default false;
   public
     constructor Create(AOwner: TComponent); override;
     destructor destroy; override;
@@ -75,6 +78,7 @@ type
       State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure ListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
+    fDemangle: boolean;
     fMsgColors: array[TCEAppMessageKind] of TColor;
     fActAutoSel: TAction;
     fActClearAll: TAction;
@@ -89,9 +93,13 @@ type
     fAutoSelect: boolean;
     fSingleClick: boolean;
     fastDisplay: boolean;
+    fDemangler: TCEProcess;
     fOptions: TCEMessagesOptions;
     fOptionsBackup: TCEMessagesOptions;
     fBtns: array[TCEAppMessageCtxt] of TToolButton;
+    fToDemangle: TStringList;
+    fToDemangleObjs: TFPList;
+    procedure demanglerOutput(sender: TObject);
     procedure filterMessages(aCtxt: TCEAppMessageCtxt);
     procedure clearOutOfRangeMessg;
     procedure actAutoSelExecute(Sender: TObject);
@@ -103,10 +111,13 @@ type
     procedure setMaxMessageCount(aValue: Integer);
     procedure setAutoSelectCategory(aValue: boolean);
     procedure setSingleMessageClick(aValue: boolean);
+    procedure setDemangle(aValue: boolean);
     procedure listDeletion(Sender: TObject; Node: TTreeNode);
     procedure selCtxtClick(Sender: TObject);
     function iconIndex(aKind: TCEAppMessageKind): Integer;
     procedure handleMessageClick(Sender: TObject);
+    procedure callDemangler;
+    procedure freeMangler;
     //
     procedure setColorError(aValue: TColor);
     procedure setColorInfo(aValue: TColor);
@@ -146,6 +157,7 @@ type
     property maxMessageCount: Integer     read fMaxMessCnt  write setMaxMessageCount;
     property autoSelectCategory: boolean  read fAutoSelect  write setAutoSelectCategory;
     property singleMessageClick: boolean  read fSingleClick write setSingleMessageClick;
+    property demangle: boolean            read fDemangle    write setDemangle;
     //
     property colorBuble: TColor   read fMsgColors[amkBub]   write setColorBuble;
     property colorInfo: TColor    read fMsgColors[amkInf]   write setColorInfo;
@@ -200,6 +212,7 @@ begin
     fAutoSelect := opts.fAutoSelect;
     fSingleClick := opts.fSingleClick;
     fFastDisplay := opts.fFastDisplay;
+    fDemangle := opts.fDemangle;
     fMsgColors := opts.fMsgColors;
     fFont.EndUpdate;
   end
@@ -212,6 +225,7 @@ begin
     fSingleClick := widg.fSingleClick;
     fFastDisplay := widg.fastDisplay;
     fMsgColors := widg.fMsgColors;
+    fDemangle := widg.fDemangle;
   end
   else inherited;
 end;
@@ -229,6 +243,7 @@ begin
     widg.singleMessageClick := fSingleClick;
     widg.fastDisplay:= fFastDisplay;
     widg.fMsgColors := fMsgColors;
+    widg.Demangle := fDemangle;
   end
   else inherited;
 end;
@@ -308,21 +323,32 @@ begin
     fOptions.AssignTo(self);
   end;
   //
+  fToDemangle := TStringList.Create;
+  fToDemangleObjs:= TFPList.Create;
+  //
   EntitiesConnector.addObserver(self);
   EntitiesConnector.addSingleService(self);
 end;
 
 destructor TCEMessagesWidget.destroy;
 begin
+  fToDemangle.Free;
+  fToDemangleObjs.Free;
+  freeMangler;
   fOptions.saveToFile(getCoeditDocPath + optname);
   EntitiesConnector.removeObserver(self);
-  Inherited;
+  inherited;
 end;
 
 procedure TCEMessagesWidget.listDeletion(Sender: TObject; Node: TTreeNode);
+var
+  i: integer;
 begin
   if node.Data <> nil then
     Dispose(PMessageData(Node.Data));
+  i := fToDemangleObjs.IndexOf(node);
+  if i <> -1 then
+    fToDemangleObjs.Items[i] := nil;
 end;
 
 procedure TCEMessagesWidget.ListKeyDown(Sender: TObject; var Key: Word;
@@ -400,6 +426,14 @@ begin
     List.OnClick := nil;
     List.OnDblClick:= @handleMessageClick;
   end;
+end;
+
+procedure TCEMessagesWidget.setDemangle(aValue: boolean);
+begin
+  if fDemangle = aValue then exit;
+  fDemangle := aValue;
+  if fDemangle then
+    IncLoopUpdate;
 end;
 
 procedure TCEMessagesWidget.setColorError(aValue: TColor);
@@ -649,23 +683,40 @@ begin
   exit('ICEMessagesDisplay');
 end;
 
+procedure TCEMessagesWidget.demanglerOutput(sender: TObject);
+var
+  itm: TTreeNode;
+  i: integer;
+begin
+  fToDemangle.LoadFromStream(fDemangler.OutputStack);
+  for i := 0 to fToDemangleObjs.Count -1 do
+  begin
+    itm := TTreeNode(fToDemangleObjs.Items[i]);
+    if itm = nil then continue;
+    itm.Text := fToDemangle.Strings[i];
+  end;
+end;
+
 procedure TCEMessagesWidget.message(const aValue: string; aData: Pointer;
   aCtxt: TCEAppMessageCtxt; aKind: TCEAppMessageKind);
 var
   dt: PMessageData;
   item: TTreeNode;
+  msg: string;
 begin
   showWidget;
+  msg := aValue;
   if aKind = amkAuto then
-    aKind := guessMessageKind(aValue);
+    aKind := guessMessageKind(msg);
   dt := new(PMessageData);
   dt^.data := aData;
   dt^.ctxt := aCtxt;
+  dt^.demangled:=false;
   if fAutoSelect then if fCtxt <> aCtxt then
     fBtns[aCtxt].Click;
-  if fastDisplay then
+  if fastDisplay or fDemangle then
     IncLoopUpdate;
-  item := List.Items.Add(nil, aValue);
+  item := List.Items.Add(nil, msg);
   item.Data := dt;
   item.ImageIndex := iconIndex(aKind);
   item.SelectedIndex := item.ImageIndex;
@@ -715,12 +766,65 @@ end;
 {$ENDREGION}
 
 {$REGION Messages --------------------------------------------------------------}
+procedure TCEMessagesWidget.callDemangler;
+var
+  dat: PMessageData;
+  i: integer;
+  str: string;
+begin
+  freeMangler;
+  fDemangler := TCEProcess.Create(nil);
+  fDemangler.Executable := 'ddemangle' + exeExt;
+  fDemangler.OnTerminate:= @demanglerOutput;
+  fDemangler.Options:= fDemangler.Options + [poUsePipes];
+  fDemangler.ShowWindow:= swoHIDE;
+  if exeInSysPath(fDemangler.Executable) then
+  begin
+    fToDemangle.Clear;
+    fToDemangleObjs.Clear;
+    for i := 0 to list.Items.Count-1 do
+    begin
+      dat := PMessageData(list.Items.Item[i].Data);
+      if dat^.demangled then continue;
+      dat^.demangled := true;
+      str := list.Items.Item[i].Text;
+      fToDemangleObjs.add(list.Items.Item[i]);
+      fToDemangle.Add(str);
+    end;
+    if fToDemangle.Count > 0 then
+    begin
+      fDemangler.Execute;
+      for i := 0 to fToDemangle.Count-1 do
+      begin
+        str := fToDemangle.Strings[i] + LineEnding;
+        fDemangler.Input.Write(str[1], length(str));
+      end;
+      fDemangler.CloseInput;
+    end;
+  end;
+end;
+
+procedure TCEMessagesWidget.freeMangler;
+begin
+  if fDemangler <> nil then
+   begin
+     if fDemangler.Active then
+       fDemangler.Terminate(0);
+     fDemangler.Free;
+     fDemangler := nil;
+   end;
+end;
+
 procedure TCEMessagesWidget.updateLoop;
 begin
-  clearOutOfRangeMessg;
-  scrollToBack;
-  List.Update;
-  filterMessages(fCtxt);
+  if fastDisplay then
+  begin
+    clearOutOfRangeMessg;
+    scrollToBack;
+    List.Update;
+    filterMessages(fCtxt);
+  end;
+  callDemangler;
 end;
 
 function TCEMessagesWidget.iconIndex(aKind: TCEAppMessageKind): Integer;
