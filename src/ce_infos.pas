@@ -162,6 +162,9 @@ begin
   fIsModal := true;
   fIsDockable := false;
   //
+  toolItem := TToolInfo.Construct(self, tikFindable, 'ddemangle');
+  toolItem.Parent := boxTools;
+  toolItem.ReAlign;
   toolItem := TToolInfo.Construct(self, tikRunning, 'dcd-server');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
