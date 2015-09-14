@@ -44,6 +44,7 @@ type
   protected
     procedure UpdateShowing; override;
   private
+    fUpdatingCat: boolean;
     fCatChanged: boolean;
     fEdOptsSubj: TCEEditableOptionsSubject;
     procedure updateCategories;
@@ -103,8 +104,13 @@ var
   i: Integer;
   dt: PCategoryData;
   ed: ICEEditableOptions;
+  sel: string = '';
 begin
+  if selCat.Selected <> nil then
+    sel := selCat.Selected.Text;
+  fUpdatingCat := true;
   inspector.TIObject := nil;
+  selCat.BeginUpdate;
   selCat.Items.Clear;
   for i:= 0 to fEdOptsSubj.observersCount-1 do
   begin
@@ -116,6 +122,11 @@ begin
     dt^.observer := ed;
   end;
   selCat.Items.SortTopLevelNodes(@sortCategories);
+  for i := 0 to selCat.Items.Count-1 do
+    if SelCat.Items.Item[i].Text = sel then
+      SelCat.Selected := SelCat.Items.Item[i];
+  selCat.EndUpdate;
+  fUpdatingCat := false;
 end;
 
 function TCEOptionEditorWidget.sortCategories(Cat1, Cat2: TTreeNode): integer;
@@ -134,6 +145,8 @@ var
   dt: PCategoryData;
 begin
   result := true;
+  if fUpdatingCat then exit;
+  if csDestroying in ComponentState then exit;
   if selCat.Selected = nil then exit;
   if selCat.Selected.Data = nil then exit;
   // accept/cancel is relative to a single category
@@ -152,6 +165,7 @@ begin
   begin
     dt := PCategoryData(selCat.Selected.Data);
     if dt^.container = nil then exit;
+    if dt^.observer = nil then exit;
     if dt^.observer.optionedOptionsModified() then
     begin
       result := dlgOkCancel(msg_mod) = mrOk;
