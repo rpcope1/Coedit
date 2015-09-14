@@ -1,0 +1,18 @@
+object CurrentProject: TCENativeProject
+  OptionsCollection = <  
+    item
+      name = 'default'
+      messagesOptions.additionalWarnings = True
+      outputOptions.binaryKind = sharedlib
+      pathsOptions.outputFilename = '..\..\lazproj\cedast.dll'
+    end>
+  Sources.Strings = (
+    '..\src\cedast.d'
+    '..\src\common.d'
+    '..\src\ast.d'
+  )
+  ConfigurationIndex = 0
+  LibraryAliases.Strings = (
+    'libdparse'
+  )
+end
