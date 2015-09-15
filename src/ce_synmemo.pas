@@ -370,11 +370,14 @@ begin
   fDefaultFontSize := 10;
   SetDefaultCoeditKeystrokes(Self); // not called in inherited if owner = nil !
   //
-  fAst := newAST(self, @astScanned);
-  fAstTimer := TIdleTimer.Create(self);
-  fAstTimer.Interval:= 2000;
-  fAstTimer.OnTimer:= @AstTimerEvent;
-  fAstTimer.Enabled:=true;
+  if dastAvailable then
+  begin
+    fAst := newAST(self, @astScanned);
+    fAstTimer := TIdleTimer.Create(self);
+    fAstTimer.Interval:= 2000;
+    fAstTimer.OnTimer:= @AstTimerEvent;
+    fAstTimer.Enabled:=true;
+  end;
   //
   ShowHint := false;
   InitHintWins;
@@ -452,7 +455,8 @@ begin
   if fileExists(fTempFileName) then
     sysutils.DeleteFile(fTempFileName);
   //
-  deleteAst(fAst);
+  if dastAvailable then
+    deleteAst(fAst);
   //
   inherited;
 end;
