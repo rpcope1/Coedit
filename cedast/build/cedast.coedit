@@ -1,7 +1,9 @@
 object CurrentProject: TCENativeProject
   OptionsCollection = <  
     item
-      name = 'default'
+      name = 'win32-dbg'
+      debugingOptions.debug = True
+      debugingOptions.codeviewDexts = True
       messagesOptions.additionalWarnings = True
       outputOptions.binaryKind = sharedlib
       pathsOptions.outputFilename = '..\..\lazproj\cedast.dll'

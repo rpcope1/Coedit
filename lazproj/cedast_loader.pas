@@ -6,23 +6,35 @@ type
 
   TAstToken = NativeInt;
 
-  TScanFile   = function(filename: PChar): TAstToken; cdecl;
-  TScanBuffer = function (buffer: PByte; len: NativeUint): TAstToken; cdecl;
-  TRescan     = procedure (tok: TAstToken); cdecl;
-  TUnleash    = procedure (tok: TAstToken); cdecl;
-  TModuleName = function (tok: TAstToken): PChar; cdecl;
+  {$Z1}
+  TSerializationFormat = (json, pas);
+
+  TScanFile     = function(filename: PChar): TAstToken; cdecl;
+  TScanBuffer   = function(buffer: PByte; len: NativeUint): TAstToken; cdecl;
+  TRescanFile   = procedure(tok: TAstToken); cdecl;
+  TRescanBuffer = procedure(tok: TAstToken; buffer: PByte; len: NativeUint); cdecl;
+  TUnleash      = procedure(tok: TAstToken); cdecl;
+
+  TModuleName   = function(tok: TAstToken): PChar; cdecl;
+  TSymbolList   = function(tok: TAstToken; var len: NativeUint ; fmt: TSerializationFormat): PByte; cdecl;
+
+
 
 var
   dast: TLibHandle;
   scanfile: TScanFile;
   scanbuffer: TScanBuffer;
-  rescan: TRescan;
+  rescanfile: TRescanFile;
+  rescanbuffer: TRescanBuffer;
   unleash: TUnleash;
   moduleName: TModuleName;
+  symlist: TSymbolList;
   tok: TAstToken;
+  len: NativeUint = 0;
+  ptr: PByte;
 
 const
-  testModule = 'module a.b.c.d.e.f.g.h; import std.stdio;';
+  testModule = 'module a.b.c.d.e.f.g.h; import std.stdio; uint a; struct F{long c;}';
 
 
 begin
@@ -35,17 +47,31 @@ begin
     if scanFile = nil then writeln('invalid scanfile proc ptr')
     else tok := scanfile(PChar('exception in call so ticket value is 0'));
 
-    rescan := TRescan(GetProcAddress(dast, 'rescan'));
-    if rescan = nil then writeln('invalid rescan proc ptr')
-    else rescan(tok);
+    rescanfile := TRescanFile(GetProcAddress(dast, 'rescanFile'));
+    if rescanfile = nil then writeln('invalid rescanFile proc ptr')
+    else rescanfile(tok);
 
     scanbuffer := TScanBuffer(GetProcAddress(dast, 'scanBuffer'));
     if scanbuffer = nil then writeln('invalid scanBuffer proc ptr')
     else tok := scanbuffer(@testModule[1], length(testModule));
 
+    rescanbuffer := TRescanBuffer(GetProcAddress(dast, 'rescanBuffer'));
+    if rescanbuffer = nil then writeln('invalid rescanBuffer proc ptr')
+    else rescanbuffer(tok, @testmodule[1], length(testModule));
+
     moduleName := TModuleName(GetProcAddress(dast, 'moduleName'));
     if moduleName = nil then writeln('invalid moduleName proc ptr')
     else if tok <> 0 then writeln(moduleName(tok));
+
+    symlist := TSymbolList(GetProcAddress(dast, 'symbolList'));
+    if symlist = nil then writeln('invalid symbolList proc ptr')
+    else if tok <> 0 then with TMemoryStream.Create do try
+      ptr := symlist(tok, len, TSerializationFormat.json);
+      write(ptr^, len);
+      SaveToFile('testsymlist.txt');
+    finally
+      free;
+    end;
 
     unleash := TUnleash(GetProcAddress(dast, 'unleash'));
     if unleash = nil then writeln('invalid unleash proc ptr')

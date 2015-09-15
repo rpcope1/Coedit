@@ -4,7 +4,11 @@ alias AstToken = ptrdiff_t;
 
 __gshared immutable AstToken invalidAstToken = 0;
 
-enum SerializationFormat {json, pascal}
+enum SerializationFormat : byte
+{
+    json,
+    pascal
+}
 
 enum logcall = q{
     import std.file;
