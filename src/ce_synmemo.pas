@@ -8,7 +8,8 @@ uses
   Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
   SynPluginSyncroEdit, SynCompletion, SynEditKeyCmds, LazSynEditText, SynEdit,
   SynHighlighterLFM, SynEditHighlighter, SynEditMouseCmds, SynEditFoldedView,
-  ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs;
+  ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs,
+  ce_dast;
 
 type
 
@@ -77,6 +78,9 @@ type
 
   TCESynMemo = class(TSynEdit)
   private
+    fScanning: boolean;
+    fCanScan: boolean;
+    fAst: TAstHandle;
     fFilename: string;
     fModified: boolean;
     fFileDate: double;
@@ -94,6 +98,7 @@ type
     fHintDelay: Integer;
     fAutoDotDelay: Integer;
     fHintTimer: TIdleTimer;
+    fAstTimer: TIdleTimer;
     fAutoDotTimer: TIdleTimer;
     fCanShowHint: boolean;
     fCanAutoDot: boolean;
@@ -103,6 +108,8 @@ type
     fCompletion: TSynCompletion;
     fD2Highlighter: TSynD2Syn;
     fTxtHighlighter: TSynTxtSyn;
+    function getIfScanning: boolean;
+    function getAstHandle: TAstHandle;
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
@@ -111,6 +118,7 @@ type
     class procedure cleanCache; static;
     procedure setDefaultFontSize(aValue: Integer);
     procedure getCallTips;
+    procedure AstTimerEvent(sender: TObject);
     procedure HintTimerEvent(sender: TObject);
     procedure AutoDotTimerEvent(sender: TObject);
     procedure InitHintWins;
@@ -161,6 +169,7 @@ type
     property isProjectSource: boolean read fIsConfig;
     property isTemporary: boolean read getIfTemp;
     property TextView;
+    property ast: TAstHandle read GetAstHandle;
     //
     property MouseStart: Integer read getMouseFileBytePos;
     property D2Highlighter: TSynD2Syn read fD2Highlighter;
@@ -168,6 +177,8 @@ type
   end;
 
   procedure SetDefaultCoeditKeystrokes(ed: TSynEdit);
+
+  procedure astScanned(param: pointer); cdecl;
 
 var
   D2Syn: TSynD2Syn;     // used as model to set the options when no editor exists.
@@ -178,12 +189,6 @@ implementation
 
 uses
   ce_interfaces, ce_staticmacro, ce_dcd, SynEditHighlighterFoldBase;
-
-function TCEEditorHintWindow.CalcHintRect(MaxWidth: Integer; const AHint: String; AData: Pointer): TRect;
-begin
-  Font.Size:= FontSize;
-  result := inherited CalcHintRect(MaxWidth, AHint, AData);
-end;
 
 {$REGION TCESynMemoCache -------------------------------------------------------}
 constructor TCESynMemoCache.create(aComponent: TComponent);
@@ -365,6 +370,12 @@ begin
   fDefaultFontSize := 10;
   SetDefaultCoeditKeystrokes(Self); // not called in inherited if owner = nil !
   //
+  fAst := newAST(self, @astScanned);
+  fAstTimer := TIdleTimer.Create(self);
+  fAstTimer.Interval:= 2000;
+  fAstTimer.OnTimer:= @AstTimerEvent;
+  fAstTimer.Enabled:=true;
+  //
   ShowHint := false;
   InitHintWins;
   fHintDelay := 200;
@@ -440,6 +451,8 @@ begin
   //
   if fileExists(fTempFileName) then
     sysutils.DeleteFile(fTempFileName);
+  //
+  deleteAst(fAst);
   //
   inherited;
 end;
@@ -583,7 +596,50 @@ begin
   end;
 end;
 
+{$REGION AST Scanner -----------------------------------------------------------}
+procedure astScanned(param: pointer); cdecl;
+begin
+  with TCESynMemo(param) do
+  begin
+    fScanning := false;
+  end;
+end;
+
+function TCESynMemo.getAstHandle: TAstHandle;
+begin
+  if getIfScanning then result := 0
+  else result := fAst;
+end;
+
+function TCESynMemo.getIfScanning: boolean;
+begin
+  exit(fScanning);
+end;
+
+procedure TCESynMemo.AstTimerEvent(sender: TObject);
+var
+  buff: string;
+  len: NativeUint;
+begin
+  if not fCanScan then exit;
+  fCanScan := false;
+  if fAst = 0 then exit;
+  //
+  buff := Lines.Text;
+  len := length(buff);
+  if  len = 0 then exit;
+  fScanning := true;
+  scanBuffer(fast, @buff[1], len);
+end;
+{$ENDREGION --------------------------------------------------------------------}
+
 {$REGION DDoc hints ------------------------------------------------------------}
+function TCEEditorHintWindow.CalcHintRect(MaxWidth: Integer; const AHint: String; AData: Pointer): TRect;
+begin
+  Font.Size:= FontSize;
+  result := inherited CalcHintRect(MaxWidth, AHint, AData);
+end;
+
 procedure TCESynMemo.InitHintWins;
 begin
   if fCallTipWin = nil then begin
@@ -723,6 +779,7 @@ procedure TCESynMemo.changeNotify(Sender: TObject);
 begin
   identifierToD2Syn;
   fModified := true;
+  fCanScan := true;
   fPositions.store;
   subjDocChanged(TCEMultiDocSubject(fMultiDocSubject), self);
 end;

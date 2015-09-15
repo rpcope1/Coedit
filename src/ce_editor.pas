@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, ExtendedNotebook, Forms, Controls, lcltype,
-  Graphics, SynEditKeyCmds, ComCtrls, SynEditHighlighter, ExtCtrls, Menus,
+  Graphics, SynEditKeyCmds, ComCtrls, SynEditHighlighter, ExtCtrls, Menus, ce_dast,
   SynMacroRecorder, SynPluginSyncroEdit, SynEdit, SynHighlighterMulti, ce_dialogs,
   ce_widget, ce_interfaces, ce_synmemo, ce_dlang, ce_common, ce_dcd, ce_observer;
 
@@ -43,7 +43,6 @@ type
     procedure mnuedJum2DeclClick(Sender: TObject);
     procedure PageControlChange(Sender: TObject);
   protected
-    procedure updateDelayed; override;
     procedure updateImperative; override;
   private
     fKeyChanged: boolean;
@@ -172,8 +171,6 @@ begin
   fDoc := aDoc;
   pageControl.ActivePage := sheet;
   focusedEditorChanged;
-  beginDelayedUpdate;
-  updateImperative;
 end;
 
 procedure TCEEditorWidget.docClosing(aDoc: TCESynMemo);
@@ -195,16 +192,16 @@ begin
   if aDoc = fDoc then exit;
   fDoc := aDoc;
   focusedEditorChanged;
-  beginDelayedUpdate;
-  updateImperative;
+  beginImperativeUpdate;
+  endImperativeUpdate;
 end;
 
 procedure TCEEditorWidget.docChanged(aDoc: TCESynMemo);
 begin
   if fDoc <> aDoc then exit;
   fKeyChanged := true;
-  beginDelayedUpdate;
-  updateImperative;
+  beginImperativeUpdate;
+  endImperativeUpdate;
 end;
 {$ENDREGION}
 
@@ -281,23 +278,28 @@ begin
   if (pageControl.ActivePage.Caption = '') then
   begin
     fKeyChanged := true;
-    beginDelayedUpdate;
+    beginImperativeUpdate;
+    endImperativeUpdate;
   end;
 end;
 
 procedure TCEEditorWidget.PageControlChange(Sender: TObject);
 begin
-  updateImperative;
+  beginImperativeUpdate;
+  endImperativeUpdate;
 end;
 
 procedure TCEEditorWidget.memoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   case Key of
     VK_CLEAR,VK_RETURN,VK_BACK : fKeyChanged := true;
-    VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT: updateImperative;
+    VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT: fKeyChanged := true;
   end;
   if fKeyChanged then
-    beginDelayedUpdate
+  begin
+    beginImperativeUpdate;
+    endImperativeUpdate;
+  end
   else if (Key = VK_UP) and (shift = [ssShift,ssCtrl]) then
     getSymbolLoc;
 end;
@@ -317,19 +319,21 @@ end;
 procedure TCEEditorWidget.memoKeyPress(Sender: TObject; var Key: char);
 begin
   fKeyChanged := true;
-  beginDelayedUpdate;
+  beginImperativeUpdate;
+  endImperativeUpdate;
 end;
 
 procedure TCEEditorWidget.memoMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  beginDelayedUpdate;
-  updateImperative;
+  beginImperativeUpdate;
+  endImperativeUpdate;
 end;
 
 procedure TCEEditorWidget.memoMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
   if not (ssLeft in Shift) then exit;
-  beginDelayedUpdate;
+  beginImperativeUpdate;
+  endImperativeUpdate;
 end;
 
 procedure TCEEditorWidget.memoCtrlClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -372,8 +376,8 @@ end;
 procedure TCEEditorWidget.updateImperative;
 const
   modstr: array[boolean] of string = ('...', 'MODIFIED');
-//var
-  //md: string;
+var
+  md: string;
 begin
   if fDoc = nil then begin
     editorStatus.Panels[0].Text := '';
@@ -383,19 +387,16 @@ begin
     editorStatus.Panels[0].Text := format('%d : %d | %d', [fDoc.CaretY, fDoc.CaretX, fDoc.SelEnd - fDoc.SelStart]);
     editorStatus.Panels[1].Text := modstr[fDoc.modified];
     editorStatus.Panels[2].Text := fDoc.fileName;
-    // TODO-cEditor: set tab caption directly (e.g one start, if reload last docs)
-    //if Visible then if pageControl.ActivePage <> nil then
-    //if pageControl.ActivePage.Caption = '' then
-    //begin
-    //  if fDoc.isDSource then
-    //  begin
-    //    lex(fDoc.Lines.Text, fTokList, @lexFindToken);
-    //    md := getModuleName(fTokList);
-    //    fTokList.Clear;
-    //  end;
-    //  if md = '' then md := extractFileName(fDoc.fileName);
-    //  pageControl.ActivePage.Caption := md;
-    //end;
+    if fKeyChanged then
+    begin
+      md := '';
+      if fDoc.isDSource and (fDoc.ast <> 0) then
+        md := moduleName(fDoc.ast);
+      if md = '' then
+        md := extractFileName(fDoc.fileName);
+      pageControl.ActivePage.Caption := md;
+    end;
+    fKeyChanged := false;
   end;
 end;
 
@@ -409,37 +410,6 @@ begin
       doStop := true;
       fModStart := false;
     end;
-end;
-
-procedure TCEEditorWidget.updateDelayed;
-var
-  md: string;
-begin
-  if fDoc = nil then exit;
-  updateImperative;
-  if not fKeyChanged then exit;
-  //
-  fKeyChanged := false;
-  if fDoc.Lines.Count = 0 then exit;
-  //
-  md := '';
-  if fDoc.isDSource then
-  begin
-    fTokList.Clear;
-    lex(fDoc.Lines.Text, fTokList, @lexFindToken);
-    md := getModuleName(fTokList);
-  end;
-  if md = '' then md := extractFileName(fDoc.fileName);
-  pageControl.ActivePage.Caption := md;
-  //
-  fTokList.Clear;
-  fErrList.Clear;
-  // when a widget saves a temp file & syncro mode is on:
-  // - editor is saved
-  // - gutter is updated (green bar indicating a saved block)
-  // - syncroedit icon is hidden
-  if fDoc.syncroEdit.Active then
-    fDoc.Refresh;
 end;
 {$ENDREGION}
 
