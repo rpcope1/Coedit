@@ -6,14 +6,29 @@ object CurrentProject: TCENativeProject
       debugingOptions.codeviewDexts = True
       messagesOptions.additionalWarnings = True
       outputOptions.binaryKind = sharedlib
-      pathsOptions.outputFilename = '..\bin\cedast.dll'
+      pathsOptions.outputFilename = '../bin/cedast.so'
+    end  
+    item
+      name = 'linux-dbg'
+      debugingOptions.debug = True
+      debugingOptions.codeviewDexts = True
+      messagesOptions.additionalWarnings = True
+      outputOptions.binaryKind = obj
+      pathsOptions.outputFilename = '../bin/cedast.o'
+      otherOptions.customOptions.Strings = (
+        '-fPIC'
+      )
+      postBuildProcess.executable = 'sh'
+      postBuildProcess.parameters.Strings = (
+        '<CPP>/nux-postbuild.sh'
+      )
     end>
   Sources.Strings = (
-    '..\src\cedast.d'
-    '..\src\common.d'
-    '..\src\ast.d'
+    '../src/cedast.d'
+    '../src/common.d'
+    '../src/ast.d'
   )
-  ConfigurationIndex = 0
+  ConfigurationIndex = 1
   LibraryAliases.Strings = (
     'libdparse'
     'iz'
