@@ -6,7 +6,7 @@ object CurrentProject: TCENativeProject
       debugingOptions.codeviewDexts = True
       messagesOptions.additionalWarnings = True
       outputOptions.binaryKind = sharedlib
-      pathsOptions.outputFilename = '..\..\lazproj\cedast.dll'
+      pathsOptions.outputFilename = '..\bin\cedast.dll'
     end>
   Sources.Strings = (
     '..\src\cedast.d'

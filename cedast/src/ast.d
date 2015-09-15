@@ -8,7 +8,14 @@ import common;
 
 private
 {
-    enum AstInfos {ModuleName, ErrorsJson, ErrorsPas, SymsJson, SymsPas}
+    enum AstInfos
+    {
+        ModuleName,
+        ErrorsJson, ErrorsPas,
+        SymsJson, SymsPas,
+        TodosJson, TodosPas
+    }
+
     alias CachedInfos = EnumSet!(AstInfos, Set8);
 
     enum SymbolType
@@ -378,36 +385,38 @@ public:
 
     final string moduleName()
     {
-        string result;
-
-        if (!scanned)
-            return result;
-        if (AstInfos.ModuleName in cachedInfos)
-            return modName;
-
-        cachedInfos += AstInfos.ModuleName;
-        if (mod.moduleDeclaration)
-        foreach(Token t; mod.moduleDeclaration.moduleName.identifiers)
-            result ~= t.text ~ ".";
-
-        if (result.length)
-            modName = result[0 .. $-1];
+        if (scanned && AstInfos.ModuleName !in cachedInfos)
+        {
+            string result;
+            cachedInfos += AstInfos.ModuleName;
+            if (mod.moduleDeclaration)
+            foreach(Token t; mod.moduleDeclaration.moduleName.identifiers)
+                result ~= t.text ~ ".";
+            if (result.length)
+                modName = result[0 .. $-1];
+        }
         return modName;
     }
 
     final ubyte[] todoListPas()
     {
-        return null;
+        if (scanned && AstInfos.TodosPas !in cachedInfos)
+        {
+        }
+        return todosPas;
     }
 
     final ubyte[] todoListJson()
     {
-        return null;
+        if (scanned && AstInfos.TodosJson !in cachedInfos)
+        {
+        }
+        return todosJson;
     }
 
     final ubyte[] symbolListPas()
     {
-        if (AstInfos.SymsPas !in cachedInfos)
+        if (scanned && AstInfos.SymsPas !in cachedInfos)
         {
             cachedInfos += AstInfos.SymsPas;
             SymbolListBuilder slb = construct!SymbolListBuilder(mod);
@@ -419,7 +428,7 @@ public:
 
     final ubyte[] symbolListJson()
     {
-        if (AstInfos.SymsJson !in cachedInfos)
+        if (scanned && AstInfos.SymsJson !in cachedInfos)
         {
             cachedInfos += AstInfos.SymsJson;
             SymbolListBuilder slb = construct!SymbolListBuilder(mod);

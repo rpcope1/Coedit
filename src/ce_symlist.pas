@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, TreeFilterEdit, Forms, Controls, Graphics, ExtCtrls, Menus,
-  ComCtrls, ce_widget, jsonparser, process, actnlist, Buttons, Clipbrd, LCLProc,
-  ce_common, ce_observer, ce_synmemo, ce_interfaces, ce_writableComponent, ce_processes;
+  ComCtrls, ce_widget, jsonparser, actnlist, Buttons, Clipbrd, LCLProc,
+  ce_common, ce_observer, ce_synmemo, ce_interfaces, ce_writableComponent, ce_dast;
 
 type
 
@@ -112,11 +112,9 @@ type
     procedure TreeFilterEdit1MouseEnter(Sender: TObject);
     procedure TreeKeyPress(Sender: TObject; var Key: char);
   private
-    fHasToolExe: boolean;
     fOptions: TCESymbolListOptions;
     fSyms: TSymbolList;
     fMsgs: ICEMessagesDisplay;
-    fToolProc: TCEProcess;
     fActCopyIdent: TAction;
     fActRefresh: TAction;
     fActRefreshOnChange: TAction;
@@ -131,6 +129,7 @@ type
     fSmartFilter: boolean;
     fAutoExpandErrors: boolean;
     fSortSymbols: boolean;
+    fSymStream: TMemoryStream;
     ndAlias, ndClass, ndEnum, ndFunc, ndUni: TTreeNode;
     ndImp, ndIntf, ndMix, ndStruct, ndTmp: TTreeNode;
     ndVar, ndWarn, ndErr: TTreeNode;
@@ -144,9 +143,7 @@ type
     procedure clearTree;
     procedure expandCurrentDeclaration;
     //
-    procedure checkIfHasToolExe;
-    procedure callToolProc;
-    procedure toolTerminated(sender: TObject);
+    procedure refreshFromAst;
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
@@ -180,7 +177,6 @@ implementation
 
 const
   OptsFname = 'symbollist.txt';
-  toolExeName = 'cesyms' + exeExt;
 
 {$REGION Serializable symbols---------------------------------------------------}
 constructor TSymbol.create(ACollection: TCollection);
@@ -318,7 +314,6 @@ begin
   fAutoRefresh := false;
   fRefreshOnFocus := true;
   fRefreshOnChange := false;
-  checkIfHasToolExe;
   //
   fActCopyIdent := TAction.Create(self);
   fActCopyIdent.OnExecute:=@actCopyIdentExecute;
@@ -348,6 +343,7 @@ begin
   inherited;
   // allow empty name if owner is nil
   fSyms := TSymbolList.create(nil);
+  fSymStream := TMemoryStream.Create;
   //
   fOptions := TCESymbolListOptions.Create(self);
   fOptions.Name:= 'symbolListOptions';
@@ -388,8 +384,8 @@ destructor TCESymbolListWidget.destroy;
 begin
   EntitiesConnector.removeObserver(self);
   //
-  killProcess(fToolProc);
   fSyms.Free;
+  fSymStream.Free;
   //
   fOptions.saveToFile(getCoeditDocPath + OptsFname);
   fOptions.Free;
@@ -400,10 +396,9 @@ end;
 procedure TCESymbolListWidget.SetVisible(Value: boolean);
 begin
   inherited;
-  checkIfHasToolExe;
   getMessageDisplay(fMsgs);
   if Value then
-    callToolProc;
+    refreshFromAst;
 end;
 {$ENDREGION}
 
@@ -434,7 +429,7 @@ end;
 procedure TCESymbolListWidget.actRefreshExecute(Sender: TObject);
 begin
   if Updating then exit;
-  callToolProc;
+  refreshFromAst;
 end;
 
 procedure TCESymbolListWidget.actAutoRefreshExecute(Sender: TObject);
@@ -483,7 +478,7 @@ procedure TCESymbolListWidget.optionedEvent(anEvent: TOptionEditorEvent);
 begin
   if anEvent <> oeeAccept then exit;
   fOptions.AssignTo(self);
-  callToolProc;
+  refreshFromAst;
 end;
 
 function TCESymbolListWidget.optionedOptionsModified: boolean;
@@ -514,7 +509,7 @@ begin
   if not Visible then exit;
   //
   if fAutoRefresh then beginDelayedUpdate
-  else if fRefreshOnFocus then callToolProc;
+  else if fRefreshOnFocus then refreshFromAst;
 end;
 
 procedure TCESymbolListWidget.docChanged(aDoc: TCESynMemo);
@@ -523,7 +518,7 @@ begin
   if not Visible then exit;
   //
   if fAutoRefresh then beginDelayedUpdate
-  else if fRefreshOnChange then callToolProc;
+  else if fRefreshOnChange then refreshFromAst;
   //
   //expandCurrentDeclaration;
 end;
@@ -533,7 +528,7 @@ end;
 procedure TCESymbolListWidget.updateDelayed;
 begin
   if not fAutoRefresh then exit;
-  callToolProc;
+  refreshFromAst;
 end;
 
 procedure TCESymbolListWidget.btnRefreshClick(Sender: TObject);
@@ -645,34 +640,7 @@ begin
   fDoc.SelectLine;
 end;
 
-procedure TCESymbolListWidget.checkIfHasToolExe;
-begin
-  fHasToolExe := exeInSysPath(toolExeName);
-end;
-
-procedure TCESymbolListWidget.callToolProc;
-var
-  str: string;
-begin
-  if not fHasToolExe then exit;
-  if fDoc = nil then exit;
-  if fDoc.Lines.Count = 0 then exit;
-  if not fDoc.isDSource then exit;
-  //
-  killProcess(fToolProc);
-  fToolProc := TCEProcess.Create(nil);
-  fToolProc.ShowWindow := swoHIDE;
-  fToolProc.Options := [poUsePipes];
-  fToolProc.Executable := exeFullName(toolExeName);
-  fToolProc.OnTerminate := @toolTerminated;
-  fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);
-  fToolProc.Execute;
-  str := fDoc.Text;
-  fToolProc.Input.Write(str[1], length(str));
-  fToolProc.CloseInput;
-end;
-
-procedure TCESymbolListWidget.toolTerminated(sender: TObject);
+procedure TCESymbolListWidget.refreshFromAst;
 //
 function getCatNode(node: TTreeNode; stype: TSymbolType ): TTreeNode;
   //
@@ -732,16 +700,22 @@ end;
 //
 var
   i: Integer;
+  ptr: PByte;
+  len: NativeUint = 0;
 begin
   if ndAlias = nil then exit;
   clearTree;
   updateVisibleCat;
-  if fDoc = nil then exit;
   //
-  fToolProc.OnTerminate := nil;
-  fToolProc.OnReadData  := nil;
-  fToolProc.OutputStack.Position:=0;
-  fSyms.LoadFromTool(fToolProc.OutputStack);
+  if not dastAvailable then exit;
+  if fDoc = nil then exit;
+  if fDoc.ast = 0 then exit;
+  //
+  ptr := symbolList(fDoc.ast, len, TSerializationFormat.pas);
+  fSymStream.clear;
+  fSymStream.Write(ptr^, len);
+  fSymStream.Position:=0;
+  fSyms.LoadFromTool(fSymStream);
   //
   tree.BeginUpdate;
   for i := 0 to fSyms.symbols.Count-1 do
