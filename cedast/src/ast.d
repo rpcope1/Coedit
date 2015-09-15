@@ -1,7 +1,7 @@
 module ast;
 
 import std.d.lexer, std.d.parser, std.d.ast;
-import std.json, std.array, std.conv;
+import std.json, std.array, std.conv, std.parallelism;
 import iz.enumset, iz.memory;
 
 import common;
@@ -294,7 +294,7 @@ private
 }
 
 
-struct Ast
+class Ast
 {
 
 private:
@@ -304,6 +304,8 @@ private:
     LexerConfig config;
     StringCache strcache;
     Module mod;
+    AstNotification notif;
+    void* notifparam;
     bool scanned;
 
     CachedInfos cachedInfos;
@@ -325,48 +327,54 @@ private:
     {
         cachedInfos = 0;
         modName = modName.init;
+        jsonErrors = jsonErrors.init;
+        pasErrors = pasErrors.init;
+        todosPas = todosPas.init;
+        todosJson = todosJson.init;
+        symsPas = symsPas.init;
+        symsJson = symsJson.init;
         errors = errors.init;
     }
 
-    final void scan()
+    final void taskScan()
     {
-        resetCachedInfo;
-        scanned = false;
-        scope(success) scanned = true;
-
         config = LexerConfig(fname, StringBehavior.source, WhitespaceBehavior.skip);
         mod = parseModule(getTokensForParser(src, config, &strcache), fname, null, &parserError);
+        if (notif) notif(notifparam);
+        scanned = true;
     }
 
 public:
 
-    this(string filename)
-    {
-        fname = filename;
-        strcache = StringCache(StringCache.defaultBucketCount);
-        rescanFile();
-    }
-
-    this(ubyte[] buffer)
+    this()
     {
         strcache = StringCache(StringCache.defaultBucketCount);
-        rescanBuffer(buffer);
     }
 
-    final void rescanFile()
+    final void scanFile(string filename)
     {
         resetCachedInfo;
+        fname = filename;
         import std.file;
-        src = cast(ubyte[]) read(fname, size_t.max);
-        scan;
+        try src = cast(ubyte[]) read(fname, size_t.max);
+        catch(Exception e){}
+        scanned = false;
+        task(&taskScan).executeInNewThread;
     }
 
-    final void rescanBuffer(ubyte[] buffer)
+    final void scanBuffer(ubyte[] buffer)
     {
         resetCachedInfo;
         src = buffer.dup;
-        scan;
+        scanned = false;
+        task(&taskScan).executeInNewThread;
     }
+
+    @property AstNotification notification(){return notif;}
+    @property void notification(AstNotification value){notif = value;}
+
+    @property void* notificationParameter(){return notifparam;}
+    @property void notificationParameter(void* value){notifparam = value;}
 
     final string moduleName()
     {
@@ -423,3 +431,4 @@ public:
     }
 
 }
+

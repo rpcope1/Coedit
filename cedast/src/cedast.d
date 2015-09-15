@@ -3,17 +3,19 @@ module cedast;
 import core.runtime, common, ast;
 import iz.memory;
 
-__gshared Ast*[] modules;
+__gshared Ast[] modules;
+
 
 extern(C) export
-AstToken scanFile(char* filename)
+AstHandle newAst(void* param, AstNotification clbck)
 {
-    AstToken result;
+    AstHandle result;
     try
     {
-        import std.string: fromStringz;
         import std.algorithm: countUntil;
-        Ast* ast = construct!Ast(filename.fromStringz.idup);
+        Ast ast = construct!Ast;
+        ast.notification = clbck;
+        ast.notificationParameter = param;
         result = countUntil(modules, null);
         if (result == -1)
         {
@@ -28,115 +30,92 @@ AstToken scanFile(char* filename)
     }
     catch(Exception e)
     {
-        if (result != 0) unleash(result);
-        result = invalidAstToken;
+        if (result != 0) deleteAst(result);
+        result = invalidAstHandle;
     }
     return result;
 }
 
 extern(C) export
-AstToken scanBuffer(ubyte* buffer, size_t len)
+void deleteAst(AstHandle hdl)
 {
-    AstToken result;
-    try
-    {
-        import std.algorithm: countUntil;
-        Ast* ast = construct!Ast(buffer[0 .. len]);
-        result = countUntil(modules, null);
-        if (result == -1)
-        {
-            modules ~= ast;
-            result = modules.length;
-        }
-        else
-        {
-            modules[result] = ast;
-            ++result;
-        }
-    }
-    catch(Exception e)
-    {
-        if (result != 0) unleash(result);
-        result = invalidAstToken;
-    }
-    return result;
-}
+    if (hdl < 1 || hdl > modules.length)
+        return;
+    if (modules[hdl - 1] is null)
+        return;
 
-extern(C) export
-void rescanFile(AstToken tok)
-{
-    if (tok < 1 || tok > modules.length)
-        return;
-    modules[tok - 1].rescanFile;
-}
-
-extern(C) export
-void rescanBuffer(AstToken tok, ubyte* buffer, size_t len)
-{
-    if (tok < 1 || tok > modules.length)
-        return;
-    modules[tok - 1].rescanBuffer(buffer[0 .. len]);
-}
-
-extern(C) export
-void unleash(AstToken tok)
-{
-    mixin(logcall);
-    if (tok < 1 || tok > modules.length)
-        return;
-    if (modules[tok - 1] == null)
-        return;
-    destruct(modules[tok - 1]);
-    modules[tok - 1] = null;
-    if (tok == modules.length)
+    destruct(modules[hdl - 1]);
+    modules[hdl - 1] = null;
+    if (hdl == modules.length)
         modules.length -= 1;
 }
 
 extern(C) export
-immutable(char*) moduleName(AstToken tok)
+void scanFile(AstHandle hdl, char* filename)
 {
-    if (tok < 1 || tok > modules.length)
-        return null;
-    Ast* mod = modules[tok - 1];
-    if (mod == null)
-        return null;
-    import std.string: toStringz;
-    return toStringz(mod.moduleName);
+    if (hdl < 1 || hdl > modules.length)
+        return;
+    if (modules[hdl - 1] is null)
+        return;
+
+    import std.string: fromStringz;
+    modules[hdl - 1].scanFile(fromStringz(filename).idup);
 }
 
 extern(C) export
-ubyte* symbolList(AstToken tok, ref size_t len, SerializationFormat fmt)
+void scanBuffer(AstHandle hdl, ubyte* buffer, size_t len)
 {
-    if (tok < 1 || tok > modules.length)
+    if (hdl < 1 || hdl > modules.length)
+        return;
+    if (modules[hdl - 1] is null)
+        return;
+
+    modules[hdl - 1].scanBuffer(buffer[0 .. len]);
+}
+
+extern(C) export
+immutable(char*) moduleName(AstHandle hdl)
+{
+    if (hdl < 1 || hdl > modules.length)
         return null;
-    Ast* mod = modules[tok - 1];
-    if (mod == null)
+    if (modules[hdl - 1] is null)
+        return null;
+
+    import std.string: toStringz;
+    return toStringz(modules[hdl - 1].moduleName);
+}
+
+extern(C) export
+ubyte* symbolList(AstHandle hdl, ref size_t len, SerializationFormat fmt)
+{
+    if (hdl < 1 || hdl > modules.length)
+        return null;
+    if (modules[hdl - 1] is null)
         return null;
 
     ubyte[] result;
     if (fmt == SerializationFormat.json)
-        result = mod.symbolListJson;
+        result = modules[hdl - 1].symbolListJson;
     else
-        result = mod.symbolListPas;
+        result = modules[hdl - 1].symbolListPas;
 
     len = result.length;
     return result.ptr;
 }
 
 extern(C) export
-ubyte* todoList(AstToken tok, ref size_t len, SerializationFormat fmt)
+ubyte* todoList(AstHandle hdl, ref size_t len, SerializationFormat fmt)
 {
-    if (tok < 1 || tok > modules.length)
+    if (hdl < 1 || hdl > modules.length)
         return null;
-    Ast* mod = modules[tok - 1];
-    if (mod == null)
+    if (modules[hdl - 1] is null)
         return null;
 
     ubyte[] result;
     if (fmt == SerializationFormat.json)
-        result = mod.todoListJson;
+        result = modules[hdl - 1].todoListJson;
     else
-        result = mod.todoListPas;
+        result = modules[hdl - 1].todoListPas;
 
     len = result.length;
     return result.ptr;
@@ -176,5 +155,4 @@ version(Windows)
         return true;
     }
 }
-
 

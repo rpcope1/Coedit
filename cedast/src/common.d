@@ -1,8 +1,10 @@
 module common;
 
-alias AstToken = ptrdiff_t;
+alias AstHandle = ptrdiff_t;
 
-__gshared immutable AstToken invalidAstToken = 0;
+alias AstNotification = extern(C) void function(void* param);
+
+__gshared immutable AstHandle invalidAstHandle = 0;
 
 enum SerializationFormat : byte
 {

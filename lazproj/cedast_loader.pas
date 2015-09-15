@@ -1,40 +1,51 @@
 program cedast_loader;
 
+{$MODE OBJFPC}
+
 uses dynlibs, classes, sysutils;
 
 type
 
-  TAstToken = NativeInt;
+  TAstHandle = NativeInt;
+
+  TAstNotification = procedure(param: pointer); cdecl;
 
   {$Z1}
+
   TSerializationFormat = (json, pas);
 
-  TScanFile     = function(filename: PChar): TAstToken; cdecl;
-  TScanBuffer   = function(buffer: PByte; len: NativeUint): TAstToken; cdecl;
-  TRescanFile   = procedure(tok: TAstToken); cdecl;
-  TRescanBuffer = procedure(tok: TAstToken; buffer: PByte; len: NativeUint); cdecl;
-  TUnleash      = procedure(tok: TAstToken); cdecl;
+  TNewAst     = function(param: Pointer; clbck: TAstNotification): TAstHandle; cdecl;
+  TDeleteAst  = procedure(tok: TAstHandle); cdecl;
 
-  TModuleName   = function(tok: TAstToken): PChar; cdecl;
-  TSymbolList   = function(tok: TAstToken; var len: NativeUint ; fmt: TSerializationFormat): PByte; cdecl;
+  TScanFile   = procedure(tok: TAstHandle; filename: PChar); cdecl;
+  TScanBuffer = procedure(tok: TAstHandle; buffer: PByte; len: NativeUint); cdecl;
+
+
+  TModuleName = function(tok: TAstHandle): PChar; cdecl;
+  TSymbolList = function(tok: TAstHandle; var len: NativeUint ; fmt: TSerializationFormat): PByte; cdecl;
 
 
 
 var
   dast: TLibHandle;
-  scanfile: TScanFile;
-  scanbuffer: TScanBuffer;
-  rescanfile: TRescanFile;
-  rescanbuffer: TRescanBuffer;
-  unleash: TUnleash;
+  newAst: TNewAst;
+  deleteast: TDeleteAst;
+  scanFile: TScanFile;
+  scanBuffer: TScanBuffer;
   moduleName: TModuleName;
-  symlist: TSymbolList;
-  tok: TAstToken;
+  symbolList: TSymbolList;
+  hdl: TAstHandle;
   len: NativeUint = 0;
   ptr: PByte;
+  done: boolean;
 
 const
   testModule = 'module a.b.c.d.e.f.g.h; import std.stdio; uint a; struct F{long c;}';
+
+procedure notif(param: Pointer); cdecl;
+begin
+  done := true;
+end;
 
 
 begin
@@ -43,39 +54,44 @@ begin
   if dast = NilHandle then
     writeln('dast invalid handle')
   else begin
-    scanfile := TScanFile(GetProcAddress(dast, 'scanFile'));
+
+    newAst := TNewAst(GetProcAddress(dast, 'newAst'));
+    if newAst = nil then writeln('invalid newAst proc ptr')
+    else hdl := newAst(nil, @notif);
+
+    scanFile := TScanFile(GetProcAddress(dast, 'scanFile'));
     if scanFile = nil then writeln('invalid scanfile proc ptr')
-    else tok := scanfile(PChar('exception in call so ticket value is 0'));
+    else begin
+      done := false;
+      scanFile(hdl, PChar('exception in call'));
+      while not done do sleep(20);
+    end;
 
-    rescanfile := TRescanFile(GetProcAddress(dast, 'rescanFile'));
-    if rescanfile = nil then writeln('invalid rescanFile proc ptr')
-    else rescanfile(tok);
-
-    scanbuffer := TScanBuffer(GetProcAddress(dast, 'scanBuffer'));
-    if scanbuffer = nil then writeln('invalid scanBuffer proc ptr')
-    else tok := scanbuffer(@testModule[1], length(testModule));
-
-    rescanbuffer := TRescanBuffer(GetProcAddress(dast, 'rescanBuffer'));
-    if rescanbuffer = nil then writeln('invalid rescanBuffer proc ptr')
-    else rescanbuffer(tok, @testmodule[1], length(testModule));
+    scanBuffer := TScanBuffer(GetProcAddress(dast, 'scanBuffer'));
+    if scanBuffer = nil then writeln('invalid scanBuffer proc ptr')
+    else  begin
+      done := false;
+      scanBuffer(hdl, @testModule[1], length(testModule));
+      while not done do sleep(20);
+    end;
 
     moduleName := TModuleName(GetProcAddress(dast, 'moduleName'));
     if moduleName = nil then writeln('invalid moduleName proc ptr')
-    else if tok <> 0 then writeln(moduleName(tok));
+    else if hdl <> 0 then writeln(moduleName(hdl));
 
-    symlist := TSymbolList(GetProcAddress(dast, 'symbolList'));
-    if symlist = nil then writeln('invalid symbolList proc ptr')
-    else if tok <> 0 then with TMemoryStream.Create do try
-      ptr := symlist(tok, len, TSerializationFormat.json);
+    symbolList := TSymbolList(GetProcAddress(dast, 'symbolList'));
+    if symbolList = nil then writeln('invalid symbolList proc ptr')
+    else if hdl <> 0 then with TMemoryStream.Create do try
+      ptr := symbolList(hdl, len, TSerializationFormat.json);
       write(ptr^, len);
       SaveToFile('testsymlist.txt');
     finally
       free;
     end;
 
-    unleash := TUnleash(GetProcAddress(dast, 'unleash'));
-    if unleash = nil then writeln('invalid unleash proc ptr')
-    else unleash(tok);
+    deleteAst := TDeleteAst(GetProcAddress(dast, 'deleteAst'));
+    if deleteAst = nil then writeln('invalid deleteAst proc ptr')
+    else deleteAst(hdl);
 
   end;
 
