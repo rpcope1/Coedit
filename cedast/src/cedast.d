@@ -84,10 +84,15 @@ void unleash(AstToken tok)
 }
 
 extern(C) export
-char* moduleName(AstToken tok)
+immutable(char*) moduleName(AstToken tok)
 {
-    char* result = null;
-    return result;
+    if (tok < 1 || tok > modules.length)
+        return null;
+    Ast* mod = modules[tok - 1];
+    if (mod == null)
+        return null;
+    import std.string: toStringz;
+    return toStringz(mod.moduleName);
 }
 
 extern(C) export
