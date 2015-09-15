@@ -516,7 +516,8 @@ begin
   begin
     str := mdh.document[i].fileName;
     if str <> mdh.document[i].tempFilename then
-      fDocuments.Add(str);
+      if FileExists(str) then
+        fDocuments.Add(str);
   end;
 end;
 
@@ -528,7 +529,8 @@ begin
   mdh := getMultiDocHandler;
   if mdh = nil then exit;
   for str in fDocuments do
-    mdh.openDocument(str);
+    if FileExists(str) then
+      mdh.openDocument(str);
 end;
 {$ENDREGION}
 
