@@ -703,8 +703,7 @@ begin
   //
   prjname := shortenPath(filename, 25);
   compilproc := TProcess.Create(nil);
-  olddir := '';
-  getDir(0, olddir);
+  olddir := GetCurrentDir;
   try
     msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
     prjpath := extractFilePath(fileName);

@@ -338,7 +338,7 @@ end;
 function TCEDubProject.compile: boolean;
 var
   dubproc: TProcess;
-  olddir: string = '';
+  olddir: string;
   prjname: string;
   msgs: ICEMessagesDisplay;
 begin
@@ -347,7 +347,7 @@ begin
   msgs.clearByData(Self as ICECommonProject);
   prjname := shortenPath(fFilename);
   dubproc := TProcess.Create(nil);
-  getDir(0, olddir);
+  olddir := GetCurrentDir;
   try
     msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
     chDir(extractFilePath(fFilename));
