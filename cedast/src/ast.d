@@ -1,7 +1,7 @@
 module ast;
 
 import std.d.lexer, std.d.parser, std.d.ast;
-import std.json, std.array, std.conv, std.parallelism;
+import std.json, std.array, std.conv, std.parallelism, std.concurrency;
 import iz.enumset, iz.memory;
 
 import common;
@@ -323,7 +323,7 @@ private:
     ubyte[] todosJson;
     ubyte[] symsPas;
     ubyte[] symsJson;
-    static AstError*[] errors;
+    __gshared static AstError*[] errors;
 
     final static void parserError(string fname, size_t line, size_t col, string msg, bool isErr)
     {
@@ -349,6 +349,7 @@ private:
         mod = parseModule(getTokensForParser(src, config, &strcache), fname, null, &parserError);
         if (notif) notif(notifparam);
         scanned = true;
+        
     }
 
 public:
@@ -366,7 +367,8 @@ public:
         try src = cast(ubyte[]) read(fname, size_t.max);
         catch(Exception e){}
         scanned = false;
-        task(&taskScan).executeInNewThread;
+        version(Windows)task(&taskScan).executeInNewThread;
+        else taskScan;
     }
 
     final void scanBuffer(ubyte[] buffer)
@@ -374,7 +376,8 @@ public:
         resetCachedInfo;
         src = buffer.dup;
         scanned = false;
-        task(&taskScan).executeInNewThread;
+        version(Windows) task(&taskScan).executeInNewThread;
+        else taskScan;
     }
 
     @property AstNotification notification(){return notif;}
@@ -393,7 +396,7 @@ public:
             foreach(Token t; mod.moduleDeclaration.moduleName.identifiers)
                 result ~= t.text ~ ".";
             if (result.length)
-                modName = result[0 .. $-1];
+                modName = result[0 .. $-1].idup;
         }
         return modName;
     }
@@ -421,7 +424,7 @@ public:
             cachedInfos += AstInfos.SymsPas;
             SymbolListBuilder slb = construct!SymbolListBuilder(mod);
             scope(exit) destruct(slb);
-            symsPas = cast(ubyte[]) slb.serializePas();
+            symsPas = cast(ubyte[]) slb.serializePas().dup;
         }
         return symsPas;
     }

@@ -5,7 +5,7 @@ unit ce_dast;
 interface
 
 uses
-  dynlibs, forms;
+  dynlibs, sysutils, ce_common;
 
 type
 
@@ -44,14 +44,14 @@ var
 implementation
 
 var
-  dastHdl: TLibHandle;
+  dastHdl: TLibHandle = 0;
+  fname: string;
 
 initialization
 
-  if application.GetOptionValue('cedast') = 'off' then
-    exit;
-
-  dastHdl := LoadLibrary('cedast');
+  fname := exeFullName('cedast' + dynExt);
+  if FileExists(fname) then
+    dastHdl := LoadLibrary(fname);
   if dastHdl <> NilHandle then
   begin
     newAST := TNewAst(GetProcAddress(dastHdl, 'newAst'));
@@ -60,12 +60,10 @@ initialization
     scanBuffer := TScanBuffer(GetProcAddress(dastHdl, 'scanBuffer'));
     moduleName := TModuleName(GetProcAddress(dastHdl, 'moduleName'));
     symbolList := TSymbolList(GetProcAddress(dastHdl, 'symbolList'));
-    symbolList := TSymbolList(GetProcAddress(dastHdl, 'symbolList'));
     //
     dastAvailable := assigned(newAST) and assigned(deleteAST) and assigned(scanFile)
       and assigned(scanBuffer) and assigned(moduleName) and assigned(symbolList);
   end;
-
 
 finalization
   {$IFDEF RELEASE}

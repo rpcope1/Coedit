@@ -377,6 +377,7 @@ begin
     fAstTimer.Interval:= 2000;
     fAstTimer.OnTimer:= @AstTimerEvent;
     fAstTimer.Enabled:=true;
+    fAstTimer.AutoEnabled:=true;
   end;
   //
   ShowHint := false;

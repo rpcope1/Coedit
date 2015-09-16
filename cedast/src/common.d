@@ -1,8 +1,10 @@
 module common;
 
+extern(C):
+
 alias AstHandle = ptrdiff_t;
 
-alias AstNotification = extern(C) void function(void* param);
+alias AstNotification = void function(void* param);
 
 __gshared immutable AstHandle invalidAstHandle = 0;
 

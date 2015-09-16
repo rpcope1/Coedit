@@ -112,7 +112,6 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <WorkingDirectory Value="C:\"/>
       </local>
     </RunParams>
     <RequiredPackages Count="6">

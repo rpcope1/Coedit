@@ -712,6 +712,7 @@ begin
   if fDoc.ast = 0 then exit;
   //
   ptr := symbolList(fDoc.ast, len, TSerializationFormat.pas);
+  if len = 0 then exit;
   fSymStream.clear;
   fSymStream.Write(ptr^, len);
   fSymStream.Position:=0;

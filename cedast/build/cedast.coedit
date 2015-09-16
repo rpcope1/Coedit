@@ -13,6 +13,7 @@ object CurrentProject: TCENativeProject
       debugingOptions.debug = True
       debugingOptions.codeviewDexts = True
       messagesOptions.additionalWarnings = True
+      messagesOptions.tlsInformations = True
       outputOptions.binaryKind = obj
       pathsOptions.outputFilename = '../bin/cedast.o'
       otherOptions.customOptions.Strings = (
@@ -30,7 +31,6 @@ object CurrentProject: TCENativeProject
   )
   ConfigurationIndex = 1
   LibraryAliases.Strings = (
-    'libdparse'
-    'iz'
+    '*'
   )
 end
