@@ -496,9 +496,9 @@ end;
 
 function uniqueObjStr(const aObject: Tobject): string;
 begin
-  {$HINTS OFF}{$WARNINGS OFF}
+  {$HINTS OFF}{$WARNINGS OFF}{$R-}
   exit( format('%.8X',[NativeUint(aObject)]));
-  {$HINTS ON}{$WARNINGS ON}
+  {$HINTS ON}{$WARNINGS ON}{$R+}
 end;
 
 function shortenPath(const aPath: string; charThresh: Word = 60): string;
@@ -726,17 +726,14 @@ begin
   ext := extractFileExt(anExeName);
   if ext = '' then
     anExeName += exeExt;
+  env := sysutils.GetEnvironmentVariable('PATH');
   if FileExists(anExeName) then
-    exit(anExeName)
-  else
-  begin
-    env := sysutils.GetEnvironmentVariable('PATH');
-    {$IFNDEF CEBUILD}
-    if Application <> nil then
-      env += PathSeparator + ExtractFileDir(ExtractFilePath(application.ExeName));
-    {$ENDIF}
-    exit(ExeSearch(anExeName, env));
-  end;
+    env += PathSeparator + GetCurrentDir;
+  {$IFNDEF CEBUILD}
+  if Application <> nil then
+    env += PathSeparator + ExtractFileDir(ExtractFilePath(application.ExeName));
+  {$ENDIF}
+  exit(ExeSearch(anExeName, env));
 end;
 
 procedure processOutputToStrings(aProcess: TProcess; var aList: TStringList);
