@@ -187,7 +187,7 @@ begin
   str := TStringList.Create;
   try
     for i := 0 to fProj.Sources.Count-1 do
-      str.Add(fProj.getAbsoluteSourceName(i));
+      str.Add(fProj.sourceAbsolute(i));
     // single source libs usually have the structure "src/<fname>"
     if str.Count = 1 then
       root := ExtractFileDir(str.Strings[0])
@@ -205,10 +205,10 @@ begin
     with List.Items.Add do
     begin
       Caption := ExtractFileNameOnly(fProj.Filename);
-      if ExtractFileExt(fProj.getOutputFilename) <> libExt then
-        SubItems.add(fProj.getOutputFilename + libExt)
+      if ExtractFileExt(fProj.outputFilename) <> libExt then
+        SubItems.add(fProj.outputFilename + libExt)
       else
-        SubItems.add(fProj.getOutputFilename);
+        SubItems.add(fProj.outputFilename);
       SubItems.add(root);
       if not FileExists(SubItems[0]) then
         dlgOkInfo('the library file does not exist, maybe the project not been already compiled ?');

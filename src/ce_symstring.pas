@@ -181,27 +181,18 @@ begin
   // project interface
   if hasProjItf then
   begin
-    fSymbols[CPF] := fProjInterface.getFilename;
+    fname := fProjInterface.filename;
+    fSymbols[CPF] := fname;
     fSymbols[CPP] := ExtractFilePath(fSymbols[CPF]);
     fSymbols[CPN] := stripFileExt(extractFileName(fSymbols[CPF]));
-  end;
-  // TODO-cDUB: move to upper block expansion of CPO, CPFS & CPCD when implemented in ICECOmmonProject
-  if hasNativeProj then
-  begin
-    if fileExists(fProj.fileName) then
-    begin
-      fSymbols[CPR] := fProj.getAbsoluteFilename(fProj.RootFolder);
-      fSymbols[CPO] := fProj.getOutputFilename;
-      if fSymbols[CPR] = '' then
-        fSymbols[CPR] := fSymbols[CPP];
-    end;
-    if fProj.Sources.Count <> 0 then
+    fSymbols[CPO] := fProjInterface.outputFilename;
+    if fProjInterface.sourcesCount <> 0 then
     begin
       str := TStringList.Create;
       try
-        for i := 0 to fProj.Sources.Count-1 do
+        for i := 0 to fProjInterface.sourcesCount-1 do
         begin
-          fname := fProj.getAbsoluteSourceName(i);
+          fname := fProjInterface.sourceAbsolute(i);
           if not isEditable(ExtractFileExt(fname)) then
             continue;
           str.Add(fname);
@@ -214,6 +205,15 @@ begin
       finally
         str.Free;
       end;
+    end;
+  end;
+  if hasNativeProj then
+  begin
+    if fileExists(fProj.fileName) then
+    begin
+      fSymbols[CPR] := expandFilenameEx(fProj.basePath, fProj.RootFolder);
+      if fSymbols[CPR] = '' then
+        fSymbols[CPR] := fSymbols[CPP];
     end;
   end;
 end;

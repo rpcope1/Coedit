@@ -214,7 +214,7 @@ var
 begin
   if aProject = nil then exit;
   //
-  fname := aProject.getFilename;
+  fname := aProject.filename;
   if FileExists(fname) then Insert(0, fname);
 end;
 

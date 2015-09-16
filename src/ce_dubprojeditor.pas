@@ -5,8 +5,8 @@ unit ce_dubprojeditor;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, StdCtrls, Buttons, ComCtrls, jsonparser, fpjson,
+  Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Graphics,
+  Dialogs, ExtCtrls, Menus, StdCtrls, Buttons, ComCtrls, jsonparser, fpjson,
   ce_widget, ce_common, ce_interfaces, ce_observer, ce_dubproject;
 
 type
@@ -19,14 +19,18 @@ type
     btnDelProp: TSpeedButton;
     btnDelProp1: TSpeedButton;
     edValue: TMemo;
+    fltEdit: TTreeFilterEdit;
+    imgList: TImageList;
     PageControl1: TPageControl;
     pnlToolBar: TPanel;
     pnlToolBar1: TPanel;
     propTree: TTreeView;
+    fltInspect: TTreeFilterEdit;
     treeInspect: TTreeView;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     procedure propTreeSelectionChanged(Sender: TObject);
+    procedure treeInspectDblClick(Sender: TObject);
   private
     fSelectedNode: TTreeNode;
     fProj: TCEDubProject;
@@ -52,7 +56,7 @@ type
 implementation
 {$R *.lfm}
 
-{$REGION  Standard Comp/Obj ----------------------------------------------------}
+{$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCEDubProjectEditorWidget.create(aOwner: TComponent);
 begin
   inherited;
@@ -205,19 +209,35 @@ procedure TCEDubProjectEditorWidget.updateEditor;
   begin
     if data.JSONType = jtObject then for i := 0 to data.Count-1 do
     begin
+      node.ImageIndex:=7;
+      node.SelectedIndex:=7;
+      node.StateIndex:=7;
       c := node.TreeNodes.AddChildObject(node, TJSONObject(data).Names[i],
         TJSONObject(data).Items[i]);
       case TJSONObject(data).Items[i].JSONType of
-       jtObject, jtArray:
-         addPropsFrom(c, TJSONObject(data).Items[i]);
+        jtObject, jtArray:
+          addPropsFrom(c, TJSONObject(data).Items[i]);
+        else begin
+          c.ImageIndex:=9;
+          c.SelectedIndex:=9;
+          c.StateIndex:=9;
+        end;
       end;
     end else if data.JSONType = jtArray then for i := 0 to data.Count-1 do
     begin
+      node.ImageIndex:=8;
+      node.SelectedIndex:=8;
+      node.StateIndex:=8;
       c := node.TreeNodes.AddChildObject(node, format('item %d',[i]),
         TJSONArray(data).Items[i]);
       case TJSONArray(data).Items[i].JSONType of
-       jtObject, jtArray:
-         addPropsFrom(c, TJSONArray(data).Items[i]);
+        jtObject, jtArray:
+          addPropsFrom(c, TJSONArray(data).Items[i]);
+        else begin
+          c.ImageIndex:=9;
+          c.SelectedIndex:=9;
+          c.StateIndex:=9;
+        end;
       end;
     end;
   end;
@@ -237,6 +257,7 @@ end;
 procedure TCEDubProjectEditorWidget.updateInspector;
 var
   i: integer;
+  node : TTreeNode;
 begin
   if (fNodeConfig = nil) or (fNodeSources = nil) then
     exit;
@@ -247,10 +268,44 @@ begin
   if (fProj = nil) then
     exit;
   //
-  for i:= 0 to fProj.getConfigurationCount -1 do
-    treeInspect.Items.AddChild(fNodeConfig, fProj.getConfigurationName(i));
-  for i := 0 to fProj.sources.count-1 do
-    treeInspect.Items.AddChild(fNodeSources, fProj.sources.strings[i]);
+  treeInspect.BeginUpdate;
+  for i:= 0 to fProj.configurationCount-1 do
+  begin
+    node := treeInspect.Items.AddChild(fNodeConfig, fProj.configurationName(i));
+    node.ImageIndex := 3;
+    node.SelectedIndex := 3;
+    node.StateIndex := 3;
+  end;
+  for i := 0 to fProj.sourcesCount-1 do
+  begin
+    node := treeInspect.Items.AddChild(fNodeSources, fProj.sourceRelative(i));
+    node.ImageIndex := 2;
+    node.SelectedIndex := 2;
+    node.StateIndex := 2;
+  end;
+  treeInspect.EndUpdate;
+end;
+
+procedure TCEDubProjectEditorWidget.treeInspectDblClick(Sender: TObject);
+var
+  node: TTreeNode;
+  fname: string;
+begin
+  if treeInspect.Selected = nil then exit;
+  if fProj = nil then exit;
+  node := treeInspect.Selected;
+  // open file
+  if node.Parent = fNodeSources then
+  begin
+    fname := fProj.sourceAbsolute(node.Index);
+    if isEditable(extractFileExt(fname)) then
+      getMultiDocHandler.openDocument(fname);
+  end
+  // select active config
+  else if node.Parent = fNodeConfig then
+  begin
+    fProj.setActiveConfiguration(node.Index);
+  end;
 end;
 {$ENDREGION}
 

@@ -380,7 +380,7 @@ begin
   if ((fProj <> nil) and (fDoc = nil)) then
     exit(tcProject);
   //
-  if fProj.getIfIsSource(fDoc.fileName) then
+  if fProj.isSource(fDoc.fileName) then
     exit(tcProject)
   else
     exit(tcFile);

@@ -20,62 +20,64 @@ type
    * Common project interface.
    *
    * Each project format has its own dedicated editors.
-   * The few common properties allow some generic operations whatever is the format.
+   * A few common properties allow some generic operations whatever is the format.
    *)
   ICECommonProject = interface
   ['ICECommonProject']
-    // indicates the project format
-    function getFormat: TCEProjectFormat;
-    // returns an untyped object that can be casted using getFormat()
-    function getProject: TObject;
 
-    // sub routines for the actions --------------------------------------------
+    // general properties ------------------------------------------------------
 
-    // tries to compile and returns true if it does
-    function compile: boolean;
-    // tries to un the project and returns true if it did
-    function run(const runArgs: string = ''): boolean;
-
-    // project file - allows main form to create/load/save ---------------------
-
-    // returns the project filename
-    function getFilename: string;
-    // loads project from filename
-    procedure loadFromFile(const aFilename: string);
-    // saves project to filename
-    procedure saveToFile(const aFilename: string);
-    // indicates of the project is modified (should be saved or not)
-    function getIfModified: boolean;
-
-    // various properties used by several widgets (todo ana, dcd, ...)----------
-
-    //// common project properties
-    //function sourceCount: integer;
-    //function source(index: integer): string;
-    //function stringImportCount: integer;
-    //function stringImport(index: integer): string;
-    //function moduleImportCount: integer;
-    //function moduleImport(index: integer): string;
-
-    // returns true if aFilename is a project source
-    function getIfIsSource(const aFilename: string): boolean;
-    // returns the name of the file produced when a project is compiled
-    function getOutputFilename: string;
-    // returns the binary kind produced according to the current configuration
-    function getBinaryKind: TProjectBinaryKind;
-    // returns what's gonna be executed in background for this config
-    function getCommandLine: string;
+      // indicates the project format
+      function getFormat: TCEProjectFormat;
+      // returns an untyped object that can be casted using getFormat()
+      function getProject: TObject;
+      // returns the project filename
+      function filename: string;
+      // loads project from filename
+      procedure loadFromFile(const aFilename: string);
+      // saves project to filename
+      procedure saveToFile(const aFilename: string);
+      // indicates of the project is modified (should be saved or not)
+      function modified: boolean;
+      // returns the base path used to solve relative locations
+      function basePath: string;
+      // returns the name of the file produced when a project is compiled
+      function outputFilename: string;
+      // returns the binary kind produced according to the current configuration
+      function binaryKind: TProjectBinaryKind;
+      // returns what's gonna be executed in background for this config
+      function getCommandLine: string;
 
     // configs -----------------------------------------------------------------
 
-    // returns the count of configuration
-    function getConfigurationCount: integer;
-    // sets the active configuration
-    procedure setActiveConfiguration(index: integer);
-    // returns the name of the index-th configuration
-    function getConfigurationName(index: integer): string;
+      // returns the count of configuration
+      function configurationCount: integer;
+      // sets the active configuration
+      procedure setActiveConfiguration(index: integer);
+      // returns the name of the index-th configuration
+      function configurationName(index: integer): string;
+
+    // project sources ---------------------------------------------------------
+
+      // returns the count of source file in th e project
+      function sourcesCount: integer;
+      // returns the source absolute filename.
+      function sourceAbsolute(index: integer): string;
+      // returns the source relative filename.
+      function sourceRelative(index: integer): string;
+      // returns true if aFilename is a project source.
+      function isSource(const aFilename: string): boolean;
+
+    // sub routines for the actions --------------------------------------------
+
+      // tries to compile and returns true if it does
+      function compile: boolean;
+      // tries to un the project output and returns true if it did
+      function run(const runArgs: string = ''): boolean;
 
   end;
+
+
 
   (**
    * An implementer declares some actions on demand.

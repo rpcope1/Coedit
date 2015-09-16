@@ -146,7 +146,7 @@ begin
   try
   	for i:= 0 to fProj.Sources.Count-1 do
     begin
-      fold := extractFilePath(fProj.getAbsoluteSourceName(i));
+      fold := extractFilePath(fProj.sourceAbsolute(i));
       if folds.IndexOf(fold) = -1 then
         folds.Add(fold);
     end;

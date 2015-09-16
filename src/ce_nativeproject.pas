@@ -56,9 +56,6 @@ type
     procedure runProcOutput(sender: TObject);
     // passes compilation message as "to be guessed"
     procedure compProcOutput(proc: TProcess);
-    //
-    function getFormat: TCEProjectFormat;
-    function getProject: TObject;
   protected
     procedure beforeLoad; override;
     procedure afterSave; override;
@@ -79,28 +76,34 @@ type
     procedure endUpdate;
     procedure reset;
     procedure addDefaults;
-    function getIfIsSource(const aFilename: string): boolean;
-    function getAbsoluteSourceName(aIndex: integer): string;
-    function getAbsoluteFilename(const aFilename: string): string;
     procedure addSource(const aFilename: string);
     function addConfiguration: TCompilerConfiguration;
     procedure getOpts(const aList: TStrings);
+    //
+    function getFormat: TCEProjectFormat;
+    function getProject: TObject;
+    function filename: string;
+    function basePath: string;
+    function outputFilename: string;
+    function binaryKind: TProjectBinaryKind;
+    function getCommandLine: string;
+    function modified: boolean;
+    //
+    function configurationCount: integer;
+    procedure setActiveConfiguration(index: integer);
+    function configurationName(index: integer): string;
+    //
+    function sourcesCount: integer;
+    function sourceRelative(index: integer): string;
+    function sourceAbsolute(index: integer): string;
+    function isSource(const aFilename: string): boolean;
+    //
     function run(const runArgs: string = ''): Boolean;
     function compile: Boolean;
-    //
-    function getIfModified: boolean;
-    function getOutputFilename: string;
-    function getConfigurationCount: integer;
-    procedure setActiveConfiguration(index: integer);
-    function getConfigurationName(index: integer): string;
-    function getFilename: string;
-    function getBinaryKind: TProjectBinaryKind;
-    function getCommandLine: string;
     //
     property configuration[ix: integer]: TCompilerConfiguration read getConfig;
     property currentConfiguration: TCompilerConfiguration read getCurrConf;
     property onChange: TNotifyEvent read fOnChange write fOnChange;
-    property modified: Boolean read fModified;
     property canBeRun: Boolean read fCanBeRun;
   end;
 
@@ -423,26 +426,14 @@ begin
   end;
 end;
 
-function TCENativeProject.getIfIsSource(const aFilename: string): boolean;
+function TCENativeProject.isSource(const aFilename: string): boolean;
 var
   i: Integer;
 begin
   for i := 0 to fSrcs.Count-1 do
-    if getAbsoluteSourceName(i) = aFilename then
+    if sourceAbsolute(i) = aFilename then
       exit(true);
   exit(false);
-end;
-
-function TCENativeProject.getAbsoluteSourceName(aIndex: integer): string;
-begin
-  if aIndex < 0 then exit('');
-  if aIndex > fSrcs.Count-1 then exit('');
-  result := expandFileNameEx(fBasePath, fSrcs.Strings[aIndex]);
-end;
-
-function TCENativeProject.getAbsoluteFilename(const aFilename: string): string;
-begin
-  result := expandFileNameEx(fBasePath, aFilename);
 end;
 
 procedure TCENativeProject.afterSave;
@@ -474,7 +465,7 @@ var
     if fSrcs.Count = 0 then exit;
     allMissing := true;
     for i:= 0 to fSrcs.Count-1 do
-      if fileExists(getAbsoluteSourceName(i)) then
+      if fileExists(sourceAbsolute(i)) then
         allMissing := false;
     if not allMissing then exit;
     if dlgOkCancel( 'The project source(s) are all missing. ' + LineEnding +
@@ -507,7 +498,7 @@ var
   begin
     for i:= fSrcs.Count-1 downto 0 do
     begin
-      oldsrc := getAbsoluteSourceName(i);
+      oldsrc := sourceAbsolute(i);
       if fileExists(oldsrc) then continue;
       if dlgOkCancel(format('a particular project source file ("%s") is missing. '
         + LineEnding + 'This happends if a source file has been moved, renamed ' +
@@ -603,7 +594,7 @@ begin
   if fOutputFilename <> '' then
   begin
     fOutputFilename := symbolExpander.get(fOutputFilename);
-    fOutputFilename := getAbsoluteFilename(fOutputFilename);
+    fOutputFilename := expandFilenameEx(fBasePath, fOutputFilename);
     {$IFDEF WINDOWS}
     // field is specified without ext or with a dot in the name.
     // DMD will add the ext. (e.g: "-ofresourced")
@@ -758,14 +749,14 @@ begin
     until prm = '';
   end;
   //
-  if not fileExists(getOutputFilename) then
+  if not fileExists(outputFilename) then
   begin
-    getMessageDisplay.message('output executable missing: ' + shortenPath(getOutputFilename, 25),
+    getMessageDisplay.message('output executable missing: ' + shortenPath(outputFilename, 25),
       self as ICECommonProject, amcProj, amkErr);
     exit;
   end;
   //
-  fRunner.Executable := getOutputFilename;
+  fRunner.Executable := outputFilename;
   if fRunner.CurrentDirectory = '' then
     fRunner.CurrentDirectory := extractFilePath(fRunner.Executable);
   if poUsePipes in fRunner.Options then begin
@@ -819,17 +810,12 @@ begin
   end;
 end;
 
-function TCENativeProject.getIfModified: boolean;
-begin
-  exit(fModified);
-end;
-
-function TCENativeProject.getOutputFilename: string;
+function TCENativeProject.outputFilename: string;
 begin
   exit(fOutputFilename);
 end;
 
-function TCENativeProject.getConfigurationCount: integer;
+function TCENativeProject.configurationCount: integer;
 begin
   exit(fConfigs.Count);
 end;
@@ -839,19 +825,29 @@ begin
   setConfIx(index);
 end;
 
-function TCENativeProject.getConfigurationName(index: integer): string;
+function TCENativeProject.configurationName(index: integer): string;
 begin
   if index > fConfigs.Count -1 then index := fConfigs.Count -1;
   if index < 0 then index := 0;
   result := getConfig(index).name;
 end;
 
-function TCENativeProject.getFilename: string;
+function TCENativeProject.filename: string;
 begin
   exit(fFilename);
 end;
 
-function TCENativeProject.getBinaryKind: TProjectBinaryKind;
+function TCENativeProject.modified: boolean;
+begin
+  exit(fModified);
+end;
+
+function TCENativeProject.basePath: string;
+begin
+  exit(fBasePath);
+end;
+
+function TCENativeProject.binaryKind: TProjectBinaryKind;
 begin
   exit(currentConfiguration.outputOptions.binaryKind);
 end;
@@ -868,6 +864,27 @@ begin
   finally
     str.Free;
   end;
+end;
+
+function TCENativeProject.sourcesCount: integer;
+begin
+  exit(fSrcs.Count);
+end;
+
+function TCENativeProject.sourceRelative(index: integer): string;
+begin
+  exit(fSrcs.Strings[index]);
+end;
+
+function TCENativeProject.sourceAbsolute(index: integer): string;
+var
+  fname: string;
+begin
+  fname := fSrcs.Strings[index];
+  if FileExists(fname) then
+    result := fname
+  else
+    result := expandFilenameEx(fBasePath, fname);
 end;
 
 function isValidNativeProject(const filename: string): boolean;

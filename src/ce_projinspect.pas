@@ -211,7 +211,7 @@ begin
   if Tree.Selected = nil then
     exit;
   if (Tree.Selected.Parent = fFileNode) then
-    fLastFileOrFolder := fProject.getAbsoluteFilename(tree.Selected.Text)
+    fLastFileOrFolder := expandFilenameEx(fProject.basePath,tree.Selected.Text)
   else
     fLastFileOrFolder := tree.Selected.Text;
 end;
@@ -229,7 +229,7 @@ begin
     fname := Tree.Selected.Text;
     i := fProject.Sources.IndexOf(fname);
     if i > -1 then
-      fname := fProject.getAbsoluteSourceName(i);
+      fname := fProject.sourceAbsolute(i);
     if isEditable(ExtractFileExt(fname)) and fileExists(fname) then
       getMultiDocHandler.openDocument(fname);
   end
@@ -317,13 +317,13 @@ begin
   fname := Tree.Selected.Text;
   i := fProject.Sources.IndexOf(fname);
   if i = -1 then exit;
-  fname := fProject.getAbsoluteSourceName(i);
+  fname := fProject.sourceAbsolute(i);
   dir := extractFilePath(fname);
   if not DirectoryExists(dir) then exit;
   //
   fProject.beginUpdate;
   for i:= fProject.Sources.Count-1 downto 0 do
-    if extractFilePath(fProject.getAbsoluteSourceName(i)) = dir then
+    if extractFilePath(fProject.sourceAbsolute(i)) = dir then
       fProject.Sources.Delete(i);
   fProject.endUpdate;
 end;
@@ -427,7 +427,7 @@ begin
   begin
     if fold = '' then
       continue;
-    fold := fProject.getAbsoluteFilename(fold);
+    fold := expandFilenameEx(fProject.basePath, fold);
     fold := symbolExpander.get(fold);
     itm := Tree.Items.AddChild(fImpsNode, fold);
     itm.ImageIndex := 5;
@@ -439,7 +439,7 @@ begin
   begin
     if fold = '' then
       continue;
-    fold := fProject.getAbsoluteFilename(fold);
+    fold := expandFilenameEx(fProject.basePath, fold);
     fold := symbolExpander.get(fold);
     itm := Tree.Items.AddChild(fInclNode, fold);
     itm.ImageIndex := 5;
@@ -451,7 +451,7 @@ begin
   begin
     if src = '' then
       continue;
-    src := fProject.getAbsoluteFilename(src);
+    src := expandFilenameEx(fProject.basePath, src);
     src := symbolExpander.get(src);
     lst := TStringList.Create;
     try

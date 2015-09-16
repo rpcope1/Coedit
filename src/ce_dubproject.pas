@@ -10,8 +10,6 @@ uses
 
 type
 
-  TUpdaterTarget = (configs, files);
-
   TCEDubProject = class(TComponent, ICECommonProject)
   private
     fFilename: string;
@@ -31,36 +29,39 @@ type
     procedure udpateConfigsFromJson;
     procedure updateSourcesFromJson;
     procedure updateTargetKindFromJson;
-    function findTargetKindIn(value: TJSONObject): boolean;
+    function findTargetKindInd(value: TJSONObject): boolean;
     procedure dubProcOutput(proc: TProcess);
     function getCurrentCustomConfig: TJSONObject;
-    //
-    function getFormat: TCEProjectFormat;
-    function getProject: TObject;
-    //
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     //
-    function getFilename: string;
+    function filename: string;
+    function basePath: string;
     procedure loadFromFile(const aFilename: string);
     procedure saveToFile(const aFilename: string);
-    function getIfModified: boolean;
-    function getBinaryKind: TProjectBinaryKind;
+    //
+    function getFormat: TCEProjectFormat;
+    function getProject: TObject;
+    function modified: boolean;
+    function binaryKind: TProjectBinaryKind;
     function getCommandLine: string;
     //
-    function getIfIsSource(const aFilename: string): boolean;
-    function getOutputFilename: string;
+    function isSource(const aFilename: string): boolean;
+    function sourcesCount: integer;
+    function sourceRelative(index: integer): string;
+    function sourceAbsolute(index: integer): string;
+    function outputFilename: string;
     //
-    function getConfigurationCount: integer;
+    function configurationCount: integer;
     procedure setActiveConfiguration(index: integer);
-    function getConfigurationName(index: integer): string;
+    function configurationName(index: integer): string;
     //
     function compile: boolean;
     function run(const runArgs: string = ''): boolean;
     //
     property json: TJSONObject read fJSON;
-    property sources: TStringList read fSrcs;
+    //property sources: TStringList read fSrcs;
   end;
 
   // these 9 built types always exist
@@ -77,6 +78,7 @@ const
 
 implementation
 
+{$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCEDubProject.create(aOwner: TComponent);
 begin
   inherited;
@@ -100,6 +102,225 @@ begin
   fSrcs.Free;
   inherited;
 end;
+{$ENDREGION --------------------------------------------------------------------}
+
+{$REGION ICECommonProject: project props ---------------------------------------}
+function TCEDubProject.getFormat: TCEProjectFormat;
+begin
+  exit(pfDub);
+end;
+
+function TCEDubProject.getProject: TObject;
+begin
+  exit(self);
+end;
+
+function TCEDubProject.filename: string;
+begin
+  exit(fFilename);
+end;
+
+function TCEDubProject.basePath: string;
+begin
+  exit(fBasePath);
+end;
+
+procedure TCEDubProject.loadFromFile(const aFilename: string);
+var
+  loader: TMemoryStream;
+  parser : TJSONParser;
+begin
+  loader := TMemoryStream.Create;
+  try
+    fBasePath := extractFilePath(aFilename);
+    fFilename := aFilename;
+    loader.LoadFromFile(fFilename);
+    fJSON.Free;
+    parser := TJSONParser.Create(loader);
+    try
+      fJSON := parser.Parse as TJSONObject;
+    finally
+      parser.Free;
+    end;
+  finally
+    loader.Free;
+    updateFields;
+    subjProjChanged(fProjectSubject, self);
+    fModified := false;
+  end;
+end;
+
+procedure TCEDubProject.saveToFile(const aFilename: string);
+var
+  saver: TMemoryStream;
+  str: string;
+begin
+  saver := TMemoryStream.Create;
+  try
+    fFilename := aFilename;
+    str := fJSON.FormatJSON;
+    saver.Write(str[1], length(str));
+    saver.SaveToFile(fFilename);
+  finally
+    saver.Free;
+    fModified := false;
+  end;
+end;
+
+function TCEDubProject.binaryKind: TProjectBinaryKind;
+begin
+  exit(fBinKind);
+end;
+
+function TCEDubProject.getCommandLine: string;
+var
+  str: TStringList;
+begin
+  str := TStringList.Create;
+  try
+    str.Add('dub' + exeExt);
+    if fBuiltTypeIx <> 0 then
+      str.Add('build=' + fBuildTypes.Strings[fBuiltTypeIx]);
+    if fConfigIx <> 0 then
+      str.Add('config=' + fConfigs.Strings[fConfigIx]);
+    result := str.Text;
+  finally
+    str.Free;
+  end;
+end;
+
+function TCEDubProject.outputFilename: string;
+begin
+  //TODO-cDUB: implement outputFilename
+  exit('');
+end;
+{$ENDREGION --------------------------------------------------------------------}
+
+{$REGION ICECommonProject: sources ---------------------------------------------}
+function TCEDubProject.isSource(const aFilename: string): boolean;
+var
+  fname: string;
+begin
+  fname := aFilename;
+  if fileExists(fname) then
+    fname := ExtractRelativepath(fBasePath, fname);
+  result := fSrcs.IndexOf(fname) <> -1;
+end;
+
+function TCEDubProject.sourcesCount: integer;
+begin
+  exit(fSrcs.Count);
+end;
+
+function TCEDubProject.sourceRelative(index: integer): string;
+begin
+  exit(fSrcs.Strings[index]);
+end;
+
+function TCEDubProject.sourceAbsolute(index: integer): string;
+var
+  fname: string;
+begin
+  fname := fSrcs.Strings[index];
+  if FileExists(fname) then
+    result := fname
+  else
+    result := expandFilenameEx(fBasePath, fname);
+end;
+{$ENDREGION --------------------------------------------------------------------}
+
+{$REGION ICECommonProject: configs ---------------------------------------------}
+function TCEDubProject.configurationCount: integer;
+begin
+  exit(fConfigsCount);
+end;
+
+procedure TCEDubProject.setActiveConfiguration(index: integer);
+begin
+  fBuiltTypeIx := index div fConfigs.Count;
+  fConfigIx := index mod fConfigs.Count;
+  updateSourcesFromJson;
+end;
+
+function TCEDubProject.configurationName(index: integer): string;
+begin
+  result := fBuildTypes.Strings[index div fConfigs.Count] + ' - ' +
+    fConfigs.Strings[index mod fConfigs.Count];
+end;
+{$ENDREGION --------------------------------------------------------------------}
+
+{$REGION ICECommonProject: actions ---------------------------------------------}
+function TCEDubProject.compile: boolean;
+var
+  dubproc: TProcess;
+  olddir: string;
+  prjname: string;
+  msgs: ICEMessagesDisplay;
+begin
+  result := false;
+  msgs := getMessageDisplay;
+  msgs.clearByData(Self as ICECommonProject);
+  prjname := shortenPath(fFilename);
+  dubproc := TProcess.Create(nil);
+  olddir := GetCurrentDir;
+  try
+    msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
+    chDir(extractFilePath(fFilename));
+    dubproc.Executable := 'dub' + exeExt;
+    dubproc.Options := dubproc.Options + [poStderrToOutPut, poUsePipes];
+    dubproc.CurrentDirectory := extractFilePath(fFilename);
+    dubproc.ShowWindow := swoHIDE;
+    if fBuiltTypeIx <> 0 then
+      dubproc.Parameters.Add('build=' + fBuildTypes.Strings[fBuiltTypeIx]);
+    if fConfigIx <> 0 then
+      dubproc.Parameters.Add('config=' + fConfigs.Strings[fConfigIx]);
+    dubproc.Execute;
+    while dubproc.Running do
+      dubProcOutput(dubproc);
+    if dubproc.ExitStatus = 0 then begin
+      msgs.message(prjname + ' has been successfully compiled', self as ICECommonProject, amcProj, amkInf);
+      result := true;
+    end else
+      msgs.message(prjname + ' has not been compiled', self as ICECommonProject, amcProj, amkWarn);
+  finally
+    chDir(olddir);
+    dubproc.Free;
+  end;
+end;
+
+function TCEDubProject.run(const runArgs: string = ''): boolean;
+begin
+  //TODO-cDUB: implement
+  result := false;
+end;
+{$ENDREGION --------------------------------------------------------------------}
+
+
+
+function isValidDubProject(const filename: string): boolean;
+var
+  maybe: TCEDubProject;
+begin
+  result := true;
+  // avoid the project to notify the observers, current project is not replaced
+  EntitiesConnector.beginUpdate;
+  maybe := TCEDubProject.create(nil);
+  EntitiesConnector.removeSubject(maybe);
+  try
+    try
+      maybe.loadFromFile(filename);
+      if maybe.json = nil then
+        result := false
+      else if maybe.json.Find('name') = nil then
+        result := false;
+    except
+      result := false;
+    end;
+  finally
+    maybe.Free;
+    EntitiesConnector.endUpdate;
+  end;
+end;
 
 procedure TCEDubProject.dubProcOutput(proc: TProcess);
 var
@@ -116,21 +337,6 @@ begin
   finally
     lst.Free;
   end;
-end;
-
-function TCEDubProject.getFormat: TCEProjectFormat;
-begin
-  exit(pfDub);
-end;
-
-function TCEDubProject.getProject: TObject;
-begin
-  exit(self);
-end;
-
-function TCEDubProject.getFilename: string;
-begin
-  exit(fFilename);
 end;
 
 function TCEDubProject.getCurrentCustomConfig: TJSONObject;
@@ -160,9 +366,8 @@ begin
   fBuildTypes.Clear;
   fConfigs.Clear;
 
-  // configs: builtype0 - config0, builtype0 - config1, ... , builtype0 - configN
-  // builtype1 - config0, builtype1 - config1, ... , builtype1 - configN, etc
-
+  // the CE interface for dub doesn't make a difference betwenn build type and config
+  // instead, each possible combination type+build is generated.
 
   if fJSON.Find('configurations') <> nil then
   begin
@@ -273,7 +478,7 @@ begin
   end;
 end;
 
-function TCEDubProject.findTargetKindIn(value: TJSONObject): boolean;
+function TCEDubProject.findTargetKindInd(value: TJSONObject): boolean;
 var
   tt: TJSONData;
 begin
@@ -299,14 +504,14 @@ begin
   fBinKind := executable;
   if fJSON = nil then exit;
   // note: in Coedit this is only used to known if output can be launched
-  guess := not findTargetKindIn(fJSON);
+  guess := not findTargetKindInd(fJSON);
   conf := getCurrentCustomConfig;
   if conf <> nil then
-    guess := guess and findTargetKindIn(conf);
+    guess := guess and findTargetKindInd(conf);
   if guess then
   begin
     // TODO-cDUB: guess target kind
-    // app.d in source ? exe : lib
+    // app.d in sourceRelative ? exe : lib
   end;
 end;
 
@@ -317,173 +522,12 @@ begin
   updateTargetKindFromJson;
 end;
 
-function TCEDubProject.getBinaryKind: TProjectBinaryKind;
-begin
-  exit(fBinKind);
-end;
-
-procedure TCEDubProject.loadFromFile(const aFilename: string);
-var
-  loader: TMemoryStream;
-  parser : TJSONParser;
-begin
-  loader := TMemoryStream.Create;
-  try
-    fBasePath := extractFilePath(aFilename);
-    fFilename := aFilename;
-    loader.LoadFromFile(fFilename);
-    fJSON.Free;
-    parser := TJSONParser.Create(loader);
-    try
-      fJSON := parser.Parse as TJSONObject;
-    finally
-      parser.Free;
-    end;
-  finally
-    loader.Free;
-    updateFields;
-    subjProjChanged(fProjectSubject, self);
-    fModified := false;
-  end;
-end;
-
-procedure TCEDubProject.saveToFile(const aFilename: string);
-var
-  saver: TMemoryStream;
-  str: string;
-begin
-  saver := TMemoryStream.Create;
-  try
-    fFilename := aFilename;
-    str := fJSON.FormatJSON;
-    saver.Write(str[1], length(str));
-    saver.SaveToFile(fFilename);
-  finally
-    saver.Free;
-    fModified := false;
-  end;
-end;
-
-function TCEDubProject.getCommandLine: string;
-var
-  str: TStringList;
-begin
-  str := TStringList.Create;
-  try
-    str.Add('dub' + exeExt);
-    if fBuiltTypeIx <> 0 then
-      str.Add('build=' + fBuildTypes.Strings[fBuiltTypeIx]);
-    if fConfigIx <> 0 then
-      str.Add('config=' + fConfigs.Strings[fConfigIx]);
-    result := str.Text;
-  finally
-    str.Free;
-  end;
-end;
-
-function TCEDubProject.getIfModified: boolean;
+function TCEDubProject.modified: boolean;
 begin
   exit(fModified);
 end;
 
-function TCEDubProject.getIfIsSource(const aFilename: string): boolean;
-begin
-  //TODO-cDUB: implement getIfIsSource
-  exit(false);
-end;
 
-function TCEDubProject.getOutputFilename: string;
-begin
-  //TODO-cDUB: implement getOutputFilename
-  exit('');
-end;
-
-function TCEDubProject.getConfigurationCount: integer;
-begin
-  exit(fConfigsCount);
-end;
-
-procedure TCEDubProject.setActiveConfiguration(index: integer);
-begin
-  fBuiltTypeIx := index div fConfigs.Count;
-  fConfigIx := index mod fConfigs.Count;
-  updateSourcesFromJson;
-end;
-
-function TCEDubProject.getConfigurationName(index: integer): string;
-begin
-  result := fBuildTypes.Strings[index div fConfigs.Count] + ' - ' +
-    fConfigs.Strings[index mod fConfigs.Count];
-end;
-
-function TCEDubProject.compile: boolean;
-var
-  dubproc: TProcess;
-  olddir: string;
-  prjname: string;
-  msgs: ICEMessagesDisplay;
-begin
-  result := false;
-  msgs := getMessageDisplay;
-  msgs.clearByData(Self as ICECommonProject);
-  prjname := shortenPath(fFilename);
-  dubproc := TProcess.Create(nil);
-  olddir := GetCurrentDir;
-  try
-    msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
-    chDir(extractFilePath(fFilename));
-    dubproc.Executable := 'dub' + exeExt;
-    dubproc.Options := dubproc.Options + [poStderrToOutPut, poUsePipes];
-    dubproc.CurrentDirectory := extractFilePath(fFilename);
-    dubproc.ShowWindow := swoHIDE;
-    if fBuiltTypeIx <> 0 then
-      dubproc.Parameters.Add('build=' + fBuildTypes.Strings[fBuiltTypeIx]);
-    if fConfigIx <> 0 then
-      dubproc.Parameters.Add('config=' + fConfigs.Strings[fConfigIx]);
-    dubproc.Execute;
-    while dubproc.Running do
-      dubProcOutput(dubproc);
-    if dubproc.ExitStatus = 0 then begin
-      msgs.message(prjname + ' has been successfully compiled', self as ICECommonProject, amcProj, amkInf);
-      result := true;
-    end else
-      msgs.message(prjname + ' has not been compiled', self as ICECommonProject, amcProj, amkWarn);
-  finally
-    chDir(olddir);
-    dubproc.Free;
-  end;
-end;
-
-function TCEDubProject.run(const runArgs: string = ''): boolean;
-begin
-  //TODO-cDUB: implement
-  result := false;
-end;
-
-function isValidDubProject(const filename: string): boolean;
-var
-  maybe: TCEDubProject;
-begin
-  result := true;
-  // avoid the project to notify the observers, current project is not replaced
-  EntitiesConnector.beginUpdate;
-  maybe := TCEDubProject.create(nil);
-  EntitiesConnector.removeSubject(maybe);
-  try
-    try
-      maybe.loadFromFile(filename);
-      if maybe.json = nil then
-        result := false
-      else if maybe.json.Find('name') = nil then
-        result := false;
-    except
-      result := false;
-    end;
-  finally
-    maybe.Free;
-    EntitiesConnector.endUpdate;
-  end;
-end;
 
 end.
 

@@ -480,7 +480,7 @@ begin
   begin
     itf := TCEMainForm(aSource).fProjectInterface;
     if itf = nil then exit;
-    fProject := itf.getFilename;
+    fProject := itf.filename;
   end else
     inherited;
 end;
@@ -492,7 +492,7 @@ begin
   if aDestination is TCEMainForm then
   begin
     itf := TCEMainForm(aDestination).fProjectInterface;
-    if (itf <> nil) and (itf.getFilename = fProject) then
+    if (itf <> nil) and (itf.filename = fProject) then
       exit;
     TCEMainForm(aDestination).openProj(fProject);
   end else
@@ -1052,7 +1052,7 @@ var
 begin
   canClose := false;
   SaveLastDocsAndProj;
-  if fProjectInterface <> nil then if fProjectInterface.getIfModified then
+  if fProjectInterface <> nil then if fProjectInterface.modified then
     if dlgOkCancel(
       'The project modifications are not saved, quit anyway ?') <> mrOK then
           exit;
@@ -1368,10 +1368,10 @@ end;
 procedure TCEMainForm.actProjOpenContFoldExecute(Sender: TObject);
 begin
   if fProjectInterface = nil then exit;
-  if not fileExists(fProjectInterface.getFilename) then exit;
+  if not fileExists(fProjectInterface.filename) then exit;
   //
   DockMaster.GetAnchorSite(fExplWidg).Show;
-  fExplWidg.expandPath(extractFilePath(fProjectInterface.getFilename));
+  fExplWidg.expandPath(extractFilePath(fProjectInterface.filename));
 end;
 
 procedure TCEMainForm.actFileNewExecute(Sender: TObject);
@@ -1803,12 +1803,12 @@ label
   _rbld,
   _run;
 begin
-  if fProjectInterface.getBinaryKind <> executable then
+  if fProjectInterface.binaryKind <> executable then
   begin
     dlgOkInfo('Non executable projects cant be run');
     exit;
   end;
-  if not fileExists(fProjectInterface.getOutputFilename) then
+  if not fileExists(fProjectInterface.outputFilename) then
   begin
     if dlgOkCancel('The project output is missing, build ?') <> mrOK then
       exit;
@@ -1818,10 +1818,10 @@ begin
   // TODO-cICECommonInterface, add function to check if rebuild needed.
   if fProjectInterface.getFormat = pfNative then
   begin
-    dt := fileAge(fNativeProject.getOutputFilename);
+    dt := fileAge(fNativeProject.outputFilename);
     for i := 0 to fNativeProject.Sources.Count-1 do
     begin
-      if fileAge(fNativeProject.getAbsoluteSourceName(i)) > dt then
+      if fileAge(fNativeProject.sourceAbsolute(i)) > dt then
         if dlgOkCancel('The project sources have changed since last build, rebuild ?') = mrOK then
           goto _rbld
         else
@@ -1835,7 +1835,7 @@ begin
   _rbld:
     fProjectInterface.compile;
   _run:
-    if fileExists(fProjectInterface.getOutputFilename) then
+    if fileExists(fProjectInterface.outputFilename) then
       fProjectInterface.run;
 end;
 
@@ -1989,8 +1989,8 @@ end;
 {$REGION project ---------------------------------------------------------------}
 procedure TCEMainForm.showProjTitle;
 begin
-  if (fProjectInterface <> nil) and fileExists(fProjectInterface.getFilename) then
-    caption := format('Coedit - %s', [shortenPath(fProjectInterface.getFilename, 30)])
+  if (fProjectInterface <> nil) and fileExists(fProjectInterface.filename) then
+    caption := format('Coedit - %s', [shortenPath(fProjectInterface.filename, 30)])
   else
     caption := 'Coedit';
 end;
@@ -1998,10 +1998,10 @@ end;
 procedure TCEMainForm.saveProjSource(const aEditor: TCESynMemo);
 begin
   if fProjectInterface = nil then exit;
-  if fProjectInterface.getFilename <> aEditor.fileName then exit;
+  if fProjectInterface.filename <> aEditor.fileName then exit;
   //
-  aEditor.saveToFile(fProjectInterface.getFilename);
-  openProj(fProjectInterface.getFilename);
+  aEditor.saveToFile(fProjectInterface.filename);
+  openProj(fProjectInterface.filename);
 end;
 
 procedure TCEMainForm.closeProj;
@@ -2033,7 +2033,7 @@ end;
 
 procedure TCEMainForm.saveProj;
 begin
-  fProjectInterface.saveToFile(fProjectInterface.getFilename);
+  fProjectInterface.saveToFile(fProjectInterface.filename);
 end;
 
 procedure TCEMainForm.saveProjAs(const aFilename: string);
@@ -2056,17 +2056,15 @@ end;
 
 procedure TCEMainForm.mruProjItemClick(Sender: TObject);
 begin
-  if fProjectInterface <> nil then if fProjectInterface.getIfModified then if dlgOkCancel(
-    'The project modifications are not saved, continue ?')
-      = mrCancel then exit;
+  if (fProjectInterface <> nil) and fProjectInterface.modified and (dlgOkCancel(
+    'The project modifications are not saved, continue ?') = mrCancel) then exit;
   openProj(TMenuItem(Sender).Hint);
 end;
 
 procedure TCEMainForm.actProjNewExecute(Sender: TObject);
 begin
-  if fProjectInterface <> nil then if fProjectInterface.getIfModified then if dlgOkCancel(
-    'The project modifications are not saved, continue ?')
-      = mrCancel then exit;
+  if (fProjectInterface <> nil) and fProjectInterface.modified and (dlgOkCancel(
+    'The project modifications are not saved, continue ?') = mrCancel) then exit;
   closeProj;
   newNativeProj;
 end;
@@ -2074,9 +2072,8 @@ end;
 procedure TCEMainForm.actProjCloseExecute(Sender: TObject);
 begin
   if fProjectInterface = nil then exit;
-  if fProjectInterface.getIfModified then if dlgOkCancel(
-    'The project modifications are not saved, continue ?')
-      = mrCancel then exit;
+  if fProjectInterface.modified and (dlgOkCancel(
+    'The project modifications are not saved, continue ?') = mrCancel) then exit;
   closeProj;
 end;
 
@@ -2100,13 +2097,13 @@ end;
 procedure TCEMainForm.actProjSaveExecute(Sender: TObject);
 begin
   if fProjectInterface = nil then exit;
-  if fProjectInterface.getFilename <> '' then saveProj
+  if fProjectInterface.filename <> '' then saveProj
   else actProjSaveAs.Execute;
 end;
 
 procedure TCEMainForm.actProjOpenExecute(Sender: TObject);
 begin
-  if fProjectInterface <> nil then if fProjectInterface.getIfModified then if dlgOkCancel(
+  if fProjectInterface <> nil then if fProjectInterface.modified then if dlgOkCancel(
     'The project modifications are not saved, continue ?')
       = mrCancel then exit;
   with TOpenDialog.Create(nil) do
@@ -2130,9 +2127,9 @@ end;
 procedure TCEMainForm.actProjSourceExecute(Sender: TObject);
 begin
   if fProjectInterface = nil then exit;
-  if not fileExists(fProjectInterface.getFilename) then exit;
+  if not fileExists(fProjectInterface.filename) then exit;
   //
-  openFile(fProjectInterface.getFilename);
+  openFile(fProjectInterface.filename);
   //TODO-cDUB: add json highligher to edit json project in CE
   fDoc.Highlighter := LfmSyn;
 end;
