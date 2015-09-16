@@ -11,8 +11,8 @@ void main(string[] args)
     ubyte[] source;
     if (args.length == 1)
     {
-        source.length = cast(size_t)stdin.size;
-        source = stdin.rawRead(source);
+        foreach(buff; stdin.byChunk(1024))
+            source ~= buff;
     }
     else
     {

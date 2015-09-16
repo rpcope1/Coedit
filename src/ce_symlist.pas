@@ -663,7 +663,7 @@ begin
   fToolProc := TCEProcess.Create(nil);
   fToolProc.ShowWindow := swoHIDE;
   fToolProc.Options := [poUsePipes];
-  fToolProc.Executable := exeFullName(toolExeName);
+  fToolProc.Executable := toolExeName;
   fToolProc.OnTerminate := @toolTerminated;
   fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);
   fToolProc.Execute;
@@ -741,6 +741,7 @@ begin
   fToolProc.OnTerminate := nil;
   fToolProc.OnReadData  := nil;
   fToolProc.OutputStack.Position:=0;
+  if fToolProc.OutputStack.Size = 0 then exit;
   fSyms.LoadFromTool(fToolProc.OutputStack);
   //
   tree.BeginUpdate;
