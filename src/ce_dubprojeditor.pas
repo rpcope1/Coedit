@@ -249,6 +249,8 @@ begin
   //
   for i:= 0 to fProj.getConfigurationCount -1 do
     treeInspect.Items.AddChild(fNodeConfig, fProj.getConfigurationName(i));
+  for i := 0 to fProj.sources.count-1 do
+    treeInspect.Items.AddChild(fNodeSources, fProj.sources.strings[i]);
 end;
 {$ENDREGION}
 

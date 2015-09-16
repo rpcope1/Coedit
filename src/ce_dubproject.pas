@@ -25,6 +25,7 @@ type
     fBuiltTypeIx: integer;
     fConfigIx: integer;
     fBinKind: TProjectBinaryKind;
+    fBasePath: string;
     //
     procedure updateFields;
     procedure udpateConfigsFromJson;
@@ -32,6 +33,7 @@ type
     procedure updateTargetKindFromJson;
     function findTargetKindIn(value: TJSONObject): boolean;
     procedure dubProcOutput(proc: TProcess);
+    function getCurrentCustomConfig: TJSONObject;
     //
     function getFormat: TCEProjectFormat;
     function getProject: TObject;
@@ -58,6 +60,7 @@ type
     function run(const runArgs: string = ''): boolean;
     //
     property json: TJSONObject read fJSON;
+    property sources: TStringList read fSrcs;
   end;
 
   // these 9 built types always exist
@@ -130,11 +133,27 @@ begin
   exit(fFilename);
 end;
 
+function TCEDubProject.getCurrentCustomConfig: TJSONObject;
+var
+  item: TJSONData;
+  confs: TJSONArray;
+begin
+  result := nil;
+  if fConfigIx = 0 then exit;
+  //
+  item := fJSON.Find('configurations');
+  if item = nil then exit;
+  //
+  confs := TJSONArray(item);
+  if fConfigIx > confs.Count -1 then exit;
+  //
+  result := confs.Objects[fConfigIx];
+end;
+
 procedure TCEDubProject.udpateConfigsFromJson;
 var
   i: integer;
-  builtTypes: TJSONArray = nil;
-  configs: TJSONArray = nil;
+  arr: TJSONArray = nil;
   item: TJSONObject = nil;
   itemname: string;
 begin
@@ -147,26 +166,26 @@ begin
 
   if fJSON.Find('configurations') <> nil then
   begin
-    configs := fJSON.Arrays['configurations'];
-    for i:= 0 to configs.Count-1 do
+    arr := fJSON.Arrays['configurations'];
+    for i:= 0 to arr.Count-1 do
     begin
-      item := TJSONObject(configs.Items[i]);
+      item := TJSONObject(arr.Items[i]);
       fConfigs.Add(item.Strings['name']);
     end;
   end else
   begin
-    fConfigs.Add('(dub default)'); // default
+    fConfigs.Add('(dub default)');
     // default = what dub set as 'application' or 'library'
-    // in this case a project will pass nothing to DUB: eg DUB --build=release
+    // in this case Coedit will pass only the type to DUB: 'DUB --build=release'
   end;
 
   fBuildTypes.AddStrings(DubBuiltTypeName);
   if fJSON.Find('buildTypes') <> nil then
   begin
-    builtTypes := fJSON.Arrays['buildTypes'];
-    for i := 0 to builtTypes.Count-1 do
+    arr := fJSON.Arrays['buildTypes'];
+    for i := 0 to arr.Count-1 do
     begin
-      item := TJSONObject(builtTypes.Items[i]);
+      item := TJSONObject(arr.Items[i]);
       itemname := item.Strings['name'];
       // defaults build types can be overridden
       if fBuildTypes.IndexOf(itemname) <> -1 then continue;
@@ -177,8 +196,81 @@ begin
 end;
 
 procedure TCEDubProject.updateSourcesFromJson;
+var
+  lst: TStringList;
+  item: TJSONData;
+  conf: TJSONObject;
+  arr: TJSONArray;
+  i: integer;
+procedure tryAddFromFolder(const pth: string);
+var
+  abs: string;
 begin
-  //TODO-cDUB: update the source files for the current configuration
+  if DirectoryExists(pth) then
+  begin
+    lst.Clear;
+    listFiles(lst, pth, true);
+    for abs in lst do
+      if isDlangCompilable(extractFileExt(abs)) then
+        fSrcs.Add(ExtractRelativepath(fBasePath, abs));
+  end;
+end;
+begin
+  fSrcs.Clear;
+  lst := TStringList.Create;
+  try
+    // auto folders
+    tryAddFromFolder(fBasePath + 'src');
+    tryAddFromFolder(fBasePath + 'source');
+    // custom folders
+    item := fJSON.Find('sourcePaths');
+    if item <> nil then
+    begin
+      arr := TJSONArray(item);
+      for i := 0 to arr.Count-1 do
+      begin
+        tryAddFromFolder(fBasePath + arr.Strings[i]);
+        tryAddFromFolder(arr.Strings[i]);
+      end;
+    end;
+    // custom files
+    item := fJSON.Find('sourceFiles');
+    if item <> nil then
+    begin
+      arr := TJSONArray(item);
+      for i := 0 to arr.Count-1 do
+        fSrcs.Add(ExtractRelativepath(fBasePath, arr.Strings[i]));
+    end;
+    conf := getCurrentCustomConfig;
+    if conf <> nil then
+    begin
+      // custom folders in current config
+      item := conf.Find('sourcePaths');
+      if item <> nil then
+      begin
+        arr := TJSONArray(item);
+        for i := 0 to arr.Count-1 do
+        begin
+          tryAddFromFolder(fBasePath + arr.Strings[i]);
+          tryAddFromFolder(arr.Strings[i]);
+        end;
+      end;
+      // custom files in current config
+      item := conf.Find('sourceFiles');
+      if item <> nil then
+      begin
+        arr := TJSONArray(item);
+        for i := 0 to arr.Count-1 do
+          fSrcs.Add(ExtractRelativepath(fBasePath, arr.Strings[i]));
+      end;
+    end;
+    //
+    deleteDups(fSrcs);
+    // TODO-cDUB: manage exclusions from 'excludedSourceFiles' (global + curr conf)
+    // + mainSourceFile.
+  finally
+    lst.Free;
+  end;
 end;
 
 function TCEDubProject.findTargetKindIn(value: TJSONObject): boolean;
@@ -202,27 +294,15 @@ end;
 procedure TCEDubProject.updateTargetKindFromJson;
 var
   guess: boolean = false;
-  item: TJSONData;
-  confs: TJSONArray;
-  i: integer;
+  conf: TJSONObject;
 begin
   fBinKind := executable;
   if fJSON = nil then exit;
-
-  // actually for a DUB project this is only used to known if output can be
-  // ran from the 'project' menu
+  // note: in Coedit this is only used to known if output can be launched
   guess := not findTargetKindIn(fJSON);
-  if fConfigIx <> 0 then
-  begin
-    item := fJSON.Find('configurations');
-    if item <> nil then
-    begin
-      confs := TJSONArray(item);
-      for i := 0 to confs.Count-1 do
-        if TJSONObject(confs.Objects[i]).Find('name') <> nil then
-          guess := guess and findTargetKindIn(confs.Objects[i]);
-    end;
-  end;
+  conf := getCurrentCustomConfig;
+  if conf <> nil then
+    guess := guess and findTargetKindIn(conf);
   if guess then
   begin
     // TODO-cDUB: guess target kind
@@ -249,7 +329,8 @@ var
 begin
   loader := TMemoryStream.Create;
   try
-    fFilename:= aFilename;
+    fBasePath := extractFilePath(aFilename);
+    fFilename := aFilename;
     loader.LoadFromFile(fFilename);
     fJSON.Free;
     parser := TJSONParser.Create(loader);
