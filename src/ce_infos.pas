@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ExtCtrls, Buttons, Menus,ce_widget, ce_common;
+  StdCtrls, ExtCtrls, Buttons, Menus,ce_widget, ce_common, ce_sharedres;
 
 type
 
@@ -105,25 +105,23 @@ end;
 procedure TToolInfo.refreshStatus;
 var
   pth: string;
-  png: TPortableNetworkGraphic;
 begin
   if (fLabel = nil) or (fStatus = nil) then exit;
   //
   fLabel.Caption:= fToolName;
-  png := TPortableNetworkGraphic.Create;
-  try case fKind of
+  case fKind of
     tikFindable:
     begin
       pth := exeFullName(fToolName + exeExt);
       if pth = '' then
       begin
         fStatus.Caption:= ' the tool cannot be found';
-        png.LoadFromLazarusResource('bullet_red');
+        AssignPng(fIco, 'bullet_red');
       end
       else
       begin
         fStatus.Caption:= ' the tool is available';
-        png.LoadFromLazarusResource('bullet_green');
+        AssignPng(fIco, 'bullet_green');
       end;
     end;
     tikRunning:
@@ -132,23 +130,19 @@ begin
       if pth = '' then
       begin
         fStatus.Caption:= ' the tool cannot be found';
-        png.LoadFromLazarusResource('bullet_red');
+        AssignPng(fIco, 'bullet_red');
       end
       else if AppIsRunning(fToolName + exeExt) then
       begin
         fStatus.Caption:= ' the tool is available and running';
-        png.LoadFromLazarusResource('bullet_green');
+        AssignPng(fIco, 'bullet_green');
       end
       else
       begin
         fStatus.Caption:= ' the tool is available but is not running';
-        png.LoadFromLazarusResource('bullet_yellow');
+        AssignPng(fIco, 'bullet_yellow');
       end;
     end;
-  end;
-  finally
-    fIco.Glyph.Assign(png);
-    png.Free;
   end;
   ReAlign;
   Invalidate;

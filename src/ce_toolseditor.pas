@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, RTTIGrids, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, Menus, Buttons, StdCtrls, ce_widget, ce_tools;
+  ExtCtrls, Menus, Buttons, StdCtrls, ce_widget, ce_tools, ce_sharedres;
 
 type
 
@@ -46,28 +46,17 @@ implementation
 {$R *.lfm}
 
 constructor TCEToolsEditorWidget.create(aOwner: TComponent);
-var
-  png: TPortableNetworkGraphic;
 begin
   inherited;
+  //
+  AssignPng(btnMoveUp, 'arrow_up');
+  AssignPng(btnMoveDown, 'arrow_down');
+  AssignPng(BtnAddTool, 'application_add');
+  AssignPng(btnRemTool, 'application_delete');
+  AssignPng(btnRun, 'application_flash');
+  AssignPng(btnClone, 'application_double');
+  //
   propsEd.CheckboxForBoolean := true;
-  png := TPortableNetworkGraphic.Create;
-  try
-    png.LoadFromLazarusResource('arrow_up');
-    btnMoveUp.Glyph.Assign(png);
-    png.LoadFromLazarusResource('arrow_down');
-    btnMoveDown.Glyph.Assign(png);
-    png.LoadFromLazarusResource('application_add');
-    BtnAddTool.Glyph.Assign(png);
-    png.LoadFromLazarusResource('application_delete');
-    btnRemTool.Glyph.Assign(png);
-    png.LoadFromLazarusResource('application_flash');
-    btnRun.Glyph.Assign(png);
-    png.LoadFromLazarusResource('application_double');
-    btnClone.Glyph.Assign(png);
-  finally
-    png.free;
-  end;
   rebuildToolList;
 end;
 

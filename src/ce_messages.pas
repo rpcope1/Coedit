@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, TreeFilterEdit,
   Buttons, math, process, ce_writableComponent, ce_common, ce_synmemo, GraphType,
-  ce_dlangutils, ce_interfaces, ce_observer, ce_symstring, ce_processes;
+  ce_dlangutils, ce_interfaces, ce_observer, ce_symstring, ce_processes, ce_sharedres;
 
 type
 
@@ -248,7 +248,6 @@ end;
 constructor TCEMessagesWidget.create(aOwner: TComponent);
 var
   fname: string;
-  png: TPortableNetworkGraphic;
 begin
   fMaxMessCnt := 500;
   fCtxt := amcAll;
@@ -306,13 +305,7 @@ begin
   fBtns[amcProj]:= btnSelProj;
   //
   btnClearCat.OnClick := @actClearCurCatExecute;
-  png:= TPortableNetworkGraphic.Create;
-  try
-    png.LoadFromLazarusResource('clean');
-    btnClearCat.Glyph.Assign(png);
-  finally
-    png.free;
-  end;
+  AssignPng(btnClearCat, 'clean');
   //
   fname := getCoeditDocPath + optname;
   if fileExists(fname) then

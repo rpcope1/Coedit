@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Menus, Graphics,
   ExtCtrls, LCLProc, ComCtrls, StdCtrls, Buttons, LCLType,
-  ce_observer, ce_interfaces, ce_common, ce_writableComponent;
+  ce_sharedres, ce_observer, ce_interfaces, ce_common, ce_writableComponent;
 
 type
 
@@ -171,22 +171,12 @@ end;
 
 {$REGION Standard Comp/Object things -------------------------------------------}
 constructor TCEShortcutEditor.create(TheOwner: TComponent);
-var
-  png: TPortableNetworkGraphic;
 begin
   inherited;
   fObservers := TCEEditableShortCutSubject.create;
   fShortcuts := TShortCutCollection.create(self);
   fBackup := TShortCutCollection.create(self);
-  //
-  png := TPortableNetworkGraphic.Create;
-  try
-    png.LoadFromLazarusResource('clean');
-    btnClear.Glyph.Assign(png);
-  finally
-    png.free;
-  end;
-  //
+  AssignPng(btnClear, 'clean');
   EntitiesConnector.addObserver(self);
 end;
 
@@ -197,19 +187,11 @@ begin
 end;
 
 procedure TCEShortcutEditor.UpdateShowing;
-var
-  png : TPortableNetworkGraphic;
 begin
   inherited;
   if not visible then exit;
   //
-  png := TPortableNetworkGraphic.Create;
-  try
-    png.LoadFromLazarusResource('keyboard_pencil');
-    btnActivate.Glyph.Assign(png);
-  finally
-    png.free;
-  end;
+  AssignPng(btnActivate, 'keyboard_pencil');
 end;
 {$ENDREGION}
 

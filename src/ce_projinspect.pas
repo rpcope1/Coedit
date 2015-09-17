@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Graphics, actnlist,
   Dialogs, ExtCtrls, ComCtrls, Menus, Buttons, lcltype, ce_nativeproject, ce_interfaces,
-  ce_common, ce_widget, ce_observer, ce_dialogs;
+  ce_common, ce_widget, ce_observer, ce_dialogs, ce_sharedres;
 
 type
   TCEProjectInspectWidget = class(TCEWidget, ICEProjectObserver)
@@ -65,8 +65,6 @@ uses
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEProjectInspectWidget.create(aOwner: TComponent);
-var
-  png: TPortableNetworkGraphic;
 begin
   fActOpenFile := TAction.Create(self);
   fActOpenFile.Caption := 'Open file in editor';
@@ -78,21 +76,11 @@ begin
   //
   inherited;
   //
-  png := TPortableNetworkGraphic.Create;
-  try
-    png.LoadFromLazarusResource('document_add');
-    btnAddFile.Glyph.Assign(png);
-    png.LoadFromLazarusResource('document_delete');
-    btnRemFile.Glyph.Assign(png);
-    png.LoadFromLazarusResource('folder_add');
-    btnAddFold.Glyph.Assign(png);
-    png.LoadFromLazarusResource('folder_delete');
-    btnRemFold.Glyph.Assign(png);
-    png.LoadFromLazarusResource('wrench_orange');
-    btnProjOpts.Glyph.Assign(png);
-  finally
-    png.Free;
-  end;
+  AssignPng(btnAddFile, 'document_add');
+  AssignPng(btnRemFile, 'document_delete');
+  AssignPng(btnAddFold, 'folder_add');
+  AssignPng(btnRemFold, 'folder_delete');
+  AssignPng(btnProjOpts, 'wrench_orange');
   //
   Tree.OnDblClick := @TreeDblClick;
   fFileNode := Tree.Items[0];

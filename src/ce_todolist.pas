@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls,
   strutils, Graphics, Dialogs, ExtCtrls, Menus, Buttons, ComCtrls,
   ce_widget, process, ce_common, ce_interfaces, ce_synmemo, ce_processes,
-  ce_nativeproject, ce_symstring, ce_writableComponent, ce_observer;
+  ce_nativeproject, ce_symstring, ce_writableComponent, ce_observer, ce_sharedres;
 
 type
 
@@ -192,7 +192,6 @@ end;
 {$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCETodoListWidget.Create(aOwner: TComponent);
 var
-  png: TPortableNetworkGraphic;
   fname: string;
 begin
   inherited;
@@ -212,15 +211,8 @@ begin
   lstfilter.OnChange := @filterItems;
   btnGo.OnClick := @handleListClick;
   //
-  png := TPortableNetworkGraphic.Create;
-  try
-    png.LoadFromLazarusResource('arrow_update');
-    btnRefresh.Glyph.Assign(png);
-    png.LoadFromLazarusResource('arrow_pen');
-    btnGo.Glyph.Assign(png);
-  finally
-    png.Free;
-  end;
+  AssignPng(btnRefresh, 'arrow_update');
+  AssignPng(btnGo, 'arrow_pen');
   //
   fname := getCoeditDocPath + OptFname;
   if FileExists(fname) then

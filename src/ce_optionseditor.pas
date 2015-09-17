@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, RTTIGrids, Forms, Controls, Graphics, ExtCtrls,
-  Menus, ComCtrls, Buttons, PropEdits, ObjectInspector,
+  Menus, ComCtrls, Buttons, PropEdits, ObjectInspector, ce_sharedres,
   ce_common, ce_widget, ce_interfaces, ce_observer, ce_dialogs;
 
 type
@@ -63,8 +63,6 @@ const
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEOptionEditorWidget.create(aOwner: TComponent);
-var
-  png: TPortableNetworkGraphic;
 begin
   inherited;
   fIsDockable := false;
@@ -73,15 +71,8 @@ begin
   inspector.CheckboxForBoolean := true;
   inspector.PropertyEditorHook.AddHandlerModified(@inspectorModified);
   //
-  png := TPortableNetworkGraphic.Create;
-  try
-    png.LoadFromLazarusResource('cancel');
-    btnCancel.Glyph.Assign(png);
-    png.LoadFromLazarusResource('accept');
-    btnAccept.Glyph.Assign(png);
-  finally
-    png.Free;
-  end;
+  AssignPng(btnCancel, 'cancel');
+  AssignPng(btnAccept, 'accept');
 end;
 
 destructor TCEOptionEditorWidget.destroy;

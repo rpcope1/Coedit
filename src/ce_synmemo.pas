@@ -8,7 +8,8 @@ uses
   Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
   SynPluginSyncroEdit, SynCompletion, SynEditKeyCmds, LazSynEditText, SynEdit,
   SynHighlighterLFM, SynEditHighlighter, SynEditMouseCmds, SynEditFoldedView,
-  ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs;
+  ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs,
+  ce_sharedres;
 
 type
 
@@ -357,8 +358,6 @@ end;
 
 {$REGION TCESynMemo ------------------------------------------------------------}
 constructor TCESynMemo.Create(aOwner: TComponent);
-var
-  png: TPortableNetworkGraphic;
 begin
   inherited;
   //
@@ -390,13 +389,7 @@ begin
   fSyncEdit := TSynPluginSyncroEdit.Create(self);
   fSyncEdit.Editor := self;
   fSyncEdit.CaseSensitive := true;
-  png := TPortableNetworkGraphic.Create;
-  try
-    png.LoadFromLazarusResource('link_edit');
-    fSyncEdit.GutterGlyph.Assign(png);
-  finally
-    png.Free;
-  end;
+  AssignPng(fSyncEdit.GutterGlyph, 'link_edit');
   //
   fCompletionCaseSens:=false;
   fCompletion := TSyncompletion.create(nil);

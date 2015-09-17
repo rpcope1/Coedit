@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Menus, ComCtrls, Buttons, ce_widget, ce_interfaces, ce_nativeproject, ce_dmdwrap,
-  ce_common, ce_dialogs;
+  ce_common, ce_dialogs, ce_sharedres;
 
 type
 
@@ -64,33 +64,17 @@ const
   notav: string = '< n/a >';
 
 constructor TCELibManEditorWidget.Create(aOwner: TComponent);
-var
-  png: TPortableNetworkGraphic;
 begin
   inherited;
-  png := TPortableNetworkGraphic.Create;
-  try
-    png.LoadFromLazarusResource('arrow_down');
-    btnMoveDown.Glyph.Assign(png);
-    png.LoadFromLazarusResource('arrow_up');
-    btnMoveUp.Glyph.Assign(png);
-    png.LoadFromLazarusResource('book_add');
-    btnAddLib.Glyph.Assign(png);
-    png.LoadFromLazarusResource('book_delete');
-    btnRemLib.Glyph.Assign(png);
-    png.LoadFromLazarusResource('book_edit');
-    btnEditAlias.Glyph.Assign(png);
-    png.LoadFromLazarusResource('folder_brick');
-    btnSelFile.Glyph.Assign(png);
-    png.LoadFromLazarusResource('bricks');
-    btnSelfoldOfFiles.Glyph.Assign(png);
-    png.LoadFromLazarusResource('folder_add');
-    btnSelRoot.Glyph.Assign(png);
-    png.LoadFromLazarusResource('book_link');
-    btnReg.Glyph.Assign(png);
-  finally
-    png.Free;
-  end;
+  AssignPng(btnMoveDown, 'arrow_down');
+  AssignPng(btnMoveUp, 'arrow_up');
+  AssignPng(btnAddLib, 'book_add');
+  AssignPng(btnRemLib, 'book_delete');
+  AssignPng(btnEditAlias, 'book_edit');
+  AssignPng(btnSelFile, 'folder_brick');
+  AssignPng(btnSelfoldOfFiles, 'bricks');
+  AssignPng(btnSelRoot, 'folder_add');
+  AssignPng(btnReg, 'book_link');
 end;
 
 procedure TCELibManEditorWidget.updateRegistrable;

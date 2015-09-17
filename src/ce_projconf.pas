@@ -7,8 +7,8 @@ interface
 uses
   Classes, SysUtils, FileUtil, RTTIGrids, RTTICtrls, Forms, Controls, Graphics,
   Dialogs, ExtCtrls, ComCtrls, StdCtrls, Menus, Buttons, rttiutils, typinfo,
-  PropEdits, ObjectInspector, ce_dmdwrap, ce_nativeproject, ce_widget, ce_interfaces,
-  ce_observer;
+  PropEdits, ObjectInspector, ce_dmdwrap, ce_nativeproject, ce_widget,
+  ce_interfaces, ce_observer, ce_sharedres;
 
 type
 
@@ -63,23 +63,14 @@ implementation
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEProjectConfigurationWidget.create(aOwner: TComponent);
-var
-  png: TPortableNetworkGraphic;
 begin
   inherited;
-  png := TPortableNetworkGraphic.Create;
-  try
-    png.LoadFromLazarusResource('cog_add');
-    btnAddConf.Glyph.Assign(png);
-    png.LoadFromLazarusResource('cog_delete');
-    btnDelConf.Glyph.Assign(png);
-    png.LoadFromLazarusResource('cog_go');
-    btnCloneConf.Glyph.Assign(png);
-    png.LoadFromLazarusResource('link_break');
-    btnSyncEdit.Glyph.Assign(png);
-  finally
-    png.Free;
-  end;
+  //
+  AssignPng(btnAddConf, 'cog_add');
+  AssignPng(btnDelConf, 'cog_delete');
+  AssignPng(btnCloneConf, 'cog_go');
+  AssignPng(btnSyncEdit, 'link_break');
+  //
   fSynchroItem := TStringList.Create;
   fSynchroValue := TStringList.Create;
   Tree.Selected := Tree.Items.GetLastNode;
@@ -177,20 +168,12 @@ begin
 end;
 
 procedure TCEProjectConfigurationWidget.setSyncroMode(aValue: boolean);
-var
-  png: TPortableNetworkGraphic;
 begin
   if fSyncroMode = aValue then exit;
   //
   fSyncroMode := aValue;
-  png := TPortableNetworkGraphic.Create;
-  try
-    if fSyncroMode then png.LoadFromLazarusResource('link')
-    else png.LoadFromLazarusResource('link_break');
-    btnSyncEdit.Glyph.Assign(png);
-  finally
-    png.Free;
-  end;
+  if fSyncroMode then  AssignPng(btnSyncEdit, 'link')
+  else AssignPng(btnSyncEdit, 'link_break');
 end;
 
 function TCEProjectConfigurationWidget.syncroSetPropAsString(const ASection, Item, Default: string): string;
