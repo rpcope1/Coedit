@@ -244,6 +244,7 @@ procedure TCEDubProjectEditorWidget.updateEditor;
 
 begin
   propTree.Items.Clear;
+  edValue.Clear;
   if (fProj = nil) or (fProj.json = nil) then
     exit;
   //
