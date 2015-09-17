@@ -191,10 +191,11 @@ begin
   str := TStringList.Create;
   try
     str.Add('dub' + exeExt);
+    str.Add('build');
     if fBuiltTypeIx <> 0 then
-      str.Add('build=' + fBuildTypes.Strings[fBuiltTypeIx]);
+      str.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
     if fConfigIx <> 0 then
-      str.Add('config=' + fConfigs.Strings[fConfigIx]);
+      str.Add('--config=' + fConfigs.Strings[fConfigIx]);
     result := str.Text;
   finally
     str.Free;
@@ -299,6 +300,7 @@ begin
     dubproc.Options := dubproc.Options + [poStderrToOutPut, poUsePipes];
     dubproc.CurrentDirectory := extractFilePath(fFilename);
     dubproc.ShowWindow := swoHIDE;
+    dubproc.Parameters.Add('build');
     if fBuiltTypeIx <> 0 then
       dubproc.Parameters.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
     if fConfigIx <> 0 then
