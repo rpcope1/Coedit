@@ -12,6 +12,7 @@ type
 
   TCEDubProject = class(TComponent, ICECommonProject)
   private
+    fPackageName: string;
     fFilename: string;
     fModified: boolean;
     fJSON: TJSONObject;
@@ -26,6 +27,7 @@ type
     fBasePath: string;
     //
     procedure updateFields;
+    procedure updatePackageNameFromJson;
     procedure udpateConfigsFromJson;
     procedure updateSourcesFromJson;
     procedure updateTargetKindFromJson;
@@ -67,7 +69,7 @@ type
   // these 9 built types always exist
   TDubBuildType = (plain, debug, release, unittest, docs, ddox, profile, cov, unittestcov);
 
-  // returns true iffilename is a valid dub project. Only json format is supported.
+  // returns true if filename is a valid dub project. Only json format is supported.
   function isValidDubProject(const filename: string): boolean;
 
 const
@@ -113,6 +115,11 @@ end;
 function TCEDubProject.getProject: TObject;
 begin
   exit(self);
+end;
+
+function TCEDubProject.modified: boolean;
+begin
+  exit(fModified);
 end;
 
 function TCEDubProject.filename: string;
@@ -250,6 +257,23 @@ end;
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION ICECommonProject: actions ---------------------------------------------}
+procedure TCEDubProject.dubProcOutput(proc: TProcess);
+var
+  lst: TStringList;
+  str: string;
+  msgs: ICEMessagesDisplay;
+begin
+  lst := TStringList.Create;
+  msgs := getMessageDisplay;
+  try
+    processOutputToStrings(proc, lst);
+    for str in lst do
+      msgs.message(str, self as ICECommonProject, amcProj, amkAuto);
+  finally
+    lst.Free;
+  end;
+end;
+
 function TCEDubProject.compile: boolean;
 var
   dubproc: TProcess;
@@ -295,50 +319,7 @@ begin
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
-
-
-function isValidDubProject(const filename: string): boolean;
-var
-  maybe: TCEDubProject;
-begin
-  result := true;
-  // avoid the project to notify the observers, current project is not replaced
-  EntitiesConnector.beginUpdate;
-  maybe := TCEDubProject.create(nil);
-  EntitiesConnector.removeSubject(maybe);
-  try
-    try
-      maybe.loadFromFile(filename);
-      if maybe.json = nil then
-        result := false
-      else if maybe.json.Find('name') = nil then
-        result := false;
-    except
-      result := false;
-    end;
-  finally
-    maybe.Free;
-    EntitiesConnector.endUpdate;
-  end;
-end;
-
-procedure TCEDubProject.dubProcOutput(proc: TProcess);
-var
-  lst: TStringList;
-  str: string;
-  msgs: ICEMessagesDisplay;
-begin
-  lst := TStringList.Create;
-  msgs := getMessageDisplay;
-  try
-    processOutputToStrings(proc, lst);
-    for str in lst do
-      msgs.message(str, self as ICECommonProject, amcProj, amkAuto);
-  finally
-    lst.Free;
-  end;
-end;
-
+{$REGION JSON to internal fields -----------------------------------------------}
 function TCEDubProject.getCurrentCustomConfig: TJSONObject;
 var
   item: TJSONData;
@@ -354,6 +335,15 @@ begin
   if fConfigIx > confs.Count -1 then exit;
   //
   result := confs.Objects[fConfigIx];
+end;
+
+procedure TCEDubProject.updatePackageNameFromJson;
+var
+  value: TJSONData;
+begin
+  value := fJSON.Find('name');
+  if value <> nil then fPackageName := value.AsString
+  else fPackageName := '';
 end;
 
 procedure TCEDubProject.udpateConfigsFromJson;
@@ -498,36 +488,69 @@ end;
 
 procedure TCEDubProject.updateTargetKindFromJson;
 var
-  guess: boolean = false;
+  found: boolean = false;
   conf: TJSONObject;
+  src: string;
 begin
   fBinKind := executable;
   if fJSON = nil then exit;
   // note: in Coedit this is only used to known if output can be launched
-  guess := not findTargetKindInd(fJSON);
+  found := findTargetKindInd(fJSON);
   conf := getCurrentCustomConfig;
   if conf <> nil then
-    guess := guess and findTargetKindInd(conf);
-  if guess then
+    found := found or findTargetKindInd(conf);
+  if not found then
   begin
-    // TODO-cDUB: guess target kind
-    // app.d in sourceRelative ? exe : lib
+    for src in fSrcs do
+    begin
+      if (src = 'source' + DirectorySeparator + 'app.d')
+        or (src = 'src' + DirectorySeparator + 'app.d')
+        or (src = 'source' + DirectorySeparator + 'main.d')
+        or (src = 'src' + DirectorySeparator + 'main.d')
+        or (src = 'source' + DirectorySeparator + fPackageName + DirectorySeparator + 'app.d')
+        or (src = 'src' + DirectorySeparator + fPackageName + DirectorySeparator + 'app.d')
+        or (src = 'source' + DirectorySeparator + fPackageName + DirectorySeparator + 'main.d')
+        or (src = 'src' + DirectorySeparator + fPackageName + DirectorySeparator + 'main.d')
+      then fBinKind:= executable
+      else fBinKind:= staticlib;
+    end;
   end;
 end;
 
 procedure TCEDubProject.updateFields;
 begin
+  updatePackageNameFromJson;
   udpateConfigsFromJson;
   updateSourcesFromJson;
   updateTargetKindFromJson;
 end;
+{$ENDREGION}
 
-function TCEDubProject.modified: boolean;
+function isValidDubProject(const filename: string): boolean;
+var
+  maybe: TCEDubProject;
 begin
-  exit(fModified);
+  result := true;
+  // avoid the project to notify the observers, current project is not replaced
+  EntitiesConnector.beginUpdate;
+  maybe := TCEDubProject.create(nil);
+  EntitiesConnector.removeSubject(maybe);
+  try
+    try
+      maybe.loadFromFile(filename);
+      if maybe.json = nil then
+        result := false
+      else if maybe.json.Find('name') = nil then
+        result := false;
+    except
+      result := false;
+    end;
+  finally
+    maybe.Free;
+    EntitiesConnector.endUpdate;
+  end;
 end;
-
-
+{$ENDREGION --------------------------------------------------------------------}
 
 end.
 
