@@ -1,24 +1,24 @@
 inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
-  Left = 816
-  Height = 557
-  Top = 191
+  Left = 1471
+  Height = 424
+  Top = 10
   Width = 411
   Caption = 'Dub project editor'
-  ClientHeight = 557
+  ClientHeight = 424
   ClientWidth = 411
   inherited Back: TPanel
-    Height = 557
+    Height = 424
     Width = 411
-    ClientHeight = 557
+    ClientHeight = 424
     ClientWidth = 411
     inherited Content: TPanel
-      Height = 557
+      Height = 424
       Width = 411
-      ClientHeight = 557
+      ClientHeight = 424
       ClientWidth = 411
       object PageControl1: TPageControl[0]
         Left = 4
-        Height = 549
+        Height = 416
         Top = 4
         Width = 403
         ActivePage = TabSheet2
@@ -28,7 +28,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
         TabOrder = 0
         object TabSheet1: TTabSheet
           Caption = 'Inspector'
-          ClientHeight = 521
+          ClientHeight = 389
           ClientWidth = 395
           object pnlToolBar1: TPanel
             Left = 4
@@ -43,31 +43,11 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
             ClientHeight = 26
             ClientWidth = 387
             TabOrder = 0
-            object btnAddProp1: TSpeedButton
-              Left = 0
-              Height = 26
-              Hint = 'add an empty configuration'
-              Top = 0
-              Width = 28
-              Align = alLeft
-              Layout = blGlyphBottom
-              ShowCaption = False
-            end
-            object btnDelProp1: TSpeedButton
-              Left = 28
-              Height = 26
-              Hint = 'remove selected configuration'
-              Top = 0
-              Width = 28
-              Align = alLeft
-              Layout = blGlyphBottom
-              ShowCaption = False
-            end
             object fltInspect: TTreeFilterEdit
-              Left = 58
+              Left = 2
               Height = 22
               Top = 2
-              Width = 327
+              Width = 383
               ButtonWidth = 23
               NumGlyphs = 1
               Align = alClient
@@ -79,7 +59,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
           end
           object treeInspect: TTreeView
             Left = 4
-            Height = 485
+            Height = 353
             Top = 32
             Width = 387
             Align = alClient
@@ -101,21 +81,11 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
         end
         object TabSheet2: TTabSheet
           Caption = 'Editor'
-          ClientHeight = 521
+          ClientHeight = 388
           ClientWidth = 395
-          object edValue: TMemo
-            Left = 4
-            Height = 93
-            Top = 424
-            Width = 387
-            Align = alBottom
-            BorderSpacing.Around = 4
-            ScrollBars = ssAutoVertical
-            TabOrder = 0
-          end
           object propTree: TTreeView
             Left = 4
-            Height = 388
+            Height = 324
             Top = 32
             Width = 387
             Align = alClient
@@ -125,7 +95,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
             Images = imgList
             ReadOnly = True
             ScrollBars = ssAutoBoth
-            TabOrder = 1
+            TabOrder = 0
             OnSelectionChanged = propTreeSelectionChanged
             Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
           end
@@ -141,21 +111,11 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
             BevelOuter = bvNone
             ClientHeight = 26
             ClientWidth = 387
-            TabOrder = 2
+            TabOrder = 1
             object btnAddProp: TSpeedButton
               Left = 0
               Height = 26
-              Hint = 'add an empty configuration'
-              Top = 0
-              Width = 28
-              Align = alLeft
-              Layout = blGlyphBottom
-              ShowCaption = False
-            end
-            object btnDelProp: TSpeedButton
-              Left = 28
-              Height = 26
-              Hint = 'remove selected configuration'
+              Hint = 'add property'
               Top = 0
               Width = 28
               Align = alLeft
@@ -174,6 +134,48 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
               MaxLength = 0
               TabOrder = 0
               FilteredTreeview = propTree
+            end
+            object btnDelProp: TSpeedButton
+              Left = 28
+              Height = 26
+              Hint = 'delete selected property'
+              Top = 0
+              Width = 28
+              Align = alLeft
+              Layout = blGlyphBottom
+              ShowCaption = False
+            end
+          end
+          object Panel1: TPanel
+            Left = 2
+            Height = 26
+            Top = 360
+            Width = 391
+            Align = alBottom
+            BorderSpacing.Around = 2
+            BevelOuter = bvNone
+            ClientHeight = 26
+            ClientWidth = 391
+            TabOrder = 2
+            object edProp: TEdit
+              Left = 2
+              Height = 22
+              Top = 2
+              Width = 359
+              Align = alClient
+              BorderSpacing.Around = 2
+              TabOrder = 0
+            end
+            object btnAcceptProp: TSpeedButton
+              Left = 363
+              Height = 26
+              Hint = 'accept property value'
+              Top = 0
+              Width = 28
+              Align = alRight
+              Layout = blGlyphBottom
+              OnClick = btnAcceptPropClick
+              ShowCaption = False
             end
           end
         end

@@ -7,21 +7,21 @@ interface
 uses
   Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Graphics,
   Dialogs, ExtCtrls, Menus, StdCtrls, Buttons, ComCtrls, jsonparser, fpjson,
-  ce_widget, ce_common, ce_interfaces, ce_observer, ce_dubproject;
+  ce_widget, ce_common, ce_interfaces, ce_observer, ce_dubproject, ce_sharedres;
 
 type
 
  { TCEDubProjectEditorWidget }
 
   TCEDubProjectEditorWidget = class(TCEWidget, ICEProjectObserver)
+    btnAcceptProp: TSpeedButton;
     btnAddProp: TSpeedButton;
-    btnAddProp1: TSpeedButton;
     btnDelProp: TSpeedButton;
-    btnDelProp1: TSpeedButton;
-    edValue: TMemo;
+    edProp: TEdit;
     fltEdit: TTreeFilterEdit;
     imgList: TImageList;
     PageControl1: TPageControl;
+    Panel1: TPanel;
     pnlToolBar: TPanel;
     pnlToolBar1: TPanel;
     propTree: TTreeView;
@@ -29,6 +29,7 @@ type
     treeInspect: TTreeView;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
+    procedure btnAcceptPropClick(Sender: TObject);
     procedure propTreeSelectionChanged(Sender: TObject);
     procedure treeInspectDblClick(Sender: TObject);
   private
@@ -62,6 +63,10 @@ begin
   inherited;
   fNodeSources := treeInspect.Items[0];
   fNodeConfig := treeInspect.Items[1];
+  //
+  AssignPng(btnAddProp, 'textfield_add');
+  AssignPng(btnDelProp, 'textfield_delete');
+  AssignPng(btnAcceptProp, 'accept');
 end;
 
 procedure TCEDubProjectEditorWidget.SetVisible(Value: boolean);
@@ -141,6 +146,13 @@ begin
   updateValueEditor;
 end;
 
+procedure TCEDubProjectEditorWidget.btnAcceptPropClick(Sender: TObject);
+begin
+  if fSelectedNode = nil then exit;
+  //
+  setJsonValueFromEditor;
+end;
+
 procedure TCEDubProjectEditorWidget.setJsonValueFromEditor;
 var
   dat: TJSONData;
@@ -151,34 +163,37 @@ var
 begin
   if fSelectedNode = nil then exit;
   if fSelectedNode.Data = nil then exit;
+  if fProj = nil then exit;
   //
+  fProj.beginModification;
   dat := TJSONData(fSelectedNode.Data);
   case dat.JSONType of
     jtNumber:
       case TJSONNumber(dat).NumberType of
         ntFloat:
-          if TryStrToFloat(edValue.Text, vFloat) then
+          if TryStrToFloat(edProp.Text, vFloat) then
             dat.AsFloat := vFloat;
         ntInt64:
-          if TryStrToInt64(edValue.Text, vInt64) then
+          if TryStrToInt64(edProp.Text, vInt64) then
             dat.AsInt64 := vInt64;
         ntInteger:
-          if TryStrToInt(edValue.Text, vInt) then
+          if TryStrToInt(edProp.Text, vInt) then
             dat.AsInteger := vInt;
       end;
      jtBoolean:
-      if TryStrToBool(edValue.Text, vBool) then
+      if TryStrToBool(edProp.Text, vBool) then
         dat.AsBoolean := vBool;
       jtString:
-        dat.AsString := edValue.Text;
+        dat.AsString := edProp.Text;
   end;
+  fProj.endModification;
 end;
 
 procedure TCEDubProjectEditorWidget.updateValueEditor;
 var
   dat: TJSONData;
 begin
-  edValue.Clear;
+  edProp.Clear;
   if fSelectedNode = nil then exit;
   if fSelectedNode.Data = nil then exit;
   //
@@ -187,16 +202,16 @@ begin
     jtNumber:
       case TJSONNumber(dat).NumberType of
         ntFloat:
-          edValue.Text := FloatToStr(dat.AsFloat);
+          edProp.Text := FloatToStr(dat.AsFloat);
         ntInt64:
-          edValue.Text := IntToStr(dat.AsInt64);
+          edProp.Text := IntToStr(dat.AsInt64);
         ntInteger:
-          edValue.Text := IntToStr(dat.AsInteger);
+          edProp.Text := IntToStr(dat.AsInteger);
       end;
     jtBoolean:
-      edValue.Text := BoolToStr(dat.AsBoolean);
+      edProp.Text := BoolToStr(dat.AsBoolean);
     jtString:
-      edValue.Text := dat.AsString;
+      edProp.Text := dat.AsString;
   end;
 end;
 
@@ -244,7 +259,7 @@ procedure TCEDubProjectEditorWidget.updateEditor;
 
 begin
   propTree.Items.Clear;
-  edValue.Clear;
+  edProp.Clear;
   if (fProj = nil) or (fProj.json = nil) then
     exit;
   //
