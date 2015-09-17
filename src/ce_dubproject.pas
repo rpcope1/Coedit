@@ -25,7 +25,9 @@ type
     fConfigIx: integer;
     fBinKind: TProjectBinaryKind;
     fBasePath: string;
+    fModificationCount: integer;
     //
+    procedure doModified;
     procedure updateFields;
     procedure updatePackageNameFromJson;
     procedure udpateConfigsFromJson;
@@ -37,6 +39,9 @@ type
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
+    //
+    procedure beginModification;
+    procedure endModification;
     //
     function filename: string;
     function basePath: string;
@@ -295,9 +300,9 @@ begin
     dubproc.CurrentDirectory := extractFilePath(fFilename);
     dubproc.ShowWindow := swoHIDE;
     if fBuiltTypeIx <> 0 then
-      dubproc.Parameters.Add('build=' + fBuildTypes.Strings[fBuiltTypeIx]);
+      dubproc.Parameters.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
     if fConfigIx <> 0 then
-      dubproc.Parameters.Add('config=' + fConfigs.Strings[fConfigIx]);
+      dubproc.Parameters.Add('--config=' + fConfigs.Strings[fConfigIx]);
     dubproc.Execute;
     while dubproc.Running do
       dubProcOutput(dubproc);
@@ -523,6 +528,26 @@ begin
   udpateConfigsFromJson;
   updateSourcesFromJson;
   updateTargetKindFromJson;
+end;
+
+procedure TCEDubProject.beginModification;
+begin
+  fModificationCount += 1;
+end;
+
+procedure TCEDubProject.endModification;
+begin
+  fModificationCount -=1;
+  if fModificationCount <= 0 then
+    doModified;
+end;
+
+procedure TCEDubProject.doModified;
+begin
+  fModificationCount := 0;
+  fModified:=true;
+  updateFields;
+  subjProjChanged(fProjectSubject, self as ICECommonProject);
 end;
 {$ENDREGION}
 
