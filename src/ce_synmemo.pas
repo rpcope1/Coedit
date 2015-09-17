@@ -112,6 +112,7 @@ type
     function getAstHandle: TAstHandle;
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
+    procedure editedNotify(Sender: TSynEditStrings;aLinePos, aBytePos, aCount, aLineBrkCnt: Integer; aText: string);
     procedure identifierToD2Syn;
     procedure saveCache;
     procedure loadCache;
@@ -374,7 +375,7 @@ begin
   begin
     fAst := newAST(self, @astScanned);
     fAstTimer := TIdleTimer.Create(self);
-    fAstTimer.Interval:= 2000;
+    fAstTimer.Interval:= 200;
     fAstTimer.OnTimer:= @AstTimerEvent;
     fAstTimer.Enabled:=true;
     fAstTimer.AutoEnabled:=true;
@@ -437,6 +438,7 @@ begin
   fFilename := '<new document>';
   fModified := false;
   TextBuffer.AddNotifyHandler(senrUndoRedoAdded, @changeNotify);
+  //TextBuffer.AddEditHandler(@editedNotify);
   //
   fPositions := TCESynMemoPositions.create(self);
   fMultiDocSubject := TCEMultiDocSubject.create;
@@ -787,6 +789,11 @@ begin
   fCanScan := true;
   fPositions.store;
   subjDocChanged(TCEMultiDocSubject(fMultiDocSubject), self);
+end;
+
+procedure TCESynMemo.editedNotify(Sender: TSynEditStrings;aLinePos, aBytePos, aCount, aLineBrkCnt: Integer; aText: string);
+begin
+  fCanScan := true;
 end;
 
 procedure TCESynMemo.loadFromFile(const aFilename: string);
