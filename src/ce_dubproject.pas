@@ -419,7 +419,10 @@ begin
   fSrcs.Clear;
   lst := TStringList.Create;
   try
-    // auto folders
+    // auto folders & files
+    item := fJSON.Find('mainSourceFile');
+    if item <> nil then
+      fSrcs.Add(ExtractRelativepath(fBasePath, item.AsString));
     tryAddFromFolder(fBasePath + 'src');
     tryAddFromFolder(fBasePath + 'source');
     // custom folders
@@ -444,6 +447,9 @@ begin
     conf := getCurrentCustomConfig;
     if conf <> nil then
     begin
+      item := conf.Find('mainSourceFile');
+      if item <> nil then
+        fSrcs.Add(ExtractRelativepath(fBasePath, item.AsString));
       // custom folders in current config
       item := conf.Find('sourcePaths');
       if item <> nil then
@@ -467,7 +473,6 @@ begin
     //
     deleteDups(fSrcs);
     // TODO-cDUB: manage exclusions from 'excludedSourceFiles' (global + curr conf)
-    // + mainSourceFile.
   finally
     lst.Free;
   end;
@@ -478,6 +483,11 @@ var
   tt: TJSONData;
 begin
   result := true;
+  if value.Find('mainSourceFile') <> nil then
+  begin
+    fBinKind := executable;
+    exit;
+  end;
   tt := value.Find('targetType');
   if tt <> nil then
   begin
