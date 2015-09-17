@@ -74,6 +74,8 @@ type
       function compile: boolean;
       // tries to un the project output and returns true if it did
       function run(const runArgs: string = ''): boolean;
+      // returns true if the target has not to be recompiled
+      function targetUpToDate: boolean;
 
   end;
 

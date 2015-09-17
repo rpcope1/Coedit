@@ -100,6 +100,7 @@ type
     //
     function run(const runArgs: string = ''): Boolean;
     function compile: Boolean;
+    function targetUpToDate: boolean;
     //
     property configuration[ix: integer]: TCompilerConfiguration read getConfig;
     property currentConfiguration: TCompilerConfiguration read getCurrConf;
@@ -775,7 +776,6 @@ var
   str: string;
   msgs: ICEMessagesDisplay;
 begin
-
   lst := TStringList.Create;
   msgs := getMessageDisplay;
   try
@@ -808,6 +808,19 @@ begin
   finally
     lst.Free;
   end;
+end;
+
+function TCENativeProject.targetUpToDate: boolean;
+var
+  dt: double;
+  i: integer;
+begin
+  result := false;
+  if not FileExists(fOutputFilename) then exit;
+  dt := FileAge(fOutputFilename);
+  for i := 0 to fSrcs.Count-1 do
+    if fileAge(sourceAbsolute(i)) > dt then exit;
+  result := true;
 end;
 
 function TCENativeProject.outputFilename: string;

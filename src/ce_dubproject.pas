@@ -36,6 +36,7 @@ type
     function findTargetKindInd(value: TJSONObject): boolean;
     procedure dubProcOutput(proc: TProcess);
     function getCurrentCustomConfig: TJSONObject;
+    function compileOrRun(run: boolean; const runArgs: string = ''): boolean;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -66,6 +67,7 @@ type
     //
     function compile: boolean;
     function run(const runArgs: string = ''): boolean;
+    function targetUpToDate: boolean;
     //
     property json: TJSONObject read fJSON;
     //property sources: TStringList read fSrcs;
@@ -280,7 +282,7 @@ begin
   end;
 end;
 
-function TCEDubProject.compile: boolean;
+function TCEDubProject.compileOrRun(run: boolean; const runArgs: string = ''): boolean;
 var
   dubproc: TProcess;
   olddir: string;
@@ -294,35 +296,54 @@ begin
   dubproc := TProcess.Create(nil);
   olddir := GetCurrentDir;
   try
-    msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
+    if not run then
+      msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
     chDir(extractFilePath(fFilename));
     dubproc.Executable := 'dub' + exeExt;
     dubproc.Options := dubproc.Options + [poStderrToOutPut, poUsePipes];
     dubproc.CurrentDirectory := extractFilePath(fFilename);
     dubproc.ShowWindow := swoHIDE;
-    dubproc.Parameters.Add('build');
+    if not run then
+      dubproc.Parameters.Add('build')
+    else
+      dubproc.Parameters.Add('run');
     if fBuiltTypeIx <> 0 then
       dubproc.Parameters.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
     if fConfigIx <> 0 then
       dubproc.Parameters.Add('--config=' + fConfigs.Strings[fConfigIx]);
+    if run and (runArgs <> '') then
+      dubproc.Parameters.Add('--' + runArgs);
     dubproc.Execute;
     while dubproc.Running do
       dubProcOutput(dubproc);
-    if dubproc.ExitStatus = 0 then begin
-      msgs.message(prjname + ' has been successfully compiled', self as ICECommonProject, amcProj, amkInf);
-      result := true;
-    end else
-      msgs.message(prjname + ' has not been compiled', self as ICECommonProject, amcProj, amkWarn);
+    if not run then
+    begin
+      if dubproc.ExitStatus = 0 then begin
+        msgs.message(prjname + ' has been successfully compiled', self as ICECommonProject, amcProj, amkInf);
+        result := true;
+      end else
+        msgs.message(prjname + ' has not been compiled', self as ICECommonProject, amcProj, amkWarn);
+    end;
   finally
     chDir(olddir);
     dubproc.Free;
   end;
 end;
 
+function TCEDubProject.compile: boolean;
+begin
+  result := compileOrRun(false);
+end;
+
 function TCEDubProject.run(const runArgs: string = ''): boolean;
 begin
-  //TODO-cDUB: implement
-  result := false;
+  result := compileOrRun(true);
+end;
+
+function TCEDubProject.targetUpToDate: boolean;
+begin
+  // rebuilding is done automatically when the command is 'run'
+  result := true;
 end;
 {$ENDREGION --------------------------------------------------------------------}
 

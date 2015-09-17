@@ -1796,47 +1796,18 @@ begin
 end;
 
 procedure TCEMainForm.actProjRunExecute(Sender: TObject);
-var
-  i: Integer;
-  dt: double;
-label
-  _rbld,
-  _run;
 begin
   if fProjectInterface.binaryKind <> executable then
   begin
     dlgOkInfo('Non executable projects cant be run');
     exit;
   end;
-  if not fileExists(fProjectInterface.outputFilename) then
-  begin
-    if dlgOkCancel('The project output is missing, build ?') <> mrOK then
-      exit;
-    goto _rbld;
-  end;
-
-  // TODO-cICECommonInterface, add function to check if rebuild needed.
-  if fProjectInterface.getFormat = pfNative then
-  begin
-    dt := fileAge(fNativeProject.outputFilename);
-    for i := 0 to fNativeProject.Sources.Count-1 do
-    begin
-      if fileAge(fNativeProject.sourceAbsolute(i)) > dt then
-        if dlgOkCancel('The project sources have changed since last build, rebuild ?') = mrOK then
-          goto _rbld
-        else
-          break;
-    end;
-  end
-  // DUB checks this automatically
-  else fProjectInterface.compile;
-
-  goto _run;
-  _rbld:
-    fProjectInterface.compile;
-  _run:
-    if fileExists(fProjectInterface.outputFilename) then
-      fProjectInterface.run;
+  if (not fProjectInterface.targetUpToDate) then if
+    dlgOkCancel('The project output is not up-to-date, rebuild ?') = mrOK then
+      fProjectInterface.compile;
+  if fileExists(fProjectInterface.outputFilename)
+      or (fProjectInterface.getFormat = pfDub) then
+        fProjectInterface.run;
 end;
 
 procedure TCEMainForm.actProjRunWithArgsExecute(Sender: TObject);
