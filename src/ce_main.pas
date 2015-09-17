@@ -1425,14 +1425,18 @@ end;
 
 procedure TCEMainForm.actFileAddToProjExecute(Sender: TObject);
 begin
-  //TODO-cDUB: update 'add file to project' for a DUB project
   if fDoc = nil then exit;
-  if fDoc.isProjectSource then exit;
-  if fNativeProject = nil then exit;
+  if fDoc.isProjectSource then exit; // TODO: rename this abiguous property name to 'isProjectFile'
+  if fProjectInterface = nil then exit;
   //
-  if fileExists(fDoc.fileName) and (not fDoc.isTemporary) then
-    fNativeProject.addSource(fDoc.fileName)
-  else dlgOkInfo('the file has not been added to the project because it does not exist');
+  if fProjectInterface.getFormat = pfNative then
+  begin
+    if fileExists(fDoc.fileName) and (not fDoc.isTemporary) then
+      fNativeProject.addSource(fDoc.fileName)
+    else dlgOkInfo('the file has not been added to the project because it does not exist');
+  end else
+    getMessageDisplay.message('use the DUB project editor to add a source to a DUB project',
+      nil, amcApp, amkHint);
 end;
 
 procedure TCEMainForm.actFileCloseExecute(Sender: TObject);
