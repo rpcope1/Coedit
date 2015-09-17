@@ -279,7 +279,6 @@ type
     procedure saveProjAs(const aFilename: string);
     procedure openProj(const aFilename: string);
     procedure closeProj;
-    procedure addSource(const aFilename: string);
     procedure showProjTitle;
 
     // mru
@@ -2046,13 +2045,6 @@ begin
   if fProjectInterface.modified and (dlgOkCancel(
     'The project modifications are not saved, continue ?') = mrCancel) then exit;
   closeProj;
-end;
-
-procedure TCEMainForm.addSource(const aFilename: string);
-begin
-  //TODO-cDUB: add addSource() method to ICECommonProject
-  if fNativeProject.Sources.IndexOf(aFilename) >= 0 then exit;
-  fNativeProject.addSource(aFilename);
 end;
 
 procedure TCEMainForm.actProjSaveAsExecute(Sender: TObject);
