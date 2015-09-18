@@ -66,7 +66,8 @@ type
     function importPath(index: integer): string;
     //
     function configurationCount: integer;
-    procedure setActiveConfiguration(index: integer);
+    function getActiveConfigurationIndex: integer;
+    procedure setActiveConfigurationIndex(index: integer);
     function configurationName(index: integer): string;
     //
     function compile: boolean;
@@ -266,11 +267,16 @@ begin
   exit(fConfigsCount);
 end;
 
-procedure TCEDubProject.setActiveConfiguration(index: integer);
+function TCEDubProject.getActiveConfigurationIndex: integer;
+begin
+  exit(fBuiltTypeIx * fConfigs.Count + fConfigIx);
+end;
+
+procedure TCEDubProject.setActiveConfigurationIndex(index: integer);
 begin
   fBuiltTypeIx := index div fConfigs.Count;
   fConfigIx := index mod fConfigs.Count;
-  updateSourcesFromJson;
+  doModified;
 end;
 
 function TCEDubProject.configurationName(index: integer): string;
@@ -373,7 +379,7 @@ begin
   if fConfigIx = 0 then exit;
   //
   item := fJSON.Find('configurations');
-  if item = nil then exit;
+  if not assigned(item) then exit;
   //
   confs := TJSONArray(item);
   if fConfigIx > confs.Count -1 then exit;
@@ -386,8 +392,8 @@ var
   value: TJSONData;
 begin
   value := fJSON.Find('name');
-  if value <> nil then fPackageName := value.AsString
-  else fPackageName := '';
+  if not assigned(value) then fPackageName := ''
+  else fPackageName := value.AsString;
 end;
 
 procedure TCEDubProject.udpateConfigsFromJson;
@@ -460,13 +466,13 @@ begin
   try
     // auto folders & files
     item := fJSON.Find('mainSourceFile');
-    if item <> nil then
+    if assigned(item) then
       fSrcs.Add(ExtractRelativepath(fBasePath, item.AsString));
     tryAddFromFolder(fBasePath + 'src');
     tryAddFromFolder(fBasePath + 'source');
     // custom folders
     item := fJSON.Find('sourcePaths');
-    if item <> nil then
+    if assigned(item) then
     begin
       arr := TJSONArray(item);
       for i := 0 to arr.Count-1 do
@@ -477,21 +483,21 @@ begin
     end;
     // custom files
     item := fJSON.Find('sourceFiles');
-    if item <> nil then
+    if assigned(item) then
     begin
       arr := TJSONArray(item);
       for i := 0 to arr.Count-1 do
         fSrcs.Add(ExtractRelativepath(fBasePath, arr.Strings[i]));
     end;
     conf := getCurrentCustomConfig;
-    if conf <> nil then
+    if assigned(conf) then
     begin
       item := conf.Find('mainSourceFile');
-      if item <> nil then
+      if assigned(item) then
         fSrcs.Add(ExtractRelativepath(fBasePath, item.AsString));
       // custom folders in current config
       item := conf.Find('sourcePaths');
-      if item <> nil then
+      if assigned(item) then
       begin
         arr := TJSONArray(item);
         for i := 0 to arr.Count-1 do
@@ -502,7 +508,7 @@ begin
       end;
       // custom files in current config
       item := conf.Find('sourceFiles');
-      if item <> nil then
+      if assigned(item) then
       begin
         arr := TJSONArray(item);
         for i := 0 to arr.Count-1 do
@@ -547,11 +553,11 @@ var
   src: string;
 begin
   fBinKind := executable;
-  if fJSON = nil then exit;
+  if not assigned(fJSON) then exit;
   // note: in Coedit this is only used to known if output can be launched
   found := findTargetKindInd(fJSON);
   conf := getCurrentCustomConfig;
-  if conf <> nil then
+  if assigned(conf) then
     found := found or findTargetKindInd(conf);
   if not found then
   begin
@@ -589,7 +595,7 @@ procedure TCEDubProject.updateImportPathsFromJson;
 var
   conf: TJSONObject;
 begin
-  if fJSON = nil then exit;
+  if not assigned(fJSON) then exit;
   //
   addFrom(fJSON);
   conf := getCurrentCustomConfig;

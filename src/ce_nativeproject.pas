@@ -90,8 +90,9 @@ type
     function modified: boolean;
     //
     function configurationCount: integer;
-    procedure setActiveConfiguration(index: integer);
+    procedure setActiveConfigurationIndex(index: integer);
     function configurationName(index: integer): string;
+    function getActiveConfigurationIndex: integer;
     //
     function sourcesCount: integer;
     function sourceRelative(index: integer): string;
@@ -838,9 +839,14 @@ begin
   exit(fConfigs.Count);
 end;
 
-procedure TCENativeProject.setActiveConfiguration(index: integer);
+procedure TCENativeProject.setActiveConfigurationIndex(index: integer);
 begin
   setConfIx(index);
+end;
+
+function TCENativeProject.getActiveConfigurationIndex: integer;
+begin
+  exit(fConfIx);
 end;
 
 function TCENativeProject.configurationName(index: integer): string;

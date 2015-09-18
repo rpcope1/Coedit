@@ -53,9 +53,11 @@ type
       // returns the count of configuration
       function configurationCount: integer;
       // sets the active configuration
-      procedure setActiveConfiguration(index: integer);
+      procedure setActiveConfigurationIndex(index: integer);
       // returns the name of the index-th configuration
       function configurationName(index: integer): string;
+      // return the index of the active configration index
+      function getActiveConfigurationIndex: integer;
 
     // project sources ---------------------------------------------------------
 
