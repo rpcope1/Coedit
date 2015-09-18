@@ -9,7 +9,7 @@ uses
   {$IFDEF WINDOWS}
   windows,
   {$ENDIF}
-  ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_synmemo, ce_nativeproject;
+  ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_synmemo;
 
 type
   (**
@@ -30,7 +30,7 @@ type
     fAvailable: boolean;
     fServerListening: boolean;
     fDoc: TCESynMemo;
-    fProj: TCENativeProject;
+    fProj: ICECommonProject;
     procedure killServer;
     procedure terminateClient; inline;
     procedure waitClient; inline;
@@ -125,10 +125,7 @@ end;
 {$REGION ICEProjectObserver ----------------------------------------------------}
 procedure TCEDcdWrapper.projNew(aProject: ICECommonProject);
 begin
-  case aProject.getFormat of
-    pfNative: fProj := TCENativeProject(aProject.getProject);
-    pfDub:fProj := nil;
-  end;
+  fProj := aProject;
 end;
 
 procedure TCEDcdWrapper.projChanged(aProject: ICECommonProject);
@@ -137,22 +134,22 @@ var
   fold: string;
   folds: TStringList;
 begin
-  if fProj <> aProject.getProject then
+  if fProj <> aProject then
     exit;
   if fProj = nil then
     exit;
   //
   folds := TStringList.Create;
   try
-  	for i:= 0 to fProj.Sources.Count-1 do
+  	for i:= 0 to fProj.sourcesCount-1 do
     begin
       fold := extractFilePath(fProj.sourceAbsolute(i));
       if folds.IndexOf(fold) = -1 then
         folds.Add(fold);
     end;
-  	for i := 0 to fProj.currentConfiguration.pathsOptions.importModulePaths.Count-1 do
+  	for i := 0 to fProj.importsPathCount-1 do
   	begin
-    	fold := fProj.currentConfiguration.pathsOptions.importModulePaths.Strings[i];
+    	fold := fProj.importPath(i);
     	if DirectoryExists(fold) and (folds.IndexOf(fold) = -1) then
      		folds.Add(fold);
     end;
@@ -164,17 +161,14 @@ end;
 
 procedure TCEDcdWrapper.projClosing(aProject: ICECommonProject);
 begin
-  if fProj <> aProject.getProject then
+  if fProj <> aProject then
     exit;
   fProj := nil;
 end;
 
 procedure TCEDcdWrapper.projFocused(aProject: ICECommonProject);
 begin
-  case aProject.getFormat of
-    pfNative: fProj := TCENativeProject(aProject.getProject);
-    pfDub:fProj := nil;
-  end;
+  fProj := aProject;
 end;
 
 procedure TCEDcdWrapper.projCompiling(aProject: ICECommonProject);
