@@ -277,6 +277,8 @@ begin
   fBuiltTypeIx := index div fConfigs.Count;
   fConfigIx := index mod fConfigs.Count;
   doModified;
+  // DUB does not store an active config
+  fModified:=false;
 end;
 
 function TCEDubProject.configurationName(index: integer): string;
