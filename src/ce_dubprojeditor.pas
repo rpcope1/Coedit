@@ -11,6 +11,8 @@ uses
 
 type
 
+  //TODO-cDUB: add new properties from UI
+
  { TCEDubProjectEditorWidget }
 
   TCEDubProjectEditorWidget = class(TCEWidget, ICEProjectObserver)

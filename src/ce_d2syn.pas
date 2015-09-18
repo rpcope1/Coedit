@@ -449,7 +449,7 @@ begin
   next;
 end;
 
-//TODO-ccomments: nested comments with multiple nesting on the same line.
+//TODO-cD2Syn: nested comments with multiple nesting on the same line.
 procedure TSynD2Syn.next;
 var
   reader: PChar;

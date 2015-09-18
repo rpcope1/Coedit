@@ -213,12 +213,6 @@ type
     fInfoWidg: TCEInfoWidget;
     fDubProjWidg: TCEDubProjectEditorWidget;
 
-    //TODO-cDUB: widget to edit and view, select config of, a DUB project.
-    // DUB format can't be wrapped as published prop so...
-    // ...visually: displayed as a tree. node = prop name.
-    // prop value editor in sync with slected node,
-    // treeview filter. add node, etc.
-
     fInitialized: boolean;
     fRunnableSw: string;
     fRunProc: TCEProcess;
@@ -226,7 +220,7 @@ type
     fMainMenuSubj: TCEMainMenuSubject;
     fAppliOpts: TCEApplicationOptions;
     procedure updateMainMenuProviders;
-    procedure updateFloatingWidgetOnTop(onTOp: boolean);
+    procedure updateFloatingWidgetOnTop(onTop: boolean);
 
     // action provider handling;
     procedure clearActProviderEntries;
@@ -1432,7 +1426,7 @@ end;
 procedure TCEMainForm.actFileAddToProjExecute(Sender: TObject);
 begin
   if fDoc = nil then exit;
-  if fDoc.isProjectSource then exit; // TODO: rename this abiguous property name to 'isProjectFile'
+  if fDoc.isProjectSource then exit; // TODO: rename this ambiguous property name to 'isProjectFile'
   if fProjectInterface = nil then exit;
   //
   if fProjectInterface.getFormat = pfNative then
@@ -1965,7 +1959,7 @@ begin
   layoutUpdateMenu;
 end;
 
-procedure TCEMainForm.updateFloatingWidgetOnTop(onTOp: boolean);
+procedure TCEMainForm.updateFloatingWidgetOnTop(onTop: boolean);
 var
   widg: TCEWidget;
 const
@@ -1974,9 +1968,9 @@ begin
   for widg in fWidgList do if (widg.Parent <> nil) and
     (widg.Parent.Parent = nil) and widg.isDockable then
   begin
-    TForm(widg.Parent).FormStyle := fstyle[onTOp];
-    //TODO: floating widg on top from true to false, widg remains on top
-    if TForm(widg.Parent).Visible then if not onTOp then
+    TForm(widg.Parent).FormStyle := fstyle[onTop];
+    //TODO-bugfix: floating widg on top from true to false, widg remains on top
+    if TForm(widg.Parent).Visible then if not onTop then
       TForm(widg.Parent).SendToBack;
   end;
 end;

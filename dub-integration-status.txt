@@ -1,7 +1,0 @@
-branch 'dub-integration' was merged in 'master'.
-
-- 'master' is still stable
-- a DUB json project can be opened and compiled.
-- no error will happen because of a dub project, when a feature is not implemented for a DUB project (and there is a lot of them) what will happen is "nothing".
-- in case of bug in version 1, this will not be included. Fixes are put in the '1_fixes' branch.
-- a PR for the version 1 should be submitted to the '1_fixes' branch.

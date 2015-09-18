@@ -12,6 +12,8 @@ uses
 
 type
 
+  //TODO-cDUB: adapt todo list to DUB projects
+
   TCETodoOptions = class(TWritableLfmTextComponent)
   private
     fAutoRefresh: boolean;
