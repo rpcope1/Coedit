@@ -273,6 +273,7 @@ end;
 procedure TCEDubProjectEditorWidget.updateInspector;
 var
   i: integer;
+  j: integer;
   node : TTreeNode;
 begin
   if (fNodeConfig = nil) or (fNodeSources = nil) then
@@ -284,13 +285,24 @@ begin
   if (fProj = nil) then
     exit;
   //
+  j := fProj.getActiveConfigurationIndex;
   treeInspect.BeginUpdate;
   for i:= 0 to fProj.configurationCount-1 do
   begin
-    node := treeInspect.Items.AddChild(fNodeConfig, fProj.configurationName(i));
-    node.ImageIndex := 3;
-    node.SelectedIndex := 3;
-    node.StateIndex := 3;
+    if i <> j then
+    begin
+      node := treeInspect.Items.AddChild(fNodeConfig, fProj.configurationName(i));
+      node.ImageIndex := 3;
+      node.SelectedIndex := 3;
+      node.StateIndex := 3;
+    end
+    else
+    begin
+      node := treeInspect.Items.AddChild(fNodeConfig, fProj.configurationName(i) +' (active)');
+      node.ImageIndex := 10;
+      node.SelectedIndex := 10;
+      node.StateIndex := 10;
+    end;
   end;
   for i := 0 to fProj.sourcesCount-1 do
   begin
@@ -320,7 +332,8 @@ begin
   // select active config
   else if node.Parent = fNodeConfig then
   begin
-    fProj.setActiveConfiguration(node.Index);
+    fProj.setActiveConfigurationIndex(node.Index);
+    fNodeConfig.Expand(true);
   end;
 end;
 {$ENDREGION}
