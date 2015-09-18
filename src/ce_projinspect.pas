@@ -407,8 +407,16 @@ begin
     conf := fProject.configuration[i].name;
     if i = fProject.ConfigurationIndex then conf += ' (active)';
     itm := Tree.Items.AddChild(fConfNode, conf);
-    itm.ImageIndex := 3;
-    itm.SelectedIndex:= 3;
+    if i = fProject.ConfigurationIndex then
+    begin
+      itm.ImageIndex := 7;
+      itm.SelectedIndex:= 7;
+    end
+    else
+    begin
+      itm.ImageIndex := 3;
+      itm.SelectedIndex:= 3;
+    end;
   end;
   // display Imports (-J)
   for fold in FProject.currentConfiguration.pathsOptions.importStringPaths do
