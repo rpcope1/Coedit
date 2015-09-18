@@ -19,6 +19,7 @@ type
     fSrcs: TStringList;
     fProjectSubject: TCEProjectSubject;
     fConfigsCount: integer;
+    fImportPaths: TStringList;
     fBuildTypes: TStringList;
     fConfigs: TStringList;
     fBuiltTypeIx: integer;
@@ -33,6 +34,7 @@ type
     procedure udpateConfigsFromJson;
     procedure updateSourcesFromJson;
     procedure updateTargetKindFromJson;
+    procedure updateImportPathsFromJson;
     function findTargetKindInd(value: TJSONObject): boolean;
     procedure dubProcOutput(proc: TProcess);
     function getCurrentCustomConfig: TJSONObject;
@@ -54,12 +56,14 @@ type
     function modified: boolean;
     function binaryKind: TProjectBinaryKind;
     function getCommandLine: string;
+    function outputFilename: string;
     //
     function isSource(const aFilename: string): boolean;
     function sourcesCount: integer;
     function sourceRelative(index: integer): string;
     function sourceAbsolute(index: integer): string;
-    function outputFilename: string;
+    function importsPathCount: integer;
+    function importPath(index: integer): string;
     //
     function configurationCount: integer;
     procedure setActiveConfiguration(index: integer);
@@ -95,6 +99,7 @@ begin
   fBuildTypes := TStringList.Create;
   fConfigs := TStringList.Create;
   fSrcs := TStringList.Create;
+  fImportPaths := TStringList.Create;
   //
   subjProjNew(fProjectSubject, self);
   subjProjChanged(fProjectSubject, self);
@@ -109,6 +114,7 @@ begin
   fBuildTypes.Free;
   fConfigs.Free;
   fSrcs.Free;
+  fImportPaths.Free;
   inherited;
 end;
 {$ENDREGION --------------------------------------------------------------------}
@@ -241,6 +247,16 @@ begin
     result := fname
   else
     result := expandFilenameEx(fBasePath, fname);
+end;
+
+function TCEDubProject.importsPathCount: integer;
+begin
+  result := fImportPaths.Count;
+end;
+
+function TCEDubProject.importPath(index: integer): string;
+begin
+  result := expandFilenameEx(fBasePath, fImportPaths.Strings[index]);
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
@@ -555,12 +571,38 @@ begin
   end;
 end;
 
+procedure TCEDubProject.updateImportPathsFromJson;
+  procedure addFrom(obj: TJSONObject);
+  var
+    arr: TJSONArray;
+    item: TJSONData;
+    i: integer;
+  begin
+    item := obj.Find('importPaths');
+    if assigned(item) then
+    begin
+      arr := TJSONArray(item);
+      for i:= 0 to arr.Count-1 do
+        fImportPaths.Add(arr.Strings[i]);
+    end;
+  end;
+var
+  conf: TJSONObject;
+begin
+  if fJSON = nil then exit;
+  //
+  addFrom(fJSON);
+  conf := getCurrentCustomConfig;
+  if assigned(conf) then addFrom(conf);
+end;
+
 procedure TCEDubProject.updateFields;
 begin
   updatePackageNameFromJson;
   udpateConfigsFromJson;
   updateSourcesFromJson;
   updateTargetKindFromJson;
+  updateImportPathsFromJson;
 end;
 
 procedure TCEDubProject.beginModification;

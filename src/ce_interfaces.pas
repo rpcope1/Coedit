@@ -59,7 +59,7 @@ type
 
     // project sources ---------------------------------------------------------
 
-      // returns the count of source file in th e project
+      // returns the count of source files for the current config
       function sourcesCount: integer;
       // returns the source absolute filename.
       function sourceAbsolute(index: integer): string;
@@ -67,6 +67,10 @@ type
       function sourceRelative(index: integer): string;
       // returns true if aFilename is a project source.
       function isSource(const aFilename: string): boolean;
+      // returns the count of import paths for the current config
+      function importsPathCount: integer;
+      // returns the import absolute path
+      function importPath(index: integer): string;
 
     // sub routines for the actions --------------------------------------------
 

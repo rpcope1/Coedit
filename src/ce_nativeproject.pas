@@ -97,6 +97,8 @@ type
     function sourceRelative(index: integer): string;
     function sourceAbsolute(index: integer): string;
     function isSource(const aFilename: string): boolean;
+    function importsPathCount: integer;
+    function importPath(index: integer): string;
     //
     function run(const runArgs: string = ''): Boolean;
     function compile: Boolean;
@@ -182,13 +184,16 @@ end;
 procedure TCENativeProject.addSource(const aFilename: string);
 var
   relSrc, absSrc: string;
+  expand: boolean;
 begin
   if not isDlangCompilable(ExtractFileExt(aFilename)) then
     exit;
+  expand := DirectoryExists(fBasePath);
   for relSrc in fSrcs do
   begin
-    absSrc := expandFilenameEx(fBasePath,relsrc);
-    if aFilename = absSrc then exit;
+    if not expand then absSrc := relSrc
+    else absSrc := expandFilenameEx(fBasePath, relsrc);
+    if SameFileName(aFilename, absSrc) then exit;
   end;
   fSrcs.Add(ExtractRelativepath(fBasePath, aFilename));
 end;
@@ -898,6 +903,18 @@ begin
     result := fname
   else
     result := expandFilenameEx(fBasePath, fname);
+end;
+
+function TCENativeProject.importsPathCount: integer;
+begin
+  result := currentConfiguration.pathsOptions.importModulePaths.Count;
+end;
+
+function TCENativeProject.importPath(index: integer): string;
+begin
+  result := currentConfiguration.pathsOptions.importModulePaths.Strings[index];
+  if DirectoryExists(fBasePath) then
+    result := expandFilenameEx(fBasePath, result);
 end;
 
 function isValidNativeProject(const filename: string): boolean;
