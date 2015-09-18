@@ -226,6 +226,7 @@ type
     fMainMenuSubj: TCEMainMenuSubject;
     fAppliOpts: TCEApplicationOptions;
     procedure updateMainMenuProviders;
+    procedure updateFloatingWidgetOnTop(onTOp: boolean);
 
     // action provider handling;
     procedure clearActProviderEntries;
@@ -348,10 +349,12 @@ type
 
   TCEApplicationOptionsBase = class(TWritableLfmTextComponent)
   private
+    fFloatingWidgetOnTop: boolean;
     fReloadLastDocuments: boolean;
     fMaxRecentProjs: integer;
     fMaxRecentDocs: integer;
   published
+    property floatingWidgetOnTop: boolean read fFloatingWidgetOnTop write fFloatingWidgetOnTop;
     property reloadLastDocuments: boolean read fReloadLastDocuments write fReloadLastDocuments;
     property maxRecentProjects: integer read fMaxRecentProjs write fMaxRecentProjs;
     property maxRecentDocuments: integer read fMaxRecentDocs write fMaxRecentDocs;
@@ -407,6 +410,7 @@ begin
     fMaxRecentDocs:= fBackup.fMaxRecentDocs;
     fMaxRecentProjs:= fBackup.fMaxRecentProjs;
     fReloadLastDocuments:=fBackup.fReloadLastDocuments;
+    fFloatingWidgetOnTop := fBackup.fFloatingWidgetOnTop;
   end
   else inherited;
 end;
@@ -417,11 +421,13 @@ begin
   begin
    CEMainForm.fProjMru.maxCount := fMaxRecentProjs;
    CEMainForm.fFileMru.maxCount := fMaxRecentDocs;
+   CEMainForm.updateFloatingWidgetOnTop(fFloatingWidgetOnTop);
   end else if dst = fBackup then
   begin
     fBackup.fMaxRecentDocs:= fMaxRecentDocs;
     fBackup.fMaxRecentProjs:= fMaxRecentProjs;
     fBackup.fReloadLastDocuments:=fReloadLastDocuments;
+    fBackup.fFloatingWidgetOnTop:=fFloatingWidgetOnTop;
   end
   else inherited;
 end;
@@ -1957,6 +1963,22 @@ begin
     fname += '.xml';
   layoutSaveToFile(getCoeditDocPath + 'layouts' + DirectorySeparator + fname);
   layoutUpdateMenu;
+end;
+
+procedure TCEMainForm.updateFloatingWidgetOnTop(onTOp: boolean);
+var
+  widg: TCEWidget;
+const
+  fstyle: array[boolean] of TFormStyle = (fsNormal, fsStayOnTop);
+begin
+  for widg in fWidgList do if (widg.Parent <> nil) and
+    (widg.Parent.Parent = nil) and widg.isDockable then
+  begin
+    TForm(widg.Parent).FormStyle := fstyle[onTOp];
+    //TODO: floating widg on top from true to false, widg remains on top
+    if TForm(widg.Parent).Visible then if not onTOp then
+      TForm(widg.Parent).SendToBack;
+  end;
 end;
 {$ENDREGION}
 
