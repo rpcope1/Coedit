@@ -1,7 +1,7 @@
 inherited CELibManEditorWidget: TCELibManEditorWidget
-  Left = 1424
+  Left = 985
   Height = 349
-  Top = 284
+  Top = 275
   Width = 466
   Caption = 'Library manager'
   ClientHeight = 349
@@ -123,6 +123,17 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           OnClick = btnRegClick
           Spacing = 0
           TabOrder = 8
+        end
+        object btnDubFetch: TBitBtn
+          Left = 140
+          Height = 26
+          Hint = 'register from the current project'
+          Top = 0
+          Width = 28
+          Align = alLeft
+          OnClick = btnDubFetchClick
+          Spacing = 0
+          TabOrder = 9
         end
       end
       object List: TListView[1]

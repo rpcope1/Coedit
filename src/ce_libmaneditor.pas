@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Menus, ComCtrls, Buttons, ce_widget, ce_interfaces, ce_nativeproject, ce_dmdwrap,
-  ce_common, ce_dialogs, ce_sharedres;
+  ce_common, ce_dialogs, ce_sharedres, process, ce_dubproject, ce_observer;
 
 type
 
@@ -17,6 +17,7 @@ type
     btnMoveDown: TBitBtn;
     btnMoveUp: TBitBtn;
     btnReg: TBitBtn;
+    btnDubFetch: TBitBtn;
     btnSelFile: TBitBtn;
     btnAddLib: TBitBtn;
     btnRemLib: TBitBtn;
@@ -26,6 +27,7 @@ type
     List: TListView;
     Panel1: TPanel;
     procedure btnAddLibClick(Sender: TObject);
+    procedure btnDubFetchClick(Sender: TObject);
     procedure btnEditAliasClick(Sender: TObject);
     procedure btnRegClick(Sender: TObject);
     procedure btnRemLibClick(Sender: TObject);
@@ -37,7 +39,6 @@ type
     procedure ListEdited(Sender: TObject; Item: TListItem; var AValue: string);
   private
     fProj: ICECommonProject;
-    //TODO-cDUB: register a static lib in libman via a DUB project
     procedure updateRegistrable;
     procedure projNew(aProject: ICECommonProject);
     procedure projChanged(aProject: ICECommonProject);
@@ -75,6 +76,7 @@ begin
   AssignPng(btnSelfoldOfFiles, 'bricks');
   AssignPng(btnSelRoot, 'folder_add');
   AssignPng(btnReg, 'book_link');
+  AssignPng(btnDubFetch, 'dub_small');
 end;
 
 procedure TCELibManEditorWidget.updateRegistrable;
@@ -130,6 +132,131 @@ begin
   itm.SubItems.Add(notav);
   SetFocus;
   itm.Selected := True;
+end;
+
+procedure TCELibManEditorWidget.btnDubFetchClick(Sender: TObject);
+var
+  dub: TProcess;
+  nme: string = '';
+  msg: string;
+  pth: string;
+  str: TStringList;
+  itf: ICEMessagesDisplay;
+  err: integer;
+  idx: integer;
+  prj: TCEDubProject;
+  cdy: string;
+begin
+  if not InputQuery('DUB library import', 'please enter the name of the package',
+    nme) then exit;
+  if List.Items.FindCaption(0, nme, false, false, false) <> nil then
+  begin
+    dlgOkInfo(format('a library item with the alias "%s" already exists, delete it before trying again.',
+      [nme]));
+    exit;
+  end;
+  {$IFDEF WINDOWS}
+  pth := GetEnvironmentVariable('APPDATA') + '\dub\packages\' + nme + '-master';
+  {$ELSE}
+  pth := GetEnvironmentVariable('HOME') + '/.dub/packages/' + nme + '-master';
+  {$ENDIF}
+
+  // fetch
+  dub := TProcess.Create(nil);
+  try
+    dub.Executable:= 'dub';
+    dub.Options:= [poUsePipes, poStderrToOutPut];
+    dub.Parameters.Add('fetch');
+    dub.Parameters.Add(nme);
+    // fetch project, version handling, pth is hard to set because of semVer suffix.
+    // needed: a folder monitor to detect the one created by dub.
+    dub.Parameters.Add('--version=~master');
+    dub.Execute;
+    while dub.Running do sleep(10);
+    err := dub.ExitStatus;
+    str := TStringList.Create;
+    try
+      processOutputToStrings(dub, str);
+      itf := getMessageDisplay;
+      for msg in str do
+        itf.message(msg, nil, amcMisc, amkAuto);
+    finally
+      str.Free;
+    end;
+  finally
+    dub.Free;
+  end;
+  if err <> 0 then
+  begin
+    itf.message('error, failed to fetch the repository using DUB', nil, amcApp, amkErr);
+    exit;
+  end;
+
+  // build
+  dub := TProcess.Create(nil);
+  try
+    dub.Executable:= 'dub';
+    dub.Options:= [poUsePipes, poStderrToOutPut];
+    dub.Parameters.Add('build');
+    dub.Parameters.Add('--build=release');
+    dub.CurrentDirectory:= pth;
+    dub.Execute;
+    while dub.Running do sleep(10);
+    err := dub.ExitStatus;
+    str := TStringList.Create;
+    try
+      processOutputToStrings(dub, str);
+      itf := getMessageDisplay;
+      for msg in str do
+        itf.message(msg, nil, amcMisc, amkAuto);
+    finally
+      str.Free;
+    end;
+  finally
+    dub.Free;
+  end;
+  if err <> 0 then
+  begin
+    itf.message('error, failed to compile the library to register', nil, amcApp, amkErr);
+    exit;
+  end;
+
+  // TODO-cbugfix: entity connector, AV when CE terminates due to the begin/end update trick.
+  // project used to get the infos
+  EntitiesConnector.beginUpdate;
+  prj := TCEDubProject.create(nil);
+  EntitiesConnector.removeSubject(prj);
+  try
+    prj := TCEDubProject.create(nil);
+    if FileExists(pth + DirectorySeparator + 'dub.json') then
+      prj.loadFromFile(pth + DirectorySeparator + 'dub.json')
+    else if FileExists(pth + DirectorySeparator + 'package.json') then
+      prj.loadFromFile(pth + DirectorySeparator + 'package.json');
+    str := TStringList.Create;
+    try
+      for idx := 0 to prj.sourcesCount-1 do
+        str.Add(prj.sourceAbsolute(idx));
+      with List.Items.Add do
+      begin
+        Caption := nme;
+        SubItems.Add(prj.outputFilename);
+        if str.Count = 1 then
+          cdy := ExtractFileDir(str.Strings[0])
+        else begin
+          cdy := commonFolder(str);
+          cdy := ExtractFileDir(cdy);
+        end;
+        SubItems.Add(cdy);
+        Selected:=true;
+      end;
+    finally
+      str.Free;
+    end;
+  finally
+    prj.Free;
+    EntitiesConnector.endUpdate;
+    gridToData;
+  end;
 end;
 
 procedure TCELibManEditorWidget.btnEditAliasClick(Sender: TObject);
