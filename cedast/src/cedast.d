@@ -4,11 +4,19 @@ import core.runtime, common, ast;
 import iz.memory;
 
 __gshared Ast[] modules;
+__gshared bool init;
 
+void tryInit()
+{
+    if (init) return;
+    Runtime.initialize;
+    init = true;
+}
 
 extern(C) export
 AstHandle newAst(void* param, AstNotification clbck)
 {
+    version(linux) tryInit;
     AstHandle result;
     try
     {
@@ -134,7 +142,7 @@ version(Windows)
         final switch (ulReason)
         {
             case DLL_PROCESS_ATTACH:
-                Runtime.initialize;
+                tryInit;
                 g_hInst = hInstance;
                 dll_process_attach( hInstance, true );
                 break;
@@ -155,4 +163,3 @@ version(Windows)
         return true;
     }
 }
-

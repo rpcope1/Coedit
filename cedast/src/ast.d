@@ -1,14 +1,21 @@
 module ast;
 
 import std.d.lexer, std.d.parser, std.d.ast;
-import std.json, std.array, std.conv, std.parallelism;
+import std.json, std.array, std.conv, std.parallelism, std.concurrency;
 import iz.enumset, iz.memory;
 
 import common;
 
 private
 {
-    enum AstInfos {ModuleName, ErrorsJson, ErrorsPas, SymsJson, SymsPas}
+    enum AstInfos
+    {
+        ModuleName,
+        ErrorsJson, ErrorsPas,
+        SymsJson, SymsPas,
+        TodosJson, TodosPas
+    }
+
     alias CachedInfos = EnumSet!(AstInfos, Set8);
 
     enum SymbolType
@@ -316,7 +323,7 @@ private:
     ubyte[] todosJson;
     ubyte[] symsPas;
     ubyte[] symsJson;
-    static AstError*[] errors;
+    __gshared static AstError*[] errors;
 
     final static void parserError(string fname, size_t line, size_t col, string msg, bool isErr)
     {
@@ -342,6 +349,7 @@ private:
         mod = parseModule(getTokensForParser(src, config, &strcache), fname, null, &parserError);
         if (notif) notif(notifparam);
         scanned = true;
+        
     }
 
 public:
@@ -359,7 +367,8 @@ public:
         try src = cast(ubyte[]) read(fname, size_t.max);
         catch(Exception e){}
         scanned = false;
-        task(&taskScan).executeInNewThread;
+        version(Windows)task(&taskScan).executeInNewThread;
+        else taskScan;
     }
 
     final void scanBuffer(ubyte[] buffer)
@@ -367,7 +376,8 @@ public:
         resetCachedInfo;
         src = buffer.dup;
         scanned = false;
-        task(&taskScan).executeInNewThread;
+        version(Windows) task(&taskScan).executeInNewThread;
+        else taskScan;
     }
 
     @property AstNotification notification(){return notif;}
@@ -378,48 +388,50 @@ public:
 
     final string moduleName()
     {
-        string result;
-
-        if (!scanned)
-            return result;
-        if (AstInfos.ModuleName in cachedInfos)
-            return modName;
-
-        cachedInfos += AstInfos.ModuleName;
-        if (mod.moduleDeclaration)
-        foreach(Token t; mod.moduleDeclaration.moduleName.identifiers)
-            result ~= t.text ~ ".";
-
-        if (result.length)
-            modName = result[0 .. $-1];
+        if (scanned && AstInfos.ModuleName !in cachedInfos)
+        {
+            string result;
+            cachedInfos += AstInfos.ModuleName;
+            if (mod.moduleDeclaration)
+            foreach(Token t; mod.moduleDeclaration.moduleName.identifiers)
+                result ~= t.text ~ ".";
+            if (result.length)
+                modName = result[0 .. $-1].idup;
+        }
         return modName;
     }
 
     final ubyte[] todoListPas()
     {
-        return null;
+        if (scanned && AstInfos.TodosPas !in cachedInfos)
+        {
+        }
+        return todosPas;
     }
 
     final ubyte[] todoListJson()
     {
-        return null;
+        if (scanned && AstInfos.TodosJson !in cachedInfos)
+        {
+        }
+        return todosJson;
     }
 
     final ubyte[] symbolListPas()
     {
-        if (AstInfos.SymsPas !in cachedInfos)
+        if (scanned && AstInfos.SymsPas !in cachedInfos)
         {
             cachedInfos += AstInfos.SymsPas;
             SymbolListBuilder slb = construct!SymbolListBuilder(mod);
             scope(exit) destruct(slb);
-            symsPas = cast(ubyte[]) slb.serializePas();
+            symsPas = cast(ubyte[]) slb.serializePas().dup;
         }
         return symsPas;
     }
 
     final ubyte[] symbolListJson()
     {
-        if (AstInfos.SymsJson !in cachedInfos)
+        if (scanned && AstInfos.SymsJson !in cachedInfos)
         {
             cachedInfos += AstInfos.SymsJson;
             SymbolListBuilder slb = construct!SymbolListBuilder(mod);
