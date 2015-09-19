@@ -5,8 +5,8 @@ unit ce_dubproject;
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, jsonscanner, process,
-  ce_common, ce_interfaces, ce_observer ;
+  Classes, SysUtils, fpjson, jsonparser, jsonscanner, process, strutils,
+  ce_common, ce_interfaces, ce_observer;
 
 type
 
@@ -450,6 +450,7 @@ var
   conf: TJSONObject;
   arr: TJSONArray;
   i: integer;
+
 procedure tryAddFromFolder(const pth: string);
 var
   abs: string;
@@ -463,6 +464,8 @@ begin
         fSrcs.Add(ExtractRelativepath(fBasePath, abs));
   end;
 end;
+var
+  pth: string;
 begin
   fSrcs.Clear;
   lst := TStringList.Create;
@@ -480,8 +483,11 @@ begin
       arr := TJSONArray(item);
       for i := 0 to arr.Count-1 do
       begin
-        tryAddFromFolder(fBasePath + arr.Strings[i]);
-        tryAddFromFolder(arr.Strings[i]);
+        pth := TrimRightSet(arr.Strings[i], ['/','\']);
+        if DirectoryExists(pth) then
+          tryAddFromFolder(pth)
+        else
+          tryAddFromFolder(fBasePath + pth);
       end;
     end;
     // custom files
@@ -505,8 +511,11 @@ begin
         arr := TJSONArray(item);
         for i := 0 to arr.Count-1 do
         begin
-          tryAddFromFolder(fBasePath + arr.Strings[i]);
-          tryAddFromFolder(arr.Strings[i]);
+          pth := TrimRightSet(arr.Strings[i], ['/','\']);
+          if DirectoryExists(pth) then
+            tryAddFromFolder(pth)
+          else
+            tryAddFromFolder(fBasePath + pth);
         end;
       end;
       // custom files in current config
