@@ -634,7 +634,7 @@ begin
   begin
     item := fJSON.Find('name');
     if assigned(item) then
-      fOutputFileName := item.AsString;
+      fOutputFileName := fBasePath + item.AsString;
   end;
   case fBinKind of
     executable: fOutputFileName += exeExt;
