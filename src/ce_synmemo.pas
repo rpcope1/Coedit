@@ -159,7 +159,7 @@ type
     //
     property syncroEdit: TSynPluginSyncroEdit read fSyncEdit;
     property isDSource: boolean read fIsDSource;
-    property isProjectSource: boolean read fIsConfig;
+    property isProjectFile: boolean read fIsConfig; // warning: never set !
     property isTemporary: boolean read getIfTemp;
     property TextView;
     //

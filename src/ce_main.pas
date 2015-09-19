@@ -1426,7 +1426,7 @@ end;
 procedure TCEMainForm.actFileAddToProjExecute(Sender: TObject);
 begin
   if fDoc = nil then exit;
-  if fDoc.isProjectSource then exit; // TODO: rename this ambiguous property name to 'isProjectFile'
+  if fDoc.isProjectFile then exit;
   if fProjectInterface = nil then exit;
   //
   if fProjectInterface.getFormat = pfNative then
