@@ -541,7 +541,7 @@ begin
   begin
     case tt.AsString of
       'executable': fBinKind := executable;
-      'staticLibrary' : fBinKind := staticlib;
+      'staticLibrary', 'library' : fBinKind := staticlib;
       'dynamicLibrary' : fBinKind := sharedlib;
       'autodetect': result := false;
       else fBinKind := executable;
