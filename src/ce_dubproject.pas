@@ -690,7 +690,6 @@ begin
   // avoid the project to notify the observers, current project is not replaced
   EntitiesConnector.beginUpdate;
   maybe := TCEDubProject.create(nil);
-  EntitiesConnector.removeSubject(maybe);
   try
     try
       maybe.loadFromFile(filename);

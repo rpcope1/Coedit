@@ -931,7 +931,6 @@ begin
   // avoid the project to notify the observers, current project is not replaced
   EntitiesConnector.beginUpdate;
   maybe := TCENativeProject.create(nil);
-  EntitiesConnector.removeSubject(maybe);
   try
     maybe.loadFromFile(filename);
     result := maybe.hasLoaded;
