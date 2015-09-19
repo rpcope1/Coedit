@@ -36,7 +36,7 @@ type
     procedure btnMoveDownClick(Sender: TObject);
     procedure ListEdited(Sender: TObject; Item: TListItem; var AValue: string);
   private
-    fProj: TCENativeProject;
+    fProj: ICECommonProject;
     //TODO-cDUB: register a static lib in libman via a DUB project
     procedure updateRegistrable;
     procedure projNew(aProject: ICECommonProject);
@@ -79,23 +79,19 @@ end;
 
 procedure TCELibManEditorWidget.updateRegistrable;
 begin
-  btnReg.Enabled := (fProj <> nil) and
-    (fProj.currentConfiguration.outputOptions.binaryKind = staticlib) and
-      (FileExists(fProj.Filename))
+  btnReg.Enabled := (fProj <> nil) and (fProj.binaryKind = staticlib) and
+    FileExists(fProj.Filename);
 end;
 
 procedure TCELibManEditorWidget.projNew(aProject: ICECommonProject);
 begin
-  case aProject.getFormat of
-    pfNative: fProj := TCENativeProject(aProject.getProject);
-    pfDub:fProj := nil;
-  end;
+  fProj := aProject;
 end;
 
 procedure TCELibManEditorWidget.projChanged(aProject: ICECommonProject);
 begin
   if fProj = nil then exit;
-  if fProj <> aProject.getProject then
+  if fProj <> aProject then
     exit;
   //
   updateRegistrable;
@@ -103,7 +99,7 @@ end;
 
 procedure TCELibManEditorWidget.projClosing(aProject: ICECommonProject);
 begin
-  if  fProj <> aProject.getProject then
+  if  fProj <> aProject then
     exit;
   fProj := nil;
   updateRegistrable;
@@ -111,10 +107,7 @@ end;
 
 procedure TCELibManEditorWidget.projFocused(aProject: ICECommonProject);
 begin
-  case aProject.getFormat of
-    pfNative: fProj := TCENativeProject(aProject.getProject);
-    pfDub:fProj := nil;
-  end;
+  fProj := aProject;
   updateRegistrable;
 end;
 
@@ -154,13 +147,15 @@ end;
 procedure TCELibManEditorWidget.btnRegClick(Sender: TObject);
 var
   str: TStringList;
+  fname: string;
   root: string;
   lalias: string;
   i: integer;
 begin
   if fProj = nil then exit;
   //
-  lalias := ExtractFileNameOnly(fProj.Filename);
+  fname := fProj.filename;
+  lalias := ExtractFileNameOnly(fname);
   if List.Items.FindCaption(0, lalias, false, false, false) <> nil then
   begin
     dlgOkInfo(format('a library item with the alias "%s" already exists, delete it before trying again.',
@@ -170,7 +165,7 @@ begin
   //
   str := TStringList.Create;
   try
-    for i := 0 to fProj.Sources.Count-1 do
+    for i := 0 to fProj.sourcesCount-1 do
       str.Add(fProj.sourceAbsolute(i));
     // single source libs usually have the structure "src/<fname>"
     if str.Count = 1 then
@@ -186,13 +181,14 @@ begin
       exit;
     end;
     //
+    fname := fProj.outputFilename;
     with List.Items.Add do
     begin
-      Caption := ExtractFileNameOnly(fProj.Filename);
-      if ExtractFileExt(fProj.outputFilename) <> libExt then
-        SubItems.add(fProj.outputFilename + libExt)
+      Caption := ExtractFileNameOnly(fname);
+      if ExtractFileExt(fname) <> libExt then
+        SubItems.add(fname + libExt)
       else
-        SubItems.add(fProj.outputFilename);
+        SubItems.add(fname);
       SubItems.add(root);
       if not FileExists(SubItems[0]) then
         dlgOkInfo('the library file does not exist, maybe the project not been already compiled ?');
