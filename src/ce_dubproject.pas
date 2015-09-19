@@ -27,6 +27,7 @@ type
     fBinKind: TProjectBinaryKind;
     fBasePath: string;
     fModificationCount: integer;
+    fOutputFileName: string;
     //
     procedure doModified;
     procedure updateFields;
@@ -35,6 +36,7 @@ type
     procedure updateSourcesFromJson;
     procedure updateTargetKindFromJson;
     procedure updateImportPathsFromJson;
+    procedure updateOutputNameFromJson;
     function findTargetKindInd(value: TJSONObject): boolean;
     procedure dubProcOutput(proc: TProcess);
     function getCurrentCustomConfig: TJSONObject;
@@ -213,8 +215,7 @@ end;
 
 function TCEDubProject.outputFilename: string;
 begin
-  //TODO-cDUB: implement outputFilename
-  exit('');
+  exit(fOutputFileName);
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
@@ -604,6 +605,45 @@ begin
   if assigned(conf) then addFrom(conf);
 end;
 
+procedure TCEDubProject.updateOutputNameFromJson;
+  procedure setFrom(obj: TJSONObject);
+  var
+    item: TJSONData;
+  begin
+    item := obj.Find('targetPath');
+    if assigned(item) then
+      fOutputFileName := item.AsString;
+    item := obj.Find('targetName');
+    if assigned(item) then
+      fOutputFileName += DirectorySeparator + item.AsString;
+  end;
+var
+  conf: TJSONObject;
+  item: TJSONData;
+begin
+  fOutputFileName := '';
+  setFrom(fJSON);
+  conf := getCurrentCustomConfig;
+  if assigned(conf) then setFrom(conf);
+  if fOutputFileName <> '' then
+  begin
+    patchPlateformPath(fOutputFileName);
+    expandFilenameEx(fBasePath, fOutputFileName);
+  end
+  else
+  begin
+    item := fJSON.Find('name');
+    if assigned(item) then
+      fOutputFileName := item.AsString;
+  end;
+  case fBinKind of
+    executable: fOutputFileName += exeExt;
+    staticlib: fOutputFileName += libExt;
+    obj: fOutputFileName += objExt;
+    sharedlib: fOutputFileName += dynExt;
+  end;
+end;
+
 procedure TCEDubProject.updateFields;
 begin
   updatePackageNameFromJson;
@@ -611,6 +651,7 @@ begin
   updateSourcesFromJson;
   updateTargetKindFromJson;
   updateImportPathsFromJson;
+  updateOutputNameFromJson;
 end;
 
 procedure TCEDubProject.beginModification;
