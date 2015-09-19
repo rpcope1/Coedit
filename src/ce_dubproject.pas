@@ -615,36 +615,34 @@ begin
 end;
 
 procedure TCEDubProject.updateOutputNameFromJson;
-  procedure setFrom(obj: TJSONObject);
-  var
-    item: TJSONData;
-  begin
-    item := obj.Find('targetPath');
-    if assigned(item) then
-      fOutputFileName := item.AsString;
-    item := obj.Find('targetName');
-    if assigned(item) then
-      fOutputFileName += DirectorySeparator + item.AsString;
-  end;
 var
   conf: TJSONObject;
   item: TJSONData;
+  namePart, pathPart: string;
+  procedure setFrom(obj: TJSONObject);
+  var
+    n,p: TJSONData;
+  begin
+    p := obj.Find('targetPath');
+    n := obj.Find('targetName');
+    if assigned(p) then pathPart := p.AsString;
+    if assigned(n) then namePart := n.AsString;
+  end;
 begin
   fOutputFileName := '';
+  item := fJSON.Find('name');
+  if not assigned(item) then
+    exit;
+  namePart := item.AsString;
+  pathPart := fBasePath;
   setFrom(fJSON);
   conf := getCurrentCustomConfig;
-  if assigned(conf) then setFrom(conf);
-  if fOutputFileName <> '' then
-  begin
-    patchPlateformPath(fOutputFileName);
-    expandFilenameEx(fBasePath, fOutputFileName);
-  end
-  else
-  begin
-    item := fJSON.Find('name');
-    if assigned(item) then
-      fOutputFileName := fBasePath + item.AsString;
-  end;
+  if assigned(conf) then
+    setFrom(conf);
+  pathPart := TrimRightSet(pathPart, ['/','\']);
+  fOutputFileName:= pathPart + DirectorySeparator + namePart;
+  patchPlateformPath(fOutputFileName);
+  fOutputFileName := expandFilenameEx(fBasePath, fOutputFileName);
   case fBinKind of
     executable: fOutputFileName += exeExt;
     staticlib: fOutputFileName += libExt;
