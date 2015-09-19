@@ -160,6 +160,12 @@ begin
   {$ELSE}
   pth := GetEnvironmentVariable('HOME') + '/.dub/packages/' + nme + '-master';
   {$ENDIF}
+  itf := getMessageDisplay;
+  if DirectoryExists(pth) then
+  begin
+    itf.message('the dub package is already fetched', nil, amcApp, amkInf);
+    exit;
+  end;
 
   // fetch
   dub := TProcess.Create(nil);
@@ -177,7 +183,6 @@ begin
     str := TStringList.Create;
     try
       processOutputToStrings(dub, str);
-      itf := getMessageDisplay;
       for msg in str do
         itf.message(msg, nil, amcMisc, amkAuto);
     finally
@@ -206,7 +211,6 @@ begin
     str := TStringList.Create;
     try
       processOutputToStrings(dub, str);
-      itf := getMessageDisplay;
       for msg in str do
         itf.message(msg, nil, amcMisc, amkAuto);
     finally
@@ -221,13 +225,10 @@ begin
     exit;
   end;
 
-  // TODO-cbugfix: entity connector, AV when CE terminates due to the begin/end update trick.
   // project used to get the infos
   EntitiesConnector.beginUpdate;
   prj := TCEDubProject.create(nil);
-  EntitiesConnector.removeSubject(prj);
   try
-    prj := TCEDubProject.create(nil);
     if FileExists(pth + DirectorySeparator + 'dub.json') then
       prj.loadFromFile(pth + DirectorySeparator + 'dub.json')
     else if FileExists(pth + DirectorySeparator + 'package.json') then
