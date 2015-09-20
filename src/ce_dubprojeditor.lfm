@@ -121,6 +121,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
               Width = 28
               Align = alLeft
               Layout = blGlyphBottom
+              OnClick = btnAddPropClick
               ShowCaption = False
             end
             object fltEdit: TTreeFilterEdit

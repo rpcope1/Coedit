@@ -15,6 +15,19 @@ type
 
  { TCEDubProjectEditorWidget }
 
+  TDubPropAddEvent = procedure(const propName: string; tpe: TJSONtype) of object;
+
+  TCEDubProjectPropAddPanel = class(TForm)
+  private
+    fSelType: TRadioGroup;
+    fEdName: TEdit;
+    fEvent: TDubPropAddEvent;
+    fBtnValidate: TBitBtn;
+    procedure doValidate(sender: TObject);
+  public
+    constructor construct(event: TDubPropAddEvent);
+  end;
+
   TCEDubProjectEditorWidget = class(TCEWidget, ICEProjectObserver)
     btnAcceptProp: TSpeedButton;
     btnAddProp: TSpeedButton;
@@ -32,6 +45,7 @@ type
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     procedure btnAcceptPropClick(Sender: TObject);
+    procedure btnAddPropClick(Sender: TObject);
     procedure btnDelPropClick(Sender: TObject);
     procedure propTreeSelectionChanged(Sender: TObject);
     procedure treeInspectDblClick(Sender: TObject);
@@ -44,6 +58,7 @@ type
     procedure updateInspector;
     procedure updateValueEditor;
     procedure setJsonValueFromEditor;
+    procedure addProp(const propName: string; tpe: TJSONtype);
     //
     procedure projNew(aProject: ICECommonProject);
     procedure projChanged(aProject: ICECommonProject);
@@ -59,6 +74,63 @@ type
 
 implementation
 {$R *.lfm}
+
+{$REGION TCEDubProjectPropAddPanel ---------------------------------------------}
+constructor TCEDubProjectPropAddPanel.construct(event: TDubPropAddEvent);
+var
+  layout: TPanel;
+begin
+  inherited create(nil);
+  width := 200;
+  height := 120;
+  fEvent := event;
+  caption := 'add a DUB property';
+  //
+  fSelType := TRadioGroup.Create(self);
+  fSelType.Parent := self;
+  fSelType.Items.AddStrings(['array', 'object', 'value']);
+  fSelType.Align:= alClient;
+  fSelType.BorderSpacing.Around:=2;
+  fSelType.Caption:= 'type';
+  fSelType.ItemIndex:=2;
+  //
+  layout := TPanel.Create(self);
+  layout.Parent := self;
+  layout.Align := alBottom;
+  layout.Height := 30;
+  layout.BevelOuter:= bvNone;
+  //
+  fEdName := TEdit.Create(self);
+  fEdName.Parent := layout;
+  fEdName.Align:=alClient;
+  fEdName.BorderSpacing.Around:=4;
+  fEdName.Width:=80;
+  //
+  fBtnValidate := TBitBtn.Create(self);
+  fBtnValidate.Parent := layout;
+  fBtnValidate.Align:=alRight;
+  fBtnValidate.BorderSpacing.Around:=4;
+  fBtnValidate.Width:= 26;
+  fBtnValidate.OnClick:=@doValidate;
+  AssignPng(fBtnValidate, 'accept');
+end;
+
+procedure TCEDubProjectPropAddPanel.doValidate(sender: TObject);
+var
+  tpe: TJSONtype;
+begin
+  if assigned(fEvent) and (fEdName.Text <> '') then
+  begin
+    case fSelType.ItemIndex of
+      0: tpe := TJSONtype.jtArray;
+      1: tpe := TJSONtype.jtObject;
+      else tpe := TJSONtype.jtString;
+    end;
+    fEvent(fEdName.Text, tpe);
+    Close;
+  end;
+end;
+{$ENDREGION}
 
 {$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCEDubProjectEditorWidget.create(aOwner: TComponent);
@@ -143,13 +215,15 @@ end;
 procedure TCEDubProjectEditorWidget.propTreeSelectionChanged(Sender: TObject);
 begin
   fSelectedNode := nil;
-  btnDelProp.Enabled:= false;
+  btnDelProp.Enabled := false;
+  btnAddProp.Enabled := false;
   if propTree.Selected = nil then exit;
   //
   fSelectedNode := propTree.Selected;
   btnDelProp.Enabled := (fSelectedNode.Level > 0) and (fSelectedNode.Text <> 'name')
     and (fSelectedNode.data <> nil);
   updateValueEditor;
+  btnAddProp.Enabled := TJSONData(fSelectedNode.Data).JSONType in [jtObject, jtArray];
 end;
 
 procedure TCEDubProjectEditorWidget.btnAcceptPropClick(Sender: TObject);
@@ -157,6 +231,53 @@ begin
   if fSelectedNode = nil then exit;
   //
   setJsonValueFromEditor;
+end;
+
+procedure TCEDubProjectEditorWidget.btnAddPropClick(Sender: TObject);
+var
+  pnl: TCEDubProjectPropAddPanel;
+begin
+  if fSelectedNode = nil then exit;
+  //
+  pnl := TCEDubProjectPropAddPanel.construct(@addProp);
+  pnl.ShowModal;
+  pnl.Free;
+end;
+
+procedure TCEDubProjectEditorWidget.addProp(const propName: string;
+  tpe: TJSONtype);
+var
+  arr: TJSONArray;
+  obj: TJSONObject;
+  nod: TTreeNode;
+begin
+  if fSelectedNode = nil then exit;
+  //
+  fProj.beginModification;
+  if TJSONData(fSelectedNode.Data).JSONType = jtArray then
+  begin
+    arr := TJSONArray(fSelectedNode.Data);
+    case tpe of
+      jtArray: arr.Add(TJSONArray.Create());
+      jtObject: arr.Add(TJSONObject.Create());
+      jtString:arr.Add('<value>');
+    end;
+  end
+  else if TJSONData(fSelectedNode.Data).JSONType = jtObject then
+  begin
+    obj := TJSONObject(fSelectedNode.Data);
+    case tpe of
+      jtArray: obj.Add(propName, TJSONArray.Create());
+      jtObject: obj.Add(propName, TJSONObject.Create());
+      jtString: obj.Add(propName, '<value>');
+    end;
+  end;
+  fProj.endModification;
+  nod := propTree.Items.FindNodeWithText('<value>');
+  if nod <> nil then propTree.Selected := nod
+  else nod := propTree.Items.FindNodeWithText(propName);
+  if nod <> nil then propTree.Selected := nod;
+  propTree.MakeSelectionVisible;
 end;
 
 procedure TCEDubProjectEditorWidget.btnDelPropClick(Sender: TObject);
