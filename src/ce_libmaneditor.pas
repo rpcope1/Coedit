@@ -25,7 +25,6 @@ type
     btnSelfoldOfFiles: TBitBtn;
     btnSelRoot: TBitBtn;
     List: TListView;
-    MenuItem1: TMenuItem;
     Panel1: TPanel;
     procedure btnAddLibClick(Sender: TObject);
     procedure btnDubFetchClick(Sender: TObject);
@@ -265,7 +264,7 @@ begin
         str.Free;
       end;
     end else
-      itf.message('warning, the package to register can not be found or the target is not a static library',
+      itf.message('warning, the package json description can not be found or the target is not a static library',
         nil, amcApp, amkWarn);
   finally
     prj.Free;

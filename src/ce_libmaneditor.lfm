@@ -173,8 +173,5 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
   inherited contextMenu: TPopupMenu
     left = 184
     top = 8
-    object MenuItem1: TMenuItem[0]
-      Caption = 'New Item1'
-    end
   end
 end
