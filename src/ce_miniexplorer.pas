@@ -444,6 +444,8 @@ begin
   {$ENDIF}
   for i := 0 to aRoot.Count-1 do
   begin
+    if aRoot.Items[i].Data = nil then
+      continue;
     str := PString(aRoot.Items[i].Data)^;
     if SameText(LeftStr(aPath, length(str)), str) then
     begin
