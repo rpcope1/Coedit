@@ -25,6 +25,7 @@ type
     btnSelfoldOfFiles: TBitBtn;
     btnSelRoot: TBitBtn;
     List: TListView;
+    MenuItem1: TMenuItem;
     Panel1: TPanel;
     procedure btnAddLibClick(Sender: TObject);
     procedure btnDubFetchClick(Sender: TObject);
@@ -146,6 +147,7 @@ var
   idx: integer;
   prj: TCEDubProject;
   cdy: string;
+  upd: boolean;
 begin
   if not InputQuery('DUB library import', 'please enter the name of the package',
     nme) then exit;
@@ -161,22 +163,29 @@ begin
   pth := GetEnvironmentVariable('HOME') + '/.dub/packages/' + nme + '-master';
   {$ENDIF}
   itf := getMessageDisplay;
-  if DirectoryExists(pth) then
+  if DirectoryExists(pth) then;
   begin
-    itf.message('the dub package is already fetched', nil, amcApp, amkInf);
-    exit;
+    upd := true;
+    itf.message('information, the dub package is already fetched and will be upgraded', nil, amcApp, amkInf);
   end;
 
-  // fetch
+  // fetch / updgrade
   dub := TProcess.Create(nil);
   try
     dub.Executable:= 'dub';
     dub.Options:= [poUsePipes, poStderrToOutPut];
-    dub.Parameters.Add('fetch');
-    dub.Parameters.Add(nme);
-    // fetch project, version handling, pth is hard to set because of semVer suffix.
-    // needed: a folder monitor to detect the one created by dub.
-    dub.Parameters.Add('--version=~master');
+    if not upd then
+    begin
+      dub.Parameters.Add('fetch');
+      dub.Parameters.Add(nme);
+      // fetch project, version handling, pth is hard to set because of semVer suffix.
+      // needed: a folder monitor to detect the one created by dub.
+      dub.Parameters.Add('--version=~master');
+    end else
+    begin
+      dub.CurrentDirectory := pth;
+      dub.Parameters.Add('upgrade');
+    end;
     dub.Execute;
     while dub.Running do sleep(10);
     err := dub.ExitStatus;
@@ -193,7 +202,7 @@ begin
   end;
   if err <> 0 then
   begin
-    itf.message('error, failed to fetch the repository using DUB', nil, amcApp, amkErr);
+    itf.message('error, failed to fetch or upgrade the repository', nil, amcApp, amkErr);
     exit;
   end;
 
@@ -221,7 +230,7 @@ begin
   end;
   if err <> 0 then
   begin
-    itf.message('error, failed to compile the library to register', nil, amcApp, amkErr);
+    itf.message('error, failed to compile the package to register', nil, amcApp, amkErr);
     exit;
   end;
 
@@ -233,26 +242,31 @@ begin
       prj.loadFromFile(pth + DirectorySeparator + 'dub.json')
     else if FileExists(pth + DirectorySeparator + 'package.json') then
       prj.loadFromFile(pth + DirectorySeparator + 'package.json');
-    str := TStringList.Create;
-    try
-      for idx := 0 to prj.sourcesCount-1 do
-        str.Add(prj.sourceAbsolute(idx));
-      with List.Items.Add do
-      begin
-        Caption := nme;
-        SubItems.Add(prj.outputFilename);
-        if str.Count = 1 then
-          cdy := ExtractFileDir(str.Strings[0])
-        else begin
-          cdy := commonFolder(str);
-          cdy := ExtractFileDir(cdy);
+    if (prj.filename <> '') and (prj.binaryKind = staticlib) then
+    begin
+      str := TStringList.Create;
+      try
+        for idx := 0 to prj.sourcesCount-1 do
+          str.Add(prj.sourceAbsolute(idx));
+        if not upd then with List.Items.Add do
+        begin
+          Caption := nme;
+          SubItems.Add(prj.outputFilename);
+          if str.Count = 1 then
+            cdy := ExtractFileDir(str.Strings[0])
+          else begin
+            cdy := commonFolder(str);
+            cdy := ExtractFileDir(cdy);
+          end;
+          SubItems.Add(cdy);
+          Selected:=true;
         end;
-        SubItems.Add(cdy);
-        Selected:=true;
+      finally
+        str.Free;
       end;
-    finally
-      str.Free;
-    end;
+    end else
+      itf.message('warning, the package to register can not be found or the target is not a static library',
+        nil, amcApp, amkWarn);
   finally
     prj.Free;
     EntitiesConnector.endUpdate;

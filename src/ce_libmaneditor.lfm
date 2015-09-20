@@ -1,31 +1,31 @@
 inherited CELibManEditorWidget: TCELibManEditorWidget
-  Left = 985
-  Height = 349
-  Top = 275
-  Width = 466
+  Left = 772
+  Height = 297
+  Top = 307
+  Width = 641
   Caption = 'Library manager'
-  ClientHeight = 349
-  ClientWidth = 466
+  ClientHeight = 297
+  ClientWidth = 641
   inherited Back: TPanel
-    Height = 349
-    Width = 466
-    ClientHeight = 349
-    ClientWidth = 466
+    Height = 297
+    Width = 641
+    ClientHeight = 297
+    ClientWidth = 641
     inherited Content: TPanel
-      Height = 349
-      Width = 466
-      ClientHeight = 349
-      ClientWidth = 466
+      Height = 297
+      Width = 641
+      ClientHeight = 297
+      ClientWidth = 641
       object Panel1: TPanel[0]
         Left = 4
         Height = 26
         Top = 4
-        Width = 458
+        Width = 633
         Align = alTop
         BorderSpacing.Around = 4
         BevelOuter = bvNone
         ClientHeight = 26
-        ClientWidth = 458
+        ClientWidth = 633
         TabOrder = 0
         object btnAddLib: TBitBtn
           Left = 0
@@ -50,7 +50,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           TabOrder = 1
         end
         object btnSelFile: TBitBtn
-          Left = 374
+          Left = 549
           Height = 26
           Hint = 'select the library file'
           Top = 0
@@ -61,7 +61,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           TabOrder = 2
         end
         object btnSelRoot: TBitBtn
-          Left = 430
+          Left = 605
           Height = 26
           Hint = 'select the sources root'
           Top = 0
@@ -72,7 +72,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           TabOrder = 3
         end
         object btnEditAlias: TBitBtn
-          Left = 346
+          Left = 521
           Height = 26
           Hint = 'edit the library alias'
           Top = 0
@@ -103,7 +103,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           TabOrder = 6
         end
         object btnSelfoldOfFiles: TBitBtn
-          Left = 402
+          Left = 577
           Height = 26
           Hint = 'select a folder of library files'
           Top = 0
@@ -138,9 +138,9 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
       end
       object List: TListView[1]
         Left = 4
-        Height = 311
+        Height = 259
         Top = 34
-        Width = 458
+        Width = 633
         Align = alClient
         BorderSpacing.Around = 4
         Columns = <        
@@ -173,5 +173,8 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
   inherited contextMenu: TPopupMenu
     left = 184
     top = 8
+    object MenuItem1: TMenuItem[0]
+      Caption = 'New Item1'
+    end
   end
 end
