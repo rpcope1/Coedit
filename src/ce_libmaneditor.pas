@@ -162,7 +162,7 @@ begin
   pth := GetEnvironmentVariable('HOME') + '/.dub/packages/' + nme + '-master';
   {$ENDIF}
   itf := getMessageDisplay;
-  if DirectoryExists(pth) then;
+  if DirectoryExists(pth) then
   begin
     upd := true;
     itf.message('information, the dub package is already fetched and will be upgraded', nil, amcApp, amkInf);
