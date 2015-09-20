@@ -325,6 +325,7 @@ destructor TCEMessagesWidget.destroy;
 begin
   fToDemangle.Free;
   fToDemangleObjs.Free;
+  fToDemangleObjs := nil;
   freeDemangler;
   fOptions.saveToFile(getCoeditDocPath + optname);
   EntitiesConnector.removeObserver(self);
@@ -337,9 +338,12 @@ var
 begin
   if node.Data <> nil then
     Dispose(PMessageData(Node.Data));
-  i := fToDemangleObjs.IndexOf(node);
-  if i <> -1 then
-    fToDemangleObjs.Items[i] := nil;
+  if fToDemangleObjs <> nil then
+  begin
+    i := fToDemangleObjs.IndexOf(node);
+    if i <> -1 then if i < fToDemangleObjs.Count then
+      fToDemangleObjs.Items[i] := nil;
+  end;
 end;
 
 procedure TCEMessagesWidget.ListKeyDown(Sender: TObject; var Key: Word;
