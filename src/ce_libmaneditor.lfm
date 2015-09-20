@@ -127,7 +127,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
         object btnDubFetch: TBitBtn
           Left = 140
           Height = 26
-          Hint = 'register from the current project'
+          Hint = 'register an online dub package'
           Top = 0
           Width = 28
           Align = alLeft
@@ -147,7 +147,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           item
             AutoSize = True
             Caption = 'Alias'
-            Width = 454
+            Width = 629
           end        
           item
             AutoSize = True
