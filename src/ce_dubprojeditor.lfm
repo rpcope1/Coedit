@@ -21,10 +21,10 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
         Height = 416
         Top = 4
         Width = 403
-        ActivePage = TabSheet1
+        ActivePage = TabSheet2
         Align = alClient
         BorderSpacing.Around = 4
-        TabIndex = 0
+        TabIndex = 1
         TabOrder = 0
         object TabSheet1: TTabSheet
           Caption = 'Inspector'
@@ -144,6 +144,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
               Width = 28
               Align = alLeft
               Layout = blGlyphBottom
+              OnClick = btnDelPropClick
               ShowCaption = False
             end
           end

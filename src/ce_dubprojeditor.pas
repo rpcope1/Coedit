@@ -32,6 +32,7 @@ type
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     procedure btnAcceptPropClick(Sender: TObject);
+    procedure btnDelPropClick(Sender: TObject);
     procedure propTreeSelectionChanged(Sender: TObject);
     procedure treeInspectDblClick(Sender: TObject);
   private
@@ -142,9 +143,12 @@ end;
 procedure TCEDubProjectEditorWidget.propTreeSelectionChanged(Sender: TObject);
 begin
   fSelectedNode := nil;
+  btnDelProp.Enabled:= false;
   if propTree.Selected = nil then exit;
   //
   fSelectedNode := propTree.Selected;
+  btnDelProp.Enabled := (fSelectedNode.Level > 0) and (fSelectedNode.Text <> 'name')
+    and (fSelectedNode.data <> nil);
   updateValueEditor;
 end;
 
@@ -153,6 +157,27 @@ begin
   if fSelectedNode = nil then exit;
   //
   setJsonValueFromEditor;
+end;
+
+procedure TCEDubProjectEditorWidget.btnDelPropClick(Sender: TObject);
+var
+  prt: TJSONData;
+begin
+  if fSelectedNode = nil then exit;
+  if fSelectedNode.Level = 0 then exit;
+  if fSelectedNode.Text = 'name' then exit;
+  if fSelectedNode.Data = nil then exit;
+  if fSelectedNode.Parent.Data = nil then exit;
+  //
+  fProj.beginModification;
+  prt := TJSONData(fSelectedNode.Parent.Data);
+  if prt.JSONType = jtObject then
+    TJSONObject(prt).Delete(fSelectedNode.Index)
+  else if prt.JSONType = jtArray then
+    TJSONArray(prt).Delete(fSelectedNode.Index);
+  fProj.endModification;
+  //
+  updateValueEditor;
 end;
 
 procedure TCEDubProjectEditorWidget.setJsonValueFromEditor;
@@ -224,6 +249,7 @@ procedure TCEDubProjectEditorWidget.updateEditor;
     i: integer;
     c: TTreeNode;
   begin
+    node.Data:= data;
     if data.JSONType = jtObject then for i := 0 to data.Count-1 do
     begin
       node.ImageIndex:=7;
