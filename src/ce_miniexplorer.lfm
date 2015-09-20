@@ -67,6 +67,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           ScrollBars = ssAutoBoth
           TabOrder = 0
           Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+          TreeLinePenStyle = psClear
         end
         object Splitter2: TSplitter
           Cursor = crVSplit

@@ -98,6 +98,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
             TabOrder = 0
             OnSelectionChanged = propTreeSelectionChanged
             Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+            TreeLinePenStyle = psClear
           end
           object pnlToolBar: TPanel
             Left = 4

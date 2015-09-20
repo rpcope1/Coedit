@@ -52,8 +52,7 @@ inherited CESymbolListWidget: TCESymbolListWidget
           00000000000000080000005761726E696E67730A0000000A0000000A000000FF
           FFFFFF000000000000000000060000004572726F7273
         }
-        TreeLineColor = 14671839
-        TreeLinePenStyle = psSolid
+        TreeLineColor = clDefault
       end
       object Panel1: TPanel[1]
         Left = 2
