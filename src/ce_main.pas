@@ -36,6 +36,8 @@ type
     actFileHtmlExport: TAction;
     actFileUnittest: TAction;
     actFileCompileAndRunOut: TAction;
+    actProjNewDubJson: TAction;
+    actProjNewNative: TAction;
     actSetRunnableSw: TAction;
     actLayoutSave: TAction;
     actProjOpenContFold: TAction;
@@ -48,7 +50,6 @@ type
     actProjCompAndRunWithArgs: TAction;
     actProjClose: TAction;
     actProjOpts: TAction;
-    actProjNew: TAction;
     actProjOpen: TAction;
     actProjSave: TAction;
     actProjSaveAs: TAction;
@@ -127,6 +128,8 @@ type
     MenuItem66: TMenuItem;
     MenuItem67: TMenuItem;
     MenuItem68: TMenuItem;
+    MenuItem69: TMenuItem;
+    MenuItem70: TMenuItem;
     mnuLayout: TMenuItem;
     mnuItemMruFile: TMenuItem;
     mnuItemMruProj: TMenuItem;
@@ -137,6 +140,8 @@ type
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
+    procedure actProjNewDubJsonExecute(Sender: TObject);
+    procedure actProjNewNativeExecute(Sender: TObject);
     procedure actSetRunnableSwExecute(Sender: TObject);
     procedure updateDocumentBasedAction(sender: TObject);
     procedure updateProjectBasedAction(sender: TObject);
@@ -163,7 +168,6 @@ type
     procedure actEdMacPlayExecute(Sender: TObject);
     procedure actEdMacStartStopExecute(Sender: TObject);
     procedure actFileNewExecute(Sender: TObject);
-    procedure actProjNewExecute(Sender: TObject);
     procedure actFileNewRunExecute(Sender: TObject);
     procedure actFileOpenExecute(Sender: TObject);
     procedure actProjOpenContFoldExecute(Sender: TObject);
@@ -2005,6 +2009,22 @@ begin
   showProjTitle;
 end;
 
+procedure TCEMainForm.actProjNewDubJsonExecute(Sender: TObject);
+begin
+  if (fProjectInterface <> nil) and fProjectInterface.modified and (dlgOkCancel(
+    'The project modifications are not saved, continue ?') = mrCancel) then exit;
+  closeProj;
+  newDubProj;
+end;
+
+procedure TCEMainForm.actProjNewNativeExecute(Sender: TObject);
+begin
+  if (fProjectInterface <> nil) and fProjectInterface.modified and (dlgOkCancel(
+      'The project modifications are not saved, continue ?') = mrCancel) then exit;
+    closeProj;
+   newNativeProj;
+end;
+
 procedure TCEMainForm.newNativeProj;
 begin
   fNativeProject := TCENativeProject.Create(nil);
@@ -2015,8 +2035,10 @@ end;
 
 procedure TCEMainForm.newDubProj;
 begin
-  fDubProject := TCEDubProject.Create(nil);
-  fDubProject.Name := 'CurrentProject';
+  fDubProject := TCEDubProject.create(nil);
+  fDubProject.json.Add('name', '');
+  fDubProject.beginModification;
+  fDubProject.endModification;
   fProjectInterface := fDubProject as ICECommonProject;
   showProjTitle;
 end;
@@ -2049,14 +2071,6 @@ begin
   if (fProjectInterface <> nil) and fProjectInterface.modified and (dlgOkCancel(
     'The project modifications are not saved, continue ?') = mrCancel) then exit;
   openProj(TMenuItem(Sender).Hint);
-end;
-
-procedure TCEMainForm.actProjNewExecute(Sender: TObject);
-begin
-  if (fProjectInterface <> nil) and fProjectInterface.modified and (dlgOkCancel(
-    'The project modifications are not saved, continue ?') = mrCancel) then exit;
-  closeProj;
-  newNativeProj;
 end;
 
 procedure TCEMainForm.actProjCloseExecute(Sender: TObject);

@@ -1,7 +1,7 @@
 object CEMainForm: TCEMainForm
-  Left = 393
+  Left = 480
   Height = 49
-  Top = 216
+  Top = 238
   Width = 745
   AllowDropFiles = True
   Caption = 'Coedit'
@@ -2559,7 +2559,7 @@ object CEMainForm: TCEMainForm
     object MenuItem14: TMenuItem
       Caption = 'Project'
       object MenuItem31: TMenuItem
-        Action = actProjNew
+        Caption = 'New project'
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000FFFFFF000000
@@ -2596,6 +2596,13 @@ object CEMainForm: TCEMainForm
           A53889898AFF0000000089898AFF0000000089898AFF0000000089898AFF0000
           000089898AFF000000000000000000000000FFFFFF00FFFFFF00
         }
+        ImageIndex = 8
+        object MenuItem69: TMenuItem
+          Action = actProjNewDubJson
+        end
+        object MenuItem70: TMenuItem
+          Action = actProjNewNative
+        end
       end
       object MenuItem30: TMenuItem
         Action = actProjOpen
@@ -3604,7 +3611,6 @@ object CEMainForm: TCEMainForm
     Images = imgList
     OnUpdate = ActionsUpdate
     left = 32
-    top = 1
     object actEdCopy: TAction
       Category = 'Edit'
       Caption = 'Copy'
@@ -3732,12 +3738,6 @@ object CEMainForm: TCEMainForm
       Caption = 'Open project...'
       ImageIndex = 9
       OnExecute = actProjOpenExecute
-    end
-    object actProjNew: TAction
-      Category = 'Project'
-      Caption = 'New project'
-      ImageIndex = 8
-      OnExecute = actProjNewExecute
     end
     object actProjClose: TAction
       Category = 'Project'
@@ -3906,6 +3906,18 @@ object CEMainForm: TCEMainForm
       Caption = 'Set runnable switches'
       ImageIndex = 34
       OnExecute = actSetRunnableSwExecute
+    end
+    object actProjNewDubJson: TAction
+      Category = 'Project'
+      Caption = 'DUB json'
+      ImageIndex = 8
+      OnExecute = actProjNewDubJsonExecute
+    end
+    object actProjNewNative: TAction
+      Category = 'Project'
+      Caption = 'Native format'
+      ImageIndex = 8
+      OnExecute = actProjNewNativeExecute
     end
   end
   object imgList: TImageList

@@ -98,6 +98,7 @@ implementation
 constructor TCEDubProject.create(aOwner: TComponent);
 begin
   inherited;
+  fJSON := TJSONObject.Create();
   fProjectSubject := TCEProjectSubject.Create;
   fBuildTypes := TStringList.Create;
   fConfigs := TStringList.Create;
