@@ -497,7 +497,8 @@ begin
     itf := TCEMainForm(aDestination).fProjectInterface;
     if (itf <> nil) and (itf.filename = fProject) then
       exit;
-    TCEMainForm(aDestination).openProj(fProject);
+    if fProject <> '' then
+      TCEMainForm(aDestination).openProj(fProject);
   end else
     inherited;
 end;
@@ -667,6 +668,7 @@ begin
         lst.DelimitedText := value;
         for value in lst do
         begin
+          if value = '' then continue;
           if isEditable(ExtractFileExt(value)) then
             openFile(value)
           else if isValidNativeProject(value) or isValidDubProject(value) then
@@ -853,11 +855,6 @@ begin
     fAppliOpts.loadFromFile(fname);
     fAppliOpts.assignTo(self);
   end;
-end;
-
-procedure initGlobalOpts;
-begin
-
 end;
 
 procedure TCEMainForm.SaveSettings;
@@ -2139,5 +2136,6 @@ end;
 {$ENDREGION}
 
 initialization
-  registerClasses([TCEPersistentMainShortcuts]);
+  registerClasses([TCEPersistentMainShortcuts, TCEPersistentMainMrus,
+    TCELastDocsAndProjs]);
 end.
