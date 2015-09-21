@@ -11,7 +11,7 @@ uses
 
 const
 
-  D2Kw: array[0..111] of string =
+  D2Kw: array[0..106] of string =
   ( 'abstract', 'alias', 'align', 'asm', 'assert', 'auto',
     'body', 'bool', 'break', 'byte',
     'case', 'cast', 'catch', 'cdouble', 'cent', 'cfloat', 'char', 'class',
@@ -34,8 +34,13 @@ const
     'template', 'this', 'throw', 'true', 'try', 'typedef', 'typeid', 'typeof',
     'ubyte', 'ucent', 'uint', 'ulong', 'union', 'unittest', 'ushort',
     'version', 'void', 'volatile',
-    'wchar', 'while', 'with', 'wstring',
-    '__FILE__', '__MODULE__', '__LINE__', '__FUNCTION__', '__PRETTY_FUNCTION__'
+    'wchar', 'while', 'with', 'wstring'
+  );
+
+  D2SpecKw: array[0..10] of string =
+  (
+    '__FILE__', '__MODULE__', '__LINE__', '__FUNCTION__', '__PRETTY_FUNCTION__',
+    '__DATE__', '__EOF__', '__TIME__', '__TIMESTAMP__', '__VENDOR__', '__VERSION__'
   );
 
 type
@@ -52,11 +57,11 @@ type
     function toHash(const aValue: string): Byte;  {$IFNDEF DEBUG}inline;{$ENDIF}
     procedure addEntry(const aValue: string);
   public
-    constructor create;
+    constructor create(from: array of string);
     function find(const aValue: string): boolean; {$IFNDEF DEBUG}inline;{$ENDIF}
   end;
 
-  TTokenKind = (tkCommt, tkIdent, tkKeywd, tkStrng, tkBlank, tkSymbl, tkNumbr, tkCurrI, tkDDocs);
+  TTokenKind = (tkCommt, tkIdent, tkKeywd, tkStrng, tkBlank, tkSymbl, tkNumbr, tkCurrI, tkDDocs, tkSpecK);
 
   TRangeKind = (rkString1, rkString2, rkTokString, rkBlockCom1, rkBlockCom2, rkBlockDoc1, rkBlockDoc2, rkAsm);
 
@@ -104,7 +109,9 @@ type
     fCurrIAttrib: TSynHighlighterAttributes;
     fDDocsAttrib: TSynHighlighterAttributes;
     fAsblrAttrib: TSynHighlighterAttributes;
+    fSpeckAttrib: TSynHighlighterAttributes;
     fKeyWords: TD2Dictionary;
+    fSpecKw: TD2Dictionary;
     fCurrIdent: string;
     fLineBuf: string;
     fTokStart, fTokStop: Integer;
@@ -123,6 +130,7 @@ type
     procedure setCurrIAttrib(aValue: TSynHighlighterAttributes);
     procedure setDDocsAttrib(aValue: TSynHighlighterAttributes);
     procedure setAsblrAttrib(aValue: TSynHighlighterAttributes);
+    procedure setSpeckAttrib(aValue: TSynHighlighterAttributes);
     procedure doAttribChange(sender: TObject);
     procedure setCurrIdent(const aValue: string);
     procedure doChanged;
@@ -140,6 +148,7 @@ type
     property CurrIAttrib: TSynHighlighterAttributes read fCurrIAttrib write setCurrIAttrib;
     property DDocsAttrib: TSynHighlighterAttributes read fDDocsAttrib write setDDocsAttrib;
     property AsblrAttrib: TSynHighlighterAttributes read fAsblrAttrib write setAsblrAttrib;
+    property SpeckAttrib: TSynHighlighterAttributes read fSpeckAttrib write setSpeckAttrib;
 	public
 		constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -161,11 +170,11 @@ type
 
 implementation
 
-constructor TD2Dictionary.create;
+constructor TD2Dictionary.create(from: array of string);
 var
   value: string;
 begin
-  for value in D2Kw do
+  for value in from do
     addEntry(value);
 end;
 
@@ -278,7 +287,8 @@ begin
 
   DefaultFilter:= 'D source|*.d|D interface|*.di';
 
-  fKeyWords.create;
+  fKeyWords.create(D2Kw);
+  fSpecKw.create(D2SpecKw);
 
   fFoldKinds := [fkBrackets];
 
@@ -294,6 +304,7 @@ begin
   fCurrIAttrib := TSynHighlighterAttributes.Create('CurrentIdentifier','CurrentIdentifier');
   fDDocsAttrib := TSynHighlighterAttributes.Create('DDoc','DDoc');
   fAsblrAttrib := TSynHighlighterAttributes.Create('Asm','Asm');
+  fSpeckAttrib := TSynHighlighterAttributes.Create('SpecialKeywords','SpecialKeywords');
 
   fNumbrAttrib.Foreground := $000079F2;
   fSymblAttrib.Foreground := clMaroon;
@@ -302,6 +313,7 @@ begin
   fStrngAttrib.Foreground := clBlue;
   fKeywdAttrib.Foreground := clNavy;
   fAsblrAttrib.Foreground := clGray;
+  fSpeckAttrib.Foreground := clNavy;
 
   fCurrIAttrib.Foreground := clBlack;
   fCurrIAttrib.FrameEdges := sfeAround;
@@ -313,6 +325,7 @@ begin
   fCommtAttrib.Style := [fsItalic];
   fKeywdAttrib.Style := [fsBold];
   fAsblrAttrib.Style := [fsBold];
+  fSpeckAttrib.Style := [fsBold];
 
   AddAttribute(fWhiteAttrib);
   AddAttribute(fNumbrAttrib);
@@ -324,6 +337,7 @@ begin
   AddAttribute(fCurrIAttrib);
   AddAttribute(fDDocsAttrib);
   AddAttribute(fAsblrAttrib);
+  AddAttribute(fSpeckAttrib);
 
   fAttribLut[TTokenKind.tkident] := fIdentAttrib;
   fAttribLut[TTokenKind.tkBlank] := fWhiteAttrib;
@@ -334,6 +348,7 @@ begin
   fAttribLut[TTokenKind.tksymbl] := fSymblAttrib;
   fAttribLut[TTokenKind.tkCurrI] := fCurrIAttrib;
   fAttribLut[TTokenKind.tkDDocs] := fDDocsAttrib;
+  fAttribLut[TTokenKind.tkSpecK] := fSpeckAttrib;
 
   SetAttributesOnChange(@doAttribChange);
   fTokStop := 1;
@@ -432,6 +447,11 @@ end;
 procedure TSynD2Syn.setAsblrAttrib(aValue: TSynHighlighterAttributes);
 begin
   fAsblrAttrib.Assign(aValue);
+end;
+
+procedure TSynD2Syn.setSpeckAttrib(aValue: TSynHighlighterAttributes);
+begin
+  fSpeckAttrib.Assign(aValue);
 end;
 
 procedure TSynD2Syn.setCurrIdent(const aValue: string);
@@ -821,9 +841,10 @@ begin
     end;
     if fKeyWords.find(fLineBuf[FTokStart..fTokStop-1]) then
       fTokKind := tkKeywd
-    else
-      if fLineBuf[FTokStart..fTokStop-1]  = fCurrIdent then
-        fTokKind := tkCurrI;
+    else if fSpecKw.find(fLineBuf[FTokStart..fTokStop-1]) then
+      fTokKind := tkSpecK
+    else if fLineBuf[FTokStart..fTokStop-1]  = fCurrIdent then
+      fTokKind := tkCurrI;
     //check asm range
     if fTokKind = tkKeywd then
       if fLineBuf[FTokStart..fTokStop-1] = 'asm' then
