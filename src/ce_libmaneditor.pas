@@ -146,7 +146,7 @@ var
   idx: integer;
   prj: TCEDubProject;
   cdy: string;
-  upd: boolean;
+  upd: boolean = false;
 begin
   if not InputQuery('DUB library import', 'please enter the name of the package',
     nme) then exit;
