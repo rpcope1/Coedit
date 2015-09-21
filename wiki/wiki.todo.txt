@@ -4,3 +4,7 @@
 - project config widget, base/overridden config specifications. Note about pre/post build proc as their options cant be overridden.
 - project config widget, base/overridden config. screenshot for widget view 'All categories'.
 - runnable modules: section about the first script line that can be used to pass additional DMD switches.
+- new widget: dub project editor.
+- menu reference: new project: dub.
+- section about the dub project format.
+- library manager: screenshot outdated, description of dub fetch
