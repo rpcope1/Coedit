@@ -1054,7 +1054,7 @@ begin
   SaveLastDocsAndProj;
   if fProjectInterface <> nil then if fProjectInterface.modified then
     if dlgOkCancel(
-      'The project modifications are not saved, quit anyway ?') <> mrOK then
+      'The project modifications are not saved, close without saving ?') <> mrOK then
           exit;
   for i := fMultidoc.documentCount-1 downto 0 do
     if not fMultidoc.closeDocument(i) then exit;
@@ -1444,7 +1444,7 @@ procedure TCEMainForm.actFileCloseExecute(Sender: TObject);
 begin
   if fDoc = nil then exit;
   if fDoc.modified then if dlgOkCancel(
-    'The file modifications are not saved, continue ?') = mrCancel
+    'The file modifications are not saved, close without saving ?') = mrCancel
       then exit;
   //
   fDoc.Free;
@@ -2009,7 +2009,7 @@ end;
 procedure TCEMainForm.actProjNewDubJsonExecute(Sender: TObject);
 begin
   if (fProjectInterface <> nil) and fProjectInterface.modified and (dlgOkCancel(
-    'The project modifications are not saved, continue ?') = mrCancel) then exit;
+    'The project modifications are not saved, close without saving ?') = mrCancel) then exit;
   closeProj;
   newDubProj;
 end;
@@ -2017,7 +2017,7 @@ end;
 procedure TCEMainForm.actProjNewNativeExecute(Sender: TObject);
 begin
   if (fProjectInterface <> nil) and fProjectInterface.modified and (dlgOkCancel(
-      'The project modifications are not saved, continue ?') = mrCancel) then exit;
+      'The project modifications are not saved, close without saving ?') = mrCancel) then exit;
     closeProj;
    newNativeProj;
 end;
@@ -2066,7 +2066,7 @@ end;
 procedure TCEMainForm.mruProjItemClick(Sender: TObject);
 begin
   if (fProjectInterface <> nil) and fProjectInterface.modified and (dlgOkCancel(
-    'The project modifications are not saved, continue ?') = mrCancel) then exit;
+    'The project modifications are not saved, close without saving ?') = mrCancel) then exit;
   openProj(TMenuItem(Sender).Hint);
 end;
 
@@ -2074,7 +2074,7 @@ procedure TCEMainForm.actProjCloseExecute(Sender: TObject);
 begin
   if fProjectInterface = nil then exit;
   if fProjectInterface.modified and (dlgOkCancel(
-    'The project modifications are not saved, continue ?') = mrCancel) then exit;
+    'The project modifications are not saved, clsoe without saving ?') = mrCancel) then exit;
   closeProj;
 end;
 
@@ -2098,7 +2098,7 @@ end;
 procedure TCEMainForm.actProjOpenExecute(Sender: TObject);
 begin
   if fProjectInterface <> nil then if fProjectInterface.modified then if dlgOkCancel(
-    'The project modifications are not saved, continue ?')
+    'The project modifications are not saved, close without saving ?')
       = mrCancel then exit;
   with TOpenDialog.Create(nil) do
   try
