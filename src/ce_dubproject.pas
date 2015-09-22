@@ -171,7 +171,9 @@ begin
     else if (bom and $FEFF) = $FEFF then
       loader.Position:= 2
     else if (bom and $FFFE) = $FFFE then
-      loader.Position:= 2;
+      loader.Position:= 2
+    else
+      loader.Position:= 0;
     //
     fJSON.Free;
     parser := TJSONParser.Create(loader, false);
