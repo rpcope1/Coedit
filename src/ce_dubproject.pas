@@ -164,14 +164,22 @@ begin
     loader.Read(bom, 4);
     if (bom and $BFBBEF) = $BFBBEF then
       loader.Position:= 3
-    else if bom = $FFFE0000 then
-      loader.Position:= 4
-    else if bom = $FEFF then
-      loader.Position:= 4
-    else if (bom and $FEFF) = $FEFF then
-      loader.Position:= 2
-    else if (bom and $FFFE) = $FFFE then
-      loader.Position:= 2
+    else if (bom = $FFFE0000) or (bom = $FEFF) then
+    begin
+      // UCS-4 LE/BE not handled by DUB
+      loader.clear;
+      loader.WriteByte(byte('{'));
+      loader.WriteByte(byte('}'));
+      loader.Position:= 0;
+    end
+    else if ((bom and $FEFF) = $FEFF) or ((bom and $FFFE) = $FFFE) then
+    begin
+      // UCS-2 LE/BE not handled by DUB
+      loader.clear;
+      loader.WriteByte(byte('{'));
+      loader.WriteByte(byte('}'));
+      loader.Position:= 0;
+    end
     else
       loader.Position:= 0;
     //
