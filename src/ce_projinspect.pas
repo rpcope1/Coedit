@@ -15,7 +15,6 @@ type
     imgList: TImageList;
     pnlToolBar: TPanel;
     btnAddFile: TSpeedButton;
-    btnProjOpts: TSpeedButton;
     btnAddFold: TSpeedButton;
     btnRemFile: TSpeedButton;
     Tree: TTreeView;
@@ -80,7 +79,6 @@ begin
   AssignPng(btnRemFile, 'document_delete');
   AssignPng(btnAddFold, 'folder_add');
   AssignPng(btnRemFold, 'folder_delete');
-  AssignPng(btnProjOpts, 'wrench_orange');
   //
   Tree.OnDblClick := @TreeDblClick;
   fFileNode := Tree.Items[0];

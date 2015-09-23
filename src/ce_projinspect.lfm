@@ -69,15 +69,6 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
           OnClick = btnAddFileClick
           ShowCaption = False
         end
-        object btnProjOpts: TSpeedButton
-          Left = 112
-          Height = 26
-          Top = 0
-          Width = 28
-          Action = CEMainForm.actProjOpts
-          Align = alLeft
-          ShowCaption = False
-        end
         object btnAddFold: TSpeedButton
           Left = 56
           Height = 26
@@ -89,10 +80,10 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
           ShowCaption = False
         end
         object TreeFilterEdit1: TTreeFilterEdit
-          Left = 142
+          Left = 114
           Height = 22
           Top = 2
-          Width = 193
+          Width = 221
           ButtonWidth = 28
           NumGlyphs = 1
           Align = alClient
