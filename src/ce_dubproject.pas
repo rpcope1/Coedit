@@ -77,7 +77,6 @@ type
     function targetUpToDate: boolean;
     //
     property json: TJSONObject read fJSON;
-    //property sources: TStringList read fSrcs;
   end;
 
   // these 9 built types always exist
@@ -184,7 +183,7 @@ begin
       loader.Position:= 0;
     //
     fJSON.Free;
-    parser := TJSONParser.Create(loader, false);
+    parser := TJSONParser.Create(loader);
     try
       fJSON := parser.Parse as TJSONObject;
     finally
@@ -434,8 +433,8 @@ begin
   fBuildTypes.Clear;
   fConfigs.Clear;
 
-  // the CE interface for dub doesn't make a difference betwenn build type and config
-  // instead, each possible combination type+build is generated.
+  // the CE interface for dub doesn't make the difference between build type
+  //and config, instead each possible combination type + build is generated.
 
   if fJSON.Find('configurations') <> nil then
   begin
@@ -474,8 +473,19 @@ var
   item: TJSONData;
   conf: TJSONObject;
   arr: TJSONArray;
+  i, j: integer;
+procedure getExclusion(from: TJSONObject);
+var
   i: integer;
-
+begin
+  item := from.Find('excludedSourceFiles');
+  if assigned(item) and (item.JSONType = jtArray) then
+  begin
+    arr := TJSONArray(item);
+    for i := 0 to arr.Count-1 do
+      lst.Add(patchPlateformPath(arr.Strings[i]));
+  end;
+end;
 procedure tryAddFromFolder(const pth: string);
 var
   abs: string;
@@ -498,7 +508,7 @@ begin
     // auto folders & files
     item := fJSON.Find('mainSourceFile');
     if assigned(item) then
-      fSrcs.Add(ExtractRelativepath(fBasePath, item.AsString));
+      fSrcs.Add(patchPlateformPath(ExtractRelativepath(fBasePath, item.AsString)));
     tryAddFromFolder(fBasePath + 'src');
     tryAddFromFolder(fBasePath + 'source');
     // custom folders
@@ -521,14 +531,14 @@ begin
     begin
       arr := TJSONArray(item);
       for i := 0 to arr.Count-1 do
-        fSrcs.Add(ExtractRelativepath(fBasePath, arr.Strings[i]));
+        fSrcs.Add(patchPlateformPath(ExtractRelativepath(fBasePath, arr.Strings[i])));
     end;
     conf := getCurrentCustomConfig;
     if assigned(conf) then
     begin
       item := conf.Find('mainSourceFile');
       if assigned(item) then
-        fSrcs.Add(ExtractRelativepath(fBasePath, item.AsString));
+        fSrcs.Add(patchPlateformPath(ExtractRelativepath(fBasePath, item.AsString)));
       // custom folders in current config
       item := conf.Find('sourcePaths');
       if assigned(item) then
@@ -549,12 +559,21 @@ begin
       begin
         arr := TJSONArray(item);
         for i := 0 to arr.Count-1 do
-          fSrcs.Add(ExtractRelativepath(fBasePath, arr.Strings[i]));
+          fSrcs.Add(patchPlateformPath(ExtractRelativepath(fBasePath, arr.Strings[i])));
       end;
     end;
-    //
     deleteDups(fSrcs);
-    // TODO-cDUB: manage exclusions from 'excludedSourceFiles' (global + curr conf)
+    // exclusions
+    lst.Clear;
+    getExclusion(fJSON);
+    conf := getCurrentCustomConfig;
+    if assigned(conf) then
+      getExclusion(conf);
+    for i := fSrcs.Count-1 downto 0 do
+      for j := 0 to lst.Count-1 do
+        if SameFileName(fSrcs[i], lst[j]) then
+          fSrcs.Delete(i);
+    // TODO-cDUB: manage exclusions with http://dlang.org/phobos/std_path.html#.globMatch
   finally
     lst.Free;
   end;
