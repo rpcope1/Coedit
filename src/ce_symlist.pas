@@ -307,7 +307,7 @@ begin
   end
   else inherited;
 end;
-{$ENDREGIOn}
+{$ENDREGION}
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCESymbolListWidget.create(aOwner: TComponent);
@@ -353,7 +353,7 @@ begin
   fOptions.Name:= 'symbolListOptions';
   fname := getCoeditDocPath + OptsFname;
   if FileExists(fname) then
-  fOptions.loadFromFile(fname);
+    fOptions.loadFromFile(fname);
   fOptions.AssignTo(self);
   //
   ndAlias   := Tree.Items[0];
@@ -602,7 +602,7 @@ end;
 
 procedure TCESymbolListWidget.TreeFilterEdit1AfterFilter(Sender: TObject);
 begin
-  if TreeFilterEdit1.Filter ='' then
+  if TreeFilterEdit1.Filter = '' then
     updateVisibleCat;
 end;
 
@@ -768,46 +768,45 @@ end;
 procedure TCESymbolListWidget.smartExpand;
 var
   i: integer;
-  nearest, target: NativeUint;
-  toExpand: TTreeNode;
+  target: NativeUint;
+  nearest: NativeUint = 0;
+  toExpand: TTreeNode = nil;
 
   procedure look(root: TTreeNode);
   var
     i: integer;
-    l: NativeUint;
+    line: NativeUint;
   begin
     for i := 0 to root.Count-1 do
     begin
       if root.Items[i].Data = nil then
         continue;
-      {$HINTS OFF}
       if root.Items[i].Parent = nil then
         continue;
       case root.Items[i].Parent.Text of
         'Alias', 'Enum', 'Import', 'Variable':
           continue;
       end;
-      l := NativeUInt(root.Items[i].Data);
+      {$HINTS OFF}
+      line := NativeUInt(root.Items[i].Data);
       {$HINTS ON}
-      if l > target then
+      if line > target then
         continue;
-      if l > nearest then
+      if line > nearest then
       begin
-        nearest := l;
+        nearest := line;
         toExpand := root.Items[i];
       end;
     end;
   end;
 
 begin
-  if fDoc = nil then exit;
+  if not assigned(fDoc) then exit;
   //
   target := fDoc.CaretY;
-  toExpand := nil;
-  nearest := 0;
   for i := 0 to tree.Items.Count-1 do
     look(tree.Items[i]);
-  if toExpand <> nil then
+  if assigned(toExpand) then
   begin
     tree.Selected := toExpand;
     toExpand.MakeVisible;
