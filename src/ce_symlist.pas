@@ -81,6 +81,7 @@ type
     fAutoRefreshDelay: Integer;
     fSmartFilter: boolean;
     fAutoExpandErrors: boolean;
+    fSmartExpander: boolean;
     fSortSymbols: boolean;
   published
     property autoRefresh: boolean read fAutoRefresh write fAutoRefresh;
@@ -91,6 +92,7 @@ type
     property smartFilter: boolean read fSmartFilter write fSmartFilter;
     property autoExpandErrors: boolean read fAutoExpandErrors write fAutoExpandErrors;
     property sortSymbols: boolean read fSortSymbols write fSortSymbols;
+    property smartExpander: boolean read fSmartExpander write fSmartExpander;
   public
     constructor Create(AOwner: TComponent); override;
     procedure Assign(Source: TPersistent); override;
@@ -131,6 +133,7 @@ type
     fSmartFilter: boolean;
     fAutoExpandErrors: boolean;
     fSortSymbols: boolean;
+    fSmartExpander: boolean;
     ndAlias, ndClass, ndEnum, ndFunc, ndUni: TTreeNode;
     ndImp, ndIntf, ndMix, ndStruct, ndTmp: TTreeNode;
     ndVar, ndWarn, ndErr: TTreeNode;
@@ -142,7 +145,7 @@ type
     procedure actCopyIdentExecute(Sender: TObject);
     procedure updateVisibleCat;
     procedure clearTree;
-    procedure expandCurrentDeclaration;
+    procedure smartExpand;
     //
     procedure checkIfHasToolExe;
     procedure callToolProc;
@@ -275,6 +278,7 @@ begin
     fSmartFilter          := widg.fSmartFilter;
     fAutoExpandErrors     := widg.fAutoExpandErrors;
     fSortSymbols          := widg.fSortSymbols;
+    fSmartExpander        := widg.fSmartExpander;
   end
   else inherited;
 end;
@@ -295,15 +299,11 @@ begin
     widg.fSmartFilter           := fSmartFilter;
     widg.fAutoExpandErrors      := fAutoExpandErrors;
     widg.fSortSymbols           := fSortSymbols;
+    widg.fSmartExpander         := fSmartExpander;
     //
     widg.fActAutoRefresh.Checked    := fAutoRefresh;
     widg.fActRefreshOnChange.Checked:= fRefreshOnChange;
     widg.fActRefreshOnFocus.Checked := fRefreshOnFocus;
-    //
-    //if fSortSymbols then
-    //  widg.Tree.SortType := stText
-    //else
-    //  widg.Tree.SortType:= stNone;
   end
   else inherited;
 end;
@@ -525,7 +525,8 @@ begin
   if fAutoRefresh then beginDelayedUpdate
   else if fRefreshOnChange then callToolProc;
   //
-  //expandCurrentDeclaration;
+  if fSmartExpander then
+    smartExpand;
 end;
 {$ENDREGION}
 
@@ -759,11 +760,12 @@ begin
       if Tree.Items[i].Count > 0 then
         tree.Items[i].CustomSort(nil);
 
-  //expandCurrentDeclaration;
+  if fSmartExpander then
+    smartExpand;
   tree.EndUpdate;
 end;
 
-procedure TCESymbolListWidget.expandCurrentDeclaration;
+procedure TCESymbolListWidget.smartExpand;
 var
   i: integer;
   nearest, target: NativeUint;
@@ -779,6 +781,12 @@ var
       if root.Items[i].Data = nil then
         continue;
       {$HINTS OFF}
+      if root.Items[i].Parent = nil then
+        continue;
+      case root.Items[i].Parent.Text of
+        'Alias', 'Enum', 'Import', 'Variable':
+          continue;
+      end;
       l := NativeUInt(root.Items[i].Data);
       {$HINTS ON}
       if l > target then
@@ -800,7 +808,10 @@ begin
   for i := 0 to tree.Items.Count-1 do
     look(tree.Items[i]);
   if toExpand <> nil then
+  begin
     tree.Selected := toExpand;
+    toExpand.MakeVisible;
+  end;
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
