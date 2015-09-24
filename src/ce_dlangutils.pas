@@ -93,7 +93,7 @@ end;
 
 function isSymbol(const c: char): boolean; {$IFNDEF DEBUG}inline;{$ENDIF}
 begin
-  exit(c in [';', '{', '}', '(', ')', '[', ']', ',', '.', ':' , '"', #39, '?', '$']);
+  exit(c in [';', '{', '}', '(', ')', '[', ']', ',', '.', ':' , '"', #39, '?', '$', #35]);
 end;
 
 function isPtrOperator(const c: char): boolean; {$IFNDEF DEBUG}inline;{$ENDIF}

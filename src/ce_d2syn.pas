@@ -874,7 +874,6 @@ begin
             result := fAsblrAttrib;
 end;
 
-
 procedure TSynD2Syn.SetRange(Value: Pointer);
 var
   stored: TSynD2SynRange;
