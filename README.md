@@ -27,11 +27,12 @@ Coedit is an IDE for the _DMD_ [D2](http://dlang.org)  compiler.
 
 **Project information**
 ---
-- status:  version 1 update 2, stable.
+- stable version:  version 1 update 2.
+- development version: version 2 alpha 1.
 - licensed under the term of the MIT license.
 - programmed in Object Pascal with [FPC & Lazarus](http://www.lazarus.freepascal.org) as compiler & IDE.
 
-**Download**
+**Download the stable version**
 ---
 Download the zipped binaries or the zipped setup program for you platform:
 
@@ -41,6 +42,19 @@ Download the zipped binaries or the zipped setup program for you platform:
 - :package: [binaries for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/1_update_2/coedit.1update2.linux64.zip)
 - :package: [setup program for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/1_update_2/coedit.1update2.win32.setup.zip)
 - :package: [binaries for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/1_update_2/coedit.1update2.win32.zip)
+
+[**See the wiki**](https://github.com/BBasile/Coedit/wiki#detailed-setup-procedure) for more information about the setup.
+
+**Download the development version**
+---
+Download the zipped binaries or the zipped setup program for you platform:
+
+- :package: [setup program for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.1update2.linux32.setup.zip)
+- :package: [binaries for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.1update2.linux32.zip)
+- :package: [setup program for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.1update2.linux64.setup.zip)
+- :package: [binaries for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.1update2.linux64.zip)
+- :package: [setup program for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.1update2.win32.setup.zip)
+- :package: [binaries for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.1update2.win32.zip)
 
 [**See the wiki**](https://github.com/BBasile/Coedit/wiki#detailed-setup-procedure) for more information about the setup.
 
