@@ -467,6 +467,9 @@ begin
     node.SelectedIndex := 2;
     node.StateIndex := 2;
   end;
+  // first update or update cause by editor
+  if (not fNodeConfig.Expanded) and (not fNodeSources.Expanded) then
+    treeInspect.FullExpand;
   treeInspect.EndUpdate;
 end;
 
