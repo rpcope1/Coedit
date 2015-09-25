@@ -7,7 +7,7 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output\coedit.1update2.win32.setup.exe'
+      pathsOptions.outputFilename = 'output\coedit.2alpha1.win32.setup.exe'
       pathsOptions.importStringPaths.Strings = (
         'win32\'
       )
@@ -29,7 +29,7 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output\coedit.1update2.linux32.setup'
+      pathsOptions.outputFilename = 'output\coedit.2alpha1.linux32.setup'
       pathsOptions.importStringPaths.Strings = (
         'nux32\'
       )
@@ -50,7 +50,7 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output\coedit.1update2.linux64.setup'
+      pathsOptions.outputFilename = 'output\coedit.2alpha1.linux64.setup'
       pathsOptions.importStringPaths.Strings = (
         'nux64\'
       )
@@ -72,7 +72,7 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output\coedit.1update2.win32.setup.exe'
+      pathsOptions.outputFilename = 'output\coedit.2alpha1.win32.setup.exe'
       pathsOptions.importStringPaths.Strings = (
         'win32\'
       )
