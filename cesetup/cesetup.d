@@ -268,6 +268,7 @@ bool tryRemove(string fname)
 
 version(linux) void nuxPostInstall()
 {
+    mkdirRecurse(shortCutPath);
     File f = new File(shortCutPath ~ "coedit.desktop", FileMode.OutNew);
     f.writeLine("[Desktop Entry]");
     f.writeLine("Name=coedit");
