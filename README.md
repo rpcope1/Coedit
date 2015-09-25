@@ -49,12 +49,12 @@ Download the zipped binaries or the zipped setup program for you platform:
 ---
 Download the zipped binaries or the zipped setup program for you platform:
 
-- :package: [setup program for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.1update2.linux32.setup.zip)
-- :package: [binaries for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.1update2.linux32.zip)
-- :package: [setup program for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.1update2.linux64.setup.zip)
-- :package: [binaries for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.1update2.linux64.zip)
-- :package: [setup program for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.1update2.win32.setup.zip)
-- :package: [binaries for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.1update2.win32.zip)
+- :package: [setup program for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.2alpha1.linux32.setup.zip)
+- :package: [binaries for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.2alpha1.linux32.zip)
+- :package: [setup program for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.2alpha1.linux64.setup.zip)
+- :package: [binaries for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.2alpha1.linux64.zip)
+- :package: [setup program for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.2alpha1.win32.setup.zip)
+- :package: [binaries for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_1/coedit.2alpha1.win32.zip)
 
 [**See the wiki**](https://github.com/BBasile/Coedit/wiki#detailed-setup-procedure) for more information about the setup.
 
