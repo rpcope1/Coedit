@@ -10,9 +10,6 @@ uses
   ce_widget, ce_common, ce_interfaces, ce_observer, ce_dubproject, ce_sharedres;
 
 type
-
-  //TODO-cDUB: add new properties from UI
-
  { TCEDubProjectEditorWidget }
 
   TDubPropAddEvent = procedure(const propName: string; tpe: TJSONtype) of object;
@@ -81,10 +78,12 @@ var
   layout: TPanel;
 begin
   inherited create(nil);
-  width := 200;
-  height := 120;
+  width := 280;
+  height := 130;
   fEvent := event;
   caption := 'add a DUB property';
+  Position := poMainFormCenter;
+  ShowHint:=true;
   //
   fSelType := TRadioGroup.Create(self);
   fSelType.Parent := self;
@@ -93,6 +92,7 @@ begin
   fSelType.BorderSpacing.Around:=2;
   fSelType.Caption:= 'type';
   fSelType.ItemIndex:=2;
+  fSelType.Hint:= 'type of the property to add';
   //
   layout := TPanel.Create(self);
   layout.Parent := self;
@@ -105,6 +105,7 @@ begin
   fEdName.Align:=alClient;
   fEdName.BorderSpacing.Around:=4;
   fEdName.Width:=80;
+  fEdName.Hint:='name of the property to add';
   //
   fBtnValidate := TBitBtn.Create(self);
   fBtnValidate.Parent := layout;
@@ -112,6 +113,7 @@ begin
   fBtnValidate.BorderSpacing.Around:=4;
   fBtnValidate.Width:= 26;
   fBtnValidate.OnClick:=@doValidate;
+  fBtnValidate.Hint:='accept and add a property';
   AssignPng(fBtnValidate, 'accept');
 end;
 
@@ -119,7 +121,7 @@ procedure TCEDubProjectPropAddPanel.doValidate(sender: TObject);
 var
   tpe: TJSONtype;
 begin
-  if assigned(fEvent) and (fEdName.Text <> '') then
+  if assigned(fEvent) then
   begin
     case fSelType.ItemIndex of
       0: tpe := TJSONtype.jtArray;
@@ -231,6 +233,7 @@ begin
   if fSelectedNode = nil then exit;
   //
   setJsonValueFromEditor;
+  propTree.FullExpand;
 end;
 
 procedure TCEDubProjectEditorWidget.btnAddPropClick(Sender: TObject);
@@ -273,11 +276,15 @@ begin
     end;
   end;
   fProj.endModification;
+  propTree.FullExpand;
   nod := propTree.Items.FindNodeWithText('<value>');
-  if nod <> nil then propTree.Selected := nod
-  else nod := propTree.Items.FindNodeWithText(propName);
-  if nod <> nil then propTree.Selected := nod;
-  propTree.MakeSelectionVisible;
+  if nod = nil then
+    nod := propTree.Items.FindNodeWithText(propName);
+  if nod <> nil then
+  begin
+    propTree.Selected := nod;
+    propTree.MakeSelectionVisible;
+  end;
 end;
 
 procedure TCEDubProjectEditorWidget.btnDelPropClick(Sender: TObject);

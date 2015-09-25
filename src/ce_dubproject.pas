@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, fpjson, jsonparser, jsonscanner, process, strutils,
-  ce_common, ce_interfaces, ce_observer;
+  ce_common, ce_interfaces, ce_observer, ce_dialogs;
 
 type
 
@@ -339,6 +339,11 @@ var
   msgs: ICEMessagesDisplay;
 begin
   result := false;
+  if not FileExists(fFilename) then
+  begin
+    dlgOkInfo('The DUB project must be saved before being compiled or run !');
+    exit;
+  end;
   msgs := getMessageDisplay;
   msgs.clearByData(Self as ICECommonProject);
   prjname := shortenPath(fFilename);
@@ -346,7 +351,10 @@ begin
   olddir := GetCurrentDir;
   try
     if not run then
+    begin
       msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
+      if modified then saveToFile(fFilename);
+    end;
     chDir(extractFilePath(fFilename));
     dubproc.Executable := 'dub' + exeExt;
     dubproc.Options := dubproc.Options + [poStderrToOutPut, poUsePipes];
@@ -432,16 +440,16 @@ var
 begin
   fBuildTypes.Clear;
   fConfigs.Clear;
-
   // the CE interface for dub doesn't make the difference between build type
   //and config, instead each possible combination type + build is generated.
-
   if fJSON.Find('configurations') <> nil then
   begin
     arr := fJSON.Arrays['configurations'];
     for i:= 0 to arr.Count-1 do
     begin
       item := TJSONObject(arr.Items[i]);
+      if item.Find('name') = nil then
+        continue;
       fConfigs.Add(item.Strings['name']);
     end;
   end else
@@ -458,9 +466,12 @@ begin
     for i := 0 to arr.Count-1 do
     begin
       item := TJSONObject(arr.Items[i]);
+      if item.Find('name') = nil then
+        continue;
       itemname := item.Strings['name'];
       // defaults build types can be overridden
-      if fBuildTypes.IndexOf(itemname) <> -1 then continue;
+      if fBuildTypes.IndexOf(itemname) <> -1 then
+        continue;
       fBuildTypes.Add(itemname);
     end;
   end;
