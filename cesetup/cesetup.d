@@ -1,7 +1,7 @@
 module cesetup;
 
 import std.stdio;
-import std.file: mkdir, exists, remove, rmdir, getSize, FileException;
+import std.file: mkdirRecurse, exists, remove, rmdir, getSize, FileException;
 import std.stream: File, FileMode;
 import std.process: environment, executeShell;
 import std.path: dirSeparator;
@@ -230,7 +230,7 @@ string extractedName(Resource resource, string path)
 bool installResource(Resource resource, string path)
 {
     if (!path.exists)
-        mkdir(path);
+        mkdirRecurse(path);
     if (!path.exists)
         return false;
     
