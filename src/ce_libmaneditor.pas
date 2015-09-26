@@ -24,6 +24,7 @@ type
     btnEditAlias: TBitBtn;
     btnSelfoldOfFiles: TBitBtn;
     btnSelRoot: TBitBtn;
+    btnSelProj: TBitBtn;
     List: TListView;
     Panel1: TPanel;
     procedure btnAddLibClick(Sender: TObject);
@@ -33,6 +34,7 @@ type
     procedure btnRemLibClick(Sender: TObject);
     procedure btnSelFileClick(Sender: TObject);
     procedure btnSelfoldOfFilesClick(Sender: TObject);
+    procedure btnSelProjClick(Sender: TObject);
     procedure btnSelRootClick(Sender: TObject);
     procedure btnMoveUpClick(Sender: TObject);
     procedure btnMoveDownClick(Sender: TObject);
@@ -77,6 +79,7 @@ begin
   AssignPng(btnSelRoot, 'folder_add');
   AssignPng(btnReg, 'book_link');
   AssignPng(btnDubFetch, 'dub_small');
+  AssignPng(btnSelProj, 'script_bricks');
 end;
 
 procedure TCELibManEditorWidget.updateRegistrable;
@@ -258,6 +261,7 @@ begin
             cdy := ExtractFileDir(cdy);
           end;
           SubItems.Add(cdy);
+          SubItems.Add(prj.filename);
           Selected:=true;
         end;
       finally
@@ -331,6 +335,7 @@ begin
       else
         SubItems.add(fname);
       SubItems.add(root);
+      SubItems.add(fProj.filename);
       if not FileExists(SubItems[0]) then
         dlgOkInfo('the library file does not exist, maybe the project not been already compiled ?');
       Selected:= true;
@@ -347,6 +352,25 @@ begin
   if List.Selected = nil then
     exit;
   List.Items.Delete(List.Selected.Index);
+  gridToData;
+end;
+
+procedure TCELibManEditorWidget.btnSelProjClick(Sender: TObject);
+var
+  ini: string = '';
+begin
+  if List.Selected = nil then
+    exit;
+  if List.Selected.SubItems.Count > 2 then
+    ini := List.Selected.SubItems[2]
+  else while List.Selected.SubItems.Count < 3 do
+    List.Selected.SubItems.Add(ini);
+  with TOpenDialog.Create(nil) do try
+    if Execute then
+      List.Selected.SubItems[2] := FileName;
+  finally
+    free;
+  end;
   gridToData;
 end;
 
@@ -462,6 +486,7 @@ begin
     row.Caption := itm.libAlias;
     row.SubItems.Add(itm.libFile);
     row.SubItems.Add(itm.libSourcePath);
+    row.SubItems.Add(itm.projectFile);
   end;
   List.EndUpdate;
 end;
@@ -481,6 +506,7 @@ begin
     itm.libAlias := row.Caption;
     itm.libFile := row.SubItems.Strings[0];
     itm.libSourcePath := row.SubItems.Strings[1];
+    itm.projectFile:= row.SubItems.Strings[2];
   end;
   LibMan.libraries.EndUpdate;
   LibMan.updateDCD;

@@ -50,7 +50,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           TabOrder = 1
         end
         object btnSelFile: TBitBtn
-          Left = 549
+          Left = 521
           Height = 26
           Hint = 'select the library file'
           Top = 0
@@ -61,7 +61,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           TabOrder = 2
         end
         object btnSelRoot: TBitBtn
-          Left = 605
+          Left = 577
           Height = 26
           Hint = 'select the sources root'
           Top = 0
@@ -72,7 +72,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           TabOrder = 3
         end
         object btnEditAlias: TBitBtn
-          Left = 521
+          Left = 493
           Height = 26
           Hint = 'edit the library alias'
           Top = 0
@@ -103,7 +103,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           TabOrder = 6
         end
         object btnSelfoldOfFiles: TBitBtn
-          Left = 577
+          Left = 549
           Height = 26
           Hint = 'select a folder of library files'
           Top = 0
@@ -135,6 +135,17 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           Spacing = 0
           TabOrder = 9
         end
+        object btnSelProj: TBitBtn
+          Left = 605
+          Height = 26
+          Hint = 'select the project file'
+          Top = 0
+          Width = 28
+          Align = alRight
+          OnClick = btnSelProjClick
+          Spacing = 0
+          TabOrder = 10
+        end
       end
       object List: TListView[1]
         Left = 4
@@ -158,6 +169,11 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
             AutoSize = True
             Caption = 'Sources root'
             Width = 78
+          end        
+          item
+            AutoSize = True
+            Caption = 'project'
+            Width = 49
           end>
         GridLines = True
         HideSelection = False

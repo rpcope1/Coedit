@@ -19,10 +19,12 @@ type
     fAlias: string;
     fSourcePath: string;
     fLibFile: string;
+    fProjFile: string;
   published
     property libAlias: string read fAlias write fAlias;
     property libSourcePath: string read fSourcePath write fSourcePath;
     property libFile: string read fLibFile write fLibFile;
+    property projectFile: string read fProjFile write fProjFile;
   end;
 
   (**
