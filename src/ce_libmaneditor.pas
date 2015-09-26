@@ -366,6 +366,7 @@ begin
   else while List.Selected.SubItems.Count < 3 do
     List.Selected.SubItems.Add(ini);
   with TOpenDialog.Create(nil) do try
+    FileName := ini;
     if Execute then
       List.Selected.SubItems[2] := FileName;
   finally
