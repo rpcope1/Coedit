@@ -182,10 +182,15 @@ begin
     else
       loader.Position:= 0;
     //
-    fJSON.Free;
+    FreeAndNil(fJSON);
     parser := TJSONParser.Create(loader);
     try
-      fJSON := parser.Parse as TJSONObject;
+      try
+        fJSON := parser.Parse as TJSONObject;
+      except
+        if assigned(fJSON) then
+          FreeAndNil(fJSON);
+      end;
     finally
       parser.Free;
     end;
@@ -426,6 +431,8 @@ procedure TCEDubProject.updatePackageNameFromJson;
 var
   value: TJSONData;
 begin
+  if not assigned(fJSON) then
+    exit;
   value := fJSON.Find('name');
   if not assigned(value) then fPackageName := ''
   else fPackageName := value.AsString;
@@ -440,6 +447,8 @@ var
 begin
   fBuildTypes.Clear;
   fConfigs.Clear;
+  if not assigned(fJSON) then
+    exit;
   // the CE interface for dub doesn't make the difference between build type
   //and config, instead each possible combination type + build is generated.
   if fJSON.Find('configurations') <> nil then
@@ -514,6 +523,8 @@ var
   pth: string;
 begin
   fSrcs.Clear;
+  if not assigned(fJSON) then
+    exit;
   lst := TStringList.Create;
   try
     // auto folders & files
@@ -685,6 +696,7 @@ var
   end;
 begin
   fOutputFileName := '';
+  if not assigned(fJSON) then exit;
   item := fJSON.Find('name');
   if not assigned(item) then
     exit;
