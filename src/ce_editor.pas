@@ -377,10 +377,10 @@ begin
     begin
       if fDoc.isDSource then
       begin
-        fErrList.Clear;
-        fTokList.Clear;
         lex(fDoc.Lines.Text, fTokList, @lexFindToken);
         md := getModuleName(fTokList);
+        fTokList.Clear;
+        fErrList.Clear;
       end;
       if md = '' then md := extractFileName(fDoc.fileName);
       pageControl.ActivePage.Caption := md;
@@ -414,10 +414,10 @@ begin
   md := '';
   if fDoc.isDSource then
   begin
-    fTokList.Clear;
-    fErrList.Clear;
     lex(fDoc.Lines.Text, fTokList, @lexFindToken);
     md := getModuleName(fTokList);
+    fTokList.Clear;
+    fErrList.Clear;
   end;
   if md = '' then md := extractFileName(fDoc.fileName);
   pageControl.ActivePage.Caption := md;
