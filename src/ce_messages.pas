@@ -324,8 +324,7 @@ end;
 destructor TCEMessagesWidget.destroy;
 begin
   fToDemangle.Free;
-  fToDemangleObjs.Free;
-  fToDemangleObjs := nil;
+  FreeAndNil(fToDemangleObjs);
   freeDemangler;
   fOptions.saveToFile(getCoeditDocPath + optname);
   EntitiesConnector.removeObserver(self);
@@ -809,8 +808,7 @@ begin
   //
   if fDemangler.Active then
     fDemangler.Terminate(0);
-  fDemangler.Free;
-  fDemangler := nil;
+  FreeAndNil(fDemangler);
 end;
 
 procedure TCEMessagesWidget.updateLoop;
