@@ -8,7 +8,8 @@ uses
   Classes, SysUtils, FileUtil, ExtendedNotebook, Forms, Controls, lcltype,
   Graphics, SynEditKeyCmds, ComCtrls, SynEditHighlighter, ExtCtrls, Menus,
   SynMacroRecorder, SynPluginSyncroEdit, SynEdit, SynHighlighterMulti, ce_dialogs,
-  ce_widget, ce_interfaces, ce_synmemo, ce_dlang, ce_common, ce_dcd, ce_observer;
+  ce_widget, ce_interfaces, ce_synmemo, ce_dlang, ce_common, ce_dcd, ce_observer,
+  ce_sharedres;
 
 type
 
@@ -97,8 +98,6 @@ end;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEEditorWidget.create(aOwner: TComponent);
-var
-  png: TPortableNetworkGraphic;
 begin
   inherited;
   //
@@ -108,23 +107,13 @@ begin
   PageControl.OnCloseTabClicked := @pageCloseBtnClick;
   {$ENDIF}
   //
-  png := TPortableNetworkGraphic.Create;
-  try
-    png.LoadFromLazarusResource('copy');
-    mnuedCopy.Bitmap.Assign(png);
-    png.LoadFromLazarusResource('cut');
-    mnuedCut.Bitmap.Assign(png);
-    png.LoadFromLazarusResource('paste');
-    mnuedPaste.Bitmap.Assign(png);
-    png.LoadFromLazarusResource('arrow_undo');
-    mnuedUndo.Bitmap.Assign(png);
-    png.LoadFromLazarusResource('arrow_redo');
-    mnuedRedo.Bitmap.Assign(png);
-    png.LoadFromLazarusResource('arrow_shoe');
-    mnuedJum2Decl.Bitmap.Assign(png);
-  finally
-    png.Free;
-  end;
+  AssignPng(mnuedCopy.Bitmap, 'copy');
+  AssignPng(mnuedCut.Bitmap, 'cut');
+  AssignPng(mnuedPaste.Bitmap, 'paste');
+  AssignPng(mnuedUndo.Bitmap, 'arrow_undo');
+  AssignPng(mnuedRedo.Bitmap, 'arrow_redo');
+  AssignPng(mnuedJum2Decl.Bitmap, 'arrow_shoe');
+  AssignPng(mnuedCopy.Bitmap, 'copy');
   //
   EntitiesConnector.addObserver(self);
   EntitiesConnector.addSingleService(self);
