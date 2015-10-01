@@ -1,0 +1,151 @@
+inherited CEGdbWidget: TCEGdbWidget
+  Left = 640
+  Height = 521
+  Top = 213
+  Width = 517
+  Caption = 'GDB commander'
+  ClientHeight = 521
+  ClientWidth = 517
+  inherited Back: TPanel
+    Height = 521
+    Width = 517
+    ClientHeight = 521
+    ClientWidth = 517
+    inherited Content: TPanel
+      Height = 521
+      Width = 517
+      ClientHeight = 521
+      ClientWidth = 517
+      object Panel1: TPanel[0]
+        Left = 2
+        Height = 30
+        Top = 2
+        Width = 513
+        Align = alTop
+        BorderSpacing.Around = 2
+        BevelOuter = bvNone
+        ClientHeight = 30
+        ClientWidth = 513
+        PopupMenu = contextMenu
+        TabOrder = 0
+        object btnStart: TBitBtn
+          Left = 2
+          Height = 26
+          Hint = 'start debugging'
+          Top = 2
+          Width = 28
+          Align = alLeft
+          BorderSpacing.Around = 2
+          Layout = blGlyphBottom
+          OnClick = btnStartClick
+          Spacing = 0
+          TabOrder = 0
+        end
+        object lstfilter: TListFilterEdit
+          Left = 92
+          Height = 26
+          Top = 2
+          Width = 419
+          ButtonWidth = 28
+          NumGlyphs = 1
+          Align = alClient
+          Anchors = [akTop, akLeft, akRight]
+          BorderSpacing.Around = 2
+          MaxLength = 0
+          TabOrder = 1
+        end
+        object btnStop: TBitBtn
+          Left = 32
+          Height = 26
+          Hint = 'stop debuging'
+          Top = 2
+          Width = 28
+          Align = alLeft
+          BorderSpacing.Around = 2
+          Layout = blGlyphBottom
+          OnClick = btnStopClick
+          Spacing = 0
+          TabOrder = 2
+        end
+        object btnCont: TBitBtn
+          Left = 62
+          Height = 26
+          Hint = 'continue debugging'
+          Top = 2
+          Width = 28
+          Align = alLeft
+          BorderSpacing.Around = 2
+          Layout = blGlyphBottom
+          OnClick = btnContClick
+          Spacing = 0
+          TabOrder = 3
+        end
+      end
+      object Panel2: TPanel[1]
+        Left = 0
+        Height = 487
+        Top = 34
+        Width = 517
+        Align = alClient
+        BevelOuter = bvNone
+        Caption = 'Panel2'
+        ClientHeight = 487
+        ClientWidth = 517
+        TabOrder = 1
+        object TreeView1: TTreeView
+          Left = 4
+          Height = 447
+          Top = 4
+          Width = 509
+          Align = alClient
+          BorderSpacing.Around = 4
+          DefaultItemHeight = 16
+          ScrollBars = ssAutoBoth
+          TabOrder = 0
+          Items.Data = {
+            F9FFFFFF020001000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000
+            00000003000000454158
+          }
+        end
+        object Panel3: TPanel
+          Left = 4
+          Height = 28
+          Top = 455
+          Width = 509
+          Align = alBottom
+          BorderSpacing.Around = 4
+          BevelOuter = bvNone
+          ClientHeight = 28
+          ClientWidth = 509
+          TabOrder = 1
+          object Edit1: TEdit
+            Left = 0
+            Height = 24
+            Hint = 'custom GDB command'
+            Top = 2
+            Width = 481
+            Align = alClient
+            BorderSpacing.Top = 2
+            BorderSpacing.Bottom = 2
+            OnKeyUp = Edit1KeyUp
+            TabOrder = 0
+          end
+          object btnSendCom: TBitBtn
+            Left = 481
+            Height = 28
+            Top = 0
+            Width = 28
+            Align = alRight
+            Layout = blGlyphBottom
+            OnClick = btnSendComClick
+            TabOrder = 1
+          end
+        end
+      end
+    end
+  end
+  inherited contextMenu: TPopupMenu
+    left = 56
+    top = 64
+  end
+end
