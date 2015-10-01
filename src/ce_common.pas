@@ -32,6 +32,7 @@ type
   // aliased to get a custom prop inspector
   TCEPathname = type string;
   TCEFilename = type string;
+  TCEEditEvent = type boolean;
 
   (**
    * Workaround for a TAsyncProcess Linux issue: OnTerminate event not called.

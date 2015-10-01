@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, Sysutils, SynEdit, SynCompletion,
-  ce_interfaces, ce_writableComponent, ce_synmemo;
+  ce_common, ce_interfaces, ce_writableComponent, ce_synmemo;
 
 type
 
@@ -19,11 +19,14 @@ type
     fAutoInsert: boolean;
     fShortCut: TShortCut;
     fMacros: TStringList;
+    fSetDef: TCEEditEvent;
     procedure setMacros(aValue: TStringList);
+    procedure setDefEvent(value: TCEEditEvent);
   published
     property autoInsert: boolean read fAutoInsert write fAutoInsert;
     property macros: TStringList read fMacros write setMacros;
     property shortcut: TShortCut read fShortCut write fShortCut;
+    property resetDefault: TCEEditEvent read fSetDef write setDefEvent stored false;
 	public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -89,7 +92,7 @@ var
 implementation
 
 uses
-  ce_observer, ce_common;
+  ce_observer;
 
 const
   OptFname = 'staticmacros.txt';
@@ -181,8 +184,13 @@ procedure TStaticMacrosOptions.setMacros(aValue: TStringList);
 begin
   fMacros.Assign(aValue);
 end;
-{$ENDREGION}
 
+procedure TStaticMacrosOptions.setDefEvent(value : TCEEditEvent);
+begin
+  TCEStaticEditorMacro(owner).addDefaults;
+  fMacros.Assign(TCEStaticEditorMacro(owner).fMacros);
+end;
+{$ENDREGION}
 
 {$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCEStaticEditorMacro.create(aOwner: TComponent);
@@ -195,7 +203,6 @@ begin
   fCompletor.ShortCut := 8224; // SHIFT + SPACE
   fMacros := TStringList.Create;
   fMacros.Delimiter := '=';
-  addDefaults;
   //
   fOptions := TStaticMacrosOptions.create(self);
   fOptionBackup := TStaticMacrosOptions.create(self);
@@ -209,7 +216,11 @@ begin
     else
     	fOptions.Assign(self);
   end
-  else fOptions.Assign(self);
+  else
+  begin
+    addDefaults;
+    fOptions.Assign(self);
+  end;
   //
   sanitize;
   updateCompletor;
@@ -229,7 +240,6 @@ end;
 procedure TCEStaticEditorMacro.setMacros(aValue: TStringList);
 begin
   fMacros.Assign(aValue);
-  addDefaults;
   sanitize;
   updateCompletor;
 end;

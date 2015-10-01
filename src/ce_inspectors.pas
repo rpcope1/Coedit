@@ -30,6 +30,14 @@ type
     constructor Create(Hook: TPropertyEditorHook; APropCount: Integer); override;
   end;
 
+  TCEActionInEditor = class(TPropertyEditor)
+    constructor Create(Hook:TPropertyEditorHook; APropCount:Integer); override;
+    function GetAttributes: TPropertyAttributes; override;
+    function IsReadOnly: boolean; override;
+    function GetVisualValue: ansistring; override;
+    procedure Edit; override;
+  end;
+
 implementation
 
 function TCECustomPathEditor.GetAttributes: TPropertyAttributes;
@@ -68,8 +76,35 @@ begin
   fType := ptFile;
 end;
 
+constructor TCEActionInEditor.Create(Hook:TPropertyEditorHook; APropCount:Integer);
+begin
+  inherited;
+end;
+
+function TCEActionInEditor.GetAttributes: TPropertyAttributes;
+begin
+  exit([paReadOnly, paDialog]);
+end;
+
+function TCEActionInEditor.IsReadOnly: boolean;
+begin
+  exit(true);
+end;
+
+function TCEActionInEditor.GetVisualValue: ansistring;
+begin
+  exit('(click)');
+end;
+
+procedure TCEActionInEditor.Edit;
+begin
+  SetOrdValue(not GetOrdValue);
+  Modified;
+end;
+
 initialization
   RegisterPropertyEditor(TypeInfo(TCEPathname), nil, '', TCEPathnameEditor);
   RegisterPropertyEditor(TypeInfo(TCEFilename), nil, '', TCEfilenameEditor);
+  RegisterPropertyEditor(TypeInfo(TCEEditEvent), nil, '', TCEActionInEditor);
 end.
 
