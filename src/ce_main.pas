@@ -188,7 +188,7 @@ type
     procedure actEdUnIndentExecute(Sender: TObject);
     procedure ApplicationProperties1Exception(Sender: TObject; E: Exception);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
-    procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
+    procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
   private
 
     fDoc: TCESynMemo;
@@ -1458,13 +1458,15 @@ begin
     saveFile(fMultidoc.document[i]);
 end;
 
-procedure TCEMainForm.FormDropFiles(Sender: TObject;const FileNames: array of String);
+procedure TCEMainForm.FormDropFiles(Sender: TObject;const FileNames: array of string);
 var
   fname: string;
 begin
   for fname in FileNames do
   begin
-    if isValidNativeProject(fname) or isValidDubProject(fname) then
+    if isEditable(fname) then
+      openFile(fname)
+    else if isValidNativeProject(fname) or isValidDubProject(fname) then
     begin
       openProj(fname);
       break;
