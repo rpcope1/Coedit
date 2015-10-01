@@ -8,6 +8,7 @@ uses
   Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
   SynPluginSyncroEdit, SynCompletion, SynEditKeyCmds, LazSynEditText, SynEdit,
   SynHighlighterLFM, SynEditHighlighter, SynEditMouseCmds, SynEditFoldedView,
+  SynEditMarks,
   ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs,
   ce_sharedres;
 
@@ -104,6 +105,8 @@ type
     fCompletion: TSynCompletion;
     fD2Highlighter: TSynD2Syn;
     fTxtHighlighter: TSynTxtSyn;
+    fImages: TImageList;
+    fBreakPoints: TFPList;
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
@@ -125,6 +128,10 @@ type
         Selected: boolean; Index: integer): boolean;
     procedure completionCodeCompletion(var Value: string; SourceValue: string;
       var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char; Shift: TShiftState);
+    procedure gutterClick(Sender: TObject; X, Y, Line: integer; mark: TSynEditMark);
+    procedure addBreakPoint(line: integer);
+    procedure removeBreakPoint(line: integer);
+    function  findBreakPoint(line: integer): boolean;
   protected
     procedure MouseLeave; override;
     procedure SetVisible(Value: Boolean); override;
@@ -151,6 +158,9 @@ type
     procedure saveToFile(const aFilename: string);
     procedure save;
     procedure saveTempFile;
+    //
+    function breakPointsCount: integer;
+    function BreakPointLine(index: integer): integer;
     //
     property Identifier: string read fIdentifier;
     property fileName: string read fFilename;
@@ -384,6 +394,7 @@ begin
   Gutter.SeparatorPart.LineWidth := 1;
   Gutter.SeparatorPart.MarkupInfo.Foreground := clGray;
   Gutter.CodeFoldPart.MarkupInfo.Foreground := clGray;
+  Gutter.OnGutterClick:= @gutterClick;
   BracketMatchColor.Foreground:=clRed;
   //
   fSyncEdit := TSynPluginSyncroEdit.Create(self);
@@ -416,6 +427,11 @@ begin
   fModified := false;
   TextBuffer.AddNotifyHandler(senrUndoRedoAdded, @changeNotify);
   //
+  fImages := TImageList.Create(self);
+  fImages.AddLazarusResource('bullet_red');
+  fImages.AddLazarusResource('bullet_green');
+  fBreakPoints := TFPList.Create;
+  //
   fPositions := TCESynMemoPositions.create(self);
   fMultiDocSubject := TCEMultiDocSubject.create;
   //
@@ -430,6 +446,7 @@ begin
   fMultiDocSubject.Free;
   fPositions.Free;
   fCompletion.Free;
+  fBreakPoints.Free;
   //
   if fileExists(fTempFileName) then
     sysutils.DeleteFile(fTempFileName);
@@ -973,6 +990,65 @@ begin
   result := inherited DoMouseWheel(Shift, WheelDelta, MousePos);
   fCanShowHint:=false;
   fHintTimer.Enabled:=false;
+end;
+
+function TCESynMemo.breakPointsCount: integer;
+begin
+  exit(fBreakPoints.Count);
+end;
+
+function TCESynMemo.BreakPointLine(index: integer): integer;
+begin
+  if index >= fBreakPoints.Count then
+    exit(0);
+  {$WARNINGS OFF}
+  exit(Integer(fBreakPoints.Items[index]));
+  {$WARNINGS ON}
+end;
+
+procedure TCESynMemo.addBreakPoint(line: integer);
+var
+  m: TSynEditMark;
+begin
+  if findBreakPoint(line) then
+    exit;
+  m:= TSynEditMark.Create(self);
+  m.Line := line;
+  m.ImageList := fImages;
+  m.ImageIndex := 0;
+  m.Visible := true;
+  Marks.Add(m);
+  {$WARNINGS OFF}
+  fBreakPoints.Add(pointer(line));
+  {$WARNINGS ON}
+end;
+
+procedure TCESynMemo.removeBreakPoint(line: integer);
+begin
+  if not findBreakPoint(line) then
+    exit;
+  if (marks.Line[line] <> nil) and (marks.Line[line].Count > 0) then
+    marks.Line[line].Clear(true);
+  {$WARNINGS OFF}
+  fBreakPoints.Remove(pointer(line));
+  {$WARNINGS ON}
+end;
+
+function TCESynMemo.findBreakPoint(line: integer): boolean;
+begin
+  {$WARNINGS OFF}
+  exit(fBreakPoints.IndexOf(pointer(line)) <> -1);
+  {$WARNINGS ON}
+end;
+
+procedure TCESynMemo.gutterClick(Sender: TObject; X, Y, Line: integer; mark: TSynEditMark);
+var
+  m: TSynEditMark;
+begin
+  if findBreakPoint(line) then
+    removeBreakPoint(line)
+  else
+    addBreakPoint(line);
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
