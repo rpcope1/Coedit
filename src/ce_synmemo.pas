@@ -16,6 +16,10 @@ type
 
   TCESynMemo = class;
 
+  // breakpoint added if not removed
+  TBreakPointModifyEvent = procedure(sender: TCESynMemo; line: integer;
+    removed: boolean) of object;
+
   // Simple THintWindow descendant allowing the font size to be in sync with the editor.
   TCEEditorHintWindow = class(THintWindow)
   public
@@ -107,6 +111,7 @@ type
     fTxtHighlighter: TSynTxtSyn;
     fImages: TImageList;
     fBreakPoints: TFPList;
+    fBreakpointEvent: TBreakPointModifyEvent;
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
@@ -160,7 +165,8 @@ type
     procedure saveTempFile;
     //
     function breakPointsCount: integer;
-    function BreakPointLine(index: integer): integer;
+    function breakPointLine(index: integer): integer;
+    property onBreakpointModify: TBreakPointModifyEvent read fBreakpointEvent write fBreakpointEvent;
     //
     property Identifier: string read fIdentifier;
     property fileName: string read fFilename;
@@ -1021,6 +1027,8 @@ begin
   {$WARNINGS OFF}
   fBreakPoints.Add(pointer(line));
   {$WARNINGS ON}
+  if assigned(fBreakpointEvent) then
+    fBreakpointEvent(self, line, false);
 end;
 
 procedure TCESynMemo.removeBreakPoint(line: integer);
@@ -1032,6 +1040,8 @@ begin
   {$WARNINGS OFF}
   fBreakPoints.Remove(pointer(line));
   {$WARNINGS ON}
+  if assigned(fBreakpointEvent) then
+    fBreakpointEvent(self, line, true);
 end;
 
 function TCESynMemo.findBreakPoint(line: integer): boolean;
