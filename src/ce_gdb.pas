@@ -14,7 +14,7 @@ type
   TCpuRegs = (eax);
 
   { TCEGdbWidget }
-  TCEGdbWidget = class(TCEWidget, ICEProjectObserver)
+  TCEGdbWidget = class(TCEWidget, ICEProjectObserver, ICEMultiDocObserver)
     btnSendCom: TBitBtn;
     btnStop: TBitBtn;
     btnStart: TBitBtn;
@@ -42,6 +42,7 @@ type
     procedure startDebugging;
     procedure killGdb;
     procedure updateFileLineBrks;
+    procedure editorModBrk(sender: TCESynMemo; line: integer; removed: boolean);
     // GDB output processors
     procedure processInfoRegs(sender: TObject);
     procedure processInfoStack(sender: TObject);
@@ -58,6 +59,11 @@ type
     procedure projClosing(aProject: ICECommonProject);
     procedure projFocused(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    //
+    procedure docNew(aDoc: TCESynMemo);
+    procedure docFocused(aDoc: TCESynMemo);
+    procedure docChanged(aDoc: TCESynMemo);
+    procedure docClosing(aDoc: TCESynMemo);
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -119,6 +125,28 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION ICEMultiDocObserver ---------------------------------------------------}
+procedure TCEGdbWidget.docNew(aDoc: TCESynMemo);
+begin
+  if aDoc.isDSource then
+    aDoc.onBreakpointModify := @editorModBrk;
+end;
+
+procedure TCEGdbWidget.docFocused(aDoc: TCESynMemo);
+begin
+  if aDoc.isDSource then
+    aDoc.onBreakpointModify := @editorModBrk;
+end;
+
+procedure TCEGdbWidget.docChanged(aDoc: TCESynMemo);
+begin
+end;
+
+procedure TCEGdbWidget.docClosing(aDoc: TCESynMemo);
+begin
+end;
+{$ENDREGION}
+
 {$REGION Unsorted Debugging things ---------------------------------------------}
 procedure TCEGdbWidget.killGdb;
 begin
@@ -153,6 +181,27 @@ begin
   end;
 end;
 
+procedure TCEGdbWidget.editorModBrk(sender: TCESynMemo; line: integer; removed: boolean);
+var
+  str: string;
+  nme: string;
+const
+  cmd: array[boolean] of string = ('break ', 'clear ');
+begin
+  // set only breakpoint in live, while debugging
+  // note: only works if execution is paused (breakpoint)
+  // and not inside a loop (for ex. with sleep).
+  if fGdb = nil then exit;
+  if not fGdb.Running then exit;
+  nme := sender.fileName;
+  if not FileExists(nme) then exit;
+  //
+  str := cmd[removed] + nme + ':' + intToStr(line);
+  fGdb.Suspend;
+  gdbCommand(str);
+  fGdb.Resume;
+end;
+
 procedure TCEGdbWidget.startDebugging;
 var
   str: string;
@@ -176,9 +225,23 @@ begin
   updateFileLineBrks;
   for i:= 0 to fFileLineBrks.Count-1 do
   begin
-    str := 'b ' + fFileLineBrks.Strings[i] + ':' + intToStr(PtrUInt(fFileLineBrks.Objects[i])) + #10;
+    str := 'break ' + fFileLineBrks.Strings[i] + ':' + intToStr(PtrUInt(fFileLineBrks.Objects[i])) + #10;
     fGdb.Input.Write(str[1], length(str));
   end;
+  // break on druntime exceptions, does not work with 'throw new ...'
+  gdbCommand('break onAssertError');
+  gdbCommand('break onAssertErrorMsg');
+  gdbCommand('break onUnittestErrorMsg');
+  gdbCommand('break onRangeError');
+  gdbCommand('break onFinalizeError');
+  gdbCommand('break onHiddenFuncError');
+  gdbCommand('break onOutOfMemoryError');
+  gdbCommand('break onInvalidMemoryOperationError');
+  gdbCommand('break onSwitchError');
+  gdbCommand('break onUnicodeError');
+  //
+
+
   // launch
   gdbCommand('run');
 end;
@@ -256,7 +319,7 @@ end;
 
 procedure TCEGdbWidget.btnStopClick(Sender: TObject);
 begin
-  gdbCommand('stop');
+  gdbCommand('kill');
   killGdb;
 end;
 
