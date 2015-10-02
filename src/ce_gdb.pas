@@ -37,7 +37,7 @@ type
     fDocHandler: ICEMultiDocHandler;
     fMsg: ICEMessagesDisplay;
     fGdb: TCEProcess;
-    fRegs: array[TCpuRegs] of UIntPtr;
+    fRegs: array[TCpuRegs] of UInt64;
     //
     procedure startDebugging;
     procedure killGdb;
@@ -228,7 +228,8 @@ begin
     str := 'break ' + fFileLineBrks.Strings[i] + ':' + intToStr(PtrUInt(fFileLineBrks.Objects[i])) + #10;
     fGdb.Input.Write(str[1], length(str));
   end;
-  // break on druntime exceptions, does not work with 'throw new ...'
+  // break on druntime exceptions heper + throw'
+  fGdb.OnReadData := @processSilently;
   gdbCommand('break onAssertError');
   gdbCommand('break onAssertErrorMsg');
   gdbCommand('break onUnittestErrorMsg');
@@ -239,9 +240,8 @@ begin
   gdbCommand('break onInvalidMemoryOperationError');
   gdbCommand('break onSwitchError');
   gdbCommand('break onUnicodeError');
-  //
-
-
+  gdbCommand('break _d_throwc');
+  fGdb.OnReadData := @gdbOutput;
   // launch
   gdbCommand('run');
 end;
