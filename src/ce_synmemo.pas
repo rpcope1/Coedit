@@ -164,6 +164,11 @@ type
     procedure save;
     procedure saveTempFile;
     //
+    procedure showCallTips;
+    procedure hideCallTips;
+    procedure showDDocs;
+    procedure hideDDocs;
+    //
     function breakPointsCount: integer;
     function breakPointLine(index: integer): integer;
     property onBreakpointModify: TBreakPointModifyEvent read fBreakpointEvent write fBreakpointEvent;
@@ -600,22 +605,24 @@ begin
   end;
 end;
 
-{$REGION DDoc hints ------------------------------------------------------------}
+{$REGION DDoc & CallTip --------------------------------------------------------}
 procedure TCESynMemo.InitHintWins;
 begin
-  if fCallTipWin = nil then begin
+  if fCallTipWin = nil then
+  begin
     fCallTipWin := TCEEditorHintWindow.Create(self);
     fCallTipWin.Color := clInfoBk + $01010100;
     fCallTipWin.Font.Color:= clInfoText;
   end;
-  if fDDocWin = nil then begin
+  if fDDocWin = nil then
+  begin
     fDDocWin := TCEEditorHintWindow.Create(self);
     fDDocWin.Color := clInfoBk + $01010100;
     fDDocWin.Font.Color:= clInfoText;
   end;
 end;
 
-procedure TCESynMemo.getCallTips();
+procedure TCESynMemo.showCallTips;
 var
   str: string;
   pnt: TPoint;
@@ -631,6 +638,38 @@ begin
   end;
 end;
 
+procedure TCESynMemo.hideCallTips;
+begin
+  fCallTipWin.Hide;
+end;
+
+procedure TCESynMemo.showDDocs;
+var
+  str: string;
+begin
+  fCanShowHint := false;
+  DcdWrapper.getDdocFromCursor(str);
+  //
+  if str <> '' then
+  begin
+    fDDocWin.FontSize := Font.Size;
+    fDDocWin.HintRect := fDDocWin.CalcHintRect(0, str, nil);
+    fDDocWin.OffsetHintRect(mouse.CursorPos, Font.Size);
+    fDDocWin.ActivateHint(fDDocWin.HintRect, str);
+  end;
+end;
+
+procedure TCESynMemo.hideDDocs;
+begin
+  fDDocWin.Hide;
+end;
+
+
+procedure TCESynMemo.getCallTips();
+begin
+  showCallTips;
+end;
+
 procedure TCESynMemo.setHintDelay(aValue: Integer);
 begin
   fHintDelay:=aValue;
@@ -644,23 +683,12 @@ begin
 end;
 
 procedure TCESynMemo.HintTimerEvent(sender: TObject);
-var
-  str: string;
 begin
   if not Visible then exit;
   if not isDSource then exit;
   //
   if not fCanShowHint then exit;
-  fCanShowHint := false;
-  DcdWrapper.getDdocFromCursor(str);
-  //
-  if str <> '' then
-  begin
-    fDDocWin.FontSize := Font.Size;
-    fDDocWin.HintRect := fDDocWin.CalcHintRect(0, str, nil);
-    fDDocWin.OffsetHintRect(mouse.CursorPos, Font.Size);
-    fDDocWin.ActivateHint(fDDocWin.HintRect, str);
-  end;
+  showDDocs;
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
