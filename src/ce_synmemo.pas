@@ -416,6 +416,7 @@ begin
   fCompletion.OnCodeCompletion:=@completionCodeCompletion;
   fCompletion.OnPaintItem:= @completionItemPaint;
   fCompletion.CaseSensitive:=false;
+  fCompletion.LongLineHintType:=sclpNone;
   //
   MouseLinkColor.Style:= [fsUnderline];
   with MouseActions.Add do begin
@@ -693,7 +694,10 @@ var
   lft, rgt: string;
   len: Integer;
 begin
-  // warning: '20' depends on ce_dcd, case knd of, string literals length
+  // empty items can be produced if completion list is too long
+  if aKey = '' then exit;
+  // otherwise always at least 20 chars but...
+  // ... '20' depends on ce_dcd, case knd of, string literals length
   result := true;
   lft := AKey[1 .. length(AKey)-20];
   rgt := AKey[length(AKey)-19 .. length(AKey)];
