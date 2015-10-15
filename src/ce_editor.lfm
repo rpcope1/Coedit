@@ -26,6 +26,7 @@ inherited CEEditorWidget: TCEEditorWidget
         BorderSpacing.Around = 2
         TabOrder = 0
         OnChange = PageControlChange
+        OnChanging = PageControlChanging
         Options = [nboShowCloseButtons, nboShowAddTabButton]
         TabDragMode = dmAutomatic
         TabDragAcceptMode = dmAutomatic

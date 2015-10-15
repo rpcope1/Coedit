@@ -43,6 +43,7 @@ type
     procedure mnuedRedoClick(Sender: TObject);
     procedure mnuedJum2DeclClick(Sender: TObject);
     procedure PageControlChange(Sender: TObject);
+    procedure PageControlChanging(Sender: TObject; var AllowChange: Boolean);
   protected
     procedure updateDelayed; override;
     procedure updateImperative; override;
@@ -277,6 +278,13 @@ end;
 procedure TCEEditorWidget.PageControlChange(Sender: TObject);
 begin
   updateImperative;
+end;
+
+procedure TCEEditorWidget.PageControlChanging(Sender: TObject; var AllowChange: Boolean);
+begin
+  if fDoc = nil then exit;
+  fDoc.hideCallTips;
+  fDoc.hideDDocs;
 end;
 
 procedure TCEEditorWidget.memoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
