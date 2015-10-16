@@ -50,6 +50,8 @@ type
     fFontSize: Integer;
     fSourceFilename: string;
     procedure setFolds(someFolds: TCollection);
+    procedure writeBreakpoints(str: TStream);
+    procedure readBreakpoints(str: TStream);
   published
     property caretPosition: Integer read fCaretPosition write fCaretPosition;
     property sourceFilename: string read fSourceFilename write fSourceFilename;
@@ -59,6 +61,7 @@ type
   public
     constructor create(aComponent: TComponent); override;
     destructor destroy; override;
+    procedure DefineProperties(Filer: TFiler); override;
     //
     procedure beforeSave; override;
     procedure afterLoad; override;
@@ -222,9 +225,40 @@ begin
   inherited;
 end;
 
+procedure TCESynMemoCache.DefineProperties(Filer: TFiler);
+begin
+  inherited;
+  Filer.DefineBinaryProperty('breakpoints', @readBreakpoints, @writeBreakpoints, true);
+end;
+
 procedure TCESynMemoCache.setFolds(someFolds: TCollection);
 begin
   fFolds.Assign(someFolds);
+end;
+
+procedure TCESynMemoCache.writeBreakpoints(str: TStream);
+var
+  i: integer;
+begin
+  if fMemo = nil then exit;
+  {$HINTS OFF}
+  for i:= 0 to fMemo.fBreakPoints.Count-1 do
+    str.Write(PtrUint(fMemo.fBreakPoints.Items[i]), sizeOf(PtrUint));
+  {$HINTS ON}
+end;
+
+procedure TCESynMemoCache.readBreakpoints(str: TStream);
+var
+  i, cnt: integer;
+  line: ptrUint = 0;
+begin
+  if fMemo = nil then exit;
+  cnt := str.Size div sizeOf(PtrUint);
+  for i := 0 to cnt-1 do
+  begin
+    str.Read(line, sizeOf(line));
+    fMemo.addBreakPoint(line);
+  end;
 end;
 
 procedure TCESynMemoCache.beforeSave;
