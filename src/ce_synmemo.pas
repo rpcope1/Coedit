@@ -97,9 +97,9 @@ type
     fMousePos: TPoint;
     fCallTipWin: TCEEditorHintWindow;
     fDDocWin: TCEEditorHintWindow;
-    fHintDelay: Integer;
+    fDDocDelay: Integer;
     fAutoDotDelay: Integer;
-    fHintTimer: TIdleTimer;
+    fDDocTimer: TIdleTimer;
     fAutoDotTimer: TIdleTimer;
     fCanShowHint: boolean;
     fCanAutoDot: boolean;
@@ -120,12 +120,12 @@ type
     class procedure cleanCache; static;
     procedure setDefaultFontSize(aValue: Integer);
     procedure getCallTips;
-    procedure HintTimerEvent(sender: TObject);
+    procedure DDocTimerEvent(sender: TObject);
     procedure AutoDotTimerEvent(sender: TObject);
     procedure InitHintWins;
     function getIfTemp: boolean;
     procedure SetcompletionMenuCaseCare(aValue: boolean);
-    procedure setHintDelay(aValue: Integer);
+    procedure setDDocDelay(aValue: Integer);
     procedure setAutoDotDelay(aValue: Integer);
     procedure completionExecute(sender: TObject);
     procedure getCompletionList;
@@ -150,7 +150,7 @@ type
     function DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean; override;
   published
     property defaultFontSize: Integer read fDefaultFontSize write setDefaultFontSize;
-    property hintDelay: Integer read fHintDelay write setHintDelay;
+    property ddocDelay: Integer read fDDocDelay write setDDocDelay;
     property autoDotDelay: Integer read fAutoDotDelay write setAutoDotDelay;
     property completionMenuCaseCare: boolean read fCompletionCaseSens write SetcompletionMenuCaseCare;
   public
@@ -389,11 +389,11 @@ begin
   //
   ShowHint := false;
   InitHintWins;
-  fHintDelay := 200;
-  fHintTimer := TIdleTimer.Create(self);
-  fHintTimer.AutoEnabled:=true;
-  fHintTimer.Interval := fHintDelay;
-  fHintTimer.OnTimer := @HintTimerEvent;
+  fDDocDelay := 200;
+  fDDocTimer := TIdleTimer.Create(self);
+  fDDocTimer.AutoEnabled:=true;
+  fDDocTimer.Interval := fDDocDelay;
+  fDDocTimer.OnTimer := @DDocTimerEvent;
   //
   fAutoDotDelay := 200;
   fAutoDotTimer := TIdleTimer.Create(self);
@@ -568,10 +568,10 @@ begin
   showCallTips;
 end;
 
-procedure TCESynMemo.setHintDelay(aValue: Integer);
+procedure TCESynMemo.setDDocDelay(aValue: Integer);
 begin
-  fHintDelay:=aValue;
-  fHintTimer.Interval:=fHintDelay;
+  fDDocDelay:=aValue;
+  fDDocTimer.Interval:=fDDocDelay;
 end;
 
 procedure TCESynMemo.SetcompletionMenuCaseCare(aValue: boolean);
@@ -580,7 +580,7 @@ begin
   fCompletion.CaseSensitive:=aValue;
 end;
 
-procedure TCESynMemo.HintTimerEvent(sender: TObject);
+procedure TCESynMemo.DDocTimerEvent(sender: TObject);
 begin
   if not Visible then exit;
   if not isDSource then exit;
@@ -1034,7 +1034,7 @@ function TCESynMemo.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MouseP
 begin
   result := inherited DoMouseWheel(Shift, WheelDelta, MousePos);
   fCanShowHint:=false;
-  fHintTimer.Enabled:=false;
+  fDDocTimer.Enabled:=false;
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
@@ -1093,8 +1093,6 @@ begin
 end;
 
 procedure TCESynMemo.gutterClick(Sender: TObject; X, Y, Line: integer; mark: TSynEditMark);
-var
-  m: TSynEditMark;
 begin
   if findBreakPoint(line) then
     removeBreakPoint(line)

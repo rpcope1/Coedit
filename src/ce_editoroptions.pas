@@ -37,7 +37,7 @@ type
     fBracketMatchColor: TSynSelectedColor;
     fFont: TFont;
     //
-    fHintDelay: Integer;
+    fDDocDelay: Integer;
     fAutoDotDelay: Integer;
     fTabWidth: Integer;
     fBlockIdent: Integer;
@@ -59,12 +59,13 @@ type
     procedure setD2Syn(aValue: TPersistent);
     procedure setTxtSyn(aValue: TPersistent);
     procedure setShortcuts(aValue: TCollection);
-    procedure setHintDelay(aValue: Integer);
+    procedure setDDocDelay(aValue: Integer);
     procedure setAutoDotDelay(aValue: Integer);
   published
     property completionMenuCaseCare: boolean read fCompletionMenuCaseCare write fCompletionMenuCaseCare;
     property autoDotDelay: integer read fAutoDotDelay write SetautoDotDelay;
-    property hintDelay: Integer read fHintDelay write setHintDelay;
+    property hintDelay: Integer read fDDocDelay write setDDocDelay stored false; deprecated;
+    property ddocDelay: Integer read fDDocDelay write setDDocDelay;
     property bracketMatchColor: TSynSelectedColor read fBracketMatchColor write setBracketMatchColor;
     property mouseLinkColor: TSynSelectedColor read fMouseLinkColor write setMouseLinkColor;
     property selectedColor: TSynSelectedColor read fSelCol write setSelCol;
@@ -151,7 +152,7 @@ begin
   fTxtSyn := TSynTxtSyn.Create(self);
   fTxtSyn.Assign(TxtSyn);
   //
-  fHintDelay:=200;
+  fDDocDelay:=200;
   fAutoDotDelay:=200;
   fSelCol := TSynSelectedColor.Create;
   fFoldedColor := TSynSelectedColor.Create;
@@ -223,7 +224,7 @@ begin
     //
     fCompletionMenuCaseCare:=srcopt.fCompletionMenuCaseCare;
     fAutoDotDelay:=srcopt.fAutoDotDelay;
-    fHintDelay:=srcopt.fHintDelay;
+    fDDocDelay:=srcopt.fDDocDelay;
     fFont.Assign(srcopt.fFont);
     fSelCol.Assign(srcopt.fSelCol);
     fFoldedColor.Assign(srcopt.fFoldedColor);
@@ -247,11 +248,11 @@ begin
     inherited;
 end;
 
-procedure TCEEditorOptionsBase.setHintDelay(aValue: Integer);
+procedure TCEEditorOptionsBase.setDDocDelay(aValue: Integer);
 begin
   if aValue > 2000 then aValue := 2000
   else if aValue < 20 then aValue := 20;
-  fHintDelay:=aValue;
+  fDDocDelay:=aValue;
 end;
 
 procedure TCEEditorOptionsBase.setAutoDotDelay(aValue: Integer);
@@ -468,7 +469,7 @@ begin
 
   anEditor.completionMenuCaseCare:=fCompletionMenuCaseCare;
   anEditor.autoDotDelay:=fAutoDotDelay;
-  anEditor.hintDelay:=fHintDelay;
+  anEditor.ddocDelay:=fDDocDelay;
   anEditor.defaultFontSize := font.Size;
   anEditor.Font.Assign(font);
   anEditor.SelectedColor.Assign(fSelCol);
