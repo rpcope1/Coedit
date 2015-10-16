@@ -16,7 +16,7 @@ type
 
   TCESynMemo = class;
 
-  TBreakPointModification = (bpAdded, bpRemoved);
+   TBreakPointModification = (bpAdded, bpRemoved);
 
   // breakpoint added or removed
   TBreakPointModifyEvent = procedure(sender: TCESynMemo; line: integer;
@@ -26,7 +26,7 @@ type
   TCEEditorHintWindow = class(THintWindow)
   public
     class var FontSize: Integer;
-    function CalcHintRect(MaxWidth: Integer; const AHint: String;
+    function CalcHintRect(MaxWidth: Integer; const AHint: string;
       AData: Pointer): TRect; override;
   end;
 
@@ -37,8 +37,8 @@ type
     fLineIndex: Integer;
     fNestedIndex: Integer;
   published
-    property isCollapsed: boolean read fCollapsed write fCollapsed;
-    property lineIndex: Integer read fLineIndex write fLineIndex;
+    property isCollapsed: boolean read fCollapsed   write fCollapsed;
+    property lineIndex: Integer   read fLineIndex   write fLineIndex;
     property nestedIndex: Integer read fNestedIndex write fNestedIndex;
   end;
 
@@ -135,7 +135,7 @@ type
     procedure completionExecute(sender: TObject);
     procedure getCompletionList;
     function completionItemPaint(const AKey: string; ACanvas: TCanvas;X, Y: integer;
-        Selected: boolean; Index: integer): boolean;
+      Selected: boolean; Index: integer): boolean;
     procedure completionCodeCompletion(var Value: string; SourceValue: string;
       var SourceStart, SourceEnd: TPoint; KeyChar: TUTF8Char; Shift: TShiftState);
     procedure gutterClick(Sender: TObject; X, Y, Line: integer; mark: TSynEditMark);
