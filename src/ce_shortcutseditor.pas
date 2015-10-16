@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Menus, Graphics,
   ExtCtrls, LCLProc, ComCtrls, StdCtrls, Buttons, LCLType,
-  ce_sharedres, ce_observer, ce_interfaces, ce_common, ce_writableComponent;
+  ce_sharedres, ce_observer, ce_interfaces, ce_common, ce_writableComponent,
+  ce_dialogs;
 
 type
 
@@ -39,7 +40,7 @@ type
     procedure assign(aValue: TPersistent); override;
     //
     function findIdentifier(const identifier: string): boolean;
-    function findShortcut(aShortcut: Word): boolean;
+    function findShortcut(aShortcut: Word): TShortcutItem;
     //
     property count: Integer read getCount;
     property item[index: Integer]: TShortcutItem read getItem; default;
@@ -158,14 +159,14 @@ begin
       exit(true);
 end;
 
-function TShortCutCollection.findShortcut(aShortcut: Word): boolean;
+function TShortCutCollection.findShortcut(aShortcut: Word): TShortcutItem;
 var
   i: Integer;
 begin
-  result := false;
+  result := nil;
   for i := 0 to count-1 do
     if item[i].data = aShortcut then
-      exit(true);
+      exit(item[i]);
 end;
 {$ENDREGION}
 
@@ -281,7 +282,12 @@ end;
 
 procedure TCEShortcutEditor.LabeledEdit1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
+  i: integer;
   sh: TShortCut;
+  sht: string;
+  dup: TShortcutItem = nil;
+const
+  msg = '"%s" is already assigned in the same category by "%s". The new shortcut will be ignored';
 begin
   if tree.Selected = nil then exit;
   if tree.Selected.Level = 0 then exit;
@@ -292,7 +298,16 @@ begin
   else
   begin
     sh := Shortcut(Key, Shift);
-    if TShortcutItem(tree.Selected.Data).data <> sh then
+    sht := shortCutToText(sh);
+    if sht = '' then
+      exit;
+    for i:= 0 to tree.Selected.Parent.Count-1 do
+      if i <> tree.Selected.Index then
+        if TShortcutItem(tree.Selected.Parent.Items[i].Data).data = sh then
+          dup := TShortcutItem(tree.Selected.Parent.Items[i].Data);
+    if assigned(dup) then
+      dlgOkInfo(format(msg,[ShortCutToText(sh), dup.identifier]))
+    else if TShortcutItem(tree.Selected.Data).data <> sh then
     begin
       TShortcutItem(tree.Selected.Data).data := sh;
       fHasChanged := true;

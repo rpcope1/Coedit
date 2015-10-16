@@ -460,9 +460,10 @@ end;
 
 procedure TCEEditorOptions.applyChangeToEditor(anEditor: TCESynMemo);
 var
-  i, j: Integer;
+  i, j, k: Integer;
   shc: TCEPersistentShortcut;
   kst: TSynEditKeyStroke;
+  dup: boolean;
 begin
   anEditor.D2Highlighter.Assign(D2Syn);
   anEditor.TxtHighlighter.Assign(TxtSyn);
@@ -491,19 +492,21 @@ begin
     kst := anEditor.Keystrokes.Items[i];
     for j := 0 to fShortCuts.Count-1 do
     begin
+      dup := false;
       shc := TCEPersistentShortcut(fShortCuts.Items[j]);
       if shc.actionName = EditorCommandToCodeString(kst.Command) then
       begin
         try
-          // if anEditor.Keystrokes.FindShortcut();
-          // try to find, if not match cur action, set to 0
-          kst.ShortCut := shc.shortcut;
+          for k := 0 to i-1 do
+            if anEditor.Keystrokes.Items[k].shortCut = shc.shortcut then
+              if shc.shortCut <> 0 then
+                dup := true;
+          if not dup then
+            kst.shortCut := shc.shortcut;
         except
-          kst.ShortCut := 0;
+          kst.shortCut := 0;
           shc.shortcut := 0;
-          // TODO-cimprovement: manage shortcuts conflicts
-          // either here or in the shortcut editor.
-          // by default and if a conflict exists synedit will raise an exception here.
+          // in case of conflict synedit raises an exception.
         end;
         break;
       end;

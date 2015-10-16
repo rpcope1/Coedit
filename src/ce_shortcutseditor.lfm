@@ -20,7 +20,7 @@ object CEShortcutEditor: TCEShortcutEditor
     TabOrder = 0
     object fltItems: TTreeFilterEdit
       Left = 2
-      Height = 23
+      Height = 20
       Top = 2
       Width = 420
       ButtonWidth = 28
@@ -33,14 +33,14 @@ object CEShortcutEditor: TCEShortcutEditor
     end
     object tree: TTreeView
       Left = 2
-      Height = 404
-      Top = 29
+      Height = 407
+      Top = 26
       Width = 420
       Align = alClient
       AutoExpand = True
       BorderSpacing.Top = 2
       BorderSpacing.Around = 2
-      DefaultItemHeight = 18
+      DefaultItemHeight = 16
       HideSelection = False
       ReadOnly = True
       ScrollBars = ssAutoBoth
