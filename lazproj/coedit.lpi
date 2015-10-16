@@ -57,6 +57,9 @@
             </Debugging>
           </Linking>
           <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx5024="True"/>
+            </CompilerMessages>
             <CustomOptions Value="-dDEBUG"/>
           </Other>
         </CompilerOptions>
