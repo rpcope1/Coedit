@@ -326,6 +326,8 @@ begin
       'l': item += ' (alias)            ';
       't': item += ' (template)         ';
       'T': item += ' (mixin)            ';
+      // see https://github.com/Hackerpilot/dsymbol/blob/master/src/dsymbol/symbol.d#L47
+      '*', '?': continue; // internal DCD stuff, said not to happen but actually it does (e.g invoke DCD after $i)
     end;
     aList.Add(item);
   end;
