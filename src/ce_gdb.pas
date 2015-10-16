@@ -42,7 +42,7 @@ type
     procedure startDebugging;
     procedure killGdb;
     procedure updateFileLineBrks;
-    procedure editorModBrk(sender: TCESynMemo; line: integer; removed: boolean);
+    procedure editorModBrk(sender: TCESynMemo; line: integer; modification: TBreakPointModification);
     // GDB output processors
     procedure processInfoRegs(sender: TObject);
     procedure processInfoStack(sender: TObject);
@@ -181,12 +181,12 @@ begin
   end;
 end;
 
-procedure TCEGdbWidget.editorModBrk(sender: TCESynMemo; line: integer; removed: boolean);
+procedure TCEGdbWidget.editorModBrk(sender: TCESynMemo; line: integer; modification: TBreakPointModification);
 var
   str: string;
   nme: string;
 const
-  cmd: array[boolean] of string = ('break ', 'clear ');
+  cmd: array[TBreakPointModification] of string = ('break ', 'clear ');
 begin
   // set only breakpoint in live, while debugging
   // note: only works if execution is paused (breakpoint)
@@ -196,7 +196,7 @@ begin
   nme := sender.fileName;
   if not FileExists(nme) then exit;
   //
-  str := cmd[removed] + nme + ':' + intToStr(line);
+  str := cmd[modification] + nme + ':' + intToStr(line);
   fGdb.Suspend;
   gdbCommand(str);
   fGdb.Resume;

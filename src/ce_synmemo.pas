@@ -16,9 +16,11 @@ type
 
   TCESynMemo = class;
 
+  TBreakPointModification = (bpAdded, bpRemoved);
+
   // breakpoint added or removed
   TBreakPointModifyEvent = procedure(sender: TCESynMemo; line: integer;
-    removed: boolean) of object;
+    modification: TBreakPointModification) of object;
 
   // Simple THintWindow descendant allowing the font size to be in sync with the editor.
   TCEEditorHintWindow = class(THintWindow)
@@ -1103,7 +1105,7 @@ begin
   fBreakPoints.Add(pointer(line));
   {$WARNINGS ON}
   if assigned(fBreakpointEvent) then
-    fBreakpointEvent(self, line, false);
+    fBreakpointEvent(self, line, bpAdded);
 end;
 
 procedure TCESynMemo.removeBreakPoint(line: integer);
@@ -1116,7 +1118,7 @@ begin
   fBreakPoints.Remove(pointer(line));
   {$WARNINGS ON}
   if assigned(fBreakpointEvent) then
-    fBreakpointEvent(self, line, true);
+    fBreakpointEvent(self, line, bpRemoved);
 end;
 
 function TCESynMemo.findBreakPoint(line: integer): boolean;
