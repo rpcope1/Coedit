@@ -11,7 +11,63 @@ uses
 
 type
 
+  {$IFDEF CPU64}
+  TCpuRegs = (rax);
+  {$ENDIF}
+
+  {$IFDEF CPU32}
   TCpuRegs = (eax);
+  {$ENDIF}
+
+  //TODO-cDebugging: write a parser for the DBG/MI output messages
+
+
+  TGDBMI_Frame = record
+    level: integer;
+    func: string;
+    adrress: ptruint;
+    fname: string;  // named "file"
+    line: integer;
+    from: string;
+  end;
+
+  TGDBMI_Breakpoint = record
+    number: integer;
+    tpe: string;        // named "type"
+    catchtype: string;  // named "catch-type"
+    disp: string;       // "del" | "keep"
+    enabled: boolean;   // "y" | "n"
+    addr: ptrUint;      // hex | <PENDING> | <MULTIPLE>
+    func: string;
+    filename: string;
+    fullname: string;
+    line: integer;
+    at: string;
+    pending: string;    // value is the command passed to set the BP
+    evaluateby: string; // named "evaluate-by" , host | target
+    thread: ptrUint;
+    task: string;
+    cond: string;
+    ignore: integer;
+    enable: integer;
+    traceframeusage: string;// named "traceframe-usage"
+    statictraceid: string;  // named "static-tracepoint-marker-string-id"
+    mask: string;
+    pass: integer;
+    originloc: string; // named "original-location"
+    times: integer;
+    installed: boolean; // "y" | "n" , only for trace points
+    what: string;
+  end;
+
+  TGDBMI_Thread = record
+    id: ptrUint;
+    targetid: string; // named "target-id"
+    details: string;
+    state: string;    // running | stopped
+    core: integer;
+  end;
+
 
   { TCEGdbWidget }
   TCEGdbWidget = class(TCEWidget, ICEProjectObserver, ICEMultiDocObserver)
@@ -37,7 +93,7 @@ type
     fDocHandler: ICEMultiDocHandler;
     fMsg: ICEMessagesDisplay;
     fGdb: TCEProcess;
-    fRegs: array[TCpuRegs] of UInt64;
+    fRegs: array[TCpuRegs] of ptrUint;
     //
     procedure startDebugging;
     procedure killGdb;
