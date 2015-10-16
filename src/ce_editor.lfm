@@ -96,5 +96,13 @@ inherited CEEditorWidget: TCEEditorWidget
       ShortCut = 24614
       OnClick = mnuedJum2DeclClick
     end
+    object mnuedCallTip: TMenuItem
+      Caption = 'show call tips'
+      OnClick = mnuedCallTipClick
+    end
+    object mnuedDdoc: TMenuItem
+      Caption = 'show ddoc'
+      OnClick = mnuedDdocClick
+    end
   end
 end

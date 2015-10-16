@@ -23,6 +23,8 @@ type
   { TCEEditorWidget }
 
   TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler)
+    mnuedCallTip: TMenuItem;
+    mnuedDdoc: TMenuItem;
     mnuedCopy: TMenuItem;
     mnuedCut: TMenuItem;
     mnuedPaste: TMenuItem;
@@ -35,8 +37,10 @@ type
     macRecorder: TSynMacroRecorder;
     editorStatus: TStatusBar;
     mnuEditor: TPopupMenu;
+    procedure mnuedCallTipClick(Sender: TObject);
     procedure mnuedCopyClick(Sender: TObject);
     procedure mnuedCutClick(Sender: TObject);
+    procedure mnuedDdocClick(Sender: TObject);
     procedure mnuEditorPopup(Sender: TObject);
     procedure mnuedPasteClick(Sender: TObject);
     procedure mnuedUndoClick(Sender: TObject);
@@ -447,10 +451,26 @@ begin
   fDoc.ExecuteCommand(ecCopy, '', nil);
 end;
 
+procedure TCEEditorWidget.mnuedCallTipClick(Sender: TObject);
+begin
+  if fDoc = nil then exit;
+  mnuEditor.Close;
+  fDoc.hideDDocs;
+  fDoc.showCallTips;
+end;
+
 procedure TCEEditorWidget.mnuedCutClick(Sender: TObject);
 begin
   if fDoc = nil then exit;
   fDoc.ExecuteCommand(ecCut, '', nil);
+end;
+
+procedure TCEEditorWidget.mnuedDdocClick(Sender: TObject);
+begin
+  if fDoc = nil then exit;
+  mnuEditor.Close;
+  fDoc.hideCallTips;
+  fDoc.showDDocs;
 end;
 
 procedure TCEEditorWidget.mnuedPasteClick(Sender: TObject);
