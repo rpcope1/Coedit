@@ -424,6 +424,7 @@ begin
   fCompletion.OnPaintItem:= @completionItemPaint;
   fCompletion.CaseSensitive:=false;
   fCompletion.LongLineHintType:=sclpNone;
+  fCompletion.TheForm.ShowInTaskBar:=stNever;
   //
   MouseLinkColor.Style:= [fsUnderline];
   with MouseActions.Add do begin
