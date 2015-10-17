@@ -438,11 +438,11 @@ begin
   fAutoDotTimer.OnTimer := @AutoDotTimerEvent;
   //
   Gutter.LineNumberPart.ShowOnlyLineNumbersMultiplesOf := 5;
-  Gutter.LineNumberPart.MarkupInfo.Foreground := clGray;
-  Gutter.SeparatorPart.LineOffset := 1;
+  Gutter.LineNumberPart.MarkupInfo.Foreground := clWindowText;
+  Gutter.SeparatorPart.LineOffset := 0;
   Gutter.SeparatorPart.LineWidth := 1;
-  Gutter.SeparatorPart.MarkupInfo.Foreground := clGray;
-  Gutter.CodeFoldPart.MarkupInfo.Foreground := clGray;
+  Gutter.SeparatorPart.MarkupInfo.Foreground := clBackground;
+  Gutter.SeparatorPart.MarkupInfo.Background := clBackground;
   Gutter.OnGutterClick:= @gutterClick;
   BracketMatchColor.Foreground:=clRed;
   //
