@@ -327,7 +327,8 @@ begin
       't': item += ' (template)         ';
       'T': item += ' (mixin)            ';
       // see https://github.com/Hackerpilot/dsymbol/blob/master/src/dsymbol/symbol.d#L47
-      '*', '?': continue; // internal DCD stuff, said not to happen but actually it does (e.g invoke DCD after $i)
+      '*', '?': continue; // internal DCD stuff, said not to happen but actually it did
+      // https://github.com/Hackerpilot/DCD/issues/261
     end;
     aList.Add(item);
   end;
