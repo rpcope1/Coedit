@@ -661,8 +661,11 @@ begin
       if (reader^ = '\') then
       begin
         readerNext;
-        if fCurrRange.rString then continue;
-        readerNext;
+        if reader^ <> #10 then
+        begin
+          if fCurrRange.rString then continue;
+          readerNext;
+        end;
       end
       else if reader^ = '"' then
       begin
@@ -685,8 +688,11 @@ begin
       if reader^ = '\' then
       begin
         readerNext;
-        if fCurrRange.rString then continue;
-        readerNext;
+        if reader^ <> #10 then
+        begin
+          if fCurrRange.rString then continue;
+          readerNext;
+        end;
       end
       else if reader^ = '"' then
       begin
@@ -752,6 +758,8 @@ begin
       if reader^ = '\' then
       begin
         readerNext;
+        if reader^ = #10 then
+          exit;
         readerNext;
       end;
       if reader^ = #10 then
