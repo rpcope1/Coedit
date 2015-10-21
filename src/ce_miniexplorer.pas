@@ -298,6 +298,9 @@ begin
   if lstFiles.Selected.Data = nil then exit;
   fname := PString(lstFiles.Selected.Data)^;
   if not fileExists(fname) then exit;
+  {$IFNDEF WINDOWS}
+  fname := fname[2..length(fname)];
+  {$ENDIF}
   getMultiDocHandler.openDocument(fname);
 end;
 
