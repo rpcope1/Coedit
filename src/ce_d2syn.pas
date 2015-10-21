@@ -464,6 +464,10 @@ end;
 procedure TSynD2Syn.setLine(const NewValue: String; LineNumber: Integer);
 begin
   inherited;
+  // note: the end of line is marked with a #10
+  // usually a TSynCustomFoldHighlighter rather tests 'length(line)' in 'Next()'
+  // but since the scanner works line by line, #10 is guaranteed not to
+  // appear at all excepted when added implictly, like here.
   fLineBuf := NewValue + #10;
   fTokStop := 1;
   next;
