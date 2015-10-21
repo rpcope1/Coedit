@@ -196,7 +196,8 @@ begin
     else absSrc := expandFilenameEx(fBasePath, relsrc);
     if SameFileName(aFilename, absSrc) then exit;
   end;
-  fSrcs.Add(ExtractRelativepath(fBasePath, aFilename));
+  relSrc := ExtractRelativepath(fBasePath, ExcludeLeadingPathDelimiter(aFilename));
+  fSrcs.Add(relSrc);
 end;
 
 procedure TCENativeProject.setRoot(const aValue: string);
