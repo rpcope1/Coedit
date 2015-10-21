@@ -990,8 +990,11 @@ begin
   //
   fname := fRunProc.Executable;
   if getprocInputHandler.process = fRunProc  then
+  begin
     getMessageDisplay.message('the execution of a runnable module ' +
       'has been implicitly aborted', fDoc, amcEdit, amkWarn);
+    getprocInputHandler.addProcess(nil);
+  end;
   killProcess(fRunProc);
   if fileExists(fname) then
     if ExtractFilePath(fname) = GetTempDir(false) then
