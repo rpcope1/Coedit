@@ -12,13 +12,18 @@ uses
 
 type
 
+  TTodoColumn = (filename, line, text, priority, assignee, category, status);
+  TTodoColumns = set of TTodoColumn;
+
   TCETodoOptions = class(TWritableLfmTextComponent)
   private
     fAutoRefresh: boolean;
     fSingleClick: boolean;
+    fColumns: TTodoColumns;
   published
     property autoRefresh: boolean read fAutoRefresh write fAutoRefresh;
     property singleClickSelect: boolean read fSingleClick write fSingleClick;
+    property columns: TTodoColumns read fColumns write fColumns;
   public
     procedure AssignTo(Dest: TPersistent); override;
     procedure Assign(Src: TPersistent); override;
@@ -81,6 +86,7 @@ type
   private
     fAutoRefresh: Boolean;
     fSingleClick: Boolean;
+    fColumns: TTodoColumns;
     fProj: ICECommonProject;
     fDoc: TCESynMemo;
     fToolProc: TCEProcess;
@@ -118,6 +124,8 @@ type
     procedure filterItems(Sender: TObject);
     procedure setSingleClick(aValue: boolean);
     procedure setAutoRefresh(aValue: boolean);
+    procedure setColumns(aValue: TTodoColumns);
+    procedure refreshVisibleColumns;
   protected
     procedure SetVisible(Value: boolean); override;
   public
@@ -126,6 +134,7 @@ type
     //
     property singleClickSelect: boolean read fSingleClick write setSingleClick;
     property autoRefresh: boolean read fAutoRefresh write setAutoRefresh;
+    property columns: TTodoColumns read fColumns write setColumns;
   end;
 
 implementation
@@ -196,6 +205,7 @@ var
 begin
   inherited;
   //
+  columns:= [TTodoColumn.filename .. TTodoColumn.line];
   fOptions := TCETodoOptions.Create(self);
   fOptions.autoRefresh := True;
   fOptions.Name := 'todolistOptions';
@@ -234,6 +244,7 @@ begin
   inherited;
   if Value and fAutoRefresh then
     callToolProcess;
+  refreshVisibleColumns;
 end;
 
 {$ENDREGION}
@@ -248,6 +259,7 @@ begin
     widg := TCETodoListWidget(Dest);
     widg.singleClickSelect := fSingleClick;
     widg.autoRefresh := fAutoRefresh;
+    widg.columns := fColumns;
   end
   else
     inherited;
@@ -262,6 +274,7 @@ begin
     widg := TCETodoListWidget(Src);
     fSingleClick := widg.singleClickSelect;
     fAutoRefresh := widg.autoRefresh;
+    fColumns:=widg.columns;
   end
   else
     inherited;
@@ -478,6 +491,7 @@ begin
     trg.SubItems.Add(src.assignee);
     trg.SubItems.Add(src.status);
     trg.SubItems.Add(src.priority);
+    trg.SubItems.Add(shortenPath(src.filename, 25));
     //
     if flt <> '' then
       if flt <> '(filter)' then
@@ -606,6 +620,24 @@ begin
     callToolProcess;
 end;
 
+procedure TCETodoListWidget.setColumns(aValue: TTodoColumns);
+begin
+  fColumns := aValue;
+  refreshVisibleColumns;
+end;
+
+procedure TCETodoListWidget.refreshVisibleColumns;
+begin
+  if lstItems = nil then exit;
+  if lstItems.Columns = nil then exit;
+  if lstItems.ColumnCount <> 6 then exit;
+  //
+  lstItems.Column[1].Visible := TTodoColumn.category in fColumns ;
+  lstItems.Column[2].Visible := TTodoColumn.assignee in fColumns ;
+  lstItems.Column[3].Visible := TTodoColumn.status in fColumns ;
+  lstItems.Column[4].Visible := TTodoColumn.priority in fColumns ;
+  lstItems.Column[5].Visible := TTodoColumn.filename in fColumns ;
+end;
 {$ENDREGION}
 
 end.
