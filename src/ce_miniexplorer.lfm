@@ -35,6 +35,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
         SmallImages = imgList
         TabOrder = 0
         ViewStyle = vsReport
+        OnEnter = lstFavEnter
       end
       object Splitter1: TSplitter[1]
         Cursor = crVSplit
@@ -66,6 +67,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           ReadOnly = True
           ScrollBars = ssAutoBoth
           TabOrder = 0
+          OnEnter = TreeEnter
           Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
           TreeLinePenStyle = psClear
         end
@@ -96,6 +98,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           TabOrder = 2
           ViewStyle = vsReport
           OnDblClick = lstFilesDblClick
+          OnEnter = lstFilesEnter
         end
         object Panel1: TPanel
           Left = 0
@@ -108,7 +111,6 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           ClientHeight = 28
           ClientWidth = 335
           TabOrder = 3
-          OnClick = Panel1Click
           object btnAddFav: TBitBtn
             Left = 0
             Height = 28
@@ -136,7 +138,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           object btnShellOpen: TBitBtn
             Left = 56
             Height = 28
-            Hint = 'open the selected file with the shell'
+            Hint = 'open the selected file or folder with the shell'
             Top = 0
             Width = 28
             Align = alLeft

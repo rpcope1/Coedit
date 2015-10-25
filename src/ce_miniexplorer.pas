@@ -31,6 +31,8 @@ type
     procedure assignTo(aValue: TPersistent); override;
   end;
 
+  { TCEMiniExplorerWidget }
+
   TCEMiniExplorerWidget = class(TCEWidget)
     btnAddFav: TBitBtn;
     btnEdit: TBitBtn;
@@ -49,11 +51,14 @@ type
     procedure btnShellOpenClick(Sender: TObject);
     procedure btnAddFavClick(Sender: TObject);
     procedure btnRemFavClick(Sender: TObject);
+    procedure lstFavEnter(Sender: TObject);
     procedure lstFilesDblClick(Sender: TObject);
-    procedure Panel1Click(Sender: TObject);
+    procedure lstFilesEnter(Sender: TObject);
+    procedure TreeEnter(Sender: TObject);
   private
     fFavorites: TStringList;
     fLastFold: string;
+    fLastListOrTree: TControl;
     procedure lstFavDblClick(Sender: TObject);
     procedure updateFavorites;
     procedure treeSetRoots;
@@ -246,6 +251,11 @@ begin
   lstFiles.Clear;
 end;
 
+procedure TCEMiniExplorerWidget.lstFavEnter(Sender: TObject);
+begin
+  fLastListOrTree := lstFav;
+end;
+
 procedure TCEMiniExplorerWidget.btnAddFavClick(Sender: TObject);
 begin
   if Tree.Selected = nil then exit;
@@ -318,22 +328,40 @@ begin
   shellOpenSelected;
 end;
 
-procedure TCEMiniExplorerWidget.Panel1Click(Sender: TObject);
+procedure TCEMiniExplorerWidget.lstFilesEnter(Sender: TObject);
 begin
+  fLastListOrTree := Tree;
+end;
 
+procedure TCEMiniExplorerWidget.TreeEnter(Sender: TObject);
+begin
+  fLastListOrTree := Tree;
 end;
 
 procedure TCEMiniExplorerWidget.shellOpenSelected;
 var
-  fname: string;
+  fname: string = '';
 begin
-  if lstFiles.Selected = nil then exit;
-  if lstFiles.Selected.Data = nil then exit;
-  fname := PString(lstFiles.Selected.Data)^;
-  if not fileExists(fname) then exit;
-  if not shellOpen(fname) then getMessageDisplay.message(
-    (format('the shell failed to open "%s"', [shortenPath(fname, 25)])),
-    nil, amcMisc, amkErr);
+  if fLastListOrTree = lstFiles then
+  begin
+    if lstFiles.Selected = nil then exit;
+    if lstFiles.Selected.Data = nil then exit;
+    fname := PString(lstFiles.Selected.Data)^;
+  end else if fLastListOrTree = Tree then
+  begin
+    if tree.Selected = nil then exit;
+    if tree.Selected.Data = nil then exit;
+    fname := PString(tree.Selected.Data)^;
+  end
+  else if fLastListOrTree = lstFav then
+  begin
+    if lstFav.Selected = nil then exit;
+    if lstFav.Selected.Data = nil then exit;
+    fname := PString(lstFav.Selected.Data)^;
+  end;
+  if fileExists(fname) then if not shellOpen(fname) then
+    getMessageDisplay.message((format('the shell failed to open "%s"',
+    [shortenPath(fname, 25)])), nil, amcMisc, amkErr);
 end;
 
 procedure TCEMiniExplorerWidget.lstFilterChange(sender: TObject);
