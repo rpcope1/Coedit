@@ -707,6 +707,8 @@ begin
   if assigned(conf) then
     setFrom(conf);
   pathPart := TrimRightSet(pathPart, ['/','\']);
+  if fBinKind = TProjectBinaryKind.staticlib then
+    namePart := 'lib' + namePart;
   fOutputFileName:= pathPart + DirectorySeparator + namePart;
   patchPlateformPath(fOutputFileName);
   fOutputFileName := expandFilenameEx(fBasePath, fOutputFileName);
