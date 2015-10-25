@@ -6,8 +6,9 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls, Graphics,
-  ExtCtrls, Menus, ComCtrls, Buttons, lcltype, strutils, ce_widget,
-  ce_common, ce_interfaces, ce_observer, ce_writableComponent, ce_sharedres;
+  ExtCtrls, Menus, ComCtrls, Buttons, lcltype, strutils, ce_widget, ce_sharedres,
+  ce_common, ce_interfaces, ce_observer, ce_writableComponent, ce_dubproject,
+  ce_nativeproject;
 
 type
 
@@ -293,6 +294,7 @@ end;
 procedure TCEMiniExplorerWidget.btnEditClick(Sender: TObject);
 var
   fname: string;
+  proj: ICECommonProject = nil;
 begin
   if lstFiles.Selected = nil then exit;
   if lstFiles.Selected.Data = nil then exit;
@@ -301,7 +303,14 @@ begin
   {$IFNDEF WINDOWS}
   fname := fname[2..length(fname)];
   {$ENDIF}
-  getMultiDocHandler.openDocument(fname);
+  if isValidNativeProject(fname) then
+    proj := TCENativeProject.create(nil) as ICECommonProject
+  else if isValidDubProject(fname) then
+    proj := TCENativeProject.create(nil) as ICECommonProject;
+  if assigned(proj) then
+    proj.loadFromFile(fname)
+  else
+    getMultiDocHandler.openDocument(fname);
 end;
 
 procedure TCEMiniExplorerWidget.lstFilesDblClick(Sender: TObject);

@@ -124,7 +124,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           object btnEdit: TBitBtn
             Left = 84
             Height = 28
-            Hint = 'open selected file in a Coedit-or'
+            Hint = 'open selected file in as a project or as a source file'
             Top = 0
             Width = 28
             Align = alLeft
