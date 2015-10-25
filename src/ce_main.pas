@@ -19,7 +19,7 @@ type
   TCEApplicationOptions = class;
 
   { TCEMainForm }
-  TCEMainForm = class(TForm, ICEMultiDocObserver, ICEEditableShortCut)
+  TCEMainForm = class(TForm, ICEMultiDocObserver, ICEEditableShortCut, ICEProjectObserver)
     actFileCompAndRun: TAction;
     actFileSaveAll: TAction;
     actFileClose: TAction;
@@ -236,6 +236,13 @@ type
     procedure docClosing(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
+
+    // ICEProjectObserver
+    procedure projNew(aProject: ICECommonProject);
+    procedure projChanged(aProject: ICECommonProject);
+    procedure projClosing(aProject: ICECommonProject);
+    procedure projFocused(aProject: ICECommonProject);
+    procedure projCompiling(aProject: ICECommonProject);
 
     // ICEEditableShortcut
     function scedWantFirst: boolean;
@@ -1211,6 +1218,43 @@ end;
 procedure TCEMainForm.docChanged(aDoc: TCESynMemo);
 begin
   fDoc := aDoc;
+end;
+{$ENDREGION}
+
+{$REGION ICEProjectObserver ----------------------------------------------------}
+procedure TCEMainForm.projNew(aProject: ICECommonProject);
+begin
+ fProjectInterface := aProject;
+ case fProjectInterface.getFormat of
+   pfNative: fNativeProject := TCENativeProject(fProjectInterface.getProject);
+   pfDub: fDubProject := TCEDubProject(fProjectInterface.getProject);
+ end;
+end;
+
+procedure TCEMainForm.projChanged(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCEMainForm.projClosing(aProject: ICECommonProject);
+begin
+  if fProjectInterface <> aProject then
+    exit;
+  fProjectInterface := nil;
+  fDubProject := nil;
+  fNativeProject := nil;
+end;
+
+procedure TCEMainForm.projFocused(aProject: ICECommonProject);
+begin
+ fProjectInterface := aProject;
+ case fProjectInterface.getFormat of
+   pfNative: fNativeProject := TCENativeProject(fProjectInterface.getProject);
+   pfDub: fDubProject := TCEDubProject(fProjectInterface.getProject);
+ end;
+end;
+
+procedure TCEMainForm.projCompiling(aProject: ICECommonProject);
+begin
 end;
 {$ENDREGION}
 
