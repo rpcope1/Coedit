@@ -240,7 +240,8 @@ const
   cmpRes: array[boolean] of integer = (-1, 1);
 begin
   result := inherited Compare(Range);
-  if result <> 0 then exit;
+  assert(Range <> nil);
+  {if result <> 0 then exit;
   //
   if Range is TSynD2SynRange then
   begin
@@ -252,7 +253,7 @@ begin
       exit(cmpRes[src_t.tokenStringBracketsCount > tokenStringBracketsCount]);
     if src_t.namedRegionCount <> namedRegionCount then
       exit(cmpRes[src_t.namedRegionCount > namedRegionCount]);
-  end;
+  end; }
 end;
 
 procedure TSynD2SynRange.Clear;
@@ -522,10 +523,13 @@ begin
   // spaces
   if (isWhite(reader^)) then
   begin
-    while(isWhite(reader^)) do
-      readerNext;
     fTokKind := tkBlank;
-    exit;
+    while(true) do
+    begin
+      if isWhite(reader^) then
+        readerNext;
+      exit;
+    end;
   end;
 
   // line comment / region beg-end
