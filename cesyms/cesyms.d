@@ -52,6 +52,7 @@ void main(string[] args)
     else 
     {
         write(slb.serialize);
+         
     }
     
     slb.destruct;
@@ -77,6 +78,9 @@ string patchPasStringLitteral(const ref string p)
 }
 
 // Memory utils ---------------------------------------------------------------+
+// TODO-cbugfix: inline + optimizations + custom constructor = empty symbol list !
+// inline + optimization + use 'new' = ok
+
 void * getMem(size_t size) nothrow
 {
     import std.c.stdlib;

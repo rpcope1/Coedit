@@ -4,7 +4,6 @@ object CurrentProject: TCEProject
       name = 'release'
       outputOptions.inlining = True
       outputOptions.boundsCheck = offAlways
-      outputOptions.optimizations = True
       outputOptions.release = True
       pathsOptions.outputFilename = '..\lazproj\cesyms'
       pathsOptions.extraSources.Strings = (
