@@ -1,7 +1,7 @@
 module cesyms;
 
 import std.stdio, std.path, std.file, std.array, std.string;
-import std.d.lexer, std.d.ast, std.d.parser;
+import dparse.lexer, dparse.ast, dparse.parser;
 import std.traits;
 
 void main(string[] args)

@@ -1,6 +1,6 @@
 module ast;
 
-import std.d.lexer, std.d.parser, std.d.ast;
+import dparse.lexer, dparse.parser, dparse.ast;
 import std.json, std.array, std.conv, std.parallelism, std.concurrency;
 import iz.enumset, iz.memory;
 
