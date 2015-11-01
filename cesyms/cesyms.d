@@ -1,5 +1,11 @@
 module cesyms;
 
+/*
+requires a libdparse fix / or comple without -inline, see
+
+https://issues.dlang.org/show_bug.cgi?id=15272
+*/
+
 import std.stdio, std.path, std.file, std.array, std.string;
 import dparse.lexer, dparse.ast, dparse.parser;
 import std.traits;
@@ -78,9 +84,6 @@ string patchPasStringLitteral(const ref string p)
 }
 
 // Memory utils ---------------------------------------------------------------+
-// TODO-cbugfix: inline + optimizations + custom constructor = empty symbol list !
-// inline + optimization + use 'new' = ok
-
 void * getMem(size_t size) nothrow
 {
     import std.c.stdlib;
@@ -107,7 +110,7 @@ if(is(ST==struct))
     return emplace!(ST, A)(memory, a);
 }
 
-static void destruct(T)(ref T instance) 
+void destruct(T)(ref T instance) 
 if (is(T == class) || (isPointer!T && is(PointerTarget!T == struct)))
 {
     if (!instance) return;
@@ -379,3 +382,4 @@ class SymbolListBuilder : ASTVisitor
     }
 }
 //----
+
