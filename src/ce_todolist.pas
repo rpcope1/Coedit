@@ -551,6 +551,7 @@ var
 begin
   if lstItems.Selected = nil then
     exit;
+  lstItems.BeginUpdate;
   curr := lstItems.Selected;
   //
   if lstItems.SortDirection = sdAscending then
@@ -560,7 +561,7 @@ begin
   lstItems.SortColumn := Column.Index;
   lstItems.Selected := nil;
   lstItems.Selected := curr;
-  lstItems.Update;
+  lstItems.EndUpdate;
 end;
 
 procedure TCETodoListWidget.lstItemsCompare(Sender: TObject; item1, item2: TListItem; Data: Integer; var Compare: Integer);
@@ -577,6 +578,7 @@ begin
   end
   else
   begin
+    col -= 1;
     if col < item1.SubItems.Count then
       txt1 := item1.SubItems.Strings[col];
     if col < item2.SubItems.Count then
