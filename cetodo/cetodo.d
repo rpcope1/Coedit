@@ -124,6 +124,13 @@ void main(string[] args)
     string[] files = args[1..$];
     Appender!string lfmApp;
     TodoItems todoItems;
+    
+    // helper to test in Coedit with Compile file & run.
+    version(runnable_module)
+    {
+        if (!files.length)
+            files ~= __FILE__;
+    }
    
     foreach(f; files)
     {
@@ -200,7 +207,7 @@ void main(string[] args)
     string comment, fields;
     while (!text.empty)
     {
-        auto front = text.front;
+        auto front = text.front;     
         identifier ~= front;
         text.popFront;
         if (front == ':')
@@ -242,7 +249,7 @@ void main(string[] args)
 
 // samples for testing the program as a runnable ('Compile and run file ...') with '<CFF>'
 
-// fixme-p8: èuèuuè``u`èuùè 
+// fixme-p8: èuèuuè``u`èuùè é ^ç 
 // fixme-p8: fixme also handled
 // TODO-cINVALID_because_no_content:
 ////TODO:set this property as const() to set it read only.
