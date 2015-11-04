@@ -145,6 +145,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
           Height = 22
           Top = 3
           Width = 199
+          OnAfterFilter = TreeFilterEdit1AfterFilter
           ButtonWidth = 23
           NumGlyphs = 1
           Align = alRight
@@ -152,6 +153,7 @@ inherited CEMessagesWidget: TCEMessagesWidget
           BorderSpacing.Around = 1
           MaxLength = 0
           TabOrder = 1
+          OnButtonClick = TreeFilterEdit1ButtonClick
           FilteredTreeview = List
         end
       end

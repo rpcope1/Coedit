@@ -8,12 +8,9 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   lcltype, ce_widget, ActnList, Menus, clipbrd, AnchorDocking, TreeFilterEdit,
   Buttons, math, process, ce_writableComponent, ce_common, ce_synmemo, GraphType,
-  ce_dlangutils, ce_interfaces, ce_observer, ce_symstring, ce_processes, ce_sharedres;
+  ce_dlangutils, ce_interfaces, ce_observer, ce_symstring, ce_processes, ce_sharedres, EditBtn;
 
 type
-
-  //TODO-cbugfix: the filter does not respect the categories
-  // e.g filter, reset filter, all the messages are displayed regardless of the selected category.
 
   (**
    * the struct linked to a log message. allow to be filtered.
@@ -78,6 +75,8 @@ type
     procedure ListCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode;
       State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure ListKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure TreeFilterEdit1AfterFilter(Sender: TObject);
+    procedure TreeFilterEdit1ButtonClick(Sender: TObject);
   private
     fDemanglerAvailable: boolean;
     fMsgColors: array[TCEAppMessageKind] of TColor;
@@ -101,6 +100,8 @@ type
     fBtns: array[TCEAppMessageCtxt] of TToolButton;
     fToDemangle: TStringList;
     fToDemangleObjs: TFPList;
+    fFiltering: boolean;
+    function itemShouldBeVisible(item: TTreeNode; aCtxt: TCEAppMessageCtxt): boolean;
     procedure demanglerOutput(sender: TObject);
     procedure filterMessages(aCtxt: TCEAppMessageCtxt);
     procedure clearOutOfRangeMessg;
@@ -369,6 +370,18 @@ begin
     VK_RETURN:
       handleMessageClick(nil);
   end;
+end;
+
+procedure TCEMessagesWidget.TreeFilterEdit1AfterFilter(Sender: TObject);
+begin
+  fFiltering := TreeFilterEdit1.Filter <> '';
+  filterMessages(fCtxt);
+end;
+
+procedure TCEMessagesWidget.TreeFilterEdit1ButtonClick(Sender: TObject);
+begin
+  fFiltering := false;
+  filterMessages(fCtxt);
 end;
 
 procedure TCEMessagesWidget.selCtxtClick(Sender: TObject);
@@ -871,29 +884,37 @@ begin
   fDoc.SelectLine;
 end;
 
+function TCEMessagesWidget.itemShouldBeVisible(item: TTreeNode;
+  aCtxt: TCEAppMessageCtxt): boolean;
+var
+  msgDt: PMessageData;
+begin
+  result := false;
+  msgDt := PMessageData(item.Data);
+  if aCtxt = amcAll then
+    result := true
+  else case msgDt^.ctxt of
+    amcEdit: result := (fDoc  = TCESynMemo(msgDt^.data)) and (aCtxt = amcEdit);
+    amcProj: result := (fProj = ICECommonProject(msgDt^.data)) and (aCtxt = amcProj);
+    amcApp:  result := aCtxt = amcApp;
+    amcMisc: result := aCtxt = amcMisc;
+  end;
+end;
+
 procedure TCEMessagesWidget.filterMessages(aCtxt: TCEAppMessageCtxt);
 var
-  msgdt: PMessageData;
   itm: TTreeNode;
-  i: Integer;
 begin
   if updating then
     exit;
   List.BeginUpdate;
-  for i := 0 to List.Items.Count-1 do
+  for itm in List.Items do
   begin
-    itm := List.Items[i];
-    Itm.Visible := false;
-    Itm.Selected := false;
-    msgdt := PMessageData(itm.Data);
-    if aCtxt = amcAll then
-      Itm.Visible := true
-    else case msgdt^.ctxt of
-      amcEdit: itm.Visible := (fDoc  = TCESynMemo(msgdt^.data)) and (aCtxt = amcEdit);
-      amcProj: itm.Visible := (fProj = ICECommonProject(msgdt^.data)) and (aCtxt = amcProj);
-      amcApp:  itm.Visible := aCtxt = amcApp;
-      amcMisc: itm.Visible := aCtxt = amcMisc;
-    end;
+    if not fFiltering then
+      itm.Visible := itemShouldBeVisible(itm, aCtxt)
+    else
+      itm.Visible := itm.Visible and itemShouldBeVisible(itm, aCtxt);
+    itm.Selected := false;
   end;
   list.EndUpdate;
 end;
