@@ -1,17 +1,44 @@
+/**
+Usage
+=====
+
+- In Coedit: 
+  the program must be located somewhere in the PATH.
+
+- Elsewhere:
+  invoke with `[-j] [<filename>]`.
+  - `-j`: optional, if set then the program outputs the list (in stdout) in JSON 
+     otherwise in Pascal streaming text format.
+  - `<filename>`: optional, the D module filename, if not set then the program 
+    reads the module from stdin.
+  - see the source for more information about how to use the output. 
+    It's basically a tree of struct with 3 members: symbol type, name and location.
+  
+- Test in CE as a runnable module:
+  click `Compile file and run ...` and type either `<CFF>` or `-j <CFF>` in the 
+  input query dialog. Note that this will only work if libdparse is setup in the 
+  library manager.
+  
+*/
 module cesyms;
 
-/*
-requires a libdparse fix / or comple without -inline, see
-
-https://issues.dlang.org/show_bug.cgi?id=15272
-*/
-
 import std.stdio, std.path, std.file, std.array, std.string;
+import std.getopt, std.json, std.conv;
 import dparse.lexer, dparse.ast, dparse.parser;
 import std.traits;
 
+enum ListFmt
+{
+    Pascal,
+    JSON
+}
+
 void main(string[] args)
 {
+    // format
+    bool asJson;
+    getopt(args, std.getopt.config.passThrough,'j', &asJson); 
+    
     // get either the module from stdin or from first arg
     string fname;
     ubyte[] source;
@@ -20,12 +47,13 @@ void main(string[] args)
         foreach(buff; stdin.byChunk(1024))
             source ~= buff;
     }
-    else
+    else if (args.length == 2)
     {
-        fname = args[1];
+        fname = args[$-1];
         if (!fname.exists) return;
         source = cast(ubyte[]) read(fname, size_t.max);
     }
+    else return;
 
     // load and parse the file
     auto config = LexerConfig(fname, StringBehavior.source, WhitespaceBehavior.skip);
@@ -40,7 +68,7 @@ void main(string[] args)
         slb.visit(decl);
     }
     
-    version(runnable_module)
+    version(none)
     {
         int level = -1;
         void print(Symbol * s)
@@ -57,10 +85,10 @@ void main(string[] args)
     } 
     else 
     {
-        write(slb.serialize);
-         
-    }
-    
+        if (asJson) write(slb.serializeJson);
+        else write(slb.serializePascal);
+    }      
+
     slb.destruct;
 }
 
@@ -151,7 +179,16 @@ struct Symbol
             subs[i].destruct;
     }
     
-    void serialize(ref Appender!string lfmApp)
+    void serialize(List)(auto ref List list)
+    {
+        static if (is(List == Appender!string))
+            serializePascal(list);
+        else static if (is(List == JSONValue))
+            serializeJson(list);
+        else static assert(0, "serialization kind cannot be deduced from list");
+    }
+    
+    void serializePascal(ref Appender!string lfmApp)
     {
         lfmApp.put("\ritem\r");
         
@@ -165,6 +202,23 @@ struct Symbol
             sub.serialize(lfmApp);
         lfmApp.put(">\r");
         lfmApp.put("end");
+    }
+    
+    void serializeJson(ref JSONValue json)
+    {
+        auto vobj = parseJSON("{}");
+        vobj["line"]= JSONValue(line);
+        vobj["col"] = JSONValue(col);
+        vobj["name"]= JSONValue(name);
+        vobj["type"]= JSONValue(to!string(type));
+        if (subs.length)
+        {
+            auto vsubs = parseJSON("[]");
+            foreach(Symbol * sub; subs)
+                sub.serializeJson(vsubs);
+            vobj["items"] = vsubs;
+        }
+        json.array ~= vobj;
     }
 }
 //----
@@ -205,7 +259,7 @@ class SymbolListBuilder : ASTVisitor
     
     final void resetRoot(){parent = root;}
     
-    final string serialize()
+    final string serializePascal()
     {
         Appender!string lfmApp;
         lfmApp.reserve(count * 64);
@@ -217,6 +271,18 @@ class SymbolListBuilder : ASTVisitor
         
         return lfmApp.data; 
     }
+    
+    final string serializeJson()
+    {
+        JSONValue result = parseJSON("{}");
+        JSONValue vsubs = parseJSON("[]");
+        foreach(sym; illFormed) sym.serialize(vsubs);
+        foreach(sym; root.subs) sym.serialize(vsubs);
+        result["items"] = vsubs;
+        version(assert) return result.toPrettyString;
+        // else: release mode
+        else return result.toString;
+    }    
     
     /// returns a new symbol if the declarator is based on a Token named "name".
     final Symbol * addDeclaration(DT)(DT adt)
@@ -382,4 +448,3 @@ class SymbolListBuilder : ASTVisitor
     }
 }
 //----
-
