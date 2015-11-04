@@ -4,6 +4,8 @@ unit ce_miniexplorer;
 
 interface
 
+//TODO-cbugfix: alphabetic sorting is broken after filter reset.
+
 uses
   Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls, Graphics,
   ExtCtrls, Menus, ComCtrls, Buttons, lcltype, strutils, ce_widget, ce_sharedres,
@@ -340,6 +342,7 @@ end;
 procedure TCEMiniExplorerWidget.btnEditClick(Sender: TObject);
 var
   fname: string;
+  proj: boolean = false;
 begin
   if lstFiles.Selected = nil then exit;
   if lstFiles.Selected.Data = nil then exit;
@@ -352,13 +355,15 @@ begin
   begin
     if assigned(fProj) then fProj.getProject.Free;
     TCENativeProject.create(nil);
+    proj := true;
   end
   else if isValidDubProject(fname) then
   begin
     if assigned(fProj) then fProj.getProject.Free;
     TCEDubProject.create(nil);
+    proj := true;
   end;
-  if assigned(fProj) then
+  if assigned(fProj) and proj then
     fProj.loadFromFile(fname)
   else
     getMultiDocHandler.openDocument(fname);

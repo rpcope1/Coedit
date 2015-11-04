@@ -12,6 +12,9 @@ uses
 
 type
 
+  //TODO-cbugfix: the filter does not respect the categories
+  // e.g filter, reset filter, all the messages are displayed regardless of the selected category.
+
   (**
    * the struct linked to a log message. allow to be filtered.
    *)
