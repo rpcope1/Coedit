@@ -454,8 +454,8 @@ end;
 
 procedure TCETodoListWidget.toolTerminated(Sender: TObject);
 begin
-  //TODO-cbugfix: UTF chars in TODO comments bug either in the widget or the tool, symptom: empty todo list, conditions: to determine.
-
+  //WASTODO-cbugfix: UTF chars in TODO comments bug either in the widget or the tool, symptom: empty todo list, conditions: to determine.
+  // seems to be fixed since the TODO scanner 's been rewritten using ranges (std.range.front() => autodecoding).
   fToolProc.OutputStack.Position := 0;
   fTodos.loadFromTxtStream(fToolProc.OutputStack);
   fillTodoList;
