@@ -33,7 +33,7 @@ type
 
   { TCEMiniExplorerWidget }
 
-  TCEMiniExplorerWidget = class(TCEWidget)
+  TCEMiniExplorerWidget = class(TCEWidget, ICEProjectObserver)
     btnAddFav: TBitBtn;
     btnEdit: TBitBtn;
     btnShellOpen: TBitBtn;
@@ -56,6 +56,7 @@ type
     procedure lstFilesEnter(Sender: TObject);
     procedure TreeEnter(Sender: TObject);
   private
+    fProj: ICECommonProject;
     fFavorites: TStringList;
     fLastFold: string;
     fLastListOrTree: TControl;
@@ -75,6 +76,12 @@ type
     procedure lstFavSelect(Sender: TObject; Item: TListItem; Selected: Boolean);
     procedure shellOpenSelected;
     procedure lstFilterChange(sender: TObject);
+    //
+    procedure projNew(aProject: ICECommonProject);
+    procedure projChanged(aProject: ICECommonProject);
+    procedure projClosing(aProject: ICECommonProject);
+    procedure projFocused(aProject: ICECommonProject);
+    procedure projCompiling(aProject: ICECommonProject);
   public
     constructor create(aIwner: TComponent); override;
     destructor destroy; override;
@@ -178,10 +185,13 @@ begin
   finally
     free;
   end;
+  //
+  EntitiesConnector.addObserver(self);
 end;
 
 destructor TCEMiniExplorerWidget.destroy;
 begin
+  EntitiesConnector.removeObserver(self);
   with TCEMiniExplorerOptions.create(nil) do
   try
     assign(self);
@@ -198,6 +208,32 @@ procedure TCEMiniExplorerWidget.lstDeletion(Sender: TObject; Item: TListItem);
 begin
   if Item.Data <> nil then
     DisposeStr(PString(Item.Data));
+end;
+{$ENDREGION}
+
+{$REGION ICEProjectObserver ----------------------------------------------------}
+procedure TCEMiniExplorerWidget.projNew(aProject: ICECommonProject);
+begin
+  fProj := aProject;
+end;
+
+procedure TCEMiniExplorerWidget.projChanged(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCEMiniExplorerWidget.projClosing(aProject: ICECommonProject);
+begin
+  if fProj = aProject then
+    fProj := nil;
+end;
+
+procedure TCEMiniExplorerWidget.projFocused(aProject: ICECommonProject);
+begin
+  fProj := aProject;
+end;
+
+procedure TCEMiniExplorerWidget.projCompiling(aProject: ICECommonProject);
+begin
 end;
 {$ENDREGION}
 
@@ -304,7 +340,6 @@ end;
 procedure TCEMiniExplorerWidget.btnEditClick(Sender: TObject);
 var
   fname: string;
-  proj: ICECommonProject = nil;
 begin
   if lstFiles.Selected = nil then exit;
   if lstFiles.Selected.Data = nil then exit;
@@ -314,11 +349,17 @@ begin
   fname := fname[2..length(fname)];
   {$ENDIF}
   if isValidNativeProject(fname) then
-    proj := TCENativeProject.create(nil) as ICECommonProject
+  begin
+    if assigned(fProj) then fProj.getProject.Free;
+    TCENativeProject.create(nil);
+  end
   else if isValidDubProject(fname) then
-    proj := TCEDubProject.create(nil) as ICECommonProject;
-  if assigned(proj) then
-    proj.loadFromFile(fname)
+  begin
+    if assigned(fProj) then fProj.getProject.Free;
+    TCEDubProject.create(nil);
+  end;
+  if assigned(fProj) then
+    fProj.loadFromFile(fname)
   else
     getMultiDocHandler.openDocument(fname);
 end;
