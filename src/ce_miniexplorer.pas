@@ -376,12 +376,7 @@ end;
 
 procedure TCEMiniExplorerWidget.lstFilesEnter(Sender: TObject);
 begin
-  fLastListOrTree := Tree;
-end;
-
-procedure TCEMiniExplorerWidget.TreeEnter(Sender: TObject);
-begin
-  fLastListOrTree := Tree;
+  fLastListOrTree := lstFiles;
 end;
 
 procedure TCEMiniExplorerWidget.shellOpenSelected;
@@ -417,6 +412,11 @@ end;
 {$ENDREGION}
 
 {$REGION Tree ------------------------------------------------------------------}
+procedure TCEMiniExplorerWidget.TreeEnter(Sender: TObject);
+begin
+  fLastListOrTree := Tree;
+end;
+
 procedure TCEMiniExplorerWidget.treeDeletion(Sender: TObject; Item: TTreeNode);
 begin
   if Item.Data <> nil then
