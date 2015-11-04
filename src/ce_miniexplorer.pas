@@ -4,13 +4,11 @@ unit ce_miniexplorer;
 
 interface
 
-//TODO-cbugfix: alphabetic sorting is broken after filter reset.
-
 uses
   Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls, Graphics,
   ExtCtrls, Menus, ComCtrls, Buttons, lcltype, strutils, ce_widget, ce_sharedres,
   ce_common, ce_interfaces, ce_observer, ce_writableComponent, ce_dubproject,
-  ce_nativeproject;
+  ce_nativeproject, EditBtn;
 
 type
 
@@ -456,6 +454,7 @@ begin
     pth := PString(Tree.Selected.Data)^;
     fLastFold := pth;
     listFiles(lst, pth);
+    lst.Sort;
     fillLstFiles(lst);
   finally
     lst.Free;
