@@ -316,7 +316,7 @@ begin
   if isValidNativeProject(fname) then
     proj := TCENativeProject.create(nil) as ICECommonProject
   else if isValidDubProject(fname) then
-    proj := TCENativeProject.create(nil) as ICECommonProject;
+    proj := TCEDubProject.create(nil) as ICECommonProject;
   if assigned(proj) then
     proj.loadFromFile(fname)
   else
