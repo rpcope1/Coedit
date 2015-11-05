@@ -21,6 +21,9 @@ lib
 temp
 ppas.bat
 .directory
+cetodo/cetodo
+cesyms/cesyms
 lazproj/cetodo
 lazproj/cesyms
 lazproj/coedit
+icons/generate_res
