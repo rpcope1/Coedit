@@ -14,6 +14,7 @@ type
   { TCELibManEditorWidget }
 
   TCELibManEditorWidget = class(TCEWidget, ICEProjectObserver)
+    btnOpenProj: TBitBtn;
     btnMoveDown: TBitBtn;
     btnMoveUp: TBitBtn;
     btnReg: TBitBtn;
@@ -30,6 +31,7 @@ type
     procedure btnAddLibClick(Sender: TObject);
     procedure btnDubFetchClick(Sender: TObject);
     procedure btnEditAliasClick(Sender: TObject);
+    procedure btnOpenProjClick(Sender: TObject);
     procedure btnRegClick(Sender: TObject);
     procedure btnRemLibClick(Sender: TObject);
     procedure btnSelFileClick(Sender: TObject);
@@ -39,9 +41,11 @@ type
     procedure btnMoveUpClick(Sender: TObject);
     procedure btnMoveDownClick(Sender: TObject);
     procedure ListEdited(Sender: TObject; Item: TListItem; var AValue: string);
+    procedure ListSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean
+      );
   private
     fProj: ICECommonProject;
-    procedure updateRegistrable;
+    procedure updateButtonsState;
     procedure projNew(aProject: ICECommonProject);
     procedure projChanged(aProject: ICECommonProject);
     procedure projClosing(aProject: ICECommonProject);
@@ -80,12 +84,15 @@ begin
   AssignPng(btnReg, 'book_link');
   AssignPng(btnDubFetch, 'dub_small');
   AssignPng(btnSelProj, 'script_bricks');
+  AssignPng(btnOpenProj, 'book_open');
 end;
 
-procedure TCELibManEditorWidget.updateRegistrable;
+procedure TCELibManEditorWidget.updateButtonsState;
 begin
   btnReg.Enabled := (fProj <> nil) and (fProj.binaryKind = staticlib) and
     FileExists(fProj.Filename);
+  btnOpenProj.Enabled := (List.Selected <> nil) and
+    (fileExists(List.Selected.SubItems[2]));
 end;
 
 procedure TCELibManEditorWidget.projNew(aProject: ICECommonProject);
@@ -99,7 +106,7 @@ begin
   if fProj <> aProject then
     exit;
   //
-  updateRegistrable;
+  updateButtonsState;
 end;
 
 procedure TCELibManEditorWidget.projClosing(aProject: ICECommonProject);
@@ -107,13 +114,13 @@ begin
   if  fProj <> aProject then
     exit;
   fProj := nil;
-  updateRegistrable;
+  updateButtonsState;
 end;
 
 procedure TCELibManEditorWidget.projFocused(aProject: ICECommonProject);
 begin
   fProj := aProject;
-  updateRegistrable;
+  updateButtonsState;
 end;
 
 procedure TCELibManEditorWidget.projCompiling(aProject: ICECommonProject);
@@ -123,6 +130,12 @@ end;
 procedure TCELibManEditorWidget.ListEdited(Sender: TObject; Item: TListItem; var AValue: string);
 begin
   gridToData;
+end;
+
+procedure TCELibManEditorWidget.ListSelectItem(Sender: TObject;
+  Item: TListItem; Selected: Boolean);
+begin
+  updateButtonsState;
 end;
 
 procedure TCELibManEditorWidget.btnAddLibClick(Sender: TObject);
@@ -287,6 +300,39 @@ begin
   if inputQuery('library alias', '', al) then
     List.Selected.Caption := al;
   gridToData;
+end;
+
+procedure TCELibManEditorWidget.btnOpenProjClick(Sender: TObject);
+var
+  fname: string;
+begin
+  if List.Selected = nil then exit;
+  fname := List.Selected.SubItems[2];
+  if not FileExists(fname) then exit;
+  //
+  if isValidNativeProject(fname) then
+  begin
+    if assigned(fProj) then
+    begin
+      if fProj.modified and (dlgFileChangeClose(fname) = mrCancel) then
+        exit;
+      fProj.getProject.Free;
+    end;
+    TCENativeProject.create(nil);
+    fProj.loadFromFile(fname);
+  end
+  else if isValidDubProject(fname) then
+  begin
+    if assigned(fProj) then
+    begin
+      if fProj.modified and (dlgFileChangeClose(fname) = mrCancel) then
+        exit;
+      fProj.getProject.Free;
+    end;
+    TCEDubProject.create(nil);
+    fProj.loadFromFile(fname);
+  end
+  else dlgOkInfo('the project file for this library seems to be invalid');
 end;
 
 procedure TCELibManEditorWidget.btnRegClick(Sender: TObject);

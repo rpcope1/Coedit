@@ -125,7 +125,7 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           TabOrder = 8
         end
         object btnDubFetch: TBitBtn
-          Left = 140
+          Left = 168
           Height = 26
           Hint = 'register an online dub package'
           Top = 0
@@ -146,6 +146,17 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           Spacing = 0
           TabOrder = 10
         end
+        object btnOpenProj: TBitBtn
+          Left = 140
+          Height = 26
+          Hint = 'open the matching project'
+          Top = 0
+          Width = 28
+          Align = alLeft
+          OnClick = btnOpenProjClick
+          Spacing = 0
+          TabOrder = 11
+        end
       end
       object List: TListView[1]
         Left = 4
@@ -158,22 +169,22 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
           item
             AutoSize = True
             Caption = 'Alias'
-            Width = 629
+            Width = 39
           end        
           item
             AutoSize = True
             Caption = 'Library file'
-            Width = 67
+            Width = 76
           end        
           item
             AutoSize = True
             Caption = 'Sources root'
-            Width = 78
+            Width = 88
           end        
           item
             AutoSize = True
             Caption = 'project'
-            Width = 49
+            Width = 409
           end>
         GridLines = True
         HideSelection = False
@@ -183,11 +194,12 @@ inherited CELibManEditorWidget: TCELibManEditorWidget
         TabOrder = 1
         ViewStyle = vsReport
         OnEdited = ListEdited
+        OnSelectItem = ListSelectItem
       end
     end
   end
   inherited contextMenu: TPopupMenu
-    left = 184
-    top = 8
+    left = 304
+    top = 16
   end
 end
