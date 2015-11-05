@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls, Graphics,
   ExtCtrls, Menus, ComCtrls, Buttons, lcltype, strutils, ce_widget, ce_sharedres,
   ce_common, ce_interfaces, ce_observer, ce_writableComponent, ce_dubproject,
-  ce_nativeproject, EditBtn;
+  ce_nativeproject, EditBtn, ce_dialogs;
 
 type
 
@@ -351,13 +351,23 @@ begin
   {$ENDIF}
   if isValidNativeProject(fname) then
   begin
-    if assigned(fProj) then fProj.getProject.Free;
+    if assigned(fProj) then
+    begin
+      if fProj.modified and (dlgFileChangeClose(fname) = mrCancel) then
+        exit;
+      fProj.getProject.Free;
+    end;
     TCENativeProject.create(nil);
     proj := true;
   end
   else if isValidDubProject(fname) then
   begin
-    if assigned(fProj) then fProj.getProject.Free;
+    if assigned(fProj) then
+    begin
+      if fProj.modified and (dlgFileChangeClose(fname) = mrCancel) then
+        exit;
+      fProj.getProject.Free;
+    end;
     TCEDubProject.create(nil);
     proj := true;
   end;

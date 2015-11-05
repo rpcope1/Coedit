@@ -249,9 +249,8 @@ var
   doc: TCESynMemo;
 begin
   doc := getDocument(index);
-  if doc.modified then if dlgOkCancel(format(
-    'The latest "%s" modifications are not saved, close without saving ?',
-    [shortenPath(doc.fileName,25)])) = mrCancel then exit(false);
+  if doc.modified and (dlgFileChangeClose(fDoc.fileName) = mrCancel) then
+    exit(false);
   doc.Free;
   result := true;
 end;

@@ -23,6 +23,10 @@ function dlgOkInfo(const aMsg: string): TModalResult;
  *)
 function dlgOkError(const aMsg: string): TModalResult;
 
+(**
+ * close aFilename Ok/Cancel.
+ *)
+function dlgFileChangeClose(const aFilename: string): TModalResult;
 
 const
   DdiagFilter = 'D source|*.d|D interface|*.di|All files|*.*';
@@ -49,6 +53,13 @@ const
   Btns = [mbOK];
 begin
   exit( MessageDlg('Coedit', aMsg, mtError, Btns, ''));
+end;
+
+function dlgFileChangeClose(const aFilename: string): TModalResult;
+const
+  fmt = '"%s" latest modifications are not saved.'#13#10#13#10'Close it without saving ?';
+begin
+  exit(dlgOkCancel(format(fmt, [aFilename])));
 end;
 
 end.
