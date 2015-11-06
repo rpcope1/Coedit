@@ -260,6 +260,7 @@ end;
 {$IFDEF LINUX}
 procedure TCEEditorWidget.pageCloseBtnClick(Sender: TObject);
 begin
+  PageControl.PageIndex := TTabSheet(sender).PageIndex;
   if fDoc <> nil then fDoc.Free;
 end;
 {$ENDIF}
