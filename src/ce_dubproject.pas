@@ -441,8 +441,10 @@ end;
 procedure TCEDubProject.udpateConfigsFromJson;
 var
   i: integer;
+  dat: TJSONData;
   arr: TJSONArray = nil;
   item: TJSONObject = nil;
+  obj: TJSONObject = nil;
   itemname: string;
 begin
   fBuildTypes.Clear;
@@ -469,15 +471,13 @@ begin
   end;
 
   fBuildTypes.AddStrings(DubBuiltTypeName);
-  if fJSON.Find('buildTypes') <> nil then
+  dat := fJSON.Find('buildTypes');
+  if  assigned(dat) and (dat.JSONType = jtObject) then
   begin
-    arr := fJSON.Arrays['buildTypes'];
-    for i := 0 to arr.Count-1 do
+    obj := fJSON.Objects['buildTypes'];
+    for i := 0 to obj.Count-1 do
     begin
-      item := TJSONObject(arr.Items[i]);
-      if item.Find('name') = nil then
-        continue;
-      itemname := item.Strings['name'];
+      itemname := obj.Names[i];
       // defaults build types can be overridden
       if fBuildTypes.IndexOf(itemname) <> -1 then
         continue;
