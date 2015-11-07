@@ -1491,7 +1491,8 @@ end;
 procedure TCEMainForm.actFileCloseExecute(Sender: TObject);
 begin
   if fDoc = nil then exit;
-  if fDoc.modified and (dlgFileChangeClose(fDoc.fileName) = mrCancel) then exit;
+  if (fDoc.modified or(fDoc.fileName = fDoc.tempFilename))
+      and (dlgFileChangeClose(fDoc.fileName) = mrCancel) then exit;
   fDoc.Free;
 end;
 

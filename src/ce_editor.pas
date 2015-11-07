@@ -249,6 +249,7 @@ var
   doc: TCESynMemo;
 begin
   doc := getDocument(index);
+  if not assigned(doc) then exit(false);
   if (doc.modified or (doc.fileName = doc.tempFilename)) and
     (dlgFileChangeClose(fDoc.fileName) = mrCancel) then exit(false);
   doc.Free;
@@ -261,7 +262,7 @@ end;
 procedure TCEEditorWidget.pageCloseBtnClick(Sender: TObject);
 begin
   PageControl.PageIndex := TTabSheet(sender).PageIndex;
-  if fDoc <> nil then fDoc.Free;
+  closeDocument(PageControl.PageIndex);
 end;
 {$ENDIF}
 
