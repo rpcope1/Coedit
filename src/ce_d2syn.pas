@@ -88,6 +88,8 @@ type
     rangeKinds: TRangeKinds;
     primaryRange: TPrimaryRange;
     secondaryRange: TSecondaryRange;
+    // double quoted multi-line string prefixed with 'r':
+    // => don't skip '"' following '\'
     rString: boolean;
   public
     procedure Assign(Src: TSynCustomHighlighterRange); override;
@@ -241,19 +243,20 @@ const
 begin
   result := inherited Compare(Range);
   assert(Range <> nil);
-  {if result <> 0 then exit;
+  if result <> 0 then exit;
   //
   if Range is TSynD2SynRange then
   begin
     src_t := TSynD2SynRange(Range);
-    if (src_t.rString and rString) then exit(0);
+    if src_t.rangeKinds <> rangeKinds then exit(1);
+    if src_t.rString <> rString then exit(1);
     if src_t.nestedCommentsCount <> nestedCommentsCount then
       exit(cmpRes[src_t.nestedCommentsCount > nestedCommentsCount]);
     if src_t.tokenStringBracketsCount <> tokenStringBracketsCount then
       exit(cmpRes[src_t.tokenStringBracketsCount > tokenStringBracketsCount]);
     if src_t.namedRegionCount <> namedRegionCount then
       exit(cmpRes[src_t.namedRegionCount > namedRegionCount]);
-  end; }
+  end;
 end;
 
 procedure TSynD2SynRange.Clear;
