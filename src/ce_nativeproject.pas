@@ -676,7 +676,7 @@ function TCENativeProject.compile: Boolean;
 var
   config: TCompilerConfiguration;
   compilproc: TProcess;
-  olddir, prjpath: string;
+  prjpath: string;
   prjname: string;
   msgs: ICEMessagesDisplay;
 begin
@@ -702,15 +702,11 @@ begin
   //
   prjname := shortenPath(filename, 25);
   compilproc := TProcess.Create(nil);
-  olddir := GetCurrentDir;
   try
     msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
     prjpath := extractFilePath(fileName);
     if directoryExists(prjpath) then
-    begin
-      chDir(prjpath);
       compilproc.CurrentDirectory := prjpath;
-    end;
     compilproc.Executable := DCompiler;
     compilproc.Options := compilproc.Options + [poStderrToOutPut, poUsePipes];
     compilproc.ShowWindow := swoHIDE;
@@ -731,7 +727,6 @@ begin
   finally
     updateOutFilename;
     compilproc.Free;
-    chDir(olddir);
   end;
 end;
 
