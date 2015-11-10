@@ -85,13 +85,15 @@ type
   // returns true if filename is a valid dub project. Only json format is supported.
   function isValidDubProject(const filename: string): boolean;
 
+implementation
+
 const
 
   DubBuiltTypeName: array[TDubBuildType] of string = ('plain', 'debug', 'release',
     'unittest', 'docs', 'ddox', 'profile', 'cov', 'unittest-cov'
   );
 
-implementation
+  DubDefaultConfigName = '(default config)';
 
 {$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCEDubProject.create(aOwner: TComponent);
@@ -232,9 +234,8 @@ begin
   try
     str.Add('dub' + exeExt);
     str.Add('build');
-    if fBuiltTypeIx <> 0 then
-      str.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
-    if fConfigIx <> 0 then
+    str.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
+    if (fConfigs.Count <> 1) and (fConfigs.Strings[0] <> DubDefaultConfigName) then
       str.Add('--config=' + fConfigs.Strings[fConfigIx]);
     result := str.Text;
   finally
@@ -369,9 +370,8 @@ begin
       dubproc.Parameters.Add('build')
     else
       dubproc.Parameters.Add('run');
-    if fBuiltTypeIx <> 0 then
-      dubproc.Parameters.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
-    if fConfigIx <> 0 then
+    dubproc.Parameters.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
+    if (fConfigs.Count <> 1) and (fConfigs.Strings[0] <> DubDefaultConfigName) then
       dubproc.Parameters.Add('--config=' + fConfigs.Strings[fConfigIx]);
     if run and (runArgs <> '') then
       dubproc.Parameters.Add('--' + runArgs);
@@ -465,7 +465,7 @@ begin
     end;
   end else
   begin
-    fConfigs.Add('(dub default)');
+    fConfigs.Add(DubDefaultConfigName);
     // default = what dub set as 'application' or 'library'
     // in this case Coedit will pass only the type to DUB: 'DUB --build=release'
   end;
