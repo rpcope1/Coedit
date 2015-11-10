@@ -543,6 +543,8 @@ begin
   for str in fDocuments do
     if FileExists(str) then
       mdh.openDocument(str);
+  // TODO-cbugfix: if project file is reloaded to an editor it won't be linked to the matching project (e.g save file and project editor widget directly updated)
+  // same with MRU file or mini-explorer.
 end;
 {$ENDREGION}
 
