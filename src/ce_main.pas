@@ -505,7 +505,7 @@ begin
     itf := TCEMainForm(aDestination).fProjectInterface;
     if (itf <> nil) and (itf.filename = fProject) then
       exit;
-    if fProject <> '' then
+    if fProject <> '' then if FileExists(fProject) then
       TCEMainForm(aDestination).openProj(fProject);
   end else
     inherited;
