@@ -1712,6 +1712,7 @@ begin
     else firstlineFlags:= '';
   end else firstlineFlags:= '';
 
+
   fRunProc := TCEProcess.Create(nil);
   if redirect then
   begin
@@ -1768,7 +1769,7 @@ begin
     begin
       fMsgs.message(shortenPath(fDoc.fileName, 25) + ' successfully compiled',
         fDoc, amcEdit, amkInf);
-      fRunProc.CurrentDirectory := extractFilePath(fRunProc.Executable);
+      fRunProc.CurrentDirectory := extractFileDir(fRunProc.Executable);
       if runArgs <> '' then
       begin
         extraArgs.Clear;

@@ -30,6 +30,7 @@ type
     fModified: boolean;
     fRootFolder: string;
     fBasePath: string;
+    fRunnerOldCwd: string;
     fLibAliases: TStringList;
     fConfigs: TCollection;
     fSrcs, fSrcsCop: TStringList;
@@ -123,6 +124,7 @@ constructor TCENativeProject.create(aOwner: TComponent);
 begin
   inherited create(aOwner);
   //
+  fRunnerOldCwd := GetCurrentDir;
   fProjectSubject := TCEProjectSubject.create;
   //
   fLibAliases := TStringList.Create;
@@ -196,7 +198,7 @@ begin
     else absSrc := expandFilenameEx(fBasePath, relsrc);
     if SameFileName(aFilename, absSrc) then exit;
   end;
-  relSrc := ExtractRelativepath(fBasePath, ExcludeLeadingPathDelimiter(aFilename));
+  relSrc := ExtractRelativePath(fBasePath, aFilename);
   fSrcs.Add(relSrc);
 end;
 
@@ -676,7 +678,7 @@ function TCENativeProject.compile: Boolean;
 var
   config: TCompilerConfiguration;
   compilproc: TProcess;
-  prjpath: string;
+  prjpath, oldCwd: string;
   prjname: string;
   msgs: ICEMessagesDisplay;
 begin
@@ -700,11 +702,14 @@ begin
   if (Sources.Count = 0) and (config.pathsOptions.extraSources.Count = 0) then
     exit;
   //
+  prjpath := extractFilePath(fFileName);
+  oldCwd := GetCurrentDir;
+  ChDir(prjpath);
   prjname := shortenPath(filename, 25);
   compilproc := TProcess.Create(nil);
   try
     msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
-    prjpath := extractFilePath(fileName);
+    // this doesn't work under linux, so the  previous ChDir.
     if directoryExists(prjpath) then
       compilproc.CurrentDirectory := prjpath;
     compilproc.Executable := DCompiler;
@@ -727,6 +732,7 @@ begin
   finally
     updateOutFilename;
     compilproc.Free;
+    ChDir(oldCwd);
   end;
 end;
 
@@ -734,9 +740,12 @@ function TCENativeProject.run(const runArgs: string = ''): Boolean;
 var
   prm: string;
   i: Integer;
+  cwd: string;
 begin
   result := false;
   killProcess(fRunner);
+  if DirectoryExists(fRunnerOldCwd) then
+    ChDir(fRunnerOldCwd);
   //
   fRunner := TCEProcess.Create(nil); // fRunner can use the input process widget.
   currentConfiguration.runOptions.setProcess(fRunner);
@@ -761,7 +770,12 @@ begin
   //
   fRunner.Executable := outputFilename;
   if fRunner.CurrentDirectory = '' then
-    fRunner.CurrentDirectory := extractFilePath(fRunner.Executable);
+  begin
+    fRunnerOldCwd := GetCurrentDir;
+    cwd := extractFilePath(fRunner.Executable);
+    chDir(cwd);
+    fRunner.CurrentDirectory := cwd;
+  end;
   if poUsePipes in fRunner.Options then begin
     fRunner.OnReadData := @runProcOutput;
     fRunner.OnTerminate := @runProcOutput;
@@ -792,7 +806,10 @@ begin
   end;
   //
   if not TProcess(sender).Active then
+  begin
     getprocInputHandler.removeProcess(TProcess(sender));
+    ChDir(fRunnerOldCwd);
+  end;
 end;
 
 procedure TCENativeProject.compProcOutput(proc: TProcess);
