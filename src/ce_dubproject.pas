@@ -707,8 +707,11 @@ begin
   if assigned(conf) then
     setFrom(conf);
   pathPart := TrimRightSet(pathPart, ['/','\']);
-  if fBinKind = TProjectBinaryKind.staticlib then
+  {$IFDEF WINDOWS}
+  {$ELSE}
+  if fBinKind in [staticlib, sharedlib] then
     namePart := 'lib' + namePart;
+  {$ENDIF}
   fOutputFileName:= pathPart + DirectorySeparator + namePart;
   patchPlateformPath(fOutputFileName);
   fOutputFileName := expandFilenameEx(fBasePath, fOutputFileName);
