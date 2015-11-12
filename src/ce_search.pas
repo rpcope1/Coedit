@@ -35,6 +35,7 @@ type
     property recentSearches: TStringList read fMrSearches write setMrSearches;
     property recentReplacements: TStringList read fMrReplacements write setMrReplacements;
   public
+    procedure afterLoad; override;
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     procedure Assign(aValue: TPersistent); override;
@@ -159,6 +160,19 @@ end;
 procedure TCESearchOptions.setMrReplacements(aValue: TStringList);
 begin
   fMrReplacements.Assign(aValue);
+end;
+
+procedure TCESearchOptions.afterLoad;
+var
+  i: integer;
+begin
+  inherited;
+  for i := fMrReplacements.Count-1 downto 0 do
+    if length(fMrReplacements[i]) > 128 then
+      fMrReplacements.Delete(i);
+  for i := fMrSearches.Count-1 downto 0 do
+      if length(fMrSearches[i]) > 128 then
+        fMrSearches.Delete(i);
 end;
 {$ENDREGION}
 

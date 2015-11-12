@@ -24,7 +24,8 @@ inherited CESearchWidget: TCESearchWidget
         Align = alTop
         AutoSize = False
         BorderSpacing.Around = 4
-        ItemHeight = 15
+        ItemHeight = 0
+        MaxLength = 128
         OnChange = cbToFindChange
         TabOrder = 0
       end
@@ -128,14 +129,14 @@ inherited CESearchWidget: TCESearchWidget
         Align = alClient
         BorderSpacing.Around = 4
         Caption = 'Options'
-        ClientHeight = 77
+        ClientHeight = 67
         ClientWidth = 382
         TabOrder = 4
         object chkWWord: TCheckBox
           Left = 8
-          Height = 23
+          Height = 26
           Top = 0
-          Width = 86
+          Width = 97
           Caption = 'whole word'
           Checked = True
           State = cbChecked
@@ -143,17 +144,17 @@ inherited CESearchWidget: TCESearchWidget
         end
         object chkBack: TCheckBox
           Left = 8
-          Height = 23
+          Height = 26
           Top = 24
-          Width = 75
+          Width = 87
           Caption = 'backward'
           TabOrder = 1
         end
         object chkFromCur: TCheckBox
           Left = 8
-          Height = 23
+          Height = 26
           Top = 48
-          Width = 86
+          Width = 98
           Caption = 'from cursor'
           Checked = True
           State = cbChecked
@@ -161,25 +162,25 @@ inherited CESearchWidget: TCESearchWidget
         end
         object chkCaseSens: TCheckBox
           Left = 128
-          Height = 23
+          Height = 26
           Top = 0
-          Width = 95
+          Width = 111
           Caption = 'case sensitive'
           TabOrder = 3
         end
         object chkPrompt: TCheckBox
           Left = 128
-          Height = 23
+          Height = 26
           Top = 24
-          Width = 64
+          Width = 73
           Caption = 'prompt'
           TabOrder = 4
         end
         object chkRegex: TCheckBox
           Left = 128
-          Height = 23
+          Height = 26
           Top = 48
-          Width = 119
+          Width = 139
           Caption = 'regular expression'
           Checked = True
           State = cbChecked
@@ -244,13 +245,14 @@ inherited CESearchWidget: TCESearchWidget
         ClientWidth = 386
         TabOrder = 5
         object cbReplaceWth: TComboBox
-          Left = 94
+          Left = 108
           Height = 23
           Top = 0
-          Width = 292
+          Width = 278
           Align = alClient
           Anchors = [akTop, akLeft, akBottom]
-          ItemHeight = 15
+          ItemHeight = 0
+          MaxLength = 128
           OnChange = cbReplaceWthChange
           TabOrder = 1
         end
@@ -258,7 +260,7 @@ inherited CESearchWidget: TCESearchWidget
           Left = 0
           Height = 23
           Top = 0
-          Width = 94
+          Width = 108
           Align = alLeft
           Caption = 'Replace with '
           OnChange = chkEnableRepChange
