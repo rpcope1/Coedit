@@ -161,6 +161,9 @@ begin
     fBasePath := extractFilePath(aFilename);
     fFilename := aFilename;
     loader.LoadFromFile(fFilename);
+
+    //TODO-cDUB: if loaded as UTF8 it should be saved as well !
+
     // skip BOM, this crashes the parser
     loader.Read(bom, 4);
     if (bom and $BFBBEF) = $BFBBEF then
