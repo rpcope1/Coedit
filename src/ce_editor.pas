@@ -251,7 +251,7 @@ begin
   doc := getDocument(index);
   if not assigned(doc) then exit(false);
   if (doc.modified or (doc.fileName = doc.tempFilename)) and
-    (dlgFileChangeClose(fDoc.fileName) = mrCancel) then exit(false);
+    (dlgFileChangeClose(doc.fileName) = mrCancel) then exit(false);
   doc.Free;
   result := true;
 end;
