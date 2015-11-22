@@ -50,6 +50,8 @@ type
     fOptions2: TSynEditorOptions2;
     fMouseOptions: TSynEditorMouseOptions;
     fCompletionMenuCaseCare: boolean;
+    fCompletionMenuWidth: integer;
+    fCompletionMenuHeight: integer;
     //
     procedure setFont(aValue: TFont);
     procedure setSelCol(aValue: TSynSelectedColor);
@@ -63,6 +65,8 @@ type
     procedure setAutoDotDelay(aValue: Integer);
   published
     property completionMenuCaseCare: boolean read fCompletionMenuCaseCare write fCompletionMenuCaseCare;
+    property completionMenuWidth: integer read fCompletionMenuWidth write fCompletionMenuWidth;
+    property completionMenuHeight: integer read fCompletionMenuHeight write fCompletionMenuHeight;
     property autoDotDelay: integer read fAutoDotDelay write SetautoDotDelay;
     property hintDelay: Integer read fDDocDelay write setDDocDelay stored false; deprecated;
     property ddocDelay: Integer read fDDocDelay write setDDocDelay;
@@ -172,6 +176,9 @@ begin
   fBracketMatchColor.Foreground := clRed;
   fBracketMatchColor.Background := clNone;
   //
+  fCompletionMenuHeight:= 260;
+  fCompletionMenuWidth:= 160;
+  //
   rightEdge := 80;
   tabulationWidth := 4;
   blockIdentation := 4;
@@ -222,6 +229,8 @@ begin
   begin
     srcopt := TCEEditorOptionsBase(src);
     //
+    fCompletionMenuWidth:=srcopt.fCompletionMenuWidth;
+    fCompletionMenuHeight:=srcopt.fCompletionMenuHeight;
     fCompletionMenuCaseCare:=srcopt.fCompletionMenuCaseCare;
     fAutoDotDelay:=srcopt.fAutoDotDelay;
     fDDocDelay:=srcopt.fDDocDelay;
@@ -347,6 +356,8 @@ end;
 
 procedure TCEEditorOptions.docClosing(aDoc: TCESynMemo);
 begin
+  fCompletionMenuHeight:=aDoc.completionMenu.TheForm.Height;
+  fCompletionMenuWidth:=aDoc.completionMenu.TheForm.Width;
 end;
 {$ENDREGION}
 
@@ -468,11 +479,16 @@ begin
   anEditor.D2Highlighter.Assign(D2Syn);
   anEditor.TxtHighlighter.Assign(TxtSyn);
 
-  anEditor.completionMenuCaseCare:=fCompletionMenuCaseCare;
   anEditor.autoDotDelay:=fAutoDotDelay;
   anEditor.ddocDelay:=fDDocDelay;
+
   anEditor.defaultFontSize := font.Size;
   anEditor.Font.Assign(font);
+
+  anEditor.completionMenu.TheForm.Height  := fCompletionMenuHeight;
+  anEditor.completionMenu.TheForm.Width   := fCompletionMenuWidth;
+  anEditor.completionMenu.CaseSensitive   := fCompletionMenuCaseCare;
+
   anEditor.SelectedColor.Assign(fSelCol);
   anEditor.FoldedCodeColor.Assign(fFoldedColor);
   anEditor.MouseLinkColor.Assign(fMouseLinkColor);

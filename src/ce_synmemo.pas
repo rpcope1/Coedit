@@ -108,7 +108,6 @@ type
     fAutoDotTimer: TIdleTimer;
     fCanShowHint: boolean;
     fCanAutoDot: boolean;
-    fCompletionCaseSens: boolean;
     fOldMousePos: TPoint;
     fSyncEdit: TSynPluginSyncroEdit;
     fCompletion: TSynCompletion;
@@ -129,7 +128,6 @@ type
     procedure AutoDotTimerEvent(sender: TObject);
     procedure InitHintWins;
     function getIfTemp: boolean;
-    procedure SetcompletionMenuCaseCare(aValue: boolean);
     procedure setDDocDelay(aValue: Integer);
     procedure setAutoDotDelay(aValue: Integer);
     procedure completionExecute(sender: TObject);
@@ -157,7 +155,6 @@ type
     property defaultFontSize: Integer read fDefaultFontSize write setDefaultFontSize;
     property ddocDelay: Integer read fDDocDelay write setDDocDelay;
     property autoDotDelay: Integer read fAutoDotDelay write setAutoDotDelay;
-    property completionMenuCaseCare: boolean read fCompletionCaseSens write SetcompletionMenuCaseCare;
   public
     constructor Create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -183,6 +180,7 @@ type
     property modified: boolean read fModified;
     property tempFilename: string read fTempFileName;
     //
+    property completionMenu: TSynCompletion read fCompletion;
     property syncroEdit: TSynPluginSyncroEdit read fSyncEdit;
     property isDSource: boolean read fIsDSource;
     property isProjectFile: boolean read fIsConfig; // warning: never set !
@@ -451,7 +449,6 @@ begin
   fSyncEdit.CaseSensitive := true;
   AssignPng(fSyncEdit.GutterGlyph, 'link_edit');
   //
-  fCompletionCaseSens:=false;
   fCompletion := TSyncompletion.create(nil);
   fCompletion.ShowSizeDrag := true;
   fCompletion.Editor := Self;
@@ -608,12 +605,6 @@ procedure TCESynMemo.setDDocDelay(aValue: Integer);
 begin
   fDDocDelay:=aValue;
   fDDocTimer.Interval:=fDDocDelay;
-end;
-
-procedure TCESynMemo.SetcompletionMenuCaseCare(aValue: boolean);
-begin
-  fCompletionCaseSens:=aValue;
-  fCompletion.CaseSensitive:=aValue;
 end;
 
 procedure TCESynMemo.DDocTimerEvent(sender: TObject);
