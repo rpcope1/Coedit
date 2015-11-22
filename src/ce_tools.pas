@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, process, menus, ce_processes,
-  ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_inspectors;
+  ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_inspectors,
+  ce_synmemo;
 
 type
 
@@ -21,6 +22,7 @@ type
     fToolAlias: string;
     fQueryParams: boolean;
     fClearMessages: boolean;
+    fEditorToInput: boolean;
     fChainBefore: TStringList;
     fChainAfter: TStringList;
     fShortcut: TShortcut;
@@ -39,6 +41,7 @@ type
     property showWindows: TShowWindowOptions read fShowWin write fShowWin;
     property queryParameters: boolean read fQueryParams write fQueryParams;
     property clearMessages: boolean read fClearMessages write fClearMessages;
+    property editorToInput: boolean read fEditorToInput write fEditorToInput;
     property chainBefore: TStringList read fChainBefore write setchainBefore;
     property chainAfter: TStringList read fChainAfter write setChainAfter;
     property shortcut: TShortcut read fShortcut write fShortcut;
@@ -48,16 +51,22 @@ type
     procedure assign(Source: TPersistent); override;
   end;
 
-  TCETools = class(TWritableLfmTextComponent, ICEMainMenuProvider, ICEEditableShortcut)
+  TCETools = class(TWritableLfmTextComponent, ICEMainMenuProvider, ICEEditableShortcut, ICEMultiDocObserver)
   private
     fTools: TCollection;
     fShctCount: Integer;
+    fDoc: TCESynMemo;
     function getTool(index: Integer): TCEToolItem;
     procedure setTools(const aValue: TCollection);
     //
     procedure menuDeclare(item: TMenuItem);
     procedure menuUpdate(item: TMenuItem);
     procedure executeToolFromMenu(sender: TObject);
+    //
+    procedure docNew(aDoc: TCESynMemo);
+    procedure docFocused(aDoc: TCESynMemo);
+    procedure docChanged(aDoc: TCESynMemo);
+    procedure docClosing(aDoc: TCESynMemo);
     //
     function scedWantFirst: boolean;
     function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
@@ -305,6 +314,29 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION ICEMultidocObserver ---------------------------------------------------}
+procedure TCETools.docNew(aDoc: TCESynMemo);
+begin
+  fDoc := aDoc;
+end;
+
+procedure TCETools.docFocused(aDoc: TCESynMemo);
+begin
+  fDoc := aDoc;
+end;
+
+procedure TCETools.docChanged(aDoc: TCESynMemo);
+begin
+end;
+
+procedure TCETools.docClosing(aDoc: TCESynMemo);
+begin
+  if fDoc <> aDoc then exit;
+  fDoc := nil;
+end;
+
+{$ENDREGION}
+
 {$REGION Tools things ----------------------------------------------------------}
 procedure TCETools.setTools(const aValue: TCollection);
 begin
@@ -324,6 +356,7 @@ end;
 procedure TCETools.executeTool(aTool: TCEToolItem);
 var
   nme: string;
+  txt: string;
   chained: TCollectionItem;
 begin
   if aTool = nil then exit;
@@ -336,7 +369,15 @@ begin
         if TCEToolItem(chained).toolAlias <> aTool.toolAlias then
           TCEToolItem(chained).execute;
   if exeInSysPath(aTool.executable) then
+  begin
     aTool.execute;
+    if aTool.editorToInput and assigned(fDoc) and (poUsePipes in aTool.options) then
+    begin
+      txt := fDoc.Text;
+      aTool.fProcess.Input.Write(txt[1], length(txt));
+      aTool.fProcess.CloseInput;
+    end;
+  end;
   for nme in aTool.chainAfter do
     for chained in fTools do
       if TCEToolItem(chained).toolAlias = nme then
