@@ -1744,7 +1744,7 @@ begin
     {$ENDIF}
   	dmdproc.OnReadData := @asyncprocOutput;
   	dmdproc.OnTerminate:= @asyncprocTerminate;
-    dmdproc.Options := [poStdErrToOutput, poUsePipes];
+    dmdproc.Options := [poUsePipes, poStderrToOutPut];
     dmdproc.Executable := DCompiler;
     dmdproc.Parameters.Add(fDoc.fileName);
     dmdproc.Parameters.Add('-J' + ExtractFilePath(fDoc.fileName));
