@@ -1392,7 +1392,7 @@ procedure TCEMainForm.saveFile(aDocument: TCESynMemo);
 begin
   if aDocument.Highlighter = LfmSyn then
     saveProjSource(aDocument)
-  else if aDocument.fileName <> '' then
+  else if fileExists(aDocument.fileName) then
     aDocument.save;
 end;
 
