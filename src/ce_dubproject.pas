@@ -178,6 +178,7 @@ begin
       loader.WriteByte(byte('{'));
       loader.WriteByte(byte('}'));
       loader.Position:= 0;
+      fFilename := '';
     end
     else if ((bom and $FEFF) = $FEFF) or ((bom and $FFFE) = $FFFE) then
     begin
@@ -186,12 +187,13 @@ begin
       loader.WriteByte(byte('{'));
       loader.WriteByte(byte('}'));
       loader.Position:= 0;
+      fFilename := '';
     end
     else
       loader.Position:= 0;
     //
     FreeAndNil(fJSON);
-    parser := TJSONParser.Create(loader);
+    parser := TJSONParser.Create(loader, fSaveAsUtf8);
     try
       try
         fJSON := parser.Parse as TJSONObject;
