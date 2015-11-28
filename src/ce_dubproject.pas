@@ -28,6 +28,7 @@ type
     fBasePath: string;
     fModificationCount: integer;
     fOutputFileName: string;
+    fSaveAsUtf8: boolean;
     //
     procedure doModified;
     procedure updateFields;
@@ -99,6 +100,7 @@ const
 constructor TCEDubProject.create(aOwner: TComponent);
 begin
   inherited;
+  fSaveAsUtf8 := true;
   fJSON := TJSONObject.Create();
   fProjectSubject := TCEProjectSubject.Create;
   fBuildTypes := TStringList.Create;
@@ -161,13 +163,14 @@ begin
     fBasePath := extractFilePath(aFilename);
     fFilename := aFilename;
     loader.LoadFromFile(fFilename);
-
-    //TODO-cDUB: if loaded as UTF8 it should be saved as well !
-
+    fSaveAsUtf8 := false;
     // skip BOM, this crashes the parser
     loader.Read(bom, 4);
     if (bom and $BFBBEF) = $BFBBEF then
-      loader.Position:= 3
+    begin
+      loader.Position:= 3;
+      fSaveAsUtf8 := true;
+    end
     else if (bom = $FFFE0000) or (bom = $FEFF) then
     begin
       // UCS-4 LE/BE not handled by DUB
@@ -216,6 +219,11 @@ begin
   try
     fFilename := aFilename;
     str := fJSON.FormatJSON;
+    if fSaveAsUtf8 then
+    begin
+      saver.WriteDWord($00BFBBEF);
+      saver.Position:=saver.Position-1;
+    end;
     saver.Write(str[1], length(str));
     saver.SaveToFile(fFilename);
   finally
