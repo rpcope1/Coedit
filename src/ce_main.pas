@@ -218,6 +218,7 @@ type
     fDubProjWidg: TCEDubProjectEditorWidget;
     fGdbWidg: TCEGdbWidget;
 
+    fProjFromCommandLine: boolean;
     fInitialized: boolean;
     fRunnableSw: string;
     fRunProc: TCEProcess;
@@ -502,6 +503,8 @@ var
 begin
   if aDestination is TCEMainForm then
   begin
+    if TCEMainForm(aDestination).fProjFromCommandLine then
+      exit;
     itf := TCEMainForm(aDestination).fProjectInterface;
     if (itf <> nil) and (itf.filename = fProject) then
       exit;
@@ -685,6 +688,7 @@ begin
           begin
             // so far CE can only open 1 project at a time
             openProj(value);
+            fProjFromCommandLine := true;
             break;
           end
         end;
