@@ -91,6 +91,7 @@ type
     fFilename: string;
     fModified: boolean;
     fFileDate: double;
+    fCacheLoaded: boolean;
     fIsDSource: boolean;
     fIsTxtFile: boolean;
     fIsConfig: boolean;
@@ -526,7 +527,12 @@ procedure TCESynMemo.SetVisible(Value: Boolean);
 begin
   inherited;
   if Value then
-    setFocus
+  begin
+    setFocus;
+    if not fCacheLoaded then
+      loadCache;
+    fCacheLoaded := true;
+  end
   else begin
     fDDocWin.Hide;
     fCallTipWin.Hide;
@@ -712,10 +718,13 @@ begin
   fFilename := aFilename;
   FileAge(fFilename, fFileDate);
   //
-  loadCache;
-  //
   fModified := false;
-  if Showing then setFocus;
+  if Showing then
+  begin
+    setFocus;
+    loadCache;
+    fCacheLoaded := true;
+  end;
   subjDocChanged(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
 
