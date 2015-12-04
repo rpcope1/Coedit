@@ -2184,7 +2184,7 @@ begin
   if assigned(fProjectInterface) then case fProjectInterface.getFormat of
     pfDub: win := DockMaster.GetAnchorSite(fPrjCfWidg);
     pfNative: win := DockMaster.GetAnchorSite(fDubProjWidg);
-  end;
+  end
   else win := DockMaster.GetAnchorSite(fPrjCfWidg);
   if assigned(win) then
   begin
