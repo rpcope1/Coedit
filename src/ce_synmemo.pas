@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
   SynPluginSyncroEdit, SynCompletion, SynEditKeyCmds, LazSynEditText, SynEdit,
   SynHighlighterLFM, SynEditHighlighter, SynEditMouseCmds, SynEditFoldedView,
-  SynEditMarks,
+  SynEditMarks, SynEditMarkup, SynEditMarkupFoldColors,
   ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs,
   ce_sharedres;
 
@@ -16,7 +16,7 @@ type
 
   TCESynMemo = class;
 
-   TBreakPointModification = (bpAdded, bpRemoved);
+  TBreakPointModification = (bpAdded, bpRemoved);
 
   // breakpoint added or removed
   TBreakPointModifyEvent = procedure(sender: TCESynMemo; line: integer;
@@ -117,6 +117,7 @@ type
     fImages: TImageList;
     fBreakPoints: TFPList;
     fBreakpointEvent: TBreakPointModifyEvent;
+    fMarkupIndent: TSynEditMarkupFoldColors;
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
@@ -483,6 +484,16 @@ begin
   //
   fPositions := TCESynMemoPositions.create(self);
   fMultiDocSubject := TCEMultiDocSubject.create;
+  //
+
+  (*fMarkupIndent:= TSynEditMarkupFoldColors.Create(self);
+  fMarkupIndent.Lines := TextBuffer;
+  fMarkupIndent.Enabled:=true;
+  fMarkupIndent.DefaultGroup:=0;
+  if (GetMarkupMgr <> nil) then
+  begin
+    TSynEditMarkupManager(GetMarkupMgr).AddMarkUp(fMarkupIndent, true);
+  end; *)
   //
   subjDocNew(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
