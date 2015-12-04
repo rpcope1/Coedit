@@ -2182,8 +2182,8 @@ var
   win: TControl = nil;
 begin
   if assigned(fProjectInterface) then case fProjectInterface.getFormat of
-    pfDub: win := DockMaster.GetAnchorSite(fPrjCfWidg);
-    pfNative: win := DockMaster.GetAnchorSite(fDubProjWidg);
+    pfDub: win := DockMaster.GetAnchorSite(fDubProjWidg);
+    pfNative: win := DockMaster.GetAnchorSite(fPrjCfWidg);
   end
   else win := DockMaster.GetAnchorSite(fPrjCfWidg);
   if assigned(win) then
