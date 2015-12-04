@@ -52,7 +52,6 @@ __________
 **Tutorials**
 
 * [a project from scratch](https://github.com/BBasile/Coedit/wiki#new-project-flow)
-* [build with DUB](https://github.com/BBasile/Coedit/wiki#using-dub-in-coedit-as-a-project-pre-build-process)
 * [harbored-mod as a tool](https://github.com/BBasile/Coedit/wiki#integration-of-the-documentation-generator-harbored-mod-to-coedit)
 * [runnable command interpreter](https://github.com/BBasile/Coedit/wiki#using-a-runnable-module-as-an-interactive-command-interpreter)
 * [using the library manager](https://github.com/BBasile/Coedit/wiki#introduction-to-the-library-manager)

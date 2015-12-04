@@ -223,11 +223,11 @@ However, the first script line can be used to pass extra options. They'll be par
 For example this runnable:
 
 ```D
-#!runnable-switch: -O -L-lcairo 
+#!runnable-flags: -O -L-lcairo
 void main(){}
 ```
 
-will be optimized and will get _libcairo_ linked in. The scipt line must start with `#!runnable-switch:`, without any spaces.
+will be optimized and will get _libcairo_ linked in. The scipt line must start with `#!runnable-flags:`, without any spaces.
 
 To be runnable, a module must verify the following requirements:
 - a **void main()** is present.
@@ -875,26 +875,6 @@ However save it somewhere. In the project inspector, the source path will be dis
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut1_5.png)
 - You can now compile the project.
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut1_6.png)
-
-## using DUB in Coedit as a project pre-build process
-
-In this tutorial we'll see that [DUB](https://github.com/D-Programming-Language/dub-registry) can be used in Coedit to build a project.
-
-- Start Coedit or create a new project.
-- Do not add any source file. If some sources are specified then the internal build system will not be bypassed !
-- In the _project configuration_ widget, select the **pre-build process** category.
-- Set the field **executable** to **dub** if it's in the _PATH_ otherwise type the fully qualified executable filename.
-- Set the field **working directory** to a path containing a json DUB project. In this example we've chosen the _test\1-exec-simple\source_.
-- To redirect DUB console output to Coedit, activate the options **poUsePipes** and **poStderrToOutput**. Take care not to activate **poWaitOnExit** otherwise you wont get anything.
-- Finally in Coedit menu **run** click **Compile project**.
-
-![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut.dub.1.png)
-
-In this example we've removed the right parenthesis of the _main()_ procedure to get more output messages.
-
-The Coedit project can be saved, reloaded and rebuild later. It doesn't matter if it has no source files, only the pre-process options will be used.
-
-Note that it's also possible to define DUB as a [custom tool][lnk_widg_tools]. Thanks to the [symbolic strings][lnk_sym], DUB can be launched in a directory containing a description file.
 
 ## Integration of the documentation generator *harbored-mod* to Coedit
 
