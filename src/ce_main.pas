@@ -2179,12 +2179,18 @@ end;
 
 procedure TCEMainForm.actProjOptsExecute(Sender: TObject);
 var
-  win: TControl;
+  win: TControl = nil;
 begin
-  win := DockMaster.GetAnchorSite(fPrjCfWidg);
-  if win = nil then exit;
-  win.Show;
-  win.BringToFront;
+  if assigned(fProjectInterface) then case fProjectInterface.getFormat of
+    pfDub: win := DockMaster.GetAnchorSite(fPrjCfWidg);
+    pfNative: win := DockMaster.GetAnchorSite(fDubProjWidg);
+  end;
+  else win := DockMaster.GetAnchorSite(fPrjCfWidg);
+  if assigned(win) then
+  begin
+    win.Show;
+    win.BringToFront;
+  end;
 end;
 
 procedure TCEMainForm.actProjSourceExecute(Sender: TObject);
