@@ -189,6 +189,11 @@ type
     procedure ApplicationProperties1Exception(Sender: TObject; E: Exception);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
+
+  protected
+
+    procedure DoShow; override;
+
   private
 
     fDoc: TCESynMemo;
@@ -218,6 +223,7 @@ type
     fDubProjWidg: TCEDubProjectEditorWidget;
     fGdbWidg: TCEGdbWidget;
 
+    fFirstShown: boolean;
     fProjFromCommandLine: boolean;
     fInitialized: boolean;
     fRunnableSw: string;
@@ -648,9 +654,6 @@ begin
   //
   getCMdParams;
   if fNativeProject = nil then newNativeProj;
-
-  if fAppliOpts.reloadLastDocuments then
-    LoadLastDocsAndProj;
   //
   fInitialized := true;
 end;
@@ -1033,6 +1036,19 @@ begin
     assignTo(self);
   finally
     free;
+  end;
+end;
+
+procedure TCEMainForm.DoShow;
+begin
+  inherited;
+  // TODO-cbetterfix: clipboard doesn't work first time it's used on a reloaded doc.
+  // see: http://forum.lazarus.freepascal.org/index.php/topic,30616.0.htm
+  if (not fFirstShown) then
+  begin
+    if fAppliOpts.reloadLastDocuments then
+      LoadLastDocsAndProj;
+    fFirstShown := true;
   end;
 end;
 
