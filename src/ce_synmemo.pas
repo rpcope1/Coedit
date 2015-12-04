@@ -989,7 +989,6 @@ begin
     VK_DECIMAL: Font.Size := fDefaultFontSize;
   end;
   TCEEditorHintWindow.FontSize := Font.Size;
-  UpdateCursor;
   fCanShowHint:=false;
   fDDocWin.Hide;
 end;

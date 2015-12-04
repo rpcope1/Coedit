@@ -871,7 +871,7 @@ var
   pos: TPoint;
   msg: string;
 begin
-  //TODO-cbugfix: AV the the 3rd time a same message is clicked (optin singleClick only),
+  //TODO-cbugfix: AV the the 3rd time a same message is clicked (when option singleClick is set),
   // click to open matching file, back to editor, click (nothing, item is null), then click again: AV
   if List.Selected = nil then
     exit;
