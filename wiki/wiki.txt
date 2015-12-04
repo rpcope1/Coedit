@@ -23,6 +23,7 @@
 [lnk_widg_procinp]:	https://github.com/BBasile/Coedit/wiki#process-input-widget
 [lnk_widg_miniexpl]:https://github.com/BBasile/Coedit/wiki#mini-explorer-widget
 [lnk_widg_opts]:	https://github.com/BBasile/Coedit/wiki#options-editor-widget
+[lnk_widg_dub]:		https://github.com/BBasile/Coedit/wiki#dub-project-editor
 
 [lnk_metad]:	https://github.com/BBasile/metad
 [lnk_cetodo]:	https://github.com/BBasile/Coedit/tree/master/cetodo
@@ -31,7 +32,7 @@
 Welcome to Coedit Wiki, the documentation source for the small Windows & Linux IDE for the D programming language.
 A summary of the content is accessible in the right side-bar.
 
-*Note that this document is based on Coedit 1 update 2 and it does not represent yet the changes made to the development version*
+*Note that this document is based on Coedit 2 alpha 2 and it does not represent yet the changes made to the development version*
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/coedit.win7.33.png) ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/coedit.linux.kde.33.png)
 
@@ -105,9 +106,9 @@ libc.so.6
 
 Download ans setup the tools:
 
-* [Download](http://lazarus.freepascal.org/index.php?page=downloads) and setup the latest Lazarus (1.4) version and  FPC / FPC sources (2.6.4) for your platform.
+* [Download](http://lazarus.freepascal.org/index.php?page=downloads) and setup the latest Lazarus (1.4.2) version and  FPC / FPC sources (2.6.4) for your platform.
 	* Windows: the three packages are bundled in an installer. Even on Windows 64 bit, the 32 version must be setup.
-	* Linux: the three packages must be downloaded and setup individually. Take care of the version number because the official rpm/deb source of a Linux distribution don't always propose the latest version !
+	* Linux: the three packages must be downloaded and setup individually. Take care to the version number because the official rpm/deb source of a Linux distribution does not always propose the latest version !
 
 * [Clone](https://github.com/BBasile/Coedit.git) Coedit git repository. There are two ways to do it (console or a git GUI).
 If you've never used Git at all, you can try [Source-Tree](http://www.sourcetreeapp.com/), a freeware Git/Mercurial GUI that is distributed with a Git copy.
@@ -116,13 +117,12 @@ When using a console:
 
 * `cd <user dir where to clone>`
 * `git clone https://github.com/BBasile/Coedit.git`
-* `git submodule init`
-* `git submodule update`
+* `git submodule update --init --recursive`
 
 You're now ready to build Coedit. This can be done in the IDE or using the _lazbuild_ utility.
 
 * _using the IDE_: 
-	* start Lazarus, 
+	* start Lazarus,
 	* in the **project** menu, click *open...* and select the file **Coedit.lpi**, which is located in the sub-folder **lazproj**.
 	* in the menu **Execute** click **Create**.
 
@@ -131,7 +131,7 @@ You're now ready to build Coedit. This can be done in the IDE or using the _lazb
 	* `cd` to the repository location, sub folder **lazproj**.
 	* type `lazbuild -B coedit.lpi` and <kbd>ENTER</kbd>. note that the path to _lazbuild_ may have to be specified.
 
-After what Coedit executable should be build and stand in the same folder as the _*.lpi_ file you've just compiled.
+After what Coedit executable should be build. The executable is output to the _bin_ folder.
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/builddone1.png)
 
@@ -195,14 +195,14 @@ General questions and discussions (Q, BLA) about the use are also allowed since 
 
 ## Project
 
-- **"New project"**: closes and creates a new project. Optionally a warning is displayed if the current project is not saved.
+- **"New project"**: closes and creates a new project (either with the native format or a DUB project). Optionally a warning is displayed if the current project is not saved.
 - **"Open project"**: opens a project from a dialog.
 - **"Open recent"**: displays the list of the most recently used projects.
 - **"Close project"**: closes the current project. Optionally a warning is displayed if the current project is not saved.
 - **"Save project"**: saves the current project.
 - **"Save project as"**: saves the current project from a dialog.
 - **"Project configuration"**: displays the project configuration widget.
-- **"View project source"**: opens the project file in a new editor. The project files use the Pascal format called _"lfm"_ (Lazarus form module). Initially created to serialize the properties of the visual components it is also used to store some configurations because it has an advantageous readable aspect. When saved from a source editor, a project file is directly reloaded. It means that a particular care must be taken during the edition. Coedit will skip any error in the project file, without warnings.
+- **"Edit project file"**: opens the project file in a new editor. The project files use the Pascal format called _"lfm"_ (Lazarus form module). Initially created to serialize the properties of the visual components it is also used to store some configurations because it has an advantageous readable aspect. When saved from a source editor, a project file is directly reloaded. It means that a particular care must be taken during the edition. Coedit will skip any error in the project file, without warnings.
 - **"View project command line"**: displays the list of the switches and their arguments, as passed to DMD before the compilation. Note that under Windows, the content can be copied using the <kbd>Ctrl</kbd>+<kbd>C</kbd> shortcut on the dialog.
 - **"View in mini explorer"**: expands the [mini-explorer][lnk_widg_miniexpl] tree on the folder containing the project file.
 - **"Compile project"**: compiles the project using the current configuration.
@@ -218,6 +218,16 @@ A runnable module has not to be explicitly saved because Coedit will handle the 
 For example it's possible to call the action _Compile and run file_ directly after the action _New runnable module_.
 
 This feature is useful to test quickly an idea or to use a module as a script without messing with all the parameters that a project would require.
+However, the first script line can be used to pass extra options. They'll be parsed and automatically submited to the compiler.
+
+For example this runnable:
+
+```D
+#!runnable-switch: -O -L-lcairo 
+void main(){}
+```
+
+will be optimized and will get _libcairo_ linked in. The scipt line must start with `#!runnable-switch:`, without any spaces.
 
 To be runnable, a module must verify the following requirements:
 - a **void main()** is present.
@@ -226,7 +236,7 @@ To be runnable, a module must verify the following requirements:
 - the module should be a simple console program. When executed, the process output is redirected to the [message widget][lnk_widg_msg] and the input can be passed using the [process input widget][lnk_widg_procinp].
 
 The action _Compile file and run outside_ can be used to execute in an external console.
-This must be used if the runnable outputs thousands of lines, for properly displaying UTF8 chars or if the runnable has a GUI.
+This must be used if the runnable outputs thousands of lines, to display properly UTF8 chars or if the runnable has a GUI, etc.
 
 The version identifier **runnable_module** is automatically defined when a runnable is compiled.
 It can be used to adjust the source according to the execution context, for example:
@@ -273,6 +283,13 @@ Here are some more or less complex examples which illustrates the project format
 - the tutorials written for the wiki.
 - the [metad][lnk_metad] meta repository.
 - the tools written for Coedit: [cesyms][lnk_cesyms] and [cetodo][lnk_cetodo].
+
+# DUB projects.
+
+Since the version 2 alpha 1, Coedit also handles DUB projects (JSON descriptions only).
+
+Dub projects are handled exactly as the native projects are. The _project_ menu proposes the same features.
+However the configuration is done in another widget, see the [dedicated paragraph][lnk_widg_dub].
 
 # D Completion Daemon integration
 
@@ -360,21 +377,26 @@ is expanded to:
 
 `http://www.google.com/search?q="dlang.org"indexOf&btnI=Im+Feeling+Lucky` if **indexOf** is the current identifier.
 
+# Docking
+
+Coedit interface is divided into a small dozen of dockable widgets. Except the code editor, each widget
+can be draged in another widget or to ones of its edges. To avoid any error, the layout can be locked when right clicking a header:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dock.lock.png)
+
+Layouts can be saved or reloaded from the main menu:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dock.save.png)
+
+Docking can be customized in the [option editor][lnk_widg_opts]:
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optdock.png)
+
+Note that this feature relies on a component which is in beta state and in case of errors, it might be necessary
+to delete the configuration file named _docking.xml_ from the [data folder (see link target)][lnk_widg_opts],
+after what Coedit will start with the default layout.
+
 # Widgets
-
-## Technical notes
-
-Coedit interface is divided into a small dozen of dockable widgets.
-Internally, widgets are connected between themselves as **entities**, proposing and using some **services** to/from each others.
-This allows Coedit to be very **safe** because the pointers to the the project or to the files are accurately defined in each
-widget with a set of **interface-based** observers/subjects.
-
-As a beneficial side-effect, Coedit can work without any file loaded or without any project opened.
-You might know some IDE that forces you to open a project, a file, or to create and save a project at the beginning of the run time:
-this is not the case with Coedit.
-
-On the mid term this design will also allow to get rid of the [**God object**](http://en.wikipedia.org/wiki/God_object) anti-pattern, 
-which often suffer GUI programs, when organized around a **main form**.
 
 ## Editor widget
 
@@ -475,11 +497,14 @@ Coedit handles the task automatically (see later in the project configuration wi
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_delete.png): remove the selected item.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_up.png) **/** ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_down.png): change selected entry position.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_link.png): if the current project _binaryKind_ is set to _staticlib_ then the _libman_ will use its parameters to create an entry. This avoids to browse in the dialogs, for example if you wish to setup several [_metad_][lnk_metad] items. Note that sometimes the sources root folder has to be adjusted.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_open.png): if the selected item defines a _project_ then closes current project and opens the one matching to the entry.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/dub_small.png): allows to fetch the master version of a DUB registry item. When the button is clicked, an input field allows to type the library name, after what, if the name is valid, the library will be downloaded, compiled and a new libman entry automatically set. This features is actually more useful for the native projects, since DUB projects handle the dependencies automatically. It allows to use every DUB library in a native project, even if it doesn't include a native project file.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_edit.png): edit the item alias.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_brick.png): select the library file. In some rare case, this field can be omitted. 
 This can be skipped if the library is only a small orphan _d_ source that's not been compiled as a static lib or if the entry is only used for the [DCD][lnk_dcd] completion.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/bricks.png): select a folder that contains several libraries files or several orphans modules.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_add.png): select the sources root folder. (the one commonly named 'import').
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/script_bricks.png): set the project file that matches the selected item.
 
 If they're not automatically detected, it's recommended to add the _runtime library_ and _phobos_.
 A bunch of third party libraries are provided by the [_metad_][lnk_metad] repository. 
@@ -667,6 +692,29 @@ Unfiltered options, sub categories can be expanded or collapsed. The field ***na
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.all1.png)
 
+## DUB project editor
+
+The DUB project editor is widget is devided in two panels:
+
+### Inspector
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dub_inspect.png)
+
+The first panel displays the sources list and the combination of _each build type_ with each _build configuration_. Sources can be opened in a new editor by double cliking. To select a configuration defines which type and which configuration will be build by DUB when clicking _compile_ in the _project_ menu.
+
+### Editor
+
+The second panel displays the list of the project properties. The can be modified in the field at the bottom.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dub_edit1.png)
+
+New properties can be added or removed:
+
+* ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/textfield_delete.png): removes the selected property. Note that the effect is not reflected until the project is saved as a file (since Coedit does not communicate directly with DUB).
+* ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/textfield_add.png): show a small dialog that allows to add a new value, a new array or new object. This requires to master the DUB format. In the dialog, the value of the text field is only used when an object or a value is added. It matches to the _key_, not the value itself.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dub_edit2.png)
+
 ## Message widget
 
 The message widget displays a stream of information about the current file or about the current project.
@@ -724,6 +772,7 @@ A tool can be selected from the left side of the widget. If selected, a property
 - chainBefore: allow to define a list of tool to execute before the item. A list item has to match one of the *toolAlias* already defined. By default a tool is executed asynchronously. If it's desirable that a tool must finish before the next starts then **poWaitOnExit** must be set in the options.
 - chainAfter. Idem but the tools defined in the list are executed after the item. 
 - clearMessages: if the tool standard output is redirected to the [messages widget][lnk_widg_msg] then the previous messages are cleared before the execution.
+- editorToInput: when set, the content of the current editor is streamed to the tool standard input.
 - executable: the tool file name. If the system cannot find its path in the environment variables then it must be included. The field can include a [symbolic string][lnk_sym].
 - options: various options for the process to create. If you set **popUsePipes** and **poStdErrToOutput** to true, then the standard output will be redirected to the message widget, category Misc.
 - parameters: allows to define the parameters, switches and options passed to the process. As usual, one item per line, no quotes. The items can include a [symbolic string][lnk_sym].
@@ -781,15 +830,17 @@ The mini explorer provides basic file browsing within the IDE.
 
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_add.png): adds the selected folder to the favorites.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_delete.png): removes the selected favorite folder.
-- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/flash.png): lets the shell open or execute the selected file.
--  ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/pencil.png): opens the selected file in a _"Coedit-or"_.
-- ***input field***: filter the current folder entries.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/flash.png): lets the shell open the selected folder or execute the selected file.
+-  ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/pencil.png): if the selected file is a native or a DUB project then opens it as a project otherwise opens it in a new code editor.
+- ***input field***: filter the files whose name contains the text typed.
 
 The favorite folders are persistent.
 
 ## Options editor widget
 
-![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optdock.png)
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optmain.png)
+
+### Description
 
 The _Option editor_ is a special, non-dockable, widget that allows the other widgets to expose their options.
 The list at the left displays the categories. A category often matches to a single widget but not only (for example the shortcuts).
@@ -802,10 +853,7 @@ The options are persistent and saved in a distinct folder:
 - Linux: **`/home/<your account>/.config/Coedit/`** (hidden by default).
 - Windows: **`?:\Users\<your account>\AppData\Roaming\Coedit\`**.
 
-Some of the options are not editable in the widget but as they are saved in a readable format they can be edited in a text editor.
-Each widget or each software component saves its own file with a self-explanatory name so it's easy to find the file matching a particular settings.
-
-for example, in the file _mostrecents.txt_ it's possible to tweak the maximum count of files or projects standing in the MRU menus.
+Each widget or each software component saves its own file with a self-explanatory name so it's easy to find and modify the file that matches a particular setting.
 
 # Detailed and illustrated tutorials
 
