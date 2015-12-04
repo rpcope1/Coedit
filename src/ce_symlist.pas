@@ -115,6 +115,7 @@ type
     procedure TreeKeyPress(Sender: TObject; var Key: char);
   private
     fHasToolExe: boolean;
+    fToolExeName: string;
     fOptions: TCESymbolListOptions;
     fSyms: TSymbolList;
     fMsgs: ICEMessagesDisplay;
@@ -648,7 +649,8 @@ end;
 
 procedure TCESymbolListWidget.checkIfHasToolExe;
 begin
-  fHasToolExe := exeInSysPath(toolExeName);
+  fToolExeName := exeFullName(toolExeName);
+  fHasToolExe := FileExists(fToolExeName);
 end;
 
 procedure TCESymbolListWidget.callToolProc;
@@ -664,7 +666,7 @@ begin
   fToolProc := TCEProcess.Create(nil);
   fToolProc.ShowWindow := swoHIDE;
   fToolProc.Options := [poUsePipes];
-  fToolProc.Executable := toolExeName;
+  fToolProc.Executable := fToolExeName;
   fToolProc.OnTerminate := @toolTerminated;
   fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);
   fToolProc.Execute;

@@ -653,7 +653,7 @@ begin
   process := TProcess.Create(nil);
   try
     processInfo.setProcess(process);
-    process.Executable := pname;
+    process.Executable := exeFullName(pname);
     j := process.Parameters.Count-1;
     for i:= 0 to j do
       process.Parameters.AddText(symbolExpander.get(process.Parameters.Strings[i]));

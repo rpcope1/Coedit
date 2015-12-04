@@ -773,7 +773,7 @@ begin
     exit;
   //
   fDemangler := TCEProcess.Create(nil);
-  fDemangler.Executable := toolname;
+  fDemangler.Executable := exeFullName(toolname);
   fDemangler.OnTerminate:= @demanglerOutput;
   fDemangler.Options:= [poUsePipes];
   fDemangler.ShowWindow:= swoHIDE;

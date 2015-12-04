@@ -727,7 +727,12 @@ begin
   ext := extractFileExt(anExeName);
   if ext = '' then
     anExeName += exeExt;
+  //full path already specified
+  if FileExists(anExeName) and (not FileExists(ExtractFileName(anExeName))) then
+    exit(anExeName);
+  //
   env := sysutils.GetEnvironmentVariable('PATH');
+  // maybe in current dir
   if FileExists(anExeName) then
     env += PathSeparator + GetCurrentDir;
   {$IFNDEF CEBUILD}

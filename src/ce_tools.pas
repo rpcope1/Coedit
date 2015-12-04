@@ -174,7 +174,7 @@ begin
   fProcess.OnReadData:= @processOutput;
   fProcess.OnTerminate:= @processOutput;
   fProcess.Options := fOpts;
-  fProcess.Executable := symbolExpander.get(fExecutable);
+  fProcess.Executable := exeFullName(symbolExpander.get(fExecutable));
   fProcess.ShowWindow := fShowWin;
   fProcess.CurrentDirectory := symbolExpander.get(fWorkingDir);
   if fQueryParams then
@@ -186,7 +186,9 @@ begin
   for prm in fParameters do if not isStringDisabled(prm) then
     fProcess.Parameters.AddText(symbolExpander.get(prm));
   ensureNoPipeIfWait(fProcess);
-  fProcess.Execute;
+  //
+  if FileExists(fProcess.Executable) then
+    fProcess.Execute;
 end;
 
 procedure TCEToolItem.processOutput(sender: TObject);
@@ -360,24 +362,21 @@ var
   chained: TCollectionItem;
 begin
   if aTool = nil then exit;
-  if not exeInSysPath(aTool.executable) then
-    if (aTool.chainAfter.Count = 0) and (aTool.chainBefore.Count = 0) then
-      exit;
+  //
   for nme in aTool.chainBefore do
     for chained in fTools do
       if TCEToolItem(chained).toolAlias = nme then
         if TCEToolItem(chained).toolAlias <> aTool.toolAlias then
           TCEToolItem(chained).execute;
-  if exeInSysPath(aTool.executable) then
+  //
+  aTool.execute;
+  if aTool.editorToInput and assigned(fDoc) and (poUsePipes in aTool.options) then
   begin
-    aTool.execute;
-    if aTool.editorToInput and assigned(fDoc) and (poUsePipes in aTool.options) then
-    begin
-      txt := fDoc.Text;
-      aTool.fProcess.Input.Write(txt[1], length(txt));
-      aTool.fProcess.CloseInput;
-    end;
+    txt := fDoc.Text;
+    aTool.fProcess.Input.Write(txt[1], length(txt));
+    aTool.fProcess.CloseInput;
   end;
+  //
   for nme in aTool.chainAfter do
     for chained in fTools do
       if TCEToolItem(chained).toolAlias = nme then
