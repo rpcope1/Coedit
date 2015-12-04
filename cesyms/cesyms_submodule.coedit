@@ -1,20 +1,14 @@
-object CurrentProject: TCEProject
+object CurrentProject: TCENativeProject
   OptionsCollection = <  
     item
       name = 'release'
       outputOptions.inlining = True
       outputOptions.boundsCheck = offAlways
       outputOptions.release = True
-      pathsOptions.outputFilename = '..\lazproj\cesyms'
+      pathsOptions.outputFilename = '../bin/cesyms'
       pathsOptions.extraSources.Strings = (
-        '..\libdparse\src\*'
+        '../libdparse/src/*'
       )
-      preBuildProcess.options = []
-      preBuildProcess.showWindow = swoNone
-      postBuildProcess.options = []
-      postBuildProcess.showWindow = swoNone
-      runOptions.options = []
-      runOptions.showWindow = swoNone
     end>
   Sources.Strings = (
     'cesyms.d'

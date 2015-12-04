@@ -6,7 +6,7 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = '../lazproj/cesyms'
+      pathsOptions.outputFilename = '../bin/cesyms'
     end>
   Sources.Strings = (
     'cesyms.d'
