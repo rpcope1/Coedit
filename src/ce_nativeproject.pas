@@ -659,10 +659,9 @@ begin
       process.Parameters.AddText(symbolExpander.get(process.Parameters.Strings[i]));
     for i:= 0 to j do
       process.Parameters.Delete(0);
-    if process.CurrentDirectory = '' then
-      process.CurrentDirectory := extractFilePath(process.Executable)
-    else
+    if process.CurrentDirectory <> '' then
       process.CurrentDirectory := symbolExpander.get(process.CurrentDirectory);
+    // else cwd is set to project dir in compile()
     ensureNoPipeIfWait(process);
     process.Execute;
     while process.Running do
@@ -695,16 +694,21 @@ begin
   msgs.clearByData(self as ICECommonProject);
   subjProjCompiling(fProjectSubject, Self);
   //
+  prjpath := extractFilePath(fFileName);
+  oldCwd := GetCurrentDir;
+  SetCurrentDir(prjpath);
+  //
   if not runPrePostProcess(config.preBuildProcess) then
     msgs.message('project warning: the pre-compilation process has not been properly executed',
       self as ICECommonProject, amcProj, amkWarn);
+  SetCurrentDir(prjpath);
   //
   if (Sources.Count = 0) and (config.pathsOptions.extraSources.Count = 0) then
+  begin
+    SetCurrentDir(oldCwd);
     exit;
+  end;
   //
-  prjpath := extractFilePath(fFileName);
-  oldCwd := GetCurrentDir;
-  ChDir(prjpath);
   prjname := shortenPath(filename, 25);
   compilproc := TProcess.Create(nil);
   try
@@ -724,16 +728,16 @@ begin
       result := true;
     end else
       msgs.message(prjname + ' has not been compiled', self as ICECommonProject, amcProj, amkWarn);
-
-    if not runPrePostProcess(config.PostBuildProcess) then
-      msgs.message( 'project warning: the post-compilation process has not been properly executed',
-        self as ICECommonProject, amcProj, amkWarn);
-
   finally
     updateOutFilename;
     compilproc.Free;
-    ChDir(oldCwd);
   end;
+  SetCurrentDir(prjpath);
+  //
+  if not runPrePostProcess(config.PostBuildProcess) then
+    msgs.message( 'project warning: the post-compilation process has not been properly executed',
+      self as ICECommonProject, amcProj, amkWarn);
+  SetCurrentDir(oldCwd);
 end;
 
 function TCENativeProject.run(const runArgs: string = ''): Boolean;
