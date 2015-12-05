@@ -1,12 +1,7 @@
 module cesetup;
 
-import std.stdio;
-import std.file: mkdirRecurse, exists, remove, rmdir, getSize, FileException;
-import std.stream: File, FileMode;
-import std.process: environment, executeShell;
-import std.path: dirSeparator;
-import std.string: strip, toLower, center, leftJustify, rightJustify;
-import std.getopt;
+import
+    std.stdio, std.file, std.process, std.path, std.string, std.getopt;
 
 version(X86)    version(linux)  version = nux32;
 version(X86_64) version(linux)  version = nux64;
@@ -18,28 +13,35 @@ else enum exeExt = "";
 alias ImpType = immutable ubyte[];
 alias ResType = immutable Resource;
 
+enum Kind
+{
+    exe,
+    dat,
+    doc,
+}
+
 struct Resource
 {
     ImpType data;
     immutable string destName;
-    immutable bool isExe;
+    immutable Kind kind;
 }
 
 Resource[] ceResources =
 [
-    Resource(cast(ImpType) import("coedit" ~ exeExt), "coedit" ~ exeExt, true),
-    Resource(cast(ImpType) import("cesyms" ~ exeExt), "cesyms" ~ exeExt, true),
-    Resource(cast(ImpType) import("cetodo" ~ exeExt), "cetodo" ~ exeExt, true),
-    Resource(cast(ImpType) import("coedit.ico"), "coedit.ico", false),
-    Resource(cast(ImpType) import("coedit.png"), "coedit.png", false),
-    Resource(cast(ImpType) import("coedit.license.txt"), "coedit.license.txt", false)
+    Resource(cast(ImpType) import("coedit" ~ exeExt), "coedit" ~ exeExt, Kind.exe),
+    Resource(cast(ImpType) import("cesyms" ~ exeExt), "cesyms" ~ exeExt, Kind.exe),
+    Resource(cast(ImpType) import("cetodo" ~ exeExt), "cetodo" ~ exeExt, Kind.exe),
+    Resource(cast(ImpType) import("coedit.ico"), "coedit.ico", Kind.dat),
+    Resource(cast(ImpType) import("coedit.png"), "coedit.png", Kind.dat),
+    Resource(cast(ImpType) import("coedit.license.txt"), "coedit.license.txt", Kind.doc)
 ];
 
 Resource[] dcdResources =
 [
-    Resource(cast(ImpType) import("dcd-server" ~ exeExt), "dcd-server" ~ exeExt, true),
-    Resource(cast(ImpType) import("dcd-client" ~ exeExt), "dcd-client" ~ exeExt, true),
-    Resource(cast(ImpType) import("dcd.license.txt"), "dcd.license.txt", false)
+    Resource(cast(ImpType) import("dcd-server" ~ exeExt), "dcd-server" ~ exeExt, Kind.exe),
+    Resource(cast(ImpType) import("dcd-client" ~ exeExt), "dcd-client" ~ exeExt, Kind.exe),
+    Resource(cast(ImpType) import("dcd.license.txt"), "dcd.license.txt", Kind.doc)
 ];
 
 
@@ -77,17 +79,15 @@ static struct Formater
     static void emptyLine(){justify!'L'("");}
 }
 
-
-static immutable string exePath, appDataPath, shortCutPath;
+static immutable string exePath, datPath, shortCutPath;
 version(linux) immutable bool asSu;
-
 
 static this()
 {
     version(win32)
     { 
         exePath = environment.get("PROGRAMFILES") ~ r"\Coedit\";
-        appDataPath = environment.get("APPDATA") ~ r"\Coedit\";
+        datPath = environment.get("APPDATA") ~ r"\Coedit\";
         shortCutPath = environment.get("USERPROFILE") ~ r"\Desktop\";
     }
     else
@@ -96,13 +96,13 @@ static this()
         if (asSu)
         {
             exePath = "/usr/bin";
-            appDataPath = "/home/" ~ environment.get("SUDO_USER") ~ "/.config/Coedit/";
+            datPath = "/home/" ~ environment.get("SUDO_USER") ~ "/.config/Coedit/";
             shortCutPath = "/usr/share/applications/";
         }
         else
         {
             exePath = "/home/" ~ environment.get("USER") ~ "/bin/";
-            appDataPath = "/home/" ~ environment.get("USER") ~ "/.config/Coedit/";
+            datPath = "/home/" ~ environment.get("USER") ~ "/.config/Coedit/";
             shortCutPath = "/home/" ~ environment.get("USER") ~ "/.local/share/applications/";
         }
     }
@@ -122,7 +122,6 @@ void main(string[] args)
     
     Formater.separate;
 
-
     if (listfiles)
     {
         static immutable fmtRes = "%s installed: %s";
@@ -134,12 +133,12 @@ void main(string[] args)
 
         foreach(res; ceResources)
         {
-            fname = res.isExe ? exePath ~ res.destName : appDataPath ~ res.destName;
+            fname = targetFilename(res);
             writefln(fmtRes, fname, exists(fname));
         }
         foreach(res; dcdResources)
         {
-            fname = res.isExe ? exePath ~ res.destName : appDataPath ~ res.destName;
+            fname = targetFilename(res);
             writefln(fmtRes, fname, exists(fname));
         }
 
@@ -154,8 +153,8 @@ void main(string[] args)
     version(win32) Formater.justify!'L'("the setup program must be run as admin");
     else 
     {   
-        if(!asSu) Formater.justify!'L'("Coedit can also be setup globally (sudo)");
-        else Formater.justify!'L'("Coedit will be accessible from all the accounts");
+        if(!asSu) Formater.justify!'L'("Coedit will be accessible to the current user");
+        else Formater.justify!'L'("Coedit will be accessible to all the users");
     }
     
     Formater.separate;
@@ -183,69 +182,60 @@ void main(string[] args)
         static immutable extractMsg = [": FAILURE", ": extracted"];
         foreach(res; ceResources)
         {
-            if (res.isExe)
-                done = installResource(res, exePath);
-            else
-                done = installResource(res, appDataPath);
+            done = installResource(res);
             Formater.justify!'L'(res.destName ~ extractMsg[done]);
             failures += !done;
         }
         if (!nodcd) foreach(res; dcdResources)
         {
-            if (res.isExe)
-                done = installResource(res, exePath);
-            else
-                done = installResource(res, appDataPath);
+            done = installResource(res);
             Formater.justify!'L'(res.destName ~ extractMsg[done]);
             failures += !done;
         }
-        
         Formater.separate;
         if (failures)
             Formater.justify!'L'("there are ERRORS, plz contact the support");
         else
         {
-            version(win32) win32PostInstall();
-            else nuxPostInstall();
+            postInstall();
             Formater.justify!'L'("the files are correctly extracted...");
         }
     }
     else
     {
-        if (!asSu && exists("/usr/bin/coedit"))
+        // check that uninstall is executed as install (sudo or not)
+        version(linux)
         {
-            Formater.separate;
-            Formater.justify!'L'("warning, CE seems to be installed with sudo");
-            Formater.justify!'L'("but the uninstaller is not launched with sudo.");
-            Formater.separate;
+            if (!asSu && exists("/usr/bin/coedit"))
+            {
+                Formater.separate;
+                Formater.justify!'L'("warning, CE seems to be installed with sudo");
+                Formater.justify!'L'("but the uninstaller is not launched with sudo.");
+                Formater.separate;
+            }
+            else if (asSu && exists("/home/" ~ environment.get("USER") ~ "/bin/coedit"))
+            {
+                Formater.separate;
+                Formater.justify!'L'("warning, CE seems not to be installed with sudo");
+                Formater.justify!'L'("...but the uninstaller is launched with sudo.");
+                Formater.separate;
+            }
         }
-        else if (asSu && exists("/home/" ~ environment.get("USER") ~ "/bin/coedit"))
-        {
-            Formater.separate;
-            Formater.justify!'L'("warning, CE seems not to be installed with sudo");
-            Formater.justify!'L'("...but the uninstaller is launched with sudo.");
-            Formater.separate;
-        }
+        // uninstall
         static immutable rmMsg = [": FAILURE", ": deleted"];
         foreach(res; ceResources)
         {
-            if (res.isExe)
-                done = uninstallResource(res, exePath);
-            else
-                done = uninstallResource(res, appDataPath);
+            done = uninstallResource(res);
             Formater.justify!'L'(res.destName ~ rmMsg[done]);
             failures += !done;
         }
         if (!nodcd) foreach(res; dcdResources)
         {
-            if (res.isExe)
-                done = uninstallResource(res, exePath);
-            else
-                done = uninstallResource(res, appDataPath);
+            done = uninstallResource(res);
             Formater.justify!'L'(res.destName ~ rmMsg[done]);
             failures += !done;
         }
-        
+        // remove $PF folder
         version(win32) 
         {
             try rmdir(exePath);
@@ -257,8 +247,7 @@ void main(string[] args)
             Formater.justify!'L'("there are ERRORS, plz contact the support");
         else
         {
-            version(win32) win32PostUninstall();
-            else nuxPostUninstall();
+            postUninstall();
             Formater.justify!'L'("the files are correctly removed...");
         }
     }
@@ -268,13 +257,22 @@ void main(string[] args)
     readln;
 }
 
-string extractedName(Resource resource, string path)
+/// Returns the resource target filename, according to its Kind
+string targetFilename(Resource resource)
 {
-    return path ~ dirSeparator ~ resource.destName;    
+    with(Kind) final switch(resource.kind)
+    {
+        case Kind.exe: return exePath ~ resource.destName;
+        case Kind.dat: return datPath ~ resource.destName;
+        case Kind.doc: return datPath ~ resource.destName;
+    }
 }
 
-bool installResource(Resource resource, string path)
+/// Extracts and write a resource to a file.
+bool installResource(Resource resource)
 {
+    const string fname = resource.targetFilename;
+    const string path = fname.dirName;
     if (!path.exists)
         mkdirRecurse(path);
     if (!path.exists)
@@ -282,13 +280,11 @@ bool installResource(Resource resource, string path)
     
     try 
     {
-        const string fname = extractedName(resource, path);
-        File f = new File(fname, FileMode.OutNew);
-        f.write(resource.data);
+        File f = File(resource.targetFilename, "w");
+        f.rawWrite(resource.data);
         f.close;
         
-        version(win32) {} 
-        else if (resource.isExe && fname.exists)
+        version(linux) if (resource.kind == Kind.exe && fname.exists)
             executeShell("chmod a+x " ~ fname);
     } 
     catch (Exception e) 
@@ -297,13 +293,15 @@ bool installResource(Resource resource, string path)
     return true;
 }
 
-bool uninstallResource(Resource resource, string path)
-{ 
-    const string fname = extractedName(resource, path);
+/// Deletes the file creates for a resource
+bool uninstallResource(Resource resource)
+{
+    const string fname = resource.targetFilename;
     if (!fname.exists) return true;
     else return tryRemove(fname);  
 }
 
+/// returns true if fname is deleted
 bool tryRemove(string fname)
 {
     bool result = true;
@@ -312,56 +310,64 @@ bool tryRemove(string fname)
     return result;  
 }
 
-version(linux) void nuxPostInstall()
+/// adds menu entry, shortcut, etc
+void postInstall()
 {
-    mkdirRecurse(shortCutPath);
-    File f = new File(shortCutPath ~ "coedit.desktop", FileMode.OutNew);
-    f.writeLine("[Desktop Entry]");
-    f.writeLine("Name=coedit");
-    f.writeLine("Exec=coedit %f");
-    f.writeLine("Icon=" ~ appDataPath ~ "/coedit.png");
-    f.writeLine("Type=Application");
-    f.writeLine("Categories=Utility;Application;Development;");
-    f.writeLine("Terminal=false"); 
-    f.close;    
+    version(Win32)
+    {
+        import std.conv: to;
+        import std.random: uniform;
+
+        // shortcut prior to v 1 upd 2 was actually an url.
+        tryRemove(shortCutPath ~ "Coedit.url");
+
+        string target = exePath ~ "coedit.exe";
+        string vbsName;
+        do vbsName = environment.get("TEMP") ~ r"\cesh" ~ uniform(0,int.max).to!string ~ ".vbs";
+        while (vbsName.exists);
+
+        string vbsCode = "
+            set WshShell = CreateObject(\"WScript.shell\")
+            strDesktop = WshShell.SpecialFolders(\"Desktop\")
+            set lnk = WshShell.CreateShortcut(strDesktop + \"\\Coedit.lnk\")
+            lnk.TargetPath = \"%s\"
+            lnk.Save
+        ";
+        File vbs = File(vbsName, "w");
+        vbs.writefln(vbsCode, target);
+        vbs.close;
+        executeShell(vbsName);
+
+        tryRemove(vbsName);
+    }
+    else version(linux)
+    {
+        mkdirRecurse(shortCutPath);
+        File f = File(shortCutPath ~ "coedit.desktop", "w");
+        f.writeln("[Desktop Entry]");
+        f.writeln("Name=coedit");
+        f.writeln("Exec=coedit %f");
+        f.writeln("Icon=" ~ datPath ~ "coedit.png");
+        f.writeln("Type=Application");
+        f.writeln("Categories=Application;IDE;Development;");
+        f.writeln("Keywords=editor;Dlang;IDE;dmd;");
+        f.writeln("Terminal=false");
+        f.close;
+    }
 }
 
-version(linux) void nuxPostUninstall()
+/// removes menu entry shortcuts, etc
+void postUninstall()
 {
-    tryRemove(shortCutPath ~ "coedit.desktop");
+    version(Win32)
+    {
+        // shortcut prior to v 1 upd 2 was actually an url.
+        tryRemove(shortCutPath ~ "Coedit.url");
+        tryRemove(shortCutPath ~ "Coedit.lnk");
+    }
+    else version(linux)
+    {
+        tryRemove(shortCutPath ~ "coedit.desktop");
+    }
 }
 
-version (win32) void win32PostInstall()
-{
-    import std.conv: to;
-    import std.random: uniform;
-    
-    // shortcut prior to v 1 upd 2 was actually an url.
-    tryRemove(shortCutPath ~ "Coedit.url");
-    
-    string target = exePath ~ "coedit.exe";
-    string vbsName;
-    do vbsName = environment.get("TEMP") ~ r"\cesh" ~ uniform(0,int.max).to!string ~ ".vbs";
-    while (vbsName.exists);
-    
-    string vbsCode = "
-        set WshShell = CreateObject(\"WScript.shell\")
-        strDesktop = WshShell.SpecialFolders(\"Desktop\")
-        set lnk = WshShell.CreateShortcut(strDesktop + \"\\Coedit.lnk\")
-        lnk.TargetPath = \"%s\" 
-        lnk.Save
-    ";
-    File vbs = new File(vbsName, FileMode.OutNew);
-    vbs.writefln(vbsCode, target);
-    vbs.close;
-    executeShell(vbsName);
-    
-    tryRemove(vbsName); 
-}
-
-version (win32) void win32PostUninstall()
-{
-    // shortcut prior to v 1 upd 2 was actually an url.
-    tryRemove(shortCutPath ~ "Coedit.url"); 
-    tryRemove(shortCutPath ~ "Coedit.lnk");
-}
