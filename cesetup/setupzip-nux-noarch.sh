@@ -1,4 +1,5 @@
 cd output
 zip -9 -j $1.zip $1
-rm -f $1
-rm -f $1.o
+wait
+ofile=`basename $1 .setup`
+rm -f $ofile.o

@@ -7,9 +7,9 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output\coedit.2alpha1.win32.setup.exe'
+      pathsOptions.outputFilename = 'output/coedit.2alpha2.win32.setup'
       pathsOptions.importStringPaths.Strings = (
-        'win32\'
+        'win32/'
       )
       preBuildProcess.executable = 'cmd'
       preBuildProcess.workingDirectory = '<CPP>'
@@ -29,16 +29,17 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output\coedit.2alpha1.linux32.setup'
+      pathsOptions.outputFilename = 'output/coedit.2alpha2.linux32.setup'
       pathsOptions.importStringPaths.Strings = (
-        'nux32\'
+        'nux32/'
       )
       preBuildProcess.executable = 'sh'
-      preBuildProcess.workingDirectory = '<CPP>'
+      preBuildProcess.options = [poUsePipes, poStderrToOutPut]
       preBuildProcess.parameters.Strings = (
         'zip-nux32.sh'
       )
       postBuildProcess.executable = 'sh'
+      postBuildProcess.options = [poUsePipes, poStderrToOutPut]
       postBuildProcess.parameters.Strings = (
         'setupzip-nux-noarch.sh'
         '<CPO>'
@@ -50,16 +51,17 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output\coedit.2alpha1.linux64.setup'
+      pathsOptions.outputFilename = 'output/coedit.2alpha2.linux64.setup'
       pathsOptions.importStringPaths.Strings = (
-        'nux64\'
+        'nux64/'
       )
       preBuildProcess.executable = 'sh'
-      preBuildProcess.workingDirectory = '<CPP>'
+      preBuildProcess.options = [poUsePipes, poStderrToOutPut]
       preBuildProcess.parameters.Strings = (
         'zip-nux64.sh'
       )
       postBuildProcess.executable = 'sh'
+      postBuildProcess.options = [poUsePipes, poStderrToOutPut]
       postBuildProcess.parameters.Strings = (
         'setupzip-nux-noarch.sh'
         '<CPO>'
@@ -72,13 +74,13 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output\coedit.2alpha1.win32.setup.exe'
+      pathsOptions.outputFilename = 'output/coedit.2alpha2.win32.setup'
       pathsOptions.importStringPaths.Strings = (
-        'win32\'
+        'win32/'
       )
     end>
   Sources.Strings = (
     'cesetup.d'
   )
-  ConfigurationIndex = 0
+  ConfigurationIndex = 2
 end

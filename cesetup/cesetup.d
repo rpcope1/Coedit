@@ -25,18 +25,22 @@ struct Resource
     immutable bool isExe;
 }
 
-ResType coedit = Resource(cast(ImpType) import("coedit" ~ exeExt), "coedit" ~ exeExt, true);
-ResType cesyms = Resource(cast(ImpType) import("cesyms" ~ exeExt), "cesyms" ~ exeExt, true);
-ResType cetodo = Resource(cast(ImpType) import("cetodo" ~ exeExt), "cetodo" ~ exeExt, true);
+Resource[] ceResources =
+[
+    Resource(cast(ImpType) import("coedit" ~ exeExt), "coedit" ~ exeExt, true),
+    Resource(cast(ImpType) import("cesyms" ~ exeExt), "cesyms" ~ exeExt, true),
+    Resource(cast(ImpType) import("cetodo" ~ exeExt), "cetodo" ~ exeExt, true),
+    Resource(cast(ImpType) import("coedit.ico"), "coedit.ico", false),
+    Resource(cast(ImpType) import("coedit.png"), "coedit.png", false),
+    Resource(cast(ImpType) import("coedit.license.txt"), "coedit.license.txt", false)
+];
 
-ResType dcd_server = Resource(cast(ImpType) import("dcd-server" ~ exeExt), "dcd-server" ~ exeExt, true);
-ResType dcd_client = Resource(cast(ImpType) import("dcd-client" ~ exeExt), "dcd-client" ~ exeExt, true);
-
-ResType icon   = Resource(cast(ImpType) import("coedit.ico"), "coedit.ico", false);
-ResType png    = Resource(cast(ImpType) import("coedit.png"), "coedit.png", false);
-
-ResType celic   = Resource(cast(ImpType) import("coedit.license.txt"), "coedit.license.txt", false);
-ResType dcdlic  = Resource(cast(ImpType) import("dcd.license.txt"), "dcd.license.txt", false);
+Resource[] dcdResources =
+[
+    Resource(cast(ImpType) import("dcd-server" ~ exeExt), "dcd-server" ~ exeExt, true),
+    Resource(cast(ImpType) import("dcd-client" ~ exeExt), "dcd-client" ~ exeExt, true),
+    Resource(cast(ImpType) import("dcd.license.txt"), "dcd.license.txt", false)
+];
 
 
 static struct Formater
@@ -52,9 +56,13 @@ static struct Formater
         separator[$-1] = '+';
     }
     
-    static void justify(char A, string s)()
+    static void justify(char A)(string s)
+    in
     {
-        static assert (s.length <= width, "too long to fit on a line...");
+        assert (s.length <= width, "too long to fit on a line...");
+    }
+    body
+    {
         static if (A == 'L') 
             writeln("| ",  leftJustify(s, width, ' '), " |");
         else static if (A == 'C') 
@@ -66,12 +74,13 @@ static struct Formater
     
     static void separate(){separator.writeln;}
     
-    static void emptyLine(){justify!('L', "");}
+    static void emptyLine(){justify!'L'("");}
 }
 
 
 static immutable string exePath, appDataPath, shortCutPath;
-version(win32){} else immutable bool asSu;
+version(linux) immutable bool asSu;
+
 
 static this()
 {
@@ -103,123 +112,160 @@ void main(string[] args)
 {
     bool nodcd;
     bool uninstall;
+    bool listfiles;
 
     getopt(args, config.passThrough, 
         "nodcd", &nodcd, 
-        "u|uninstall", &uninstall
+        "u|uninstall", &uninstall,
+        "l|list", &listfiles
     );
     
     Formater.separate;
-    if (!uninstall) Formater.justify!('C', "Coedit 2 alpha 1 - setup");
-    else Formater.justify!('C', "Coedit uninstaller");
+
+
+    if (listfiles)
+    {
+        static immutable fmtRes = "%s installed: %s";
+        string fname;
+
+        Formater.separate;
+        Formater.justify!'C'("files list and status");
+        Formater.separate;
+
+        foreach(res; ceResources)
+        {
+            fname = res.isExe ? exePath ~ res.destName : appDataPath ~ res.destName;
+            writefln(fmtRes, fname, exists(fname));
+        }
+        foreach(res; dcdResources)
+        {
+            fname = res.isExe ? exePath ~ res.destName : appDataPath ~ res.destName;
+            writefln(fmtRes, fname, exists(fname));
+        }
+
+        Formater.separate;
+        return;
+    }
+
+    if (!uninstall) Formater.justify!'C'("Coedit 2 alpha 2 - setup");
+    else Formater.justify!'C'("Coedit uninstaller");
     
     Formater.separate;
-    version(win32) Formater.justify!('L', "the setup program must be run as admin");
+    version(win32) Formater.justify!'L'("the setup program must be run as admin");
     else 
     {   
-        if(!asSu) Formater.justify!('L', "Coedit can also be setup globally (sudo)");
-        else Formater.justify!('L', "Coedit will be accessible from all the accounts");
+        if(!asSu) Formater.justify!'L'("Coedit can also be setup globally (sudo)");
+        else Formater.justify!'L'("Coedit will be accessible from all the accounts");
     }
     
     Formater.separate;
-    Formater.justify!('L', "options:");
+    Formater.justify!'L'("options:");
     Formater.emptyLine;
+    Formater.justify!'L'("-l | --list: list files and status");
     if (!uninstall) 
     {
-        if (!nodcd) Formater.justify!('L', "--nodcd: skip DCD setup");
-        Formater.justify!('L', "-u: uninstall");
+        if (!nodcd) Formater.justify!'L'("--nodcd: skip DCD setup");
+        Formater.justify!'L'("-u | --uninstall: uninstall");
     }
-    else if (!nodcd) Formater.justify!('L', "--nodcd: do not remove DCD");
-    Formater.justify!('L', "press A to abort or another key to start...");
+    else if (!nodcd) Formater.justify!'L'("--nodcd: do not remove DCD");
+    Formater.justify!'L'("press A to abort or another key to start...");
     Formater.separate;   
     
     const string inp = readln.strip;
     if (inp.toLower == "a") return;
     
-    Formater.separate;    
-    size_t failures; 
+    Formater.separate;
+
+    size_t failures;
+    bool done;
     if(!uninstall)
     {
-        if (installResource(coedit, exePath))
-            Formater.justify!('L', "Coedit main application extracted");
-        else failures++;
-        if (installResource(cesyms, exePath))
-            Formater.justify!('L', "Coedit symbol list builder extracted");
-        else failures++;        
-        if (installResource(cetodo, exePath))
-            Formater.justify!('L', "Coedit todo comment parser extracted");
-        else failures++;
-        if (installResource(celic, appDataPath))
-            Formater.justify!('L', "Coedit license file extracted");
-        else failures++;   
-        if (installResource(icon, appDataPath))
-            Formater.justify!('L', "Coedit icon file extracted");
-        else failures++;  
-        if (installResource(png, appDataPath))
-            Formater.justify!('L', "Coedit big png logo extracted");
-        else failures++;                       
-        
-        if (!nodcd)
+        static immutable extractMsg = [": FAILURE", ": extracted"];
+        foreach(res; ceResources)
         {
-            if (installResource(dcd_server, exePath))
-                Formater.justify!('L', "Completion daemon server extracted");
-            else failures++; 
-            if (installResource(dcd_client, exePath))
-                Formater.justify!('L', "Completion daemon client extracted");
-            else failures++;  
-            if (installResource(dcdlic, appDataPath))
-                Formater.justify!('L', "Completion daemon license extracted");
-            else failures++;                                     
+            if (res.isExe)
+                done = installResource(res, exePath);
+            else
+                done = installResource(res, appDataPath);
+            Formater.justify!'L'(res.destName ~ extractMsg[done]);
+            failures += !done;
+        }
+        if (!nodcd) foreach(res; dcdResources)
+        {
+            if (res.isExe)
+                done = installResource(res, exePath);
+            else
+                done = installResource(res, appDataPath);
+            Formater.justify!'L'(res.destName ~ extractMsg[done]);
+            failures += !done;
         }
         
         Formater.separate;
         if (failures)
-            Formater.justify!('L', "there are ERRORS, plz contact the support");
+            Formater.justify!'L'("there are ERRORS, plz contact the support");
         else
         {
             version(win32) win32PostInstall();
             else nuxPostInstall();
-            Formater.justify!('L', "the files are correctly extracted...");
+            Formater.justify!'L'("the files are correctly extracted...");
         }
-        Formater.emptyLine;
-        Formater.justify!('R', "...press a key to exit");
-        Formater.separate;
-        readln;  
     }
     else
     {
-        failures += !uninstallResource(coedit, exePath);
-        failures += !uninstallResource(cesyms, exePath);
-        failures += !uninstallResource(cetodo, exePath);
-        failures += !uninstallResource(celic, appDataPath);
-        failures += !uninstallResource(icon, appDataPath);
-        failures += !uninstallResource(png, appDataPath);
-        if (!nodcd)
+        if (!asSu && exists("/usr/bin/coedit"))
         {
-            failures += !uninstallResource(dcd_client, exePath);
-            failures += !uninstallResource(dcd_server, exePath);
-            failures += !uninstallResource(dcdlic, appDataPath);
-        } 
+            Formater.separate;
+            Formater.justify!'L'("warning, CE seems to be installed with sudo");
+            Formater.justify!'L'("but the uninstaller is not launched with sudo.");
+            Formater.separate;
+        }
+        else if (asSu && exists("/home/" ~ environment.get("USER") ~ "/bin/coedit"))
+        {
+            Formater.separate;
+            Formater.justify!'L'("warning, CE seems not to be installed with sudo");
+            Formater.justify!'L'("...but the uninstaller is launched with sudo.");
+            Formater.separate;
+        }
+        static immutable rmMsg = [": FAILURE", ": deleted"];
+        foreach(res; ceResources)
+        {
+            if (res.isExe)
+                done = uninstallResource(res, exePath);
+            else
+                done = uninstallResource(res, appDataPath);
+            Formater.justify!'L'(res.destName ~ rmMsg[done]);
+            failures += !done;
+        }
+        if (!nodcd) foreach(res; dcdResources)
+        {
+            if (res.isExe)
+                done = uninstallResource(res, exePath);
+            else
+                done = uninstallResource(res, appDataPath);
+            Formater.justify!'L'(res.destName ~ rmMsg[done]);
+            failures += !done;
+        }
         
         version(win32) 
         {
             try rmdir(exePath);
             catch(FileException e) failures++;
         }
-        
+
+        Formater.separate;
         if (failures)
-            Formater.justify!('L', "there are ERRORS, plz contact the support");
+            Formater.justify!'L'("there are ERRORS, plz contact the support");
         else
         {
             version(win32) win32PostUninstall();
             else nuxPostUninstall();
-            Formater.justify!('L', "the files are correctly removed...");
+            Formater.justify!'L'("the files are correctly removed...");
         }
-        Formater.emptyLine;
-        Formater.justify!('R', "...press a key to exit");
-        Formater.separate;
-        readln;         
     }
+    Formater.emptyLine;
+    Formater.justify!'R'("...press a key to exit");
+    Formater.separate;
+    readln;
 }
 
 string extractedName(Resource resource, string path)
@@ -290,7 +336,7 @@ version (win32) void win32PostInstall()
     import std.conv: to;
     import std.random: uniform;
     
-    // shortcut prior to v 1 upd 2 was actually and url.
+    // shortcut prior to v 1 upd 2 was actually an url.
     tryRemove(shortCutPath ~ "Coedit.url");
     
     string target = exePath ~ "coedit.exe";
@@ -315,7 +361,7 @@ version (win32) void win32PostInstall()
 
 version (win32) void win32PostUninstall()
 {
-    // shortcut prior to v 1 upd 2 was actually and url.
+    // shortcut prior to v 1 upd 2 was actually an url.
     tryRemove(shortCutPath ~ "Coedit.url"); 
     tryRemove(shortCutPath ~ "Coedit.lnk");
 }
