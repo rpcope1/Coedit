@@ -386,7 +386,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION ICEMultiDocObserver ----------------------------------------------------}
+{$REGION ICEMultiDocObserver ---------------------------------------------------}
 procedure TCEEditorOptions.docNew(aDoc: TCESynMemo);
 begin
   applyChangeToEditor(aDoc);
@@ -451,7 +451,11 @@ begin
   end;
   // note: shortcut modifications are not reversible,
   // they are sent from another option editor.
-  applyChangesFromSelf;
+  fShortcutCount -= 1;
+  // TODO: modifies interface so that the target knows when the last
+  // item has been sent.
+  if fShortcutCount = 0 then
+    applyChangesFromSelf;
 end;
 {$ENDREGION}
 
