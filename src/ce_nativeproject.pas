@@ -795,6 +795,7 @@ var
   lst: TStringList;
   str: string;
   msgs: ICEMessagesDisplay;
+  proc : TProcess;
 begin
   lst := TStringList.Create;
   msgs := getMessageDisplay;
@@ -809,10 +810,15 @@ begin
     lst.Free;
   end;
   //
-  if not TProcess(sender).Active then
+  proc := TProcess(sender);
+  if not proc.Running then
   begin
     getprocInputHandler.removeProcess(TProcess(sender));
     ChDir(fRunnerOldCwd);
+    //
+    if (proc.ExitStatus <> 0) then
+      msgs.message(format('error: the process (%s) has returned the signal %d',
+        [proc.Executable, proc.ExitStatus]), self as ICECommonProject, amcProj, amkErr);
   end;
 end;
 

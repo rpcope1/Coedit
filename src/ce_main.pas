@@ -1660,6 +1660,9 @@ begin
   inph := EntitiesConnector.getSingleService('ICEProcInputHandler');
   if (inph <> nil) then
     (inph as ICEProcInputHandler).removeProcess(proc);
+  if (proc.ExitStatus <> 0) then
+    fMsgs.message(format('error: the process (%s) has returned the signal %d',
+      [proc.Executable, proc.ExitStatus]), fDoc, amcEdit, amkErr);
 end;
 
 procedure TCEMainForm.actSetRunnableSwExecute(Sender: TObject);

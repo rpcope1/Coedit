@@ -104,7 +104,6 @@ var
 begin
   if not (poUsePipes in Options) then
     exit;
-
   sum := fOutputStack.Size;
   while (Output <> nil) and (NumBytesAvailable > 0) do
   begin
@@ -112,7 +111,6 @@ begin
     cnt := Output.Read((fOutputStack.Memory + sum)^, 1024);
     sum += cnt;
   end;
-
   fOutputStack.SetSize(sum);
 end;
 
@@ -123,18 +121,9 @@ var
   toread: Integer;
   buff: Byte = 0;
   str: TMemoryStream;
-  err: array[0..255] of Byte;
 begin
   if not Running then
   begin
-    //TODO-cbugfix: errors not displayed when a runnable crashes
-    //if poStderrToOutPut in Options then
-    //if Stderr <> nil then while (true) do
-    //begin
-    //  toread := Stderr.Read(err[0], length(err));
-    //  if toread = 0 then break;
-    //  fOutputStack.Write(err[0], toread);
-    //end;
     list.LoadFromStream(fOutputStack);
     if consume then
       fOutputStack.Clear;
