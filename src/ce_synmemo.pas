@@ -975,6 +975,8 @@ begin
     AddKey(ecColSelLineEnd, VK_END, [ssAlt, ssShift], 0, []);
     AddKey(ecColSelEditorTop, VK_HOME, [ssAlt, ssShift,ssCtrl], 0, []);
     AddKey(ecColSelEditorBottom, VK_END, [ssAlt, ssShift,ssCtrl], 0, []);
+    AddKey(ecSynPSyncroEdStart, ord('E'), [ssCtrl], 0, []);
+    AddKey(ecSynPSyncroEdEscape, ord('E'), [ssCtrl, ssShift], 0, []);
   end;
 end;
 {$ENDREGION --------------------------------------------------------------------}

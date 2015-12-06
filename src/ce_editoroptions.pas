@@ -333,10 +333,56 @@ begin
 end;
 
 procedure TCEEditorOptions.afterLoad;
+var
+  ed: TSynEdit;
+  shc: TCEPersistentShortcut;
+  i,j: integer;
+  exists: boolean;
 begin
   inherited;
   D2Syn.Assign(fD2Syn);
   TxtSyn.Assign(fTxtSyn);
+  //
+  ed := TSynEdit.Create(nil);
+  try
+    SetDefaultCoeditKeystrokes(ed);
+    // new version with more shortcuts
+    for i:= 0 to ed.Keystrokes.Count-1 do
+    begin
+      exists := false;
+      for j := 0 to fShortcuts.count-1 do
+      begin
+        if TCEPersistentShortcut(fShortCuts.Items[j]).actionName <>
+          EditorCommandToCodeString(ed.Keystrokes.Items[i].Command) then
+            continue;
+        exists := true;
+        break;
+      end;
+      if exists then
+        continue;
+      shc := TCEPersistentShortcut(fShortCuts.Add);
+      shc.actionName := EditorCommandToCodeString(ed.Keystrokes.Items[i].Command);
+      shc.shortcut := ed.Keystrokes.Items[i].ShortCut;
+    end;
+    // new version wih less shortcuts
+    for j := fShortcuts.count-1 downto 0 do
+    begin
+      exists := false;
+      for i:= 0 to ed.Keystrokes.Count-1 do
+      begin
+        if TCEPersistentShortcut(fShortCuts.Items[j]).actionName <>
+          EditorCommandToCodeString(ed.Keystrokes.Items[i].Command) then
+            continue;
+        exists := true;
+        break;
+      end;
+      if exists then
+        continue;
+      fShortCuts.Delete(j);
+    end;
+  finally
+    ed.free;
+  end;
 end;
 {$ENDREGION}
 
