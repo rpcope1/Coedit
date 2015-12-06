@@ -299,9 +299,7 @@ begin
     VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT: updateImperative;
   end;
   if fKeyChanged then
-    beginDelayedUpdate
-  else if (Key = VK_UP) and (shift = [ssShift,ssCtrl]) then
-    getSymbolLoc;
+    beginDelayedUpdate;
 end;
 
 procedure TCEEditorWidget.memoKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -314,6 +312,9 @@ end;
 procedure TCEEditorWidget.memoCmdProcessed(Sender: TObject; var Command: TSynEditorCommand; var AChar: TUTF8Char; Data: pointer);
 begin
   fLastCommand := Command;
+  //
+  if Command = ecJumpToDefinition then
+    getSymbolLoc;
 end;
 
 procedure TCEEditorWidget.memoKeyPress(Sender: TObject; var Key: char);

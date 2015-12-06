@@ -93,7 +93,6 @@ inherited CEEditorWidget: TCEEditorWidget
     end
     object mnuedJum2Decl: TMenuItem
       Caption = 'Jump to declaration'
-      ShortCut = 24614
       OnClick = mnuedJum2DeclClick
     end
     object mnuedCallTip: TMenuItem

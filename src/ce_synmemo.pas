@@ -143,6 +143,8 @@ type
     procedure removeBreakPoint(line: integer);
     function  findBreakPoint(line: integer): boolean;
   protected
+    procedure DoOnProcessCommand(var Command: TSynEditorCommand; var AChar: TUTF8Char;
+      Data: pointer); override;
     procedure MouseLeave; override;
     procedure SetVisible(Value: Boolean); override;
     procedure SetHighlighter(const Value: TSynCustomHighlighter); override;
@@ -195,6 +197,13 @@ type
   end;
 
   procedure SetDefaultCoeditKeystrokes(ed: TSynEdit);
+
+  function CustomStringToCommand(const Ident: string; var Int: Longint): Boolean;
+  function CustomCommandToSstring(Int: Longint; var Ident: string): Boolean;
+
+const
+  ecCompletionMenu    = ecUserFirst + 1;
+  ecJumpToDefinition  = ecUserFirst + 2;
 
 var
   D2Syn: TSynD2Syn;     // used as model to set the options when no editor exists.
@@ -460,6 +469,7 @@ begin
   fCompletion.CaseSensitive:=false;
   fCompletion.LongLineHintType:=sclpNone;
   fCompletion.TheForm.ShowInTaskBar:=stNever;
+  fCompletion.ShortCut:=0;
   //
   MouseLinkColor.Style:= [fsUnderline];
   with MouseActions.Add do begin
@@ -612,7 +622,6 @@ begin
   fDDocWin.Hide;
 end;
 
-
 procedure TCESynMemo.getCallTips();
 begin
   showCallTips;
@@ -639,6 +648,17 @@ procedure TCESynMemo.completionExecute(sender: TObject);
 begin
   fCompletion.TheForm.Font.Size := Font.Size;
   getCompletionList;
+end;
+
+procedure TCESynMemo.DoOnProcessCommand(var Command: TSynEditorCommand;
+  var AChar: TUTF8Char; Data: pointer);
+begin
+  inherited;
+  if Command = ecCompletionMenu then
+  begin
+    fCanAutoDot:=false;
+    fCompletion.Execute('', ClientToScreen(point(CaretXPix, CaretYPix + Font.Size)));
+  end;
 end;
 
 procedure TCESynMemo.getCompletionList;
@@ -977,8 +997,29 @@ begin
     AddKey(ecColSelEditorBottom, VK_END, [ssAlt, ssShift,ssCtrl], 0, []);
     AddKey(ecSynPSyncroEdStart, ord('E'), [ssCtrl], 0, []);
     AddKey(ecSynPSyncroEdEscape, ord('E'), [ssCtrl, ssShift], 0, []);
+    AddKey(ecCompletionMenu, ord(' '), [ssCtrl], 0, []);
+    AddKey(ecJumpToDefinition, VK_UP, [ssCtrl,ssShift], 0, []); // goto def
   end;
 end;
+
+function CustomStringToCommand(const Ident: string; var Int: Longint): Boolean;
+begin
+  case Ident of
+    'ecCompletionMenu':     begin Int := ecCompletionMenu; exit(true); end;
+    'ecJumpToDeclaration':  begin Int := ecJumpToDefinition; exit(true); end;
+    else exit(false);
+  end;
+end;
+
+function CustomCommandToSstring(Int: Longint; var Ident: string): Boolean;
+begin
+  case Int of
+    ecCompletionMenu:   begin Ident := 'ecCompletionMenu'; exit(true); end;
+    ecJumpToDefinition: begin Ident := 'ecJumpToDeclaration'; exit(true); end;
+    else exit(false);
+  end;
+end;
+
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION user input ------------------------------------------------------------}
@@ -1162,6 +1203,8 @@ initialization
   LfmSyn.StringAttri.Foreground := clBlue;
   //
   TCEEditorHintWindow.FontSize := 10;
+  //
+  RegisterKeyCmdIdentProcs(@CustomStringToCommand, @CustomCommandToSstring);
 finalization
   D2Syn.Free;
   LfmSyn.Free;
