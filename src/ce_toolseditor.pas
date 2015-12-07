@@ -11,7 +11,6 @@ uses
 type
 
   { TCEToolsEditorWidget }
-
   TCEToolsEditorWidget = class(TCEWidget)
     BtnAddTool: TBitBtn;
     btnMoveDown: TBitBtn;

@@ -268,7 +268,7 @@ string targetFilename(Resource resource)
     }
 }
 
-/// Extracts and write a resource to a file.
+/// Extracts and writes a resource to a file.
 bool installResource(Resource resource)
 {
     const string fname = resource.targetFilename;
@@ -293,7 +293,7 @@ bool installResource(Resource resource)
     return true;
 }
 
-/// Deletes the file creates for a resource
+/// Deletes the file created for a resource
 bool uninstallResource(Resource resource)
 {
     const string fname = resource.targetFilename;

@@ -20,6 +20,9 @@ type
     procedure SetVisible(Value: Boolean); override;
   end;
 
+
+  //TODO-crefact: moves the macro recorded to TCESynMemo, + add visual feedback + declare shortcuts ecXXXX
+
   { TCEEditorWidget }
 
   TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler)

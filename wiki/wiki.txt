@@ -32,7 +32,7 @@
 Welcome to Coedit Wiki, the documentation source for the small Windows & Linux IDE for the D programming language.
 A summary of the content is accessible in the right side-bar.
 
-*Note that this document is based on Coedit 2 alpha 2 and it does not represent yet the changes made to the development version*
+*Note that this document is based on Coedit 2 development version and it does not represent anymore the latest official stable release*
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/coedit.win7.33.png) ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/coedit.linux.kde.33.png)
 
@@ -106,7 +106,7 @@ libc.so.6
 
 Download ans setup the tools:
 
-* [Download](http://lazarus.freepascal.org/index.php?page=downloads) and setup the latest Lazarus (1.4.2) version and  FPC / FPC sources (2.6.4) for your platform.
+* [Download](http://lazarus.freepascal.org/index.php?page=downloads) and setup the latest Lazarus (1.4.4) version and  FPC / FPC sources (2.6.4) for your platform.
 	* Windows: the three packages are bundled in an installer. Even on Windows 64 bit, the 32 version must be setup.
 	* Linux: the three packages must be downloaded and setup individually. Take care to the version number because the official rpm/deb source of a Linux distribution does not always propose the latest version !
 
@@ -145,7 +145,7 @@ See the products documentation for more information.
 Any Pascal or Delphi programmer who has interest to the D language can contribute.
 The process is based on _git_ and _Github_, using what's often called the _fork push pull_ model:
 
-- _fork_ the _Coedit_ repository in your _Github_ account.
+- fork the _Coedit_ repository in your _Github_ account.
 - clone this fork to your computer.
 - using Lazarus and FPC, develop, fix, optimize, do whatever could improve Coedit.
 - _push_ your changes to your online fork.
@@ -314,12 +314,12 @@ _DCD_ also has a native configuration system. Refer to the official [_Readme_](h
 
 ### Usage
  
-- <kbd>CTRL</kbd> + <kbd>SPACE</kbd>: invokes the completion. 
+- <kbd>CTRL</kbd> + <kbd>SPACE</kbd>: Calls the completion menu or auto-completes if possible. The default shortcut can be modified in the [shortcut editor][lnk_widg_opts].
 - <kbd>.</kbd> invokes the completion if the editor option _autoDotDelay_ is greater than 0. 
-- <kbd>CTRL</kbd> + <kbd>SHIFT</kbd> + <kbd>UP</kbd>: quick jump to the declaration of the symbol located at the cursor position.
+- <kbd>CTRL</kbd> + <kbd>SHIFT</kbd> + <kbd>UP</kbd>: Jumps to the declaration of the symbol located at the cursor. The default shortcut can be modified.
 - <kbd>CTRL</kbd> + <kbd>LEFT MOUSE BUTTON</kbd>: ditto. 
-- <kbd>(</kbd>: gets the function call tips.
-- <kbd>)</kbd>: closes the call tips window.
+- <kbd>(</kbd>: Gets the function call tips.
+- <kbd>)</kbd>: Closes the call tips window.
 - <kbd>ESC</kbd>: ditto.
  
 Documentation comments associated to a symbol are displayed when hovering the symbol with the mouse.
@@ -407,12 +407,12 @@ The _source editor widget_ is a standard code editor, specialized for highlighti
 It's based on the [**Synedit**](http://wiki.freepascal.org/SynEdit) suite, a powerful set of Pascal components and classes, 
 which can be described as a _"Scintilla for Pascal"_. It features:
 
-- folding (curly brackets blocks, multi-line strings, block comments).
+- folding (curly brackets blocks, multi-line strings, block comments, nested block comments, DDoc comments blocks).
 - colorization of the following categories: keywords, numbers, symbols, comments, ASM operands and identifiers, DDoc comments.
 - colorization of the current identifier in the whole view.
 - standard keyboard navigation shortcuts <kbd>CTRL</kbd> + (<kbd>SHIFT</kbd> +) <kbd>LEFT</kbd>/<kbd>RIGHT</kbd>, <kbd>CTRL</kbd> + <kbd>HOME</kbd>, <kbd>CTRL</kbd> + <kbd>END</kbd> etc.
 - macro recording and playback using  <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>R</kbd> (start/stop recording) or <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>P</kbd> (play).
-- synchro-edit (activated when clicking the pen icon located in the gutter).
+- synchro-edit (activated when clicking the pen icon located in the gutter, or with the shortcut <kbd>CTRL</kbd>+<kbd>E</kbd> and <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>E</kbd>).
 - zoom: (<kbd>CTRL</kbd>+<kbd>WHEEL</kbd>, <kbd>CTRL</kbd>+<kbd>MIDDLE MB</kbd>, <kbd>CTRL</kbd>+<kbd>+</kbd>, <kbd>CTRL</kbd>+<kbd>-</kbd>, <kbd>CTRL</kbd>+<kbd>.</kbd>).
 - display cache: for each document, the zoom ratio, the folds and the caret position are saved between two sessions. A cache file has a fixed life-time of three months from its last modification.
 - drag drop editing.
@@ -455,12 +455,12 @@ The editor shortcuts are listed there:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optshortcut.png)
 
-Note that you can edit text files in Coedit too (as well as any other file type suc as _*.dd_ D documentation files)
+Note that you can edit text files in Coedit too (as well as any other file type such as _*.dd_ D documentation files)
 A simple highlighter is automatically set for this purpose:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/sourceditor2.png)
 
-It's also customizable in the option editor but the colorizer only recognizes identifiers and symbols.
+It's also customizable in the option editor but the highlighter only recognizes identifiers and symbols.
 
 ## Find & replace widget
 
@@ -694,7 +694,7 @@ Unfiltered options, sub categories can be expanded or collapsed. The field ***na
 
 ## DUB project editor
 
-The DUB project editor is widget is devided in two panels:
+The DUB project editor is widget is divided in two panels:
 
 ### Inspector
 
@@ -751,13 +751,15 @@ This is a recommended setting because if a run-time error happens, it will be im
 ## Custom tools widget
 
 This widget allows to define a set of third party applications that can be launched from Coedit.
-Thanks to the [symbolic strings][lnk_sym] it's possible for a tool to be aware of the document location or even to get the list of the sources used by a project.
+The tools are not just applications that are launched from the software. Since they support [symbolic strings][lnk_sym] they can directly perform some actions on the current source file, in its directory, on all the sources of a project, etc. The tools can even be chained and the output stream of an item redirected to the input stream of the next.
 
 A few typical examples:
 - launch a console with its working directory set to the project file directory.
 - analyze the current document in _Dscanner_. (see the tutorials).
-- generate the documentation for all the project D sources.
-- use a custom build tool (_make_, _DUB_). 
+- format the current document with _dfmt_.
+- generate the documentation for all the project sources. (see the tutorials).
+- launch a custom build tool (_make_, _DUB_).
+- launch a script that will zip and upload the latest project build.
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/toolseditor1.png)
 
@@ -768,21 +770,22 @@ Toolbar:
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/window/application_flash.png): executes selected tool, according to the options it's associated to. This also works by double-clicking a tool alias.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/window/application_double.png): clones selected tool.
 
-A tool can be selected from the left side of the widget. If selected, a property inspector displays the options that can be defined:
-- chainBefore: allow to define a list of tool to execute before the item. A list item has to match one of the *toolAlias* already defined. By default a tool is executed asynchronously. If it's desirable that a tool must finish before the next starts then **poWaitOnExit** must be set in the options.
-- chainAfter. Idem but the tools defined in the list are executed after the item. 
-- clearMessages: if the tool standard output is redirected to the [messages widget][lnk_widg_msg] then the previous messages are cleared before the execution.
+A tool can be selected from the left side of the widget. If selected, a property inspector displays the options that can be edited:
+
+- clearMessages: if the tool standard output is redirected to the [messages widget][lnk_widg_msg] then the previous messages are cleared before the execution. The output is redirected to the messages when **popUsePipes** is set and if the **nextToolALias** is empty.
 - editorToInput: when set, the content of the current editor is streamed to the tool standard input.
 - executable: the tool file name. If the system cannot find its path in the environment variables then it must be included. The field can include a [symbolic string][lnk_sym].
+- nextToolAlias: defines the alias of another tool that will be launched after this one returns.
 - options: various options for the process to create. If you set **popUsePipes** and **poStdErrToOutput** to true, then the standard output will be redirected to the message widget, category Misc.
+- outputToNext: if **popUsePipes** is set in the options and if the next tool is defined then the next tool will see its input stream filled with the output stream.
 - parameters: allows to define the parameters, switches and options passed to the process. As usual, one item per line, no quotes. The items can include a [symbolic string][lnk_sym].
 - queryParameters: if set to true then a small input query dialog will be shown before executing the tool. It can be filled with more _--para --meters_.
-- shortcut: allow to define the keystroke to launch the tool. The shortcut can also be edited in the [options editor][lnk_widg_opts].
-- showWindow: allow to define how the tool window is displayed. Set to swoHIDE if the tool std out is redirected.
+- shortcut: allow to define the keystroke used to launch the tool. The shortcut can also be edited in the [options editor][lnk_widg_opts].
+- showWindow: allow to define how the tool window is displayed. Set to *swoHIDE* if the tool std out is redirected.
 - toolAlias: the friendly name associated to the tool.
-- workingDirectory: directory in which starts the tool. Not to mismatch with its path. The field can include a [symbolic string][lnk_sym].
+- workingDirectory: the directory in which the tool starts. Not to mismatch with its path. The field can include a [symbolic string][lnk_sym].
 
-The tools configuration is saved between each cession, in the same folder as the application [options][lnk_widg_opts].
+The configuration is saved between each session, in the same folder as the application [options][lnk_widg_opts].
 
 ## Todo list
 
