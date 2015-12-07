@@ -303,6 +303,7 @@ begin
   if lstFav.Selected = nil then exit;
   lstFiles.Items.Clear;
   expandPath(lstFav.Selected.Caption);
+  tree.MakeSelectionVisible;
 end;
 {$ENDREGION}
 
