@@ -53,6 +53,7 @@ type
     fErrList: TLexErrorList;
     fModStart: boolean;
     fLastCommand: TSynEditorCommand;
+    procedure pageBtnAddCLick(Sender: TObject);
     procedure pageCloseBtnClick(Sender: TObject);
     procedure lexFindToken(const aToken: PLexToken; out doStop: boolean);
     procedure memoKeyPress(Sender: TObject; var Key: char);
@@ -94,7 +95,12 @@ begin
   pageControl.Parent := Content;
   pageControl.align := alClient;
   pageControl.onChanged:= @PageControlChange;
+  pageControl.onChanging:=@PageControlChanging;
   pageControl.closeButton.OnClick:=@pageCloseBtnClick;
+  AssignPng(pageControl.moveLeftButton, 'document_back');
+  AssignPng(pageControl.moveRightButton, 'document_next');
+  AssignPng(pageControl.addButton, 'document_add');
+  AssignPng(pageControl.closeButton, 'document_delete');
 
   fTokList := TLexTokenList.Create;
   fErrList := TLexErrorList.Create;
@@ -234,6 +240,7 @@ begin
   if not assigned(doc) then exit(false);
   if (doc.modified or (doc.fileName = doc.tempFilename)) and
     (dlgFileChangeClose(doc.fileName) = mrCancel) then exit(false);
+  pageControl.pageIndex:=index;
   doc.Free;
   result := true;
 end;
@@ -243,6 +250,11 @@ end;
 procedure TCEEditorWidget.pageCloseBtnClick(Sender: TObject);
 begin
   closeDocument(PageControl.PageIndex);
+end;
+
+procedure TCEEditorWidget.pageBtnAddCLick(Sender: TObject);
+begin
+  TCESynMemo.Create(nil);
 end;
 
 procedure TCEEditorWidget.focusedEditorChanged;

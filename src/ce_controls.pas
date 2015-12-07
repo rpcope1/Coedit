@@ -35,12 +35,15 @@ type
     fPageIndex: integer;
     fButtons: TCEPageControlButtons;
     fOnChanged: TNotifyEvent;
+    fOnChanging: TTabChangingEvent;
+
 
     procedure btnCloseClick(sender: TObject);
     procedure btnMoveLeftClick(sender: TObject);
     procedure btnMoveRightClick(sender: TObject);
     procedure btnAddClick(sender: TObject);
 
+    procedure tabsChanging(Sender: TObject; var AllowChange: Boolean);
     procedure tabsChanged(sender: TObject);
     procedure hidePage(index: integer);
     procedure showPage(index: integer);
@@ -75,10 +78,10 @@ type
     property addButton: TSpeedButton read fAddBtn;
 
     property onChanged: TNotifyEvent read fOnChanged write fOnChanged;
+    property onChanging: TTabChangingEvent read fOnChanging write fOnChanging;
   end;
 
 implementation
-
 
 procedure TCEPage.RealSetText(const Value: TCaption);
 var
@@ -105,6 +108,7 @@ begin
   fTabs.Align := alClient;
   fTabs.Options:=[];
   fTabs.OnChange:=@tabsChanged;
+  fTabs.OnChanging:=@tabsChanging;
 
   fMoveLeftBtn:= TSpeedButton.Create(self);
   fMoveLeftBtn.Parent := fHeader;
@@ -174,6 +178,11 @@ begin
   setPageIndex(fTabs.TabIndex);
 end;
 
+procedure TCEPageControl.tabsChanging(Sender: TObject; var AllowChange: Boolean);
+begin
+  if assigned(fOnChanging) then fOnChanging(self, AllowChange);
+end;
+
 procedure TCEPageControl.hidePage(index: integer);
 var
   pge: TCEPage;
@@ -213,7 +222,9 @@ begin
   hidePage(fPageIndex);
   fPageIndex := index;
   showPage(fPageIndex);
-  fTabs.TabIndex:= fPageIndex;
+
+  if fTabs.TabIndex <> fPageIndex then
+    fTabs.TabIndex:= fPageIndex;
 
   changedNotify;
 end;
@@ -246,8 +257,7 @@ begin
     fPageIndex -= 1;
   if fPages.Count = 0 then exit;
 
-  showPage(fPageIndex);
-  changedNotify;
+  setPageIndex(fPageIndex);
 end;
 
 function TCEPageControl.getPageIndex(page: TCEPage): integer;
