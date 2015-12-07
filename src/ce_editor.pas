@@ -5,9 +5,9 @@ unit ce_editor;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, ExtendedNotebook, Forms, Controls, lcltype,
-  Graphics, SynEditKeyCmds, ComCtrls, SynEditHighlighter, ExtCtrls, Menus,
-  SynMacroRecorder, SynPluginSyncroEdit, SynEdit, SynHighlighterMulti, ce_dialogs,
+  Classes, SysUtils, FileUtil, Forms, Controls, lcltype, Graphics, SynEditKeyCmds,
+  ComCtrls, SynEditHighlighter, ExtCtrls, Menus, SynMacroRecorder,
+  SynPluginSyncroEdit, SynEdit, SynHighlighterMulti, ce_dialogs,
   ce_widget, ce_interfaces, ce_synmemo, ce_dlang, ce_common, ce_dcd, ce_observer,
   ce_sharedres, ce_controls;
 
@@ -428,14 +428,6 @@ begin
   end;
   if md = '' then md := extractFileName(fDoc.fileName);
   pageControl.currentPage.Caption := md;
-
-  // note: not true anymore vecause cesyms use send the doc in stdin
-  // when a widget saves a temp file & syncro mode is on:
-  // - editor is saved
-  // - gutter is updated (green bar indicating a saved block)
-  // - syncroedit icon is hidden
-  //if fDoc.syncroEdit.Active then
-    //fDoc.Refresh;
 end;
 {$ENDREGION}
 

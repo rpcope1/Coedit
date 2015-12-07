@@ -5,8 +5,7 @@ unit ce_controls;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  ExtCtrls, buttons;
+  Classes, SysUtils, Forms, Controls, ComCtrls, ExtCtrls, buttons;
 
 type
   TCEPageControlButton = (pbClose, pbMoveLeft, pbMoveRight, pbAdd);
@@ -17,11 +16,19 @@ const
 
 type
 
+  // Used instead of a TTabSheet since only the caption is interesting
   TCEPage = class(TCustomControl)
   protected
     procedure RealSetText(const Value: TCaption); override;
   end;
 
+  (**
+   * Minimalist page-control dedicated to Coedit
+   *
+   * - get rid of the framed aspect of the default LCL one
+   * - no published props, since CE has to be compilable w/o extra IDE comps
+   * - add/close/move left and right speed buttons
+   *)
   TCEPageControl = class(TWinControl)
   private
     fHeader: TWinControl;
@@ -36,7 +43,6 @@ type
     fButtons: TCEPageControlButtons;
     fOnChanged: TNotifyEvent;
     fOnChanging: TTabChangingEvent;
-
 
     procedure btnCloseClick(sender: TObject);
     procedure btnMoveLeftClick(sender: TObject);
