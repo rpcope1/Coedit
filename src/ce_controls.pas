@@ -117,7 +117,7 @@ begin
   fMoveLeftBtn.BorderSpacing.Around:= 2;
   fMoveLeftBtn.ShowCaption:=false;
   fMoveLeftBtn.OnClick:=@btnMoveLeftClick;
-  fMoveLeftBtn.Hint:='move page to the left';
+  fMoveLeftBtn.Hint:='move current page to the left';
 
   fMoveRightBtn:= TSpeedButton.Create(self);
   fMoveRightBtn.Parent := fHeader;
@@ -126,7 +126,7 @@ begin
   fMoveRightBtn.BorderSpacing.Around:= 2;
   fMoveRightBtn.ShowCaption:=false;
   fMoveRightBtn.OnClick:=@btnMoveRightClick;
-  fMoveRightBtn.Hint:='move page to the right';
+  fMoveRightBtn.Hint:='move current page to the right';
 
   fAddBtn:= TSpeedButton.Create(self);
   fAddBtn.Parent := fHeader;
@@ -135,6 +135,7 @@ begin
   fAddBtn.BorderSpacing.Around:= 2;
   fAddBtn.ShowCaption:=false;
   fAddBtn.OnClick:=@btnAddClick;
+  fAddBtn.Hint:='add a new page';
 
   fCloseBtn := TSpeedButton.Create(self);
   fCloseBtn.Parent := fHeader;
@@ -143,7 +144,7 @@ begin
   fCloseBtn.BorderSpacing.Around:= 2;
   fCloseBtn.ShowCaption:=false;
   fCloseBtn.OnClick:=@btnCloseClick;
-  fCloseBtn.Hint:='close page';
+  fCloseBtn.Hint:='close current page';
 
   fContent := TPanel.Create(self);
   fContent.Parent := self;
@@ -151,7 +152,7 @@ begin
   fContent.BevelInner:= bvNone;
   fContent.BevelOuter:= bvNone;
   fContent.BorderStyle:=bsNone;
-  fContent.BorderSpacing.Around:=2;
+  fContent.BorderSpacing.Around:=0;
 
   fPages := TFPList.Create;
   fPageIndex := -1;
@@ -307,7 +308,6 @@ begin
   fTabs.Tabs.Exchange(fPageIndex, fPageIndex - 1);
   setPageIndex(fPageIndex-1);
 end;
-
 
 
 procedure TCEPageControl.btnCloseClick(sender: TObject);

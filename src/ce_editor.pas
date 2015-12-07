@@ -97,6 +97,7 @@ begin
   pageControl.onChanged:= @PageControlChange;
   pageControl.onChanging:=@PageControlChanging;
   pageControl.closeButton.OnClick:=@pageCloseBtnClick;
+  pageControl.addButton.OnClick:=@pageBtnAddCLick;
   AssignPng(pageControl.moveLeftButton, 'document_back');
   AssignPng(pageControl.moveRightButton, 'document_next');
   AssignPng(pageControl.addButton, 'document_add');
@@ -255,6 +256,7 @@ end;
 procedure TCEEditorWidget.pageBtnAddCLick(Sender: TObject);
 begin
   TCESynMemo.Create(nil);
+  pageControl.currentPage.Caption:='<new document>';
 end;
 
 procedure TCEEditorWidget.focusedEditorChanged;
