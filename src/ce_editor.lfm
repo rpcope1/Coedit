@@ -14,28 +14,14 @@ inherited CEEditorWidget: TCEEditorWidget
     inherited Content: TPanel
       Height = 406
       Width = 465
-      BevelOuter = bvRaised
       ClientHeight = 406
       ClientWidth = 465
-      object PageControl: TExtendedNotebook[0]
-        Left = 3
-        Height = 380
-        Top = 3
-        Width = 459
-        Align = alClient
-        BorderSpacing.Around = 2
-        TabOrder = 0
-        OnChange = PageControlChange
-        OnChanging = PageControlChanging
-        Options = [nboShowCloseButtons, nboShowAddTabButton]
-        TabDragMode = dmAutomatic
-        TabDragAcceptMode = dmAutomatic
-      end
-      object editorStatus: TStatusBar[1]
-        Left = 3
+      object editorStatus: TStatusBar[0]
+        Left = 2
         Height = 18
-        Top = 385
-        Width = 459
+        Top = 386
+        Width = 461
+        AutoSize = False
         BorderSpacing.Around = 2
         Panels = <        
           item

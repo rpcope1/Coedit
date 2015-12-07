@@ -9,17 +9,9 @@ uses
   Graphics, SynEditKeyCmds, ComCtrls, SynEditHighlighter, ExtCtrls, Menus,
   SynMacroRecorder, SynPluginSyncroEdit, SynEdit, SynHighlighterMulti, ce_dialogs,
   ce_widget, ce_interfaces, ce_synmemo, ce_dlang, ce_common, ce_dcd, ce_observer,
-  ce_sharedres;
+  ce_sharedres, ce_controls;
 
 type
-
-  // this descendant propagates the Visible property to the children.
-  // this fix the bug described in commit c1a0ed2799390d788b1d1e435eb8dc1ed3369ce7
-  TCEEditorPage = class(TTabSheet)
-  protected
-    procedure SetVisible(Value: Boolean); override;
-  end;
-
 
   //TODO-crefact: moves the macro recorded to TCESynMemo, + add visual feedback + declare shortcuts ecXXXX
 
@@ -36,7 +28,6 @@ type
     mnuedRedo: TMenuItem;
     MenuItem7: TMenuItem;
     mnuedJum2Decl: TMenuItem;
-    PageControl: TExtendedNotebook;
     macRecorder: TSynMacroRecorder;
     editorStatus: TStatusBar;
     mnuEditor: TPopupMenu;
@@ -55,15 +46,14 @@ type
     procedure updateDelayed; override;
     procedure updateImperative; override;
   private
+    pageControl: TCEPageControl;
     fKeyChanged: boolean;
     fDoc: TCESynMemo;
     fTokList: TLexTokenList;
     fErrList: TLexErrorList;
     fModStart: boolean;
     fLastCommand: TSynEditorCommand;
-    {$IFDEF LINUX}
     procedure pageCloseBtnClick(Sender: TObject);
-    {$ENDIF}
     procedure lexFindToken(const aToken: PLexToken; out doStop: boolean);
     procedure memoKeyPress(Sender: TObject; var Key: char);
     procedure memoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -95,25 +85,19 @@ type
 implementation
 {$R *.lfm}
 
-procedure TCEEditorPage.SetVisible(Value: Boolean);
-var
-  i: integer;
-begin
-  inherited;
-  for i := 0 to ControlCount-1 do
-    Controls[i].Visible:= Value;
-end;
-
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEEditorWidget.create(aOwner: TComponent);
 begin
   inherited;
   //
+  pageControl := TCEPageControl.Create(self);
+  pageControl.Parent := Content;
+  pageControl.align := alClient;
+  pageControl.onChanged:= @PageControlChange;
+  pageControl.closeButton.OnClick:=@pageCloseBtnClick;
+
   fTokList := TLexTokenList.Create;
   fErrList := TLexErrorList.Create;
-  {$IFDEF LINUX}
-  PageControl.OnCloseTabClicked := @pageCloseBtnClick;
-  {$ENDIF}
   //
   AssignPng(mnuedCopy.Bitmap, 'copy');
   AssignPng(mnuedCut.Bitmap, 'cut');
@@ -133,9 +117,9 @@ var
 begin
   EntitiesConnector.removeObserver(self);
   for i := PageControl.PageCount-1 downto 0 do
-    if PageControl.Page[i].ControlCount > 0 then
-      if (PageControl.Page[i].Controls[0] is TCESynMemo) then
-        PageControl.Page[i].Controls[0].Free;
+    if PageControl.Pages[i].ControlCount > 0 then
+      if (PageControl.Pages[i].Controls[0] is TCESynMemo) then
+        PageControl.Pages[i].Controls[0].Free;
   fTokList.Free;
   fErrList.Free;
   inherited;
@@ -150,13 +134,12 @@ end;
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
 procedure TCEEditorWidget.docNew(aDoc: TCESynMemo);
 var
-  sheet: TCEEditorPage;
+  pge: TCEPage;
 begin
-  sheet := TCEEditorPage.Create(self);
-  sheet.PageControl := PageControl;
+  pge := pageControl.addPage;
   //
   aDoc.Align := alClient;
-  aDoc.Parent := sheet;
+  aDoc.Parent := pge;
   //
   aDoc.OnKeyDown := @memoKeyDown;
   aDoc.OnKeyUp := @memoKeyUp;
@@ -167,24 +150,20 @@ begin
   aDoc.OnCommandProcessed:= @memoCmdProcessed;
   //
   fDoc := aDoc;
-  pageControl.ActivePage := sheet;
   focusedEditorChanged;
   beginDelayedUpdate;
   updateImperative;
 end;
 
 procedure TCEEditorWidget.docClosing(aDoc: TCESynMemo);
-var
-  sheet: TWinControl;
 begin
   if aDoc = nil then
     exit;
-  sheet := aDoc.Parent;
   aDoc.Parent := nil;
   if aDoc = fDoc then
     fDoc := nil;
-  if sheet <> nil then sheet.Free;
   updateImperative;
+  pageControl.deletePage(pageControl.pageIndex);
 end;
 
 procedure TCEEditorWidget.docFocused(aDoc: TCESynMemo);
@@ -240,7 +219,7 @@ var
 begin
   doc := findDocument(aFilename);
   if doc <> nil then begin
-    PageControl.ActivePage := TTabSheet(doc.Parent);
+    PageControl.currentPage := TCEPage(doc.Parent);
     exit;
   end;
   doc := TCESynMemo.Create(nil);
@@ -261,13 +240,10 @@ end;
 {$ENDREGION}
 
 {$REGION PageControl/Editor things ---------------------------------------------}
-{$IFDEF LINUX}
 procedure TCEEditorWidget.pageCloseBtnClick(Sender: TObject);
 begin
-  PageControl.PageIndex := TTabSheet(sender).PageIndex;
   closeDocument(PageControl.PageIndex);
 end;
-{$ENDIF}
 
 procedure TCEEditorWidget.focusedEditorChanged;
 begin
@@ -276,7 +252,7 @@ begin
   //
   macRecorder.Editor:= fDoc;
   fDoc.PopupMenu := mnuEditor;
-  if (pageControl.ActivePage.Caption = '') then
+  if (pageControl.currentPage.Caption = '') then
   begin
     fKeyChanged := true;
     beginDelayedUpdate;
@@ -389,8 +365,8 @@ begin
     editorStatus.Panels[0].Text := format('%d : %d | %d', [fDoc.CaretY, fDoc.CaretX, fDoc.SelEnd - fDoc.SelStart]);
     editorStatus.Panels[1].Text := modstr[fDoc.modified];
     editorStatus.Panels[2].Text := fDoc.fileName;
-    if Visible and (pageControl.ActivePage <> nil) and ((pageControl.ActivePage.Caption = '') or
-      (pageControl.ActivePage.Caption = '<new document>')) then
+    if Visible and (pageControl.currentPage <> nil) and ((pageControl.currentPage.Caption = '') or
+      (pageControl.currentPage.Caption = '<new document>')) then
     begin
       if fDoc.isDSource then
       begin
@@ -400,7 +376,7 @@ begin
         fErrList.Clear;
       end;
       if md = '' then md := extractFileName(fDoc.fileName);
-      pageControl.ActivePage.Caption := md;
+      pageControl.currentPage.Caption := md;
     end;
   end;
 end;
@@ -437,7 +413,7 @@ begin
     fErrList.Clear;
   end;
   if md = '' then md := extractFileName(fDoc.fileName);
-  pageControl.ActivePage.Caption := md;
+  pageControl.currentPage.Caption := md;
 
   // note: not true anymore vecause cesyms use send the doc in stdin
   // when a widget saves a temp file & syncro mode is on:
