@@ -18,8 +18,12 @@ type
 
   // Used instead of a TTabSheet since only the caption is interesting
   TCEPage = class(TCustomControl)
+  private
+    function getIndex: integer;
   protected
-    procedure RealSetText(const Value: TCaption); override;
+    procedure realSetText(const Value: TCaption); override;
+  public
+    property index: integer read getIndex;
   end;
 
   (**
@@ -61,6 +65,7 @@ type
     function getPage(index: integer): TCEPage;
 
     procedure changedNotify;
+    procedure updateButtonsState;
 
   public
     constructor Create(aowner: TComponent); override;
@@ -89,13 +94,25 @@ type
 
 implementation
 
+function TCEPage.getIndex: integer;
+var
+  ctrl: TCEPageControl;
+  i: integer;
+begin
+  ctrl := TCEPageControl(owner);
+  for i := 0 to ctrl.pageCount-1 do
+      if ctrl.pages[i] = self then
+        exit(i);
+  exit(-1);
+end;
+
 procedure TCEPage.RealSetText(const Value: TCaption);
 var
   i: integer;
   ctrl: TCEPageControl;
 begin
   inherited;
-  ctrl :=  TCEPageControl(Owner);
+  ctrl :=  TCEPageControl(owner);
   i := ctrl.getPageIndex(self);
   if i <> -1 then ctrl.fTabs.Tabs.Strings[i] := caption;
 end;
@@ -164,6 +181,7 @@ begin
   fPageIndex := -1;
 
   fButtons:= CEPageControlDefaultButtons;
+  updateButtonsState;
 end;
 
 destructor TCEPageControl.Destroy;
@@ -176,6 +194,7 @@ end;
 
 procedure TCEPageControl.changedNotify;
 begin
+  updateButtonsState;
   if assigned(fOnChanged) then
     fOnChanged(self);
 end;
@@ -262,7 +281,9 @@ begin
 
   if fPageIndex >= fPages.Count then
     fPageIndex -= 1;
-  if fPages.Count = 0 then exit;
+  updateButtonsState;
+  if fPages.Count = 0 then
+    exit;
 
   setPageIndex(fPageIndex);
 end;
@@ -315,7 +336,6 @@ begin
   setPageIndex(fPageIndex-1);
 end;
 
-
 procedure TCEPageControl.btnCloseClick(sender: TObject);
 begin
   deletePage(fPageIndex);
@@ -338,16 +358,25 @@ end;
 
 procedure TCEPageControl.setButtons(value: TCEPageControlButtons);
 begin
-  fButtons:= value;
-  fHeader.DisableAlign;
+  if fButtons = value then
+    exit;
 
+  fButtons := value;
+  updateButtonsState;
+  fHeader.ReAlign;
+end;
+
+procedure TCEPageControl.updateButtonsState;
+begin
+  fHeader.DisableAlign;
   fCloseBtn.Visible:= pbClose in fButtons;
   fMoveLeftBtn.Visible:= pbMoveLeft in fButtons;
   fCloseBtn.Visible:= pbMoveRight in fButtons;
   fAddBtn.Visible:= pbAdd in fButtons;
-
   fHeader.EnableAlign;
-  fHeader.ReAlign;
+  fCloseBtn.Enabled := fPageIndex <> -1;
+  fMoveLeftBtn.Enabled := fPageIndex > 0;
+  fMoveRightBtn.Enabled := fPageIndex < fPages.Count-1;
 end;
 
 end.
