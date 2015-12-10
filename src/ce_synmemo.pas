@@ -470,6 +470,7 @@ begin
   fCompletion.LongLineHintType:=sclpNone;
   fCompletion.TheForm.ShowInTaskBar:=stNever;
   fCompletion.ShortCut:=0;
+  fCompletion.LinesInWindow:=15;
   //
   MouseLinkColor.Style:= [fsUnderline];
   with MouseActions.Add do begin
@@ -494,16 +495,6 @@ begin
   //
   fPositions := TCESynMemoPositions.create(self);
   fMultiDocSubject := TCEMultiDocSubject.create;
-  //
-
-  (*fMarkupIndent:= TSynEditMarkupFoldColors.Create(self);
-  fMarkupIndent.Lines := TextBuffer;
-  fMarkupIndent.Enabled:=true;
-  fMarkupIndent.DefaultGroup:=0;
-  if (GetMarkupMgr <> nil) then
-  begin
-    TSynEditMarkupManager(GetMarkupMgr).AddMarkUp(fMarkupIndent, true);
-  end; *)
   //
   subjDocNew(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
@@ -998,7 +989,7 @@ begin
     AddKey(ecSynPSyncroEdStart, ord('E'), [ssCtrl], 0, []);
     AddKey(ecSynPSyncroEdEscape, ord('E'), [ssCtrl, ssShift], 0, []);
     AddKey(ecCompletionMenu, ord(' '), [ssCtrl], 0, []);
-    AddKey(ecJumpToDefinition, VK_UP, [ssCtrl,ssShift], 0, []); // goto def
+    AddKey(ecJumpToDefinition, VK_UP, [ssCtrl,ssShift], 0, []);
   end;
 end;
 

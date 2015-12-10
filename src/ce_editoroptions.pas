@@ -52,21 +52,24 @@ type
     fCompletionMenuCaseCare: boolean;
     fCompletionMenuWidth: integer;
     fCompletionMenuHeight: integer;
+    fCompletionMenuLines: Byte;
     //
-    procedure setFont(aValue: TFont);
-    procedure setSelCol(aValue: TSynSelectedColor);
-    procedure setFoldedColor(aValue: TSynSelectedColor);
-    procedure setMouseLinkColor(aValue: TSynSelectedColor);
-    procedure setBracketMatchColor(aValue: TSynSelectedColor);
-    procedure setD2Syn(aValue: TPersistent);
-    procedure setTxtSyn(aValue: TPersistent);
-    procedure setShortcuts(aValue: TCollection);
-    procedure setDDocDelay(aValue: Integer);
-    procedure setAutoDotDelay(aValue: Integer);
+    procedure setFont(value: TFont);
+    procedure setSelCol(value: TSynSelectedColor);
+    procedure setFoldedColor(value: TSynSelectedColor);
+    procedure setMouseLinkColor(value: TSynSelectedColor);
+    procedure setBracketMatchColor(value: TSynSelectedColor);
+    procedure setD2Syn(value: TPersistent);
+    procedure setTxtSyn(value: TPersistent);
+    procedure setShortcuts(value: TCollection);
+    procedure setDDocDelay(value: Integer);
+    procedure setAutoDotDelay(value: Integer);
+    procedure setCompletionMenuLines(value: byte);
   published
     property completionMenuCaseCare: boolean read fCompletionMenuCaseCare write fCompletionMenuCaseCare;
     property completionMenuWidth: integer read fCompletionMenuWidth write fCompletionMenuWidth;
-    property completionMenuHeight: integer read fCompletionMenuHeight write fCompletionMenuHeight;
+    property completionMenuHeight: integer read fCompletionMenuHeight write fCompletionMenuHeight stored false;
+    property completionMenuLines: byte read fCompletionMenuLines write setCompletionMenuLines;
     property autoDotDelay: integer read fAutoDotDelay write SetautoDotDelay;
     property hintDelay: Integer read fDDocDelay write setDDocDelay stored false; deprecated;
     property ddocDelay: Integer read fDDocDelay write setDDocDelay;
@@ -178,6 +181,7 @@ begin
   //
   fCompletionMenuHeight:= 260;
   fCompletionMenuWidth:= 160;
+  fCompletionMenuLines:= 15;
   //
   rightEdge := 80;
   tabulationWidth := 4;
@@ -231,6 +235,7 @@ begin
     //
     fCompletionMenuWidth:=srcopt.fCompletionMenuWidth;
     fCompletionMenuHeight:=srcopt.fCompletionMenuHeight;
+    fCompletionMenuLines:=srcopt.fCompletionMenuLines;
     fCompletionMenuCaseCare:=srcopt.fCompletionMenuCaseCare;
     fAutoDotDelay:=srcopt.fAutoDotDelay;
     fDDocDelay:=srcopt.fDDocDelay;
@@ -257,58 +262,65 @@ begin
     inherited;
 end;
 
-procedure TCEEditorOptionsBase.setDDocDelay(aValue: Integer);
+procedure TCEEditorOptionsBase.setDDocDelay(value: Integer);
 begin
-  if aValue > 2000 then aValue := 2000
-  else if aValue < 20 then aValue := 20;
-  fDDocDelay:=aValue;
+  if value > 2000 then value := 2000
+  else if value < 20 then value := 20;
+  fDDocDelay:=value;
 end;
 
-procedure TCEEditorOptionsBase.setAutoDotDelay(aValue: Integer);
+procedure TCEEditorOptionsBase.setAutoDotDelay(value: Integer);
 begin
-  if aValue > 2000 then aValue := 2000
-  else if aValue < 0 then aValue := 0;
-  fAutoDotDelay:=aValue;
+  if value > 2000 then value := 2000
+  else if value < 0 then value := 0;
+  fAutoDotDelay:=value;
 end;
 
-procedure TCEEditorOptionsBase.setShortcuts(aValue: TCollection);
+procedure TCEEditorOptionsBase.setCompletionMenuLines(value: byte);
 begin
-  fShortCuts.Assign(aValue);
+  if value < 5 then value := 5
+  else if value > 64 then value := 64;
+  fCompletionMenuLines := value;
 end;
 
-procedure TCEEditorOptionsBase.setFont(aValue: TFont);
+procedure TCEEditorOptionsBase.setShortcuts(value: TCollection);
 begin
-  fFont.Assign(aValue);
+  fShortCuts.Assign(value);
 end;
 
-procedure TCEEditorOptionsBase.setSelCol(aValue: TSynSelectedColor);
+procedure TCEEditorOptionsBase.setFont(value: TFont);
 begin
-  fSelCol.Assign(aValue);
+  fFont.Assign(value);
 end;
 
-procedure TCEEditorOptionsBase.setFoldedColor(aValue: TSynSelectedColor);
+procedure TCEEditorOptionsBase.setSelCol(value: TSynSelectedColor);
 begin
-  fFoldedColor.Assign(aValue);
+  fSelCol.Assign(value);
 end;
 
-procedure TCEEditorOptionsBase.setMouseLinkColor(aValue: TSynSelectedColor);
+procedure TCEEditorOptionsBase.setFoldedColor(value: TSynSelectedColor);
 begin
-  fMouseLinkColor.Assign(aValue);
+  fFoldedColor.Assign(value);
 end;
 
-procedure TCEEditorOptionsBase.setBracketMatchColor(aValue: TSynSelectedColor);
+procedure TCEEditorOptionsBase.setMouseLinkColor(value: TSynSelectedColor);
 begin
-  fBracketMatchColor.Assign(aValue);
+  fMouseLinkColor.Assign(value);
 end;
 
-procedure TCEEditorOptionsBase.setD2Syn(aValue: TPersistent);
+procedure TCEEditorOptionsBase.setBracketMatchColor(value: TSynSelectedColor);
 begin
-  D2Syn.Assign(aValue);
+  fBracketMatchColor.Assign(value);
 end;
 
-procedure TCEEditorOptionsBase.setTxtSyn(aValue: TPersistent);
+procedure TCEEditorOptionsBase.setD2Syn(value: TPersistent);
 begin
-  TxtSyn.Assign(aValue);
+  D2Syn.Assign(value);
+end;
+
+procedure TCEEditorOptionsBase.setTxtSyn(value: TPersistent);
+begin
+  TxtSyn.Assign(value);
 end;
 
 constructor TCEEditorOptions.Create(AOwner: TComponent);
@@ -404,6 +416,7 @@ procedure TCEEditorOptions.docClosing(aDoc: TCESynMemo);
 begin
   fCompletionMenuHeight:=aDoc.completionMenu.TheForm.Height;
   fCompletionMenuWidth:=aDoc.completionMenu.TheForm.Width;
+  fCompletionMenuLines:=aDoc.completionMenu.LinesInWindow;
 end;
 {$ENDREGION}
 
@@ -537,6 +550,7 @@ begin
 
   anEditor.completionMenu.TheForm.Height  := fCompletionMenuHeight;
   anEditor.completionMenu.TheForm.Width   := fCompletionMenuWidth;
+  anEditor.completionMenu.LinesInWindow   := fCompletionMenuLines;
   anEditor.completionMenu.CaseSensitive   := fCompletionMenuCaseCare;
 
   anEditor.SelectedColor.Assign(fSelCol);
