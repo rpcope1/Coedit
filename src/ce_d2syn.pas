@@ -11,7 +11,7 @@ uses
 
 const
 
-  D2Kw: array[0..106] of string =
+  D2Kw: array[0..107] of string =
   ( 'abstract', 'alias', 'align', 'asm', 'assert', 'auto',
     'body', 'bool', 'break', 'byte',
     'case', 'cast', 'catch', 'cdouble', 'cent', 'cfloat', 'char', 'class',
@@ -20,7 +20,7 @@ const
     'else', 'enum', 'export', 'extern',
     'false', 'final', 'finally', 'float', 'for', 'foreach',
     'foreach_reverse', 'function',
-    'goto',
+    'goto', '__gshared',
     'idouble', 'if', 'ifloat', 'immutable', 'import', 'in', 'inout', 'int',
     'interface', 'invariant', 'ireal', 'is',
     'lazy', 'long',
