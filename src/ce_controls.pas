@@ -219,8 +219,6 @@ begin
 
   pge := TCEPage(fPages.Items[index]);
   pge.Visible:=false;
-  for ctl in pge.GetEnumeratorControls do
-    ctl.Visible:=false;
 end;
 
 procedure TCEPageControl.showPage(index: integer);
