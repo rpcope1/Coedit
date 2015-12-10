@@ -813,14 +813,14 @@ end;
 procedure setDubCompiler(value: TCECompiler);
 begin
   case value of
-    dmd: DubCompilerFilename := exeFullName('dmd');
-    gdc: DubCompilerFilename := exeFullName('gdc');
-    ldc: DubCompilerFilename := exeFullName('ldc2');
+    dmd: DubCompilerFilename := exeFullName('dmd' + exeExt);
+    gdc: DubCompilerFilename := exeFullName('gdc' + exeExt);
+    ldc: DubCompilerFilename := exeFullName('ldc2' + exeExt);
   end;
   if (not fileExists(DubCompilerFilename)) or (DubCompilerFilename = '') then
   begin
     value := dmd;
-    DubCompilerFilename:= 'dmd';
+    DubCompilerFilename:= 'dmd' + exeExt;
   end;
   DubCompiler := value;
 end;

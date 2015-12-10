@@ -44,12 +44,12 @@ type
     procedure updateOutFilename;
     procedure doChanged;
     procedure getBaseConfig;
-    procedure setLibAliases(const aValue: TStringList);
+    procedure setLibAliases(const value: TStringList);
     procedure subMemberChanged(sender : TObject);
-    procedure setOptsColl(const aValue: TCollection);
-    procedure setRoot(const aValue: string);
-    procedure setSrcs(const aValue: TStringList);
-    procedure setConfIx(aValue: Integer);
+    procedure setOptsColl(const value: TCollection);
+    procedure setRoot(const value: string);
+    procedure setSrcs(const value: TStringList);
+    procedure setConfIx(value: Integer);
     function getConfig(const ix: integer): TCompilerConfiguration;
     function getCurrConf: TCompilerConfiguration;
     function runPrePostProcess(const processInfo: TCompileProcOptions): Boolean;
@@ -182,11 +182,11 @@ begin
   result.onChanged := @subMemberChanged;
 end;
 
-procedure TCENativeProject.setOptsColl(const aValue: TCollection);
+procedure TCENativeProject.setOptsColl(const value: TCollection);
 var
   i: nativeInt;
 begin
-  fConfigs.Assign(aValue);
+  fConfigs.Assign(value);
   for i:= 0 to fConfigs.Count-1 do
     Configuration[i].onChanged := @subMemberChanged;
 end;
@@ -209,11 +209,11 @@ begin
   fSrcs.Add(relSrc);
 end;
 
-procedure TCENativeProject.setRoot(const aValue: string);
+procedure TCENativeProject.setRoot(const value: string);
 begin
-  if fRootFolder = aValue then exit;
+  if fRootFolder = value then exit;
   beginUpdate;
-  fRootFolder := aValue;
+  fRootFolder := value;
   endUpdate;
 end;
 
@@ -240,27 +240,27 @@ begin
   endUpdate;
 end;
 
-procedure TCENativeProject.setLibAliases(const aValue: TStringList);
+procedure TCENativeProject.setLibAliases(const value: TStringList);
 begin
   beginUpdate;
-  fLibAliases.Assign(aValue);
+  fLibAliases.Assign(value);
   endUpdate;
 end;
 
-procedure TCENativeProject.setSrcs(const aValue: TStringList);
+procedure TCENativeProject.setSrcs(const value: TStringList);
 begin
   beginUpdate;
-  fSrcs.Assign(aValue);
+  fSrcs.Assign(value);
   patchPlateformPaths(fSrcs);
   endUpdate;
 end;
 
-procedure TCENativeProject.setConfIx(aValue: Integer);
+procedure TCENativeProject.setConfIx(value: Integer);
 begin
   beginUpdate;
-  if aValue < 0 then aValue := 0;
-  if aValue > fConfigs.Count-1 then aValue := fConfigs.Count-1;
-  fConfIx := aValue;
+  if value < 0 then value := 0;
+  if value > fConfigs.Count-1 then value := fConfigs.Count-1;
+  fConfIx := value;
   endUpdate;
 end;
 
@@ -684,7 +684,7 @@ function TCENativeProject.compile: Boolean;
 var
   config: TCompilerConfiguration;
   compilproc: TProcess;
-  prjpath, oldCwd: string;
+  prjpath, oldCwd, str: string;
   prjname: string;
   msgs: ICEMessagesDisplay;
 begin
@@ -728,6 +728,14 @@ begin
     compilproc.ShowWindow := swoHIDE;
     getOpts(compilproc.Parameters);
     compilproc.Execute;
+    if NativeProjectCompiler <> dmd then
+    begin
+      case NativeProjectCompiler of
+        gdc: begin str := 'gdc'; compilproc.Input.Write(str[1], 3) end;
+        ldc: begin str := 'ldc2'; compilproc.Input.Write(str[1], 4) end;
+      end;
+      compilproc.CloseInput;
+    end;
     while compilProc.Running do
       compProcOutput(compilproc);
     if compilproc.ExitStatus = 0 then begin
@@ -978,17 +986,15 @@ end;
 procedure setNativeProjectCompiler(value: TCECompiler);
 begin
   case value of
-    // TODO-cfeature: a dmd2gdc and a dmd2ldc2 option translater.
-    // maybe done in D using getOpt, as a tool: ceLdcOpt, ceGDCOpt
-    dmd: NativeProjectCompilerFilename := exeFullName('dmd');
-    gdc: NativeProjectCompilerFilename := ''; // need option translater dmd->gdc
-    ldc: NativeProjectCompilerFilename := ''; // need option translater dmd->ldc
+    dmd: NativeProjectCompilerFilename := exeFullName('dmd' + exeExt);
+    gdc: NativeProjectCompilerFilename := exeFullName('cegdcldc' + exeExt);
+    ldc: NativeProjectCompilerFilename := exeFullName('cegdcldc' + exeExt);
   end;
   if (not fileExists(NativeProjectCompilerFilename))
     or (NativeProjectCompilerFilename = '') then
   begin
     value := dmd;
-    NativeProjectCompilerFilename:= 'dmd';
+    NativeProjectCompilerFilename:= 'dmd' + exeExt;
   end;
   NativeProjectCompiler := value;
 end;

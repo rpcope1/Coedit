@@ -1,0 +1,24 @@
+object CurrentProject: TCENativeProject
+  OptionsCollection = <  
+    item
+      name = 'default'
+      outputOptions.boundsCheck = onAlways
+      pathsOptions.outputFilename = '../bin/cegdcldc'
+      runOptions.options = [poUsePipes, poStderrToOutPut]
+      runOptions.parameters.Strings = (
+        '-main'
+        '-gdc'
+      )
+    end  
+    item
+      name = 'release'
+      outputOptions.inlining = True
+      outputOptions.boundsCheck = offAlways
+      outputOptions.optimizations = True
+      outputOptions.release = True
+    end>
+  Sources.Strings = (
+    'main.d'
+  )
+  ConfigurationIndex = 0
+end

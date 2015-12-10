@@ -3,7 +3,7 @@ object _1: TCENativeProject
     item
       name = 'default'
       documentationOptions.generateDocumentation = True
-      documentationOptions.DocumentationDirectory = '..\doc'
+      documentationOptions.DocumentationDirectory = '../doc'
       debugingOptions.debug = True
       debugingOptions.debugIdentifiers.Strings = (
         'a'
@@ -16,18 +16,16 @@ object _1: TCENativeProject
       outputOptions.versionIdentifiers.Strings = (
         'revision_1'
       )
-      pathsOptions.outputFilename = '..\output\main.exe'
-      preBuildProcess.executable = 'C:\Dev\pasproj\Coedit\lazproj\test\coeditproj\pre.bat'
+      pathsOptions.outputFilename = '../output/main'
       preBuildProcess.workingDirectory = '<CPP>'
       preBuildProcess.options = [poWaitOnExit]
-      postBuildProcess.executable = 'C:\Dev\pasproj\Coedit\lazproj\test\coeditproj\post.bat'
       postBuildProcess.workingDirectory = '<CPP>'
       postBuildProcess.options = [poWaitOnExit]
     end  
     item
       name = 'alternative'
       documentationOptions.generateDocumentation = True
-      documentationOptions.DocumentationDirectory = '..\doc'
+      documentationOptions.DocumentationDirectory = '../doc'
       debugingOptions.debug = True
       debugingOptions.debugLevel = 3
       messagesOptions.additionalWarnings = True
@@ -38,12 +36,12 @@ object _1: TCENativeProject
       outputOptions.versionIdentifiers.Strings = (
         'revision_2'
       )
-      pathsOptions.outputFilename = '..\output\main.exe'
+      pathsOptions.outputFilename = '../output/main'
     end>
   Sources.Strings = (
-    '..\src\main.d'
-    '..\src\barclass.d'
-    '..\src\fooclass.d'
+    '../src/main.d'
+    '../src/barclass.d'
+    '../src/fooclass.d'
   )
   ConfigurationIndex = 0
 end
