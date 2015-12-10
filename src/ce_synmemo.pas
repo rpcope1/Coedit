@@ -6,9 +6,9 @@ interface
 
 uses
   Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
-  SynPluginSyncroEdit, SynCompletion, SynEditKeyCmds, LazSynEditText, SynEdit,
+  SynEdit, SynPluginSyncroEdit, SynCompletion, SynEditKeyCmds, LazSynEditText,
   SynHighlighterLFM, SynEditHighlighter, SynEditMouseCmds, SynEditFoldedView,
-  SynEditMarks, SynEditMarkup,
+  SynEditMarks,
   ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs,
   ce_sharedres;
 
@@ -71,7 +71,8 @@ type
     procedure load;
   end;
 
-  // buffer of caret positions allowing to jump quickly to the most recent locations.
+  // Caret positions buffer allowing to jump fast to the most recent locations.
+  // Replaces the bookmarks.
   TCESynMemoPositions = class
   private
     fPos: Integer;
@@ -154,10 +155,6 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:Integer); override;
     function DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean; override;
-  published
-    property defaultFontSize: Integer read fDefaultFontSize write setDefaultFontSize;
-    property ddocDelay: Integer read fDDocDelay write setDDocDelay;
-    property autoDotDelay: Integer read fAutoDotDelay write setAutoDotDelay;
   public
     constructor Create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -193,6 +190,9 @@ type
     property MouseStart: Integer read getMouseFileBytePos;
     property D2Highlighter: TSynD2Syn read fD2Highlighter;
     property TxtHighlighter: TSynTxtSyn read fTxtHighlighter;
+    property defaultFontSize: Integer read fDefaultFontSize write setDefaultFontSize;
+    property ddocDelay: Integer read fDDocDelay write setDDocDelay;
+    property autoDotDelay: Integer read fAutoDotDelay write setAutoDotDelay;
   end;
 
   procedure SetDefaultCoeditKeystrokes(ed: TSynEdit);
@@ -202,7 +202,7 @@ type
 
 const
   ecCompletionMenu    = ecUserFirst + 1;
-  ecJumpToDeclaration  = ecUserFirst + 2;
+  ecJumpToDeclaration = ecUserFirst + 2;
   ecPreviousLocation  = ecUserFirst + 3;
   ecNextLocation      = ecUserFirst + 4;
 
