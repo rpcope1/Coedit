@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
   SynPluginSyncroEdit, SynCompletion, SynEditKeyCmds, LazSynEditText, SynEdit,
   SynHighlighterLFM, SynEditHighlighter, SynEditMouseCmds, SynEditFoldedView,
-  SynEditMarks, SynEditMarkup, SynEditMarkupFoldColors,
+  SynEditMarks, SynEditMarkup,
   ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs,
   ce_sharedres;
 
@@ -117,7 +117,6 @@ type
     fImages: TImageList;
     fBreakPoints: TFPList;
     fBreakpointEvent: TBreakPointModifyEvent;
-    fMarkupIndent: TSynEditMarkupFoldColors;
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
     procedure identifierToD2Syn;
@@ -203,7 +202,9 @@ type
 
 const
   ecCompletionMenu    = ecUserFirst + 1;
-  ecJumpToDefinition  = ecUserFirst + 2;
+  ecJumpToDeclaration  = ecUserFirst + 2;
+  ecPreviousLocation  = ecUserFirst + 3;
+  ecNextLocation      = ecUserFirst + 4;
 
 var
   D2Syn: TSynD2Syn;     // used as model to set the options when no editor exists.
@@ -371,7 +372,7 @@ end;
 constructor TCESynMemoPositions.create(aMemo: TCustomSynEdit);
 begin
   fList := TFPList.Create;
-  fMax  := 20;
+  fMax  := 40;
   fMemo := aMemo;
   fPos  := -1;
 end;
@@ -554,6 +555,122 @@ begin
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
+{$REGION Custom editor commands and shortcuts ----------------------------------}
+procedure SetDefaultCoeditKeystrokes(ed: TSynEdit);
+begin
+  with ed do begin
+    Keystrokes.Clear;
+    //
+    AddKey(ecUp, VK_UP, [], 0, []);
+    AddKey(ecSelUp, VK_UP, [ssShift], 0, []);
+    AddKey(ecScrollUp, VK_UP, [ssCtrl], 0, []);
+    AddKey(ecDown, VK_DOWN, [], 0, []);
+    AddKey(ecSelDown, VK_DOWN, [ssShift], 0, []);
+    AddKey(ecScrollDown, VK_DOWN, [ssCtrl], 0, []);
+    AddKey(ecLeft, VK_LEFT, [], 0, []);
+    AddKey(ecSelLeft, VK_LEFT, [ssShift], 0, []);
+    AddKey(ecWordLeft, VK_LEFT, [ssCtrl], 0, []);
+    AddKey(ecSelWordLeft, VK_LEFT, [ssShift,ssCtrl], 0, []);
+    AddKey(ecRight, VK_RIGHT, [], 0, []);
+    AddKey(ecSelRight, VK_RIGHT, [ssShift], 0, []);
+    AddKey(ecWordRight, VK_RIGHT, [ssCtrl], 0, []);
+    AddKey(ecSelWordRight, VK_RIGHT, [ssShift,ssCtrl], 0, []);
+    AddKey(ecPageDown, VK_NEXT, [], 0, []);
+    AddKey(ecSelPageDown, VK_NEXT, [ssShift], 0, []);
+    AddKey(ecPageBottom, VK_NEXT, [ssCtrl], 0, []);
+    AddKey(ecSelPageBottom, VK_NEXT, [ssShift,ssCtrl], 0, []);
+    AddKey(ecPageUp, VK_PRIOR, [], 0, []);
+    AddKey(ecSelPageUp, VK_PRIOR, [ssShift], 0, []);
+    AddKey(ecPageTop, VK_PRIOR, [ssCtrl], 0, []);
+    AddKey(ecSelPageTop, VK_PRIOR, [ssShift,ssCtrl], 0, []);
+    AddKey(ecLineStart, VK_HOME, [], 0, []);
+    AddKey(ecSelLineStart, VK_HOME, [ssShift], 0, []);
+    AddKey(ecEditorTop, VK_HOME, [ssCtrl], 0, []);
+    AddKey(ecSelEditorTop, VK_HOME, [ssShift,ssCtrl], 0, []);
+    AddKey(ecLineEnd, VK_END, [], 0, []);
+    AddKey(ecSelLineEnd, VK_END, [ssShift], 0, []);
+    AddKey(ecEditorBottom, VK_END, [ssCtrl], 0, []);
+    AddKey(ecSelEditorBottom, VK_END, [ssShift,ssCtrl], 0, []);
+    AddKey(ecToggleMode, VK_INSERT, [], 0, []);
+    AddKey(ecDeleteChar, VK_DELETE, [], 0, []);
+    AddKey(ecDeleteLastChar, VK_BACK, [], 0, []);
+    AddKey(ecDeleteLastWord, VK_BACK, [ssCtrl], 0, []);
+    AddKey(ecLineBreak, VK_RETURN, [], 0, []);
+    AddKey(ecSelectAll, ord('A'), [ssCtrl], 0, []);
+    AddKey(ecCopy, ord('C'), [ssCtrl], 0, []);
+    AddKey(ecBlockIndent, ord('I'), [ssCtrl,ssShift], 0, []);
+    AddKey(ecInsertLine, ord('N'), [ssCtrl], 0, []);
+    AddKey(ecDeleteWord, ord('T'), [ssCtrl], 0, []);
+    AddKey(ecBlockUnindent, ord('U'), [ssCtrl,ssShift], 0, []);
+    AddKey(ecPaste, ord('V'), [ssCtrl], 0, []);
+    AddKey(ecCut, ord('X'), [ssCtrl], 0, []);
+    AddKey(ecDeleteLine, ord('Y'), [ssCtrl], 0, []);
+    AddKey(ecDeleteEOL, ord('Y'), [ssCtrl,ssShift], 0, []);
+    AddKey(ecUndo, ord('Z'), [ssCtrl], 0, []);
+    AddKey(ecRedo, ord('Z'), [ssCtrl,ssShift], 0, []);
+    AddKey(ecFoldLevel1, ord('1'), [ssAlt,ssShift], 0, []);
+    AddKey(ecFoldLevel2, ord('2'), [ssAlt,ssShift], 0, []);
+    AddKey(ecFoldLevel3, ord('3'), [ssAlt,ssShift], 0, []);
+    AddKey(ecFoldLevel4, ord('4'), [ssAlt,ssShift], 0, []);
+    AddKey(ecFoldLevel5, ord('5'), [ssAlt,ssShift], 0, []);
+    AddKey(ecFoldLevel6, ord('6'), [ssAlt,ssShift], 0, []);
+    AddKey(ecFoldLevel7, ord('7'), [ssAlt,ssShift], 0, []);
+    AddKey(ecFoldLevel8, ord('8'), [ssAlt,ssShift], 0, []);
+    AddKey(ecFoldLevel9, ord('9'), [ssAlt,ssShift], 0, []);
+    AddKey(ecFoldLevel0, ord('0'), [ssAlt,ssShift], 0, []);
+    AddKey(ecFoldCurrent, ord('-'), [ssAlt,ssShift], 0, []);
+    AddKey(ecUnFoldCurrent, ord('+'), [ssAlt,ssShift], 0, []);
+    AddKey(EcToggleMarkupWord, ord('M'), [ssAlt], 0, []);
+    AddKey(ecNormalSelect, ord('N'), [ssCtrl,ssShift], 0, []);
+    AddKey(ecColumnSelect, ord('C'), [ssCtrl,ssShift], 0, []);
+    AddKey(ecLineSelect, ord('L'), [ssCtrl,ssShift], 0, []);
+    AddKey(ecTab, VK_TAB, [], 0, []);
+    AddKey(ecShiftTab, VK_TAB, [ssShift], 0, []);
+    AddKey(ecMatchBracket, ord('B'), [ssCtrl,ssShift], 0, []);
+    AddKey(ecColSelUp, VK_UP,    [ssAlt, ssShift], 0, []);
+    AddKey(ecColSelDown, VK_DOWN,  [ssAlt, ssShift], 0, []);
+    AddKey(ecColSelLeft, VK_LEFT, [ssAlt, ssShift], 0, []);
+    AddKey(ecColSelRight, VK_RIGHT, [ssAlt, ssShift], 0, []);
+    AddKey(ecColSelPageDown, VK_NEXT, [ssAlt, ssShift], 0, []);
+    AddKey(ecColSelPageBottom, VK_NEXT, [ssAlt, ssShift,ssCtrl], 0, []);
+    AddKey(ecColSelPageUp, VK_PRIOR, [ssAlt, ssShift], 0, []);
+    AddKey(ecColSelPageTop, VK_PRIOR, [ssAlt, ssShift,ssCtrl], 0, []);
+    AddKey(ecColSelLineStart, VK_HOME, [ssAlt, ssShift], 0, []);
+    AddKey(ecColSelLineEnd, VK_END, [ssAlt, ssShift], 0, []);
+    AddKey(ecColSelEditorTop, VK_HOME, [ssAlt, ssShift,ssCtrl], 0, []);
+    AddKey(ecColSelEditorBottom, VK_END, [ssAlt, ssShift,ssCtrl], 0, []);
+    AddKey(ecSynPSyncroEdStart, ord('E'), [ssCtrl], 0, []);
+    AddKey(ecSynPSyncroEdEscape, ord('E'), [ssCtrl, ssShift], 0, []);
+    AddKey(ecCompletionMenu, ord(' '), [ssCtrl], 0, []);
+    AddKey(ecJumpToDeclaration, VK_UP, [ssCtrl,ssShift], 0, []);
+    AddKey(ecPreviousLocation, 0, [], 0, []);
+    AddKey(ecNextLocation, 0, [], 0, []);
+  end;
+end;
+
+function CustomStringToCommand(const Ident: string; var Int: Longint): Boolean;
+begin
+  case Ident of
+    'ecCompletionMenu':     begin Int := ecCompletionMenu; exit(true); end;
+    'ecJumpToDeclaration':  begin Int := ecJumpToDeclaration; exit(true); end;
+    'ecPreviousLocation':   begin Int := ecPreviousLocation; exit(true); end;
+    'ecNextLocation':       begin Int := ecNextLocation; exit(true); end;
+    else exit(false);
+  end;
+end;
+
+function CustomCommandToSstring(Int: Longint; var Ident: string): Boolean;
+begin
+  case Int of
+    ecCompletionMenu:   begin Ident := 'ecCompletionMenu'; exit(true); end;
+    ecJumpToDeclaration: begin Ident := 'ecJumpToDeclaration'; exit(true); end;
+    ecPreviousLocation: begin Ident := 'ecPreviousLocation'; exit(true); end;
+    ecNextLocation:     begin Ident := 'ecNextLocation'; exit(true); end;
+    else exit(false);
+  end;
+end;
+{$ENDREGIOn}
+
 {$REGION DDoc & CallTip --------------------------------------------------------}
 procedure TCESynMemo.InitHintWins;
 begin
@@ -645,10 +762,16 @@ procedure TCESynMemo.DoOnProcessCommand(var Command: TSynEditorCommand;
   var AChar: TUTF8Char; Data: pointer);
 begin
   inherited;
-  if Command = ecCompletionMenu then
-  begin
-    fCanAutoDot:=false;
-    fCompletion.Execute('', ClientToScreen(point(CaretXPix, CaretYPix + Font.Size)));
+  case Command of
+    ecCompletionMenu:
+    begin
+      fCanAutoDot:=false;
+      fCompletion.Execute('', ClientToScreen(point(CaretXPix, CaretYPix + Font.Size)));
+    end;
+    ecPreviousLocation:
+      fPositions.back;
+    ecNextLocation:
+      fPositions.next;
   end;
 end;
 
@@ -882,135 +1005,6 @@ begin
     result += length(Lines.Strings[i]) + len;
   result += fMousePos.x;
 end;
-
-procedure SetDefaultCoeditKeystrokes(ed: TSynEdit);
-begin
-  with ed do begin
-    Keystrokes.Clear;
-    //
-    AddKey(ecUp, VK_UP, [], 0, []);
-    AddKey(ecSelUp, VK_UP, [ssShift], 0, []);
-    AddKey(ecScrollUp, VK_UP, [ssCtrl], 0, []);
-    AddKey(ecDown, VK_DOWN, [], 0, []);
-    AddKey(ecSelDown, VK_DOWN, [ssShift], 0, []);
-    AddKey(ecScrollDown, VK_DOWN, [ssCtrl], 0, []);
-    AddKey(ecLeft, VK_LEFT, [], 0, []);
-    AddKey(ecSelLeft, VK_LEFT, [ssShift], 0, []);
-    AddKey(ecWordLeft, VK_LEFT, [ssCtrl], 0, []);
-    AddKey(ecSelWordLeft, VK_LEFT, [ssShift,ssCtrl], 0, []);
-    AddKey(ecRight, VK_RIGHT, [], 0, []);
-    AddKey(ecSelRight, VK_RIGHT, [ssShift], 0, []);
-    AddKey(ecWordRight, VK_RIGHT, [ssCtrl], 0, []);
-    AddKey(ecSelWordRight, VK_RIGHT, [ssShift,ssCtrl], 0, []);
-    AddKey(ecPageDown, VK_NEXT, [], 0, []);
-    AddKey(ecSelPageDown, VK_NEXT, [ssShift], 0, []);
-    AddKey(ecPageBottom, VK_NEXT, [ssCtrl], 0, []);
-    AddKey(ecSelPageBottom, VK_NEXT, [ssShift,ssCtrl], 0, []);
-    AddKey(ecPageUp, VK_PRIOR, [], 0, []);
-    AddKey(ecSelPageUp, VK_PRIOR, [ssShift], 0, []);
-    AddKey(ecPageTop, VK_PRIOR, [ssCtrl], 0, []);
-    AddKey(ecSelPageTop, VK_PRIOR, [ssShift,ssCtrl], 0, []);
-    AddKey(ecLineStart, VK_HOME, [], 0, []);
-    AddKey(ecSelLineStart, VK_HOME, [ssShift], 0, []);
-    AddKey(ecEditorTop, VK_HOME, [ssCtrl], 0, []);
-    AddKey(ecSelEditorTop, VK_HOME, [ssShift,ssCtrl], 0, []);
-    AddKey(ecLineEnd, VK_END, [], 0, []);
-    AddKey(ecSelLineEnd, VK_END, [ssShift], 0, []);
-    AddKey(ecEditorBottom, VK_END, [ssCtrl], 0, []);
-    AddKey(ecSelEditorBottom, VK_END, [ssShift,ssCtrl], 0, []);
-    AddKey(ecToggleMode, VK_INSERT, [], 0, []);
-    AddKey(ecDeleteChar, VK_DELETE, [], 0, []);
-    AddKey(ecDeleteLastChar, VK_BACK, [], 0, []);
-    AddKey(ecDeleteLastWord, VK_BACK, [ssCtrl], 0, []);
-    AddKey(ecLineBreak, VK_RETURN, [], 0, []);
-    AddKey(ecSelectAll, ord('A'), [ssCtrl], 0, []);
-    AddKey(ecCopy, ord('C'), [ssCtrl], 0, []);
-    AddKey(ecBlockIndent, ord('I'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecInsertLine, ord('N'), [ssCtrl], 0, []);
-    AddKey(ecDeleteWord, ord('T'), [ssCtrl], 0, []);
-    AddKey(ecBlockUnindent, ord('U'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecPaste, ord('V'), [ssCtrl], 0, []);
-    AddKey(ecCut, ord('X'), [ssCtrl], 0, []);
-    AddKey(ecDeleteLine, ord('Y'), [ssCtrl], 0, []);
-    AddKey(ecDeleteEOL, ord('Y'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecUndo, ord('Z'), [ssCtrl], 0, []);
-    AddKey(ecRedo, ord('Z'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecGotoMarker0, ord('0'), [ssCtrl], 0, []);
-    AddKey(ecGotoMarker1, ord('1'), [ssCtrl], 0, []);
-    AddKey(ecGotoMarker2, ord('2'), [ssCtrl], 0, []);
-    AddKey(ecGotoMarker3, ord('3'), [ssCtrl], 0, []);
-    AddKey(ecGotoMarker4, ord('4'), [ssCtrl], 0, []);
-    AddKey(ecGotoMarker5, ord('5'), [ssCtrl], 0, []);
-    AddKey(ecGotoMarker6, ord('6'), [ssCtrl], 0, []);
-    AddKey(ecGotoMarker7, ord('7'), [ssCtrl], 0, []);
-    AddKey(ecGotoMarker8, ord('8'), [ssCtrl], 0, []);
-    AddKey(ecGotoMarker9, ord('9'), [ssCtrl], 0, []);
-    AddKey(ecSetMarker0, ord('0'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecSetMarker1, ord('1'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecSetMarker2, ord('2'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecSetMarker3, ord('3'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecSetMarker4, ord('4'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecSetMarker5, ord('5'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecSetMarker6, ord('6'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecSetMarker7, ord('7'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecSetMarker8, ord('8'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecSetMarker9, ord('9'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecFoldLevel1, ord('1'), [ssAlt,ssShift], 0, []);
-    AddKey(ecFoldLevel2, ord('2'), [ssAlt,ssShift], 0, []);
-    AddKey(ecFoldLevel3, ord('3'), [ssAlt,ssShift], 0, []);
-    AddKey(ecFoldLevel4, ord('4'), [ssAlt,ssShift], 0, []);
-    AddKey(ecFoldLevel5, ord('5'), [ssAlt,ssShift], 0, []);
-    AddKey(ecFoldLevel6, ord('6'), [ssAlt,ssShift], 0, []);
-    AddKey(ecFoldLevel7, ord('7'), [ssAlt,ssShift], 0, []);
-    AddKey(ecFoldLevel8, ord('8'), [ssAlt,ssShift], 0, []);
-    AddKey(ecFoldLevel9, ord('9'), [ssAlt,ssShift], 0, []);
-    AddKey(ecFoldLevel0, ord('0'), [ssAlt,ssShift], 0, []);
-    AddKey(ecFoldCurrent, ord('-'), [ssAlt,ssShift], 0, []);
-    AddKey(ecUnFoldCurrent, ord('+'), [ssAlt,ssShift], 0, []);
-    AddKey(EcToggleMarkupWord, ord('M'), [ssAlt], 0, []);
-    AddKey(ecNormalSelect, ord('N'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecColumnSelect, ord('C'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecLineSelect, ord('L'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecTab, VK_TAB, [], 0, []);
-    AddKey(ecShiftTab, VK_TAB, [ssShift], 0, []);
-    AddKey(ecMatchBracket, ord('B'), [ssCtrl,ssShift], 0, []);
-    AddKey(ecColSelUp, VK_UP,    [ssAlt, ssShift], 0, []);
-    AddKey(ecColSelDown, VK_DOWN,  [ssAlt, ssShift], 0, []);
-    AddKey(ecColSelLeft, VK_LEFT, [ssAlt, ssShift], 0, []);
-    AddKey(ecColSelRight, VK_RIGHT, [ssAlt, ssShift], 0, []);
-    AddKey(ecColSelPageDown, VK_NEXT, [ssAlt, ssShift], 0, []);
-    AddKey(ecColSelPageBottom, VK_NEXT, [ssAlt, ssShift,ssCtrl], 0, []);
-    AddKey(ecColSelPageUp, VK_PRIOR, [ssAlt, ssShift], 0, []);
-    AddKey(ecColSelPageTop, VK_PRIOR, [ssAlt, ssShift,ssCtrl], 0, []);
-    AddKey(ecColSelLineStart, VK_HOME, [ssAlt, ssShift], 0, []);
-    AddKey(ecColSelLineEnd, VK_END, [ssAlt, ssShift], 0, []);
-    AddKey(ecColSelEditorTop, VK_HOME, [ssAlt, ssShift,ssCtrl], 0, []);
-    AddKey(ecColSelEditorBottom, VK_END, [ssAlt, ssShift,ssCtrl], 0, []);
-    AddKey(ecSynPSyncroEdStart, ord('E'), [ssCtrl], 0, []);
-    AddKey(ecSynPSyncroEdEscape, ord('E'), [ssCtrl, ssShift], 0, []);
-    AddKey(ecCompletionMenu, ord(' '), [ssCtrl], 0, []);
-    AddKey(ecJumpToDefinition, VK_UP, [ssCtrl,ssShift], 0, []);
-  end;
-end;
-
-function CustomStringToCommand(const Ident: string; var Int: Longint): Boolean;
-begin
-  case Ident of
-    'ecCompletionMenu':     begin Int := ecCompletionMenu; exit(true); end;
-    'ecJumpToDeclaration':  begin Int := ecJumpToDefinition; exit(true); end;
-    else exit(false);
-  end;
-end;
-
-function CustomCommandToSstring(Int: Longint; var Ident: string): Boolean;
-begin
-  case Int of
-    ecCompletionMenu:   begin Ident := 'ecCompletionMenu'; exit(true); end;
-    ecJumpToDefinition: begin Ident := 'ecJumpToDeclaration'; exit(true); end;
-    else exit(false);
-  end;
-end;
-
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION user input ------------------------------------------------------------}

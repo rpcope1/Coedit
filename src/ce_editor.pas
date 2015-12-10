@@ -306,7 +306,7 @@ procedure TCEEditorWidget.memoCmdProcessed(Sender: TObject; var Command: TSynEdi
 begin
   fLastCommand := Command;
   //
-  if Command = ecJumpToDefinition then
+  if Command = ecJumpToDeclaration then
     getSymbolLoc;
 end;
 
