@@ -40,7 +40,7 @@ type
     procedure mnuedUndoClick(Sender: TObject);
     procedure mnuedRedoClick(Sender: TObject);
     procedure mnuedJum2DeclClick(Sender: TObject);
-    procedure PageControlChange(Sender: TObject);
+    procedure PageControlChanged(Sender: TObject);
     procedure PageControlChanging(Sender: TObject; var AllowChange: Boolean);
   protected
     procedure updateDelayed; override;
@@ -94,7 +94,7 @@ begin
   pageControl := TCEPageControl.Create(self);
   pageControl.Parent := Content;
   pageControl.align := alClient;
-  pageControl.onChanged:= @PageControlChange;
+  pageControl.onChanged:= @PageControlChanged;
   pageControl.onChanging:=@PageControlChanging;
   pageControl.closeButton.OnClick:=@pageCloseBtnClick;
   pageControl.addButton.OnClick:=@pageBtnAddCLick;
@@ -273,9 +273,9 @@ begin
   end;
 end;
 
-procedure TCEEditorWidget.PageControlChange(Sender: TObject);
+procedure TCEEditorWidget.PageControlChanged(Sender: TObject);
 begin
-  updateImperative;
+  //updateImperative;
 end;
 
 procedure TCEEditorWidget.PageControlChanging(Sender: TObject; var AllowChange: Boolean);
