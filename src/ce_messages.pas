@@ -893,6 +893,8 @@ var
 begin
   result := false;
   msgDt := PMessageData(item.Data);
+  if (not assigned(msgDt)) then
+    exit;
   if aCtxt = amcAll then
     result := true
   else case msgDt^.ctxt of
@@ -906,12 +908,14 @@ end;
 procedure TCEMessagesWidget.filterMessages(aCtxt: TCEAppMessageCtxt);
 var
   itm: TTreeNode;
+  i: integer;
 begin
   if updating then
     exit;
   List.BeginUpdate;
-  for itm in List.Items do
+  for i := 0 to List.Items.Count-1 do
   begin
+    itm := List.Items.Item[i];
     if not fFiltering then
       itm.Visible := itemShouldBeVisible(itm, aCtxt)
     else
