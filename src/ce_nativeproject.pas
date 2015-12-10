@@ -115,10 +115,17 @@ type
   // native project have no ext constraint, this function tells if filename is project
   function isValidNativeProject(const filename: string): boolean;
 
+  function getNativeProjectCompiler: TCECompiler;
+  procedure setNativeProjectCompiler(value: TCECompiler);
+
 implementation
 
 uses
   controls, dialogs, ce_symstring, ce_libman, ce_dcd;
+
+var
+  NativeProjectCompilerFilename: string = 'dmd';
+  NativeProjectCompiler: TCECompiler;
 
 constructor TCENativeProject.create(aOwner: TComponent);
 begin
@@ -716,7 +723,7 @@ begin
     // this doesn't work under linux, so the  previous ChDir.
     if directoryExists(prjpath) then
       compilproc.CurrentDirectory := prjpath;
-    compilproc.Executable := DCompiler;
+    compilproc.Executable := NativeProjectCompilerFilename;
     compilproc.Options := compilproc.Options + [poStderrToOutPut, poUsePipes];
     compilproc.ShowWindow := swoHIDE;
     getOpts(compilproc.Parameters);
@@ -961,6 +968,29 @@ begin
     maybe.Free;
     EntitiesConnector.endUpdate;
   end;
+end;
+
+function getNativeProjectCompiler: TCECompiler;
+begin
+  exit(NativeProjectCompiler);
+end;
+
+procedure setNativeProjectCompiler(value: TCECompiler);
+begin
+  case value of
+    // TODO-cfeature: a dmd2gdc and a dmd2ldc2 option translater.
+    // maybe done in D using getOpt, as a tool: ceLdcOpt, ceGDCOpt
+    dmd: NativeProjectCompilerFilename := exeFullName('dmd');
+    gdc: NativeProjectCompilerFilename := ''; // need option translater dmd->gdc
+    ldc: NativeProjectCompilerFilename := ''; // need option translater dmd->ldc
+  end;
+  if (not fileExists(NativeProjectCompilerFilename))
+    or (NativeProjectCompilerFilename = '') then
+  begin
+    value := dmd;
+    NativeProjectCompilerFilename:= 'dmd';
+  end;
+  NativeProjectCompiler := value;
 end;
 
 initialization

@@ -86,7 +86,15 @@ type
   // returns true if filename is a valid dub project. Only json format is supported.
   function isValidDubProject(const filename: string): boolean;
 
+  function getDubCompiler: TCECompiler;
+  procedure setDubCompiler(value: TCECompiler);
+
 implementation
+
+var
+
+  DubCompiler: TCECompiler = dmd;
+  DubCompilerFilename: string = 'dmd';
 
 const
 
@@ -95,6 +103,7 @@ const
   );
 
   DubDefaultConfigName = '(default config)';
+
 
 {$REGION Standard Comp/Obj -----------------------------------------------------}
 constructor TCEDubProject.create(aOwner: TComponent);
@@ -250,6 +259,7 @@ begin
     str.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
     if (fConfigs.Count <> 1) and (fConfigs.Strings[0] <> DubDefaultConfigName) then
       str.Add('--config=' + fConfigs.Strings[fConfigIx]);
+    str.Add('--compiler=' + DubCompilerFilename);
     result := str.Text;
   finally
     str.Free;
@@ -386,6 +396,7 @@ begin
     dubproc.Parameters.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
     if (fConfigs.Count <> 1) and (fConfigs.Strings[0] <> DubDefaultConfigName) then
       dubproc.Parameters.Add('--config=' + fConfigs.Strings[fConfigIx]);
+    dubProc.Parameters.Add('--compiler=' + DubCompilerFilename);
     if run and (runArgs <> '') then
       dubproc.Parameters.Add('--' + runArgs);
     dubproc.Execute;
@@ -767,6 +778,9 @@ begin
 end;
 {$ENDREGION}
 
+{$ENDREGION --------------------------------------------------------------------}
+
+{$REGION Miscellaneous DUB free functions --------------------------------------}
 function isValidDubProject(const filename: string): boolean;
 var
   maybe: TCEDubProject;
@@ -790,7 +804,29 @@ begin
     EntitiesConnector.endUpdate;
   end;
 end;
-{$ENDREGION --------------------------------------------------------------------}
 
+function getDubCompiler: TCECompiler;
+begin
+  exit(DubCompiler);
+end;
+
+procedure setDubCompiler(value: TCECompiler);
+begin
+  case value of
+    dmd: DubCompilerFilename := exeFullName('dmd');
+    gdc: DubCompilerFilename := exeFullName('gdc');
+    ldc: DubCompilerFilename := exeFullName('ldc2');
+  end;
+  if (not fileExists(DubCompilerFilename)) or (DubCompilerFilename = '') then
+  begin
+    value := dmd;
+    DubCompilerFilename:= 'dmd';
+  end;
+  DubCompiler := value;
+end;
+{$ENDREGION}
+
+initialization
+  setDubCompiler(dmd);
 end.
 

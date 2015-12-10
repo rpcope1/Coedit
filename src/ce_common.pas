@@ -24,8 +24,10 @@ const
   libExt = {$IFDEF WINDOWS} '.lib' {$ELSE} '.a' {$ENDIF};
   dynExt = {$IFDEF WINDOWS} '.dll' {$ENDIF} {$IFDEF LINUX}'.so'{$ENDIF} {$IFDEF DARWIN}'.dylib'{$ENDIF};
 
-var
-  DCompiler: string = 'dmd';
+type
+
+  TCECompiler = (dmd, gdc, ldc);
+
 
 type
 

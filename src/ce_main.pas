@@ -371,11 +371,17 @@ type
     fReloadLastDocuments: boolean;
     fMaxRecentProjs: integer;
     fMaxRecentDocs: integer;
+    function getDubCompiler: TCECompiler;
+    function getNativeProjecCompiler: TCECompiler;
+    procedure setDubCompiler(value: TCECompiler);
+    procedure setNativeProjecCompiler(value: TCECompiler);
   published
     property floatingWidgetOnTop: boolean read fFloatingWidgetOnTop write fFloatingWidgetOnTop;
     property reloadLastDocuments: boolean read fReloadLastDocuments write fReloadLastDocuments;
     property maxRecentProjects: integer read fMaxRecentProjs write fMaxRecentProjs;
     property maxRecentDocuments: integer read fMaxRecentDocs write fMaxRecentDocs;
+    property dubCompiler: TCECompiler read getDubCompiler write setDubCompiler;
+    property nativeProjecCompiler: TCECompiler read getNativeProjecCompiler write setNativeProjecCompiler;
   end;
 
   TCEApplicationOptions = class(TCEApplicationOptionsBase, ICEEditableOptions)
@@ -409,6 +415,26 @@ begin
   inherited;
   fBackup := TCEApplicationOptionsBase.Create(self);
   EntitiesConnector.addObserver(self);
+end;
+
+function TCEApplicationOptionsBase.getDubCompiler: TCECompiler;
+begin
+  exit(ce_dubproject.getDubCompiler);
+end;
+
+function TCEApplicationOptionsBase.getNativeProjecCompiler: TCECompiler;
+begin
+  exit(ce_nativeproject.getNativeProjectCompiler);
+end;
+
+procedure TCEApplicationOptionsBase.setDubCompiler(value: TCECompiler);
+begin
+  ce_dubproject.setDubCompiler(value);
+end;
+
+procedure TCEApplicationOptionsBase.setNativeProjecCompiler(value: TCECompiler);
+begin
+  ce_nativeproject.setNativeProjectCompiler(value);
 end;
 
 destructor TCEApplicationOptions.Destroy;
@@ -1691,7 +1717,7 @@ begin
     //processOutputToStrings(proc, lst);
     if proc = fRunProc then for str in lst do
       fMsgs.message(str, fDoc, amcEdit, amkBub)
-    else if proc.Executable = DCompiler then
+    else // dmd used to compile runnable
       for str in lst do
         fMsgs.message(str, fDoc, amcEdit, amkAuto);
   finally
@@ -1817,7 +1843,7 @@ begin
   	dmdproc.OnReadData := @asyncprocOutput;
   	dmdproc.OnTerminate:= @asyncprocTerminate;
     dmdproc.Options := [poUsePipes, poStderrToOutPut];
-    dmdproc.Executable := DCompiler;
+    dmdproc.Executable := 'dmd';
     dmdproc.Parameters.Add(fDoc.fileName);
     dmdproc.Parameters.Add('-J' + ExtractFilePath(fDoc.fileName));
     dmdproc.Parameters.AddText(fRunnableSw);
