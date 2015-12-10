@@ -1,20 +1,20 @@
 inherited CEProcInputWidget: TCEProcInputWidget
   Left = 863
-  Height = 65
+  Height = 63
   Top = 397
   Width = 613
   Caption = 'Process input'
-  ClientHeight = 65
+  ClientHeight = 63
   ClientWidth = 613
   inherited Back: TPanel
-    Height = 65
+    Height = 63
     Width = 613
-    ClientHeight = 65
+    ClientHeight = 63
     ClientWidth = 613
     inherited Content: TPanel
-      Height = 65
+      Height = 63
       Width = 613
-      ClientHeight = 65
+      ClientHeight = 63
       ClientWidth = 613
       object txtExeName: TStaticText[0]
         Left = 4
@@ -31,9 +31,9 @@ inherited CEProcInputWidget: TCEProcInputWidget
       object Panel1: TPanel[1]
         Left = 4
         Height = 30
-        Top = 31
+        Top = 30
         Width = 605
-        Align = alBottom
+        Align = alTop
         BorderSpacing.Around = 4
         BevelOuter = bvNone
         ClientHeight = 30
