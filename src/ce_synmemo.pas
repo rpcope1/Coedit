@@ -451,7 +451,7 @@ begin
   Gutter.SeparatorPart.LineOffset := 0;
   Gutter.SeparatorPart.LineWidth := 1;
   Gutter.SeparatorPart.MarkupInfo.Foreground := clBackground;
-  Gutter.SeparatorPart.MarkupInfo.Background := clBackground;
+  Gutter.SeparatorPart.MarkupInfo.Background := clWindowText;
   Gutter.OnGutterClick:= @gutterClick;
   BracketMatchColor.Foreground:=clRed;
   //
