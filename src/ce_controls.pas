@@ -212,7 +212,6 @@ end;
 procedure TCEPageControl.hidePage(index: integer);
 var
   pge: TCEPage;
-  ctl: TControl;
 begin
   if (index < 0) or (index > fPages.Count-1) then
     exit;

@@ -344,12 +344,14 @@ type
   private
     fDocuments: TStringList;
     fProject: string;
+    fDocIndex: integer;
     //fProjectGRoup: string;
     procedure setDocuments(aValue: TStringList);
   protected
     procedure beforeSave; override;
     procedure afterLoad; override;
   published
+    property documentIndex: integer read fDocIndex write fDocIndex;
     property documents: TStringList read fDocuments write setDocuments;
     property project: string read fProject write fProject;
     // property projectGroup: string read fProjectGroup write fProjectGroup;
@@ -528,30 +530,49 @@ end;
 procedure TCELastDocsAndProjs.beforeSave;
 var
   i: integer;
-  mdh: ICEMultiDocHandler;
+  docHandler: ICEMultiDocHandler;
+  document: TCESynMemo;
   str: string;
 begin
-  mdh := getMultiDocHandler;
-  if mdh = nil then exit;
-  for i:= 0 to mdh.documentCount-1 do
+  docHandler := getMultiDocHandler;
+  if docHandler = nil then
+    exit;
+  //
+  for i:= 0 to docHandler.documentCount-1 do
   begin
-    str := mdh.document[i].fileName;
-    if str <> mdh.document[i].tempFilename then
-      if FileExists(str) then
-        fDocuments.Add(str);
+    document := docHandler.document[i];
+    str := document.fileName;
+    if (str <> document.tempFilename) and FileExists(str) then
+    begin
+      fDocuments.Add(str);
+      if document.Focused then
+        documentIndex := i;
+    end;
   end;
 end;
 
 procedure TCELastDocsAndProjs.afterLoad;
 var
-  mdh: ICEMultiDocHandler;
-  str: string;
+  docHandler: ICEMultiDocHandler;
+  str, focusedName: string;
+  i: integer;
 begin
-  mdh := getMultiDocHandler;
-  if mdh = nil then exit;
-  for str in fDocuments do
+  docHandler := getMultiDocHandler;
+  if docHandler = nil then
+    exit;
+  //
+  for i := 0 to fDocuments.Count-1 do
+  begin
+    str := fDocuments.Strings[i];
     if FileExists(str) then
-      mdh.openDocument(str);
+      docHandler.openDocument(str);
+    if i = fDocIndex then
+      focusedName := str;
+  end;
+  //
+  if focusedName <> '' then
+    docHandler.openDocument(focusedName);
+
   // TODO-cbugfix: if project file is reloaded to an editor it won't be linked to the matching project (e.g save file and project editor widget directly updated)
   // same with MRU file or mini-explorer.
 end;
