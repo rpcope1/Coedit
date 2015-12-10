@@ -994,5 +994,6 @@ begin
 end;
 
 initialization
+  setNativeProjectCompiler(dmd);
   RegisterClasses([TCENativeProject]);
 end.
