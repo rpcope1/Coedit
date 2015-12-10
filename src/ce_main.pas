@@ -36,6 +36,7 @@ type
     actFileHtmlExport: TAction;
     actFileUnittest: TAction;
     actFileCompileAndRunOut: TAction;
+    actFileSaveCopyAs: TAction;
     actProjNewDubJson: TAction;
     actProjNewNative: TAction;
     actSetRunnableSw: TAction;
@@ -130,6 +131,7 @@ type
     MenuItem68: TMenuItem;
     MenuItem69: TMenuItem;
     MenuItem70: TMenuItem;
+    MenuItem71: TMenuItem;
     mnuLayout: TMenuItem;
     mnuItemMruFile: TMenuItem;
     mnuItemMruProj: TMenuItem;
@@ -140,6 +142,7 @@ type
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
+    procedure actFileSaveCopyAsExecute(Sender: TObject);
     procedure actProjNewDubJsonExecute(Sender: TObject);
     procedure actProjNewNativeExecute(Sender: TObject);
     procedure actSetRunnableSwExecute(Sender: TObject);
@@ -1561,6 +1564,31 @@ begin
       break;
     end
     else openFile(fname);
+  end;
+end;
+
+procedure TCEMainForm.actFileSaveCopyAsExecute(Sender: TObject);
+var
+  str: TStringList;
+begin
+  if fDoc = nil then
+    exit;
+  with TSaveDialog.create(nil) do
+  try
+    if fDoc.isDSource then
+      Filter:= DdiagFilter;
+    if execute then
+    begin
+      str := TStringList.create;
+      try
+        str.assign(fDoc.Lines);
+        str.saveToFile(FileName);
+      finally
+        str.free;
+      end;
+    end;
+  finally
+    free;
   end;
 end;
 {$ENDREGION}

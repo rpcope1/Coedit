@@ -1790,6 +1790,9 @@ object CEMainForm: TCEMainForm
           CEFFD8D1D2FFB37A06FFB78116FFB9851CC5BB871F00BB871F00
         }
       end
+      object MenuItem71: TMenuItem
+        Action = actFileSaveCopyAs
+      end
       object MenuItem62: TMenuItem
         Action = actFileHtmlExport
         Bitmap.Data = {
@@ -1914,7 +1917,7 @@ object CEMainForm: TCEMainForm
         }
       end
       object MenuItem38: TMenuItem
-        Action = ActFileCompAndRunWithArgs
+        Action = actFileCompAndRunWithArgs
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000000000000000
@@ -3278,7 +3281,7 @@ object CEMainForm: TCEMainForm
         }
       end
       object MenuItem13: TMenuItem
-        Action = ActFileCompAndRunWithArgs
+        Action = actFileCompAndRunWithArgs
         Bitmap.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000064000000640000000000000000000000000000000000
@@ -3929,11 +3932,11 @@ object CEMainForm: TCEMainForm
       OnExecute = actFileCompileAndRunOutExecute
       OnUpdate = updateDocumentBasedAction
     end
-    object ActFileCompAndRunWithArgs: TAction
+    object actFileCompAndRunWithArgs: TAction
       Category = 'File'
       Caption = 'Compile file and run...'
       ImageIndex = 22
-      OnExecute = ActFileCompAndRunWithArgsExecute
+      OnExecute = actFileCompAndRunWithArgsExecute
       OnUpdate = updateDocumentBasedAction
       ShortCut = 24695
     end
@@ -3990,6 +3993,13 @@ object CEMainForm: TCEMainForm
       Caption = 'Native format'
       ImageIndex = 8
       OnExecute = actProjNewNativeExecute
+    end
+    object actFileSaveCopyAs: TAction
+      Category = 'File'
+      Caption = 'Save file copy as...'
+      ImageIndex = 2
+      OnExecute = actFileSaveCopyAsExecute
+      OnUpdate = updateDocumentBasedAction
     end
   end
   object imgList: TImageList
