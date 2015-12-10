@@ -98,8 +98,8 @@ begin
   pageControl.onChanging:=@PageControlChanging;
   pageControl.closeButton.OnClick:=@pageCloseBtnClick;
   pageControl.addButton.OnClick:=@pageBtnAddCLick;
-  AssignPng(pageControl.moveLeftButton, 'document_back');
-  AssignPng(pageControl.moveRightButton, 'document_next');
+  AssignPng(pageControl.moveLeftButton, 'go_previous');
+  AssignPng(pageControl.moveRightButton, 'go_next');
   AssignPng(pageControl.addButton, 'document_add');
   AssignPng(pageControl.closeButton, 'document_delete');
 
