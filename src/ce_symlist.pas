@@ -441,7 +441,7 @@ end;
 procedure TCESymbolListWidget.actAutoRefreshExecute(Sender: TObject);
 begin
   autoRefresh := fActAutoRefresh.Checked;
-  fOptions.Assign(self);
+  //fOptions.Assign(self);
 end;
 
 procedure TCESymbolListWidget.actRefreshOnChangeExecute(Sender: TObject);
@@ -735,6 +735,7 @@ end;
 //
 var
   i: Integer;
+  flt: string;
 begin
   if ndAlias = nil then exit;
   clearTree;
@@ -747,6 +748,8 @@ begin
   if fToolProc.OutputStack.Size = 0 then exit;
   fSyms.LoadFromTool(fToolProc.OutputStack);
   //
+  flt := TreeFilterEdit1.Filter;
+  TreeFilterEdit1.Text := '';
   tree.BeginUpdate;
   for i := 0 to fSyms.symbols.Count-1 do
     symbolToTreeNode(nil, fSyms.symbols[i]);
@@ -761,10 +764,11 @@ begin
     for i:= 0 to tree.Items.Count-1 do
       if Tree.Items[i].Count > 0 then
         tree.Items[i].CustomSort(nil);
-
   if fSmartExpander then
     smartExpand;
   tree.EndUpdate;
+  if flt <> '' then
+    TreeFilterEdit1.Text := flt;
 end;
 
 procedure TCESymbolListWidget.smartExpand;
