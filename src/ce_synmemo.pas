@@ -449,10 +449,9 @@ begin
   //
   Gutter.LineNumberPart.ShowOnlyLineNumbersMultiplesOf := 5;
   Gutter.LineNumberPart.MarkupInfo.Foreground := clWindowText;
+  Gutter.LineNumberPart.MarkupInfo.Background := clBtnFace;
   Gutter.SeparatorPart.LineOffset := 0;
   Gutter.SeparatorPart.LineWidth := 1;
-  Gutter.SeparatorPart.MarkupInfo.Foreground := clBackground;
-  Gutter.SeparatorPart.MarkupInfo.Background := clWindowText;
   Gutter.OnGutterClick:= @gutterClick;
   BracketMatchColor.Foreground:=clRed;
   //

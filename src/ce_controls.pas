@@ -175,7 +175,7 @@ begin
   fContent.BevelInner:= bvNone;
   fContent.BevelOuter:= bvNone;
   fContent.BorderStyle:=bsNone;
-  fContent.BorderSpacing.Around:=0;
+  fContent.BorderSpacing.Top:=3;
 
   fPages := TFPList.Create;
   fPageIndex := -1;
