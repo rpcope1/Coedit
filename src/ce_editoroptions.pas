@@ -538,6 +538,7 @@ var
   shc: TCEPersistentShortcut;
   kst: TSynEditKeyStroke;
   dup: boolean;
+  savedSize: integer;
 begin
   anEditor.D2Highlighter.Assign(D2Syn);
   anEditor.TxtHighlighter.Assign(TxtSyn);
@@ -545,8 +546,10 @@ begin
   anEditor.autoDotDelay:=fAutoDotDelay;
   anEditor.ddocDelay:=fDDocDelay;
 
+  savedSize := anEditor.Font.Size;
   anEditor.defaultFontSize := font.Size;
   anEditor.Font.Assign(font);
+  anEditor.Font.Size := savedSize;
 
   anEditor.completionMenu.TheForm.Height  := fCompletionMenuHeight;
   anEditor.completionMenu.TheForm.Width   := fCompletionMenuWidth;

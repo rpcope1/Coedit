@@ -441,7 +441,7 @@ begin
   fDDocTimer.Interval := fDDocDelay;
   fDDocTimer.OnTimer := @DDocTimerEvent;
   //
-  fAutoDotDelay := 200;
+  fAutoDotDelay := 20;
   fAutoDotTimer := TIdleTimer.Create(self);
   fAutoDotTimer.AutoEnabled:=true;
   fAutoDotTimer.Interval := fAutoDotDelay;
