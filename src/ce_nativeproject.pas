@@ -728,12 +728,10 @@ begin
     compilproc.ShowWindow := swoHIDE;
     getOpts(compilproc.Parameters);
     compilproc.Execute;
-    if NativeProjectCompiler <> dmd then
+    if NativeProjectCompiler = gdc then
     begin
-      case NativeProjectCompiler of
-        gdc: begin str := 'gdc'; compilproc.Input.Write(str[1], 3) end;
-        ldc: begin str := 'ldc2'; compilproc.Input.Write(str[1], 4) end;
-      end;
+      str := 'gdc';
+      compilproc.Input.Write(str[1], 3);
       compilproc.CloseInput;
     end;
     while compilProc.Running do
@@ -988,7 +986,7 @@ begin
   case value of
     dmd: NativeProjectCompilerFilename := exeFullName('dmd' + exeExt);
     gdc: NativeProjectCompilerFilename := exeFullName('cegdcldc' + exeExt);
-    ldc: NativeProjectCompilerFilename := exeFullName('cegdcldc' + exeExt);
+    ldc: NativeProjectCompilerFilename := exeFullName('ldmd2' + exeExt);
   end;
   if (not fileExists(NativeProjectCompilerFilename))
     or (NativeProjectCompilerFilename = '') then
