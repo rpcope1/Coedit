@@ -61,7 +61,7 @@ type
     function find(const aValue: string): boolean; {$IFNDEF DEBUG}inline;{$ENDIF}
   end;
 
-  TTokenKind = (tkCommt, tkIdent, tkKeywd, tkStrng, tkBlank, tkSymbl, tkNumbr, tkCurrI, tkDDocs, tkSpecK, tkUsers);
+  TTokenKind = (tkCommt, tkIdent, tkKeywd, tkStrng, tkBlank, tkSymbl, tkNumbr, tkCurrI, tkDDocs, tkSpecK);
 
   TRangeKind = (rkString1, rkString2, rkTokString, rkBlockCom1, rkBlockCom2, rkBlockDoc1, rkBlockDoc2, rkAsm);
 
@@ -112,8 +112,6 @@ type
     fDDocsAttrib: TSynHighlighterAttributes;
     fAsblrAttrib: TSynHighlighterAttributes;
     fSpeckAttrib: TSynHighlighterAttributes;
-    fUsersAttrib: TSynHighlighterAttributes;
-    fUserWords: TStringList;
     fKeyWords: TD2Dictionary;
     fSpecKw: TD2Dictionary;
     fCurrIdent: string;
@@ -135,15 +133,12 @@ type
     procedure setDDocsAttrib(value: TSynHighlighterAttributes);
     procedure setAsblrAttrib(value: TSynHighlighterAttributes);
     procedure setSpeckAttrib(value: TSynHighlighterAttributes);
-    procedure setUsersAttrib(value: TSynHighlighterAttributes);
-    procedure setUsersWords(value: TStringList);
     procedure doAttribChange(sender: TObject);
     procedure setCurrIdent(const value: string);
     procedure doChanged;
   protected
     function GetRangeClass: TSynCustomHighlighterRangeClass; override;
 	published
-    property UsersKeyWords: TStringList read fUserWords write setUsersWords;
     property FoldKinds: TFoldKinds read fFoldKinds write setFoldKinds;
     property WhiteAttrib: TSynHighlighterAttributes read fWhiteAttrib write setWhiteAttrib;
     property NumbrAttrib: TSynHighlighterAttributes read fNumbrAttrib write setNumbrAttrib;
@@ -156,7 +151,6 @@ type
     property DDocsAttrib: TSynHighlighterAttributes read fDDocsAttrib write setDDocsAttrib;
     property AsblrAttrib: TSynHighlighterAttributes read fAsblrAttrib write setAsblrAttrib;
     property SpeckAttrib: TSynHighlighterAttributes read fSpeckAttrib write setSpeckAttrib;
-    property UsersAttrib: TSynHighlighterAttributes read fUsersAttrib write setUsersAttrib;
 	public
 		constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -304,8 +298,6 @@ begin
 
   WordBreakChars := WordBreakChars - ['@'];
 
-  fUserWords := TStringList.Create;
-
   fWhiteAttrib := TSynHighlighterAttributes.Create('White','White');
 	fNumbrAttrib := TSynHighlighterAttributes.Create('Number','Number');
 	fSymblAttrib := TSynHighlighterAttributes.Create('Symbol','Symbol');
@@ -317,7 +309,6 @@ begin
   fDDocsAttrib := TSynHighlighterAttributes.Create('DDoc','DDoc');
   fAsblrAttrib := TSynHighlighterAttributes.Create('Asm','Asm');
   fSpeckAttrib := TSynHighlighterAttributes.Create('SpecialKeywords','SpecialKeywords');
-  fUsersAttrib := TSynHighlighterAttributes.Create('UsersWords','UsersWords');
 
   fNumbrAttrib.Foreground := $000079F2;
   fSymblAttrib.Foreground := clMaroon;
@@ -327,7 +318,6 @@ begin
   fKeywdAttrib.Foreground := clNavy;
   fAsblrAttrib.Foreground := clGray;
   fSpeckAttrib.Foreground := clNavy;
-  fUsersAttrib.Foreground := clSilver;
 
   fCurrIAttrib.Foreground := clBlack;
   fCurrIAttrib.FrameEdges := sfeAround;
@@ -352,7 +342,6 @@ begin
   AddAttribute(fDDocsAttrib);
   AddAttribute(fAsblrAttrib);
   AddAttribute(fSpeckAttrib);
-  AddAttribute(fUsersAttrib);
 
   fAttribLut[TTokenKind.tkident] := fIdentAttrib;
   fAttribLut[TTokenKind.tkBlank] := fWhiteAttrib;
@@ -364,7 +353,6 @@ begin
   fAttribLut[TTokenKind.tkCurrI] := fCurrIAttrib;
   fAttribLut[TTokenKind.tkDDocs] := fDDocsAttrib;
   fAttribLut[TTokenKind.tkSpecK] := fSpeckAttrib;
-  fAttribLut[TTokenKind.tkUsers] := fUsersAttrib;
 
   SetAttributesOnChange(@doAttribChange);
   fTokStop := 1;
@@ -373,7 +361,6 @@ end;
 
 destructor TSynD2Syn.destroy;
 begin
-  fUserWords.Free;
   fCurrRange.Free;
   inherited;
 end;
@@ -387,7 +374,6 @@ begin
   begin
     srcsyn := TSynD2Syn(Source);
     FoldKinds := srcsyn.FoldKinds;
-    fUserWords.Assign(srcsyn.UsersKeyWords);
   end;
 end;
 
@@ -470,16 +456,6 @@ end;
 procedure TSynD2Syn.setSpeckAttrib(value: TSynHighlighterAttributes);
 begin
   fSpeckAttrib.Assign(value);
-end;
-
-procedure TSynD2Syn.setUsersAttrib(value: TSynHighlighterAttributes);
-begin
-  fUsersAttrib.Assign(value);
-end;
-
-procedure TSynD2Syn.setUsersWords(value: TStringList);
-begin
-  fUserWords.Assign(value);
 end;
 
 procedure TSynD2Syn.setCurrIdent(const value: string);
@@ -880,9 +856,6 @@ begin
       fTokKind := tkKeywd
     else if fSpecKw.find(fLineBuf[FTokStart..fTokStop-1]) then
       fTokKind := tkSpecK
-    else if (fUserWords.Count > 0) and
-        (fUserWords.IndexOf(fLineBuf[FTokStart..fTokStop-1]) <> -1) then
-          fTokKind := tkUsers
     else if fLineBuf[FTokStart..fTokStop-1]  = fCurrIdent then
       fTokKind := tkCurrI;
     //check asm range
