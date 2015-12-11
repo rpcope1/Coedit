@@ -61,7 +61,7 @@ type
     function find(const aValue: string): boolean; {$IFNDEF DEBUG}inline;{$ENDIF}
   end;
 
-  TTokenKind = (tkCommt, tkIdent, tkKeywd, tkStrng, tkBlank, tkSymbl, tkNumbr, tkCurrI, tkDDocs, tkSpecK);
+  TTokenKind = (tkCommt, tkIdent, tkKeywd, tkStrng, tkBlank, tkSymbl, tkNumbr, tkDDocs, tkSpecK);
 
   TRangeKind = (rkString1, rkString2, rkTokString, rkBlockCom1, rkBlockCom2, rkBlockDoc1, rkBlockDoc2, rkAsm);
 
@@ -114,7 +114,6 @@ type
     fSpeckAttrib: TSynHighlighterAttributes;
     fKeyWords: TD2Dictionary;
     fSpecKw: TD2Dictionary;
-    fCurrIdent: string;
     fLineBuf: string;
     fTokStart, fTokStop: Integer;
     fTokKind: TTokenKind;
@@ -134,7 +133,6 @@ type
     procedure setAsblrAttrib(value: TSynHighlighterAttributes);
     procedure setSpeckAttrib(value: TSynHighlighterAttributes);
     procedure doAttribChange(sender: TObject);
-    procedure setCurrIdent(const value: string);
     procedure doChanged;
   protected
     function GetRangeClass: TSynCustomHighlighterRangeClass; override;
@@ -147,7 +145,7 @@ type
     property CommtAttrib: TSynHighlighterAttributes read fCommtAttrib write setCommtAttrib;
     property StrngAttrib: TSynHighlighterAttributes read fStrngAttrib write setStrngAttrib;
     property KeywdAttrib: TSynHighlighterAttributes read fKeywdAttrib write setKeywdAttrib;
-    property CurrIAttrib: TSynHighlighterAttributes read fCurrIAttrib write setCurrIAttrib;
+    property CurrIAttrib: TSynHighlighterAttributes read fCurrIAttrib write setCurrIAttrib stored false;
     property DDocsAttrib: TSynHighlighterAttributes read fDDocsAttrib write setDDocsAttrib;
     property AsblrAttrib: TSynHighlighterAttributes read fAsblrAttrib write setAsblrAttrib;
     property SpeckAttrib: TSynHighlighterAttributes read fSpeckAttrib write setSpeckAttrib;
@@ -167,7 +165,6 @@ type
     procedure SetRange(Value: Pointer); override;
     procedure ResetRange; override;
     function GetRange: Pointer; override;
-    property CurrentIdentifier: string read fCurrIdent write setCurrIdent;
 	end;
 
 implementation
@@ -350,7 +347,6 @@ begin
   fAttribLut[TTokenKind.tkNumbr] := fNumbrAttrib;
   fAttribLut[TTokenKind.tkStrng] := fStrngAttrib;
   fAttribLut[TTokenKind.tksymbl] := fSymblAttrib;
-  fAttribLut[TTokenKind.tkCurrI] := fCurrIAttrib;
   fAttribLut[TTokenKind.tkDDocs] := fDDocsAttrib;
   fAttribLut[TTokenKind.tkSpecK] := fSpeckAttrib;
 
@@ -456,13 +452,6 @@ end;
 procedure TSynD2Syn.setSpeckAttrib(value: TSynHighlighterAttributes);
 begin
   fSpeckAttrib.Assign(value);
-end;
-
-procedure TSynD2Syn.setCurrIdent(const value: string);
-begin
-  if fCurrIdent = value then Exit;
-  fCurrIdent := value;
-  doChanged;
 end;
 
 procedure TSynD2Syn.setLine(const NewValue: String; LineNumber: Integer);
@@ -855,9 +844,7 @@ begin
     if fKeyWords.find(fLineBuf[FTokStart..fTokStop-1]) then
       fTokKind := tkKeywd
     else if fSpecKw.find(fLineBuf[FTokStart..fTokStop-1]) then
-      fTokKind := tkSpecK
-    else if fLineBuf[FTokStart..fTokStop-1]  = fCurrIdent then
-      fTokKind := tkCurrI;
+      fTokKind := tkSpecK;
     //check asm range
     if fTokKind = tkKeywd then
       if fLineBuf[FTokStart..fTokStop-1] = 'asm' then

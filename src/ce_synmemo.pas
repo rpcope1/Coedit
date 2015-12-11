@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
   SynEdit, SynPluginSyncroEdit, SynCompletion, SynEditKeyCmds, LazSynEditText,
   SynHighlighterLFM, SynEditHighlighter, SynEditMouseCmds, SynEditFoldedView,
-  SynEditMarks,
+  SynEditMarks, SynEditMarkup, SynEditTypes,
   ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs,
   ce_sharedres;
 
@@ -120,7 +120,7 @@ type
     fBreakpointEvent: TBreakPointModifyEvent;
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
-    procedure identifierToD2Syn;
+    procedure highlightCurrentIdentifier;
     procedure saveCache;
     procedure loadCache;
     class procedure cleanCache; static;
@@ -427,6 +427,9 @@ end;
 
 {$REGION Standard Obj and Comp -------------------------------------------------}
 constructor TCESynMemo.Create(aOwner: TComponent);
+var
+  i: integer;
+  mgr: TSynEditMarkupManager;
 begin
   inherited;
   //
@@ -496,6 +499,9 @@ begin
   fPositions := TCESynMemoPositions.create(self);
   fMultiDocSubject := TCEMultiDocSubject.create;
   //
+  HighlightAllColor.Foreground:= clNone;
+  HighlightAllColor.Background:= clSilver;
+  //
   subjDocNew(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
 
@@ -531,7 +537,7 @@ begin
   inherited;
   checkFileDate;
   //
-  identifierToD2Syn;
+  highlightCurrentIdentifier;
   subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
 
@@ -834,18 +840,15 @@ begin
   fIsTxtFile := Highlighter = fTxtHighlighter;
 end;
 
-procedure TCESynMemo.identifierToD2Syn;
+procedure TCESynMemo.highlightCurrentIdentifier;
 begin
   fIdentifier := GetWordAtRowCol(LogicalCaretXY);
-  if Highlighter = fD2Highlighter then
-    fD2Highlighter.CurrentIdentifier := fIdentifier
-  else if Highlighter = fTxtHighlighter then
-    fTxtHighlighter.CurrIdent := fIdentifier;
+  SetHighlightSearch(fIdentifier,[ssoEntireScope]);
 end;
 
 procedure TCESynMemo.changeNotify(Sender: TObject);
 begin
-  identifierToD2Syn;
+  highlightCurrentIdentifier;
   fModified := true;
   fPositions.store;
   subjDocChanged(TCEMultiDocSubject(fMultiDocSubject), self);
@@ -1010,7 +1013,7 @@ end;
 procedure TCESynMemo.KeyDown(var Key: Word; Shift: TShiftState);
 begin
   inherited;
-  identifierToD2Syn;
+  highlightCurrentIdentifier;
   case Key of
     VK_BROWSER_BACK: fPositions.back;
     VK_BROWSER_FORWARD: fPositions.next;
@@ -1078,13 +1081,13 @@ begin
   fOldMousePos := Point(X, Y);
   fMousePos := PixelsToRowColumn(fOldMousePos);
   if ssLeft in Shift then
-    identifierToD2Syn;
+    highlightCurrentIdentifier;
 end;
 
 procedure TCESynMemo.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:Integer);
 begin
   inherited;
-  identifierToD2Syn;
+  highlightCurrentIdentifier;
   fCanShowHint := false;
   fDDocWin.Hide;
   fCallTipWin.Hide;

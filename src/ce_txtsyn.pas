@@ -24,7 +24,6 @@ type
     procedure setSymAttribs(aValue: TSynHighlighterAttributes);
     procedure setTxtAttribs(aValue: TSynHighlighterAttributes);
     procedure setWhiAttribs(aValue: TSynHighlighterAttributes);
-    procedure setCurrIdent(const aValue: string);
   published
     property symbAttributes: TSynHighlighterAttributes read fSymAttribs write setSymAttribs;
     property textAttributes: TSynHighlighterAttributes read fTxtAttribs write setTxtAttribs;
@@ -41,8 +40,6 @@ type
     function GetTokenKind: integer; override;
     function GetTokenPos: Integer; override;
     function GetEol: Boolean; override;
-    //
-    property CurrIdent: string read fCurrIdent write setCurrIdent;
   end;
 
 const
@@ -96,16 +93,6 @@ end;
 procedure TSynTxtSyn.setWhiAttribs(aValue: TSynHighlighterAttributes);
 begin
   fWhiAttribs.Assign(aValue);
-end;
-
-procedure TSynTxtSyn.setCurrIdent(const aValue: string);
-begin
-  if fCurrIdent = aValue then
-    Exit;
-  fCurrIdent := aValue;
-  BeginUpdate;
-  fUpdateChange := True;
-  EndUpdate;
 end;
 
 procedure TSynTxtSyn.setLine(const NewValue: String; LineNumber: Integer);
@@ -173,13 +160,6 @@ function TSynTxtSyn.GetTokenAttribute: TSynHighlighterAttributes;
 begin
   Result := fTokToAttri[fToken];
   Result.FrameEdges := sfeNone;
-  if fCurrIdent <> '' then
-    if GetToken = fCurrIdent then
-    begin
-      Result.FrameColor := Result.Foreground;
-      Result.FrameStyle := slsSolid;
-      Result.FrameEdges := sfeAround;
-    end;
 end;
 
 function TSynTxtSyn.GetTokenPos: Integer;
