@@ -499,8 +499,11 @@ begin
   fPositions := TCESynMemoPositions.create(self);
   fMultiDocSubject := TCEMultiDocSubject.create;
   //
-  HighlightAllColor.Foreground:= clNone;
-  HighlightAllColor.Background:= clSilver;
+  HighlightAllColor.Foreground := clNone;
+  HighlightAllColor.Background := clSilver;
+  //
+  LineHighlightColor.Background := color - $080808;
+  LineHighlightColor.Foreground := clNone;
   //
   subjDocNew(TCEMultiDocSubject(fMultiDocSubject), self);
 end;

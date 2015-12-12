@@ -31,6 +31,7 @@ type
     //
     fShortCuts: TCollection;
     //
+    fCurrLineAttribs: TSynSelectedColor;
     fSelAttribs: TSynSelectedColor;
     fFoldedColor: TSynSelectedColor;
     fMouseLinkAttribs: TSynSelectedColor;
@@ -38,6 +39,7 @@ type
     fIdentifierMarkup: TSynSelectedColor;
     fFont: TFont;
     //
+    fCurrLineColor: TColor;
     fDDocDelay: Integer;
     fAutoDotDelay: Integer;
     fTabWidth: Integer;
@@ -59,7 +61,8 @@ type
     procedure setFoldedColor(value: TSynSelectedColor);
     procedure setMouseLinkColor(value: TSynSelectedColor);
     procedure setBracketMatchColor(value: TSynSelectedColor);
-    procedure SetIdentifierMarkup(value: TSynSelectedColor);
+    procedure setIdentifierMarkup(value: TSynSelectedColor);
+    procedure setCurrLineAttribs(value: TSynSelectedColor);
     procedure setD2Syn(value: TPersistent);
     procedure setTxtSyn(value: TPersistent);
     procedure setShortcuts(value: TCollection);
@@ -67,6 +70,7 @@ type
     procedure setAutoDotDelay(value: Integer);
     procedure setCompletionMenuLines(value: byte);
   published
+    property currentLine: TSynSelectedColor read fCurrLineAttribs write setCurrLineAttribs;
     property completionMenuCaseCare: boolean read fCompletionMenuCaseCare write fCompletionMenuCaseCare;
     property completionMenuWidth: integer read fCompletionMenuWidth write fCompletionMenuWidth;
     property completionMenuLines: byte read fCompletionMenuLines write setCompletionMenuLines;
@@ -162,6 +166,7 @@ begin
   //
   fDDocDelay:=200;
   fAutoDotDelay:=200;
+  fCurrLineAttribs := TSynSelectedColor.Create;
   fSelAttribs := TSynSelectedColor.Create;
   fFoldedColor := TSynSelectedColor.Create;
   fMouseLinkAttribs := TSynSelectedColor.Create;
@@ -193,6 +198,9 @@ begin
   fBackground := clWhite;
   fRightEdgeColor := clSilver;
   //
+  fCurrLineAttribs.Background := fBackground - $080808;
+  fCurrLineAttribs.Foreground := clNone;
+  //
   options1 :=
     [eoAutoIndent, eoBracketHighlight, eoGroupUndo, eoTabsToSpaces,
     eoDragDropEditing, eoShowCtrlMouseLinks, eoEnhanceHomeKey, eoTabIndent];
@@ -221,6 +229,7 @@ end;
 destructor TCEEditorOptionsBase.Destroy;
 begin
   fFont.Free;
+  fCurrLineAttribs.Free;
   fSelAttribs.Free;
   fShortCuts.Free;
   fFoldedColor.Free;
@@ -248,9 +257,11 @@ begin
     fFoldedColor.Assign(srcopt.fFoldedColor);
     fMouseLinkAttribs.Assign(srcopt.fMouseLinkAttribs);
     fBracketMatchAttribs.Assign(srcopt.fBracketMatchAttribs);
+    fCurrLineAttribs.Assign(srcopt.fCurrLineAttribs);
     fD2Syn.Assign(srcopt.fD2Syn);
     fTxtSyn.Assign(srcopt.fTxtSyn);
     background := srcopt.background;
+
     tabulationWidth := srcopt.tabulationWidth;
     blockIdentation := srcopt.blockIdentation;
     lineSpacing := srcopt.lineSpacing;
@@ -320,6 +331,11 @@ end;
 procedure TCEEditorOptionsBase.SetIdentifierMarkup(value: TSynSelectedColor);
 begin
   fIdentifierMarkup.Assign(value);
+end;
+
+procedure TCEEditorOptionsBase.setCurrLineAttribs(value: TSynSelectedColor);
+begin
+  fCurrLineAttribs.Assign(value);
 end;
 
 procedure TCEEditorOptionsBase.setD2Syn(value: TPersistent);
@@ -568,6 +584,7 @@ begin
   anEditor.MouseLinkColor.Assign(fMouseLinkAttribs);
   anEditor.BracketMatchColor.Assign(fBracketMatchAttribs);
   anEditor.HighlightAllColor.Assign(fIdentifierMarkup);
+  anEditor.LineHighlightColor.Assign(fCurrLineAttribs);
   anEditor.TabWidth := tabulationWidth;
   anEditor.BlockIndent := blockIdentation;
   anEditor.ExtraLineSpacing := lineSpacing;
