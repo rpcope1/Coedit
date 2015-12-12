@@ -45,6 +45,7 @@ type
   { TCESearchWidget }
   TCESearchWidget = class(TCEWidget, ICEMultiDocObserver)
     btnFind: TBitBtn;
+    btnFindAll: TBitBtn;
     btnReplace: TBitBtn;
     btnReplaceAll: TBitBtn;
     cbToFind: TComboBox;
@@ -66,8 +67,10 @@ type
     fDoc: TCESynMemo;
     fToFind: string;
     fReplaceWth: string;
-    fActFindNext, fActReplaceNext: TAction;
+    fActReplaceNext: TAction;
+    fActFindNext: TAction;
     fActReplaceAll: TAction;
+    fActFindAll: TAction;
     fSearchMru, fReplaceMru: TCEMruList;
     fCancelAll: boolean;
     fHasSearched: boolean;
@@ -89,6 +92,7 @@ type
     //
     procedure actFindNextExecute(sender: TObject);
     procedure actReplaceNextExecute(sender: TObject);
+    procedure actFindAllExecute(sender: TObject);
   end;
 
 implementation
@@ -185,6 +189,9 @@ begin
   fActFindNext := TAction.Create(self);
   fActFindNext.Caption := 'Find';
   fActFindNext.OnExecute := @actFindNextExecute;
+  fActFindAll := TAction.Create(self);
+  fActFindAll.Caption := 'Find all';
+  fActFindAll.OnExecute := @actFindAllExecute;
   fActReplaceNext := TAction.Create(self);
   fActReplaceNext.Caption := 'Replace';
   fActReplaceNext.OnExecute := @actReplaceNextExecute;
@@ -207,6 +214,7 @@ begin
   btnFind.Action := fActFindNext;
   btnReplace.Action := fActReplaceNext;
   btnReplaceAll.Action := fActReplaceAll;
+  btnFindAll.Action := fActFindAll;
   updateImperative;
   //
   EntitiesConnector.addObserver(self);
@@ -259,6 +267,54 @@ begin
         ReplaceAction := raCancel;
         fCancelAll := true;
       end;
+  end;
+end;
+
+procedure TCESearchWidget.actFindAllExecute(sender: TObject);
+var
+  search: TSynEditSearch;
+  options: TSynSearchOptions;
+  start, stop: TPoint;
+  startf, stopf: TPoint;
+  msgs: ICEMessagesDisplay;
+  msg: string;
+  fmt: string;
+  i: integer;
+  res: array of TPoint = nil;
+begin
+  if fDoc = nil then exit;
+  //
+  fSearchMru.Insert(0,fToFind);
+  cbToFind.Items.Assign(fSearchMru);
+  //
+  search := TSynEditSearch.Create;
+  try
+    options := getOptions;
+    search.Sensitive := ssoMatchCase in options;
+    search.Whole := ssoWholeWord in options;
+    search.RegularExpressions:= ssoRegExpr in options;
+    search.Pattern:=fToFind;
+    search.IdentChars:=fDoc.IdentChars;
+    start := Point(1,1);
+    stop := Point(high(integer), fDoc.Lines.Count);
+    while search.FindNextOne(fDoc.Lines, start, stop, startf, stopf) do
+    begin
+      setLength(res, length(res) + 1);
+      res[high(res)].X := startf.X;
+      res[high(res)].Y := startf.Y;
+      start := stopf;
+    end;
+    msgs := getMessageDisplay;
+    msg := format('%d result(s) for the pattern <%s>', [length(res), fToFind]);
+    msgs.message(msg, fDoc, amcEdit, amkInf);
+    fmt := fDoc.fileName + '(%d,%d): match %d';
+    for i := 0 to high(res) do
+    begin
+      msg := format(fmt, [res[i].Y, res[i].X, i]);
+      msgs.message(msg, fDoc, amcEdit, amkInf);
+    end;
+  finally
+    search.free;
   end;
 end;
 
@@ -408,6 +464,7 @@ end;
 procedure TCESearchWidget.updateImperative;
 begin
   btnFind.Enabled := (fDoc <> nil) and (fToFind <> '');
+  btnFindAll.Enabled := (fDoc <> nil) and (fToFind <> '');
   btnReplace.Enabled := (fDoc <> nil) and (chkEnableRep.Checked) and (fToFind <> '');
   btnReplaceAll.Enabled := btnReplace.Enabled;
   cbReplaceWth.Enabled := (fDoc <> nil) and (chkEnableRep.Checked);
