@@ -427,9 +427,6 @@ end;
 
 {$REGION Standard Obj and Comp -------------------------------------------------}
 constructor TCESynMemo.Create(aOwner: TComponent);
-var
-  i: integer;
-  mgr: TSynEditMarkupManager;
 begin
   inherited;
   //

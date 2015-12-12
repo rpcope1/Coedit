@@ -367,6 +367,7 @@ type
 
   TCEApplicationOptionsBase = class(TWritableLfmTextComponent)
   private
+    fNoGdcWarn: boolean;
     fFloatingWidgetOnTop: boolean;
     fReloadLastDocuments: boolean;
     fMaxRecentProjs: integer;
@@ -434,6 +435,13 @@ end;
 
 procedure TCEApplicationOptionsBase.setNativeProjecCompiler(value: TCECompiler);
 begin
+  if value = gdc then
+  begin
+    value := dmd;
+    if not fNoGdcWarn then
+      dlgOkInfo('Coedit native projects can not be compiled with GDC');
+    fNoGdcWarn := true;
+  end;
   ce_nativeproject.setNativeProjectCompiler(value);
 end;
 

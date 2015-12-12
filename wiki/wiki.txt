@@ -284,6 +284,8 @@ Here are some more or less complex examples which illustrates the project format
 - the [metad][lnk_metad] meta repository.
 - the tools written for Coedit: [cesyms][lnk_cesyms] and [cetodo][lnk_cetodo].
 
+Even if designed upon _DMD_ options, it's also possible to compile a CE project using [LDC][https://github.com/ldc-developers/ldc]. To do so, the application option _Native project compiler_ must be set accordingly.
+
 # DUB projects.
 
 Since the version 2 alpha 1, Coedit also handles DUB projects (JSON descriptions only).
@@ -468,16 +470,19 @@ The _find and replace_ widget allows to find and replace text patterns in the fo
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/search1.png)
 
-- top field: the expression to find. Note that it can be a regular expression.
+- top field: the pattern to find.
 - second field: the expression used as replacement. Only active when **"replace with"** is checked.
 - whole word: only search for the whole expression.
 - backward: search from the bottom to the top.
 - from cursor: when unchecked, the operation always starts from the top of the document.
 - case sensitive: when unchecked, character case is ignored.
 - prompt: a confirmation is required to replace an expression.
+- allow regex: when checked, the search is performed by a regex engine.
 
 By default <kbd>CTRL</kbd> + <kbd>F</kbd> is used to pass the current source code editor selection to the top field 
-and <kbd>F3</kbd> to execute a search.
+and <kbd>F3</kbd> to execute a search. Unless _Find all_ is used, the results are directly visible in the editor.
+_Find all_ results are displayed in the [messages widget][lnk_widg_msg] and are clickable.
+
 The most recent searches and replacements are saved between each session.
 
 Note that to find a symbol, <kbd>Ctrl</kbd>+<kbd>MB Right</kbd> or the [symbol list][lnk_widg_symlist] are faster.
@@ -700,7 +705,8 @@ The DUB project editor is widget is divided in two panels:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dub_inspect.png)
 
-The first panel displays the sources list and the combination of _each build type_ with each _build configuration_. Sources can be opened in a new editor by double cliking. To select a configuration defines which type and which configuration will be build by DUB when clicking _compile_ in the _project_ menu.
+The first panel displays the sources list and the combination of _each build type_ with each _build configuration_. Sources can be opened in a new editor by double clicking. To select a configuration defines which type and which configuration will be build by DUB when clicking _compile_ in the _project_ menu.
+Note that it's possible to specify which compiler DUB uses in the application options _dubCompiler_.
 
 ### Editor
 
