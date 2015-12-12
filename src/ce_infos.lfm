@@ -1,42 +1,42 @@
 inherited CEInfoWidget: TCEInfoWidget
   Left = 713
-  Height = 378
+  Height = 401
   Top = 245
-  Width = 389
+  Width = 406
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   Caption = 'About'
-  ClientHeight = 378
-  ClientWidth = 389
+  ClientHeight = 401
+  ClientWidth = 406
   inherited Back: TPanel
-    Height = 378
-    Width = 389
-    ClientHeight = 378
-    ClientWidth = 389
+    Height = 401
+    Width = 406
+    ClientHeight = 401
+    ClientWidth = 406
     inherited Content: TPanel
-      Height = 378
-      Width = 389
-      ClientHeight = 378
-      ClientWidth = 389
+      Height = 401
+      Width = 406
+      ClientHeight = 401
+      ClientWidth = 406
       object GroupBox1: TGroupBox[0]
         Left = 4
         Height = 105
         Top = 4
-        Width = 381
+        Width = 398
         Align = alTop
         BorderSpacing.Around = 4
         Caption = 'about'
-        ClientHeight = 85
-        ClientWidth = 377
+        ClientHeight = 75
+        ClientWidth = 394
         TabOrder = 0
         object Label1: TLabel
           Left = 0
-          Height = 85
+          Height = 75
           Top = 0
-          Width = 377
+          Width = 394
           Align = alClient
           Alignment = taCenter
           AutoSize = False
-          Caption = 'Coedit 2 - alpha 1'
+          Caption = 'Coedit 2 - alpha 3'
           Font.Height = -16
           Font.Style = [fsBold]
           Layout = tlCenter
@@ -46,20 +46,20 @@ inherited CEInfoWidget: TCEInfoWidget
       end
       object GroupBox2: TGroupBox[1]
         Left = 4
-        Height = 261
+        Height = 284
         Top = 113
-        Width = 381
+        Width = 398
         Align = alClient
         BorderSpacing.Around = 4
         Caption = 'tools status'
-        ClientHeight = 241
-        ClientWidth = 377
+        ClientHeight = 254
+        ClientWidth = 394
         TabOrder = 1
         object boxTools: TScrollBox
           Left = 4
-          Height = 233
+          Height = 246
           Top = 4
-          Width = 369
+          Width = 386
           HorzScrollBar.Page = 1
           VertScrollBar.Page = 1
           Align = alClient

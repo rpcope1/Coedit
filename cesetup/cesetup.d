@@ -146,7 +146,7 @@ void main(string[] args)
         return;
     }
 
-    if (!uninstall) Formater.justify!'C'("Coedit 2 alpha 2 - setup");
+    if (!uninstall) Formater.justify!'C'("Coedit 2 alpha 3 - setup");
     else Formater.justify!'C'("Coedit uninstaller");
     
     Formater.separate;

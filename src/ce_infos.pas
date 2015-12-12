@@ -10,7 +10,7 @@ uses
 
 type
 
-  TToolInfoKind = (tikRunning, tikFindable);
+  TToolInfoKind = (tikRunning, tikFindable, tikOptional);
 
   TToolInfo = class(TWinControl)
   private
@@ -23,7 +23,8 @@ type
   protected
     procedure SetVisible(Value: Boolean); override;
   public
-    constructor Construct(TheOwner: TComponent; kind: TToolInfoKind;const toolName: string);
+    constructor Construct(TheOwner: TComponent; kind: TToolInfoKind;
+      const toolName, description: string);
     procedure refreshStatus;
     procedure Update; override;
   end;
@@ -48,7 +49,8 @@ implementation
 
 {$R *.lfm}
 
-constructor TToolInfo.Construct(TheOwner: TComponent; kind: TToolInfoKind;const toolName: string);
+constructor TToolInfo.Construct(TheOwner: TComponent; kind: TToolInfoKind;
+    const toolName, description: string);
 begin
   Inherited create(TheOwner);
   Align  := alTop;
@@ -61,6 +63,8 @@ begin
   fLabel.Align:= alLeft;
   fLabel.Width:= 70;
   fLabel.BorderSpacing.Around := 2;
+  fLabel.Hint:= description;
+  fLabel.ShowHint:=true;
   //
   fIco := TSpeedButton.Create(self);
   fIco.Parent := self;
@@ -79,6 +83,8 @@ begin
   fStatus.BorderStyle := sbsSunken;
   fStatus.AutoSize:=false;
   fStatus.Width:= 800;
+  fStatus.Hint:=description;
+  fStatus.ShowHint:=true;
   //
   fKind:=kind;
   fToolName:=toolName;
@@ -124,6 +130,20 @@ begin
         AssignPng(fIco, 'bullet_green');
       end;
     end;
+    tikOptional:
+    begin
+      pth := exeFullName(fToolName + exeExt);
+      if pth = '' then
+      begin
+        fStatus.Caption:= ' the tool cannot be found';
+        AssignPng(fIco, 'bullet_yellow');
+      end
+      else
+      begin
+        fStatus.Caption:= ' the tool is available';
+        AssignPng(fIco, 'bullet_green');
+      end;
+    end;
     tikRunning:
     begin
       pth := exeFullName(fToolName + exeExt);
@@ -156,25 +176,41 @@ begin
   fIsModal := true;
   fIsDockable := false;
   //
-  toolItem := TToolInfo.Construct(self, tikFindable, 'ddemangle');
+  toolItem := TToolInfo.Construct(self, tikOptional, 'gdc',
+    'optional, the GDC D compiler');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
-  toolItem := TToolInfo.Construct(self, tikRunning, 'dcd-server');
+  toolItem := TToolInfo.Construct(self, tikOptional, 'ldc2',
+    'optional, the LDC D compiler');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
-  toolItem := TToolInfo.Construct(self, tikFindable, 'dcd-client');
+  toolItem := TToolInfo.Construct(self, tikOptional, 'ddemangle',
+    'optional, allows to demangle cryptic symbols in the message widget');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
-  toolItem := TToolInfo.Construct(self, tikFindable, 'cesyms');
+  toolItem := TToolInfo.Construct(self, tikRunning, 'dcd-server',
+    'mandatory, provides IDE-level features such as the completion');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
-  toolItem := TToolInfo.Construct(self, tikFindable, 'cetodo');
+  toolItem := TToolInfo.Construct(self, tikFindable, 'dcd-client',
+    'mandatory, provides IDE-level features such as the completion');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
-  toolItem := TToolInfo.Construct(self, tikFindable, 'dub');
+  toolItem := TToolInfo.Construct(self, tikFindable, 'cesyms',
+    'background tool that collects information for the symbol list widget');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
-  toolItem := TToolInfo.Construct(self, tikFindable, 'dmd');
+  toolItem := TToolInfo.Construct(self, tikFindable, 'cetodo',
+    'background tool that collects information for the todo list widget');
+  toolItem.Parent := boxTools;
+  toolItem.ReAlign;
+  toolItem := TToolInfo.Construct(self, tikOptional, 'dub',
+    'the D package manager, mandatory to compile project in DUB format');
+  toolItem.Parent := boxTools;
+  toolItem.ReAlign;
+  toolItem := TToolInfo.Construct(self, tikFindable, 'dmd',
+    'the reference D compiler, mandatory to compile native projects, '
+    + 'to unittest and to launch runnable modules');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
   //
