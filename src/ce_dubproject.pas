@@ -202,7 +202,7 @@ begin
       loader.Position:= 0;
     //
     FreeAndNil(fJSON);
-    parser := TJSONParser.Create(loader, fSaveAsUtf8);
+    parser := TJSONParser.Create(loader, true);
     try
       try
         fJSON := parser.Parse as TJSONObject;
