@@ -31,10 +31,10 @@ type
     //
     fShortCuts: TCollection;
     //
-    fSelCol: TSynSelectedColor;
+    fSelAttribs: TSynSelectedColor;
     fFoldedColor: TSynSelectedColor;
-    fMouseLinkColor: TSynSelectedColor;
-    fBracketMatchColor: TSynSelectedColor;
+    fMouseLinkAttribs: TSynSelectedColor;
+    fBracketMatchAttribs: TSynSelectedColor;
     fIdentifierMarkup: TSynSelectedColor;
     fFont: TFont;
     //
@@ -52,7 +52,6 @@ type
     fMouseOptions: TSynEditorMouseOptions;
     fCompletionMenuCaseCare: boolean;
     fCompletionMenuWidth: integer;
-    fCompletionMenuHeight: integer;
     fCompletionMenuLines: Byte;
     //
     procedure setFont(value: TFont);
@@ -70,16 +69,15 @@ type
   published
     property completionMenuCaseCare: boolean read fCompletionMenuCaseCare write fCompletionMenuCaseCare;
     property completionMenuWidth: integer read fCompletionMenuWidth write fCompletionMenuWidth;
-    property completionMenuHeight: integer read fCompletionMenuHeight write fCompletionMenuHeight stored false;
     property completionMenuLines: byte read fCompletionMenuLines write setCompletionMenuLines;
     property autoDotDelay: integer read fAutoDotDelay write SetautoDotDelay;
     property hintDelay: Integer read fDDocDelay write setDDocDelay stored false; deprecated;
     property ddocDelay: Integer read fDDocDelay write setDDocDelay;
-    property bracketMatchColor: TSynSelectedColor read fBracketMatchColor write setBracketMatchColor;
-    property mouseLinkColor: TSynSelectedColor read fMouseLinkColor write setMouseLinkColor;
-    property selectedColor: TSynSelectedColor read fSelCol write setSelCol;
-    property foldedColor: TSynSelectedColor read fFoldedColor write setFoldedColor;
-    property identifierColor: TSynSelectedColor read fIdentifierMarkup write SetIdentifierMarkup;
+    property bracketMatch: TSynSelectedColor read fBracketMatchAttribs write setBracketMatchColor;
+    property mouseLink: TSynSelectedColor read fMouseLinkAttribs write setMouseLinkColor;
+    property selection: TSynSelectedColor read fSelAttribs write setSelCol;
+    property folding: TSynSelectedColor read fFoldedColor write setFoldedColor;
+    property identifierMatch: TSynSelectedColor read fIdentifierMarkup write SetIdentifierMarkup;
     property background: TColor read fBackground write fBackground default clWhite;
     property tabulationWidth: Integer read fTabWidth write fTabWidth default 4;
     property blockIdentation: Integer read fBlockIdent write fBlockIdent default 4;
@@ -91,8 +89,8 @@ type
     property options1: TSynEditorOptions read fOptions1 write fOptions1;
     property options2: TSynEditorOptions2 read fOptions2 write fOptions2;
     property mouseOptions: TSynEditorMouseOptions read fMouseOptions write fMouseOptions;
-    property D2Highlighter: TPersistent read fD2Syn write setD2Syn;
-    property TxtHighlighter: TPersistent read fTxtSyn write setTxtSyn;
+    property highlighterDlang: TPersistent read fD2Syn write setD2Syn;
+    property highlighterGeneric: TPersistent read fTxtSyn write setTxtSyn;
     property shortcuts: TCollection read fShortCuts write setShortcuts;
   public
     constructor Create(AOwner: TComponent); override;
@@ -164,10 +162,10 @@ begin
   //
   fDDocDelay:=200;
   fAutoDotDelay:=200;
-  fSelCol := TSynSelectedColor.Create;
+  fSelAttribs := TSynSelectedColor.Create;
   fFoldedColor := TSynSelectedColor.Create;
-  fMouseLinkColor := TSynSelectedColor.Create;
-  fBracketMatchColor := TSynSelectedColor.Create;
+  fMouseLinkAttribs := TSynSelectedColor.Create;
+  fBracketMatchAttribs := TSynSelectedColor.Create;
   fIdentifierMarkup := TSynSelectedColor.Create;
   //
   // note: default values come from TSynEditFoldedView ctor.
@@ -175,18 +173,17 @@ begin
   fFoldedColor.Foreground := clDkGray;
   fFoldedColor.FrameColor := clDkGray;
   //
-  fMouseLinkColor.Style := [fsUnderline, fsBold];
-  fMouseLinkColor.StyleMask := [];
-  fMouseLinkColor.Foreground := clNone;
-  fMouseLinkColor.Background := clNone;
+  fMouseLinkAttribs.Style := [fsUnderline, fsBold];
+  fMouseLinkAttribs.StyleMask := [];
+  fMouseLinkAttribs.Foreground := clNone;
+  fMouseLinkAttribs.Background := clNone;
   //
-  fBracketMatchColor.Foreground := clRed;
-  fBracketMatchColor.Background := clNone;
+  fBracketMatchAttribs.Foreground := clRed;
+  fBracketMatchAttribs.Background := clNone;
   //
   fIdentifierMarkup.Foreground:= clNone;
   fIdentifierMarkup.Background:= clSilver;
   //
-  fCompletionMenuHeight:= 260;
   fCompletionMenuWidth:= 160;
   fCompletionMenuLines:= 15;
   //
@@ -224,11 +221,11 @@ end;
 destructor TCEEditorOptionsBase.Destroy;
 begin
   fFont.Free;
-  fSelCol.Free;
+  fSelAttribs.Free;
   fShortCuts.Free;
   fFoldedColor.Free;
-  fMouseLinkColor.Free;
-  fBracketMatchColor.Free;
+  fMouseLinkAttribs.Free;
+  fBracketMatchAttribs.Free;
   fIdentifierMarkup.Free;
   inherited;
 end;
@@ -242,16 +239,15 @@ begin
     srcopt := TCEEditorOptionsBase(src);
     //
     fCompletionMenuWidth:=srcopt.fCompletionMenuWidth;
-    fCompletionMenuHeight:=srcopt.fCompletionMenuHeight;
     fCompletionMenuLines:=srcopt.fCompletionMenuLines;
     fCompletionMenuCaseCare:=srcopt.fCompletionMenuCaseCare;
     fAutoDotDelay:=srcopt.fAutoDotDelay;
     fDDocDelay:=srcopt.fDDocDelay;
     fFont.Assign(srcopt.fFont);
-    fSelCol.Assign(srcopt.fSelCol);
+    fSelAttribs.Assign(srcopt.fSelAttribs);
     fFoldedColor.Assign(srcopt.fFoldedColor);
-    fMouseLinkColor.Assign(srcopt.fMouseLinkColor);
-    fBracketMatchColor.Assign(srcopt.fBracketMatchColor);
+    fMouseLinkAttribs.Assign(srcopt.fMouseLinkAttribs);
+    fBracketMatchAttribs.Assign(srcopt.fBracketMatchAttribs);
     fD2Syn.Assign(srcopt.fD2Syn);
     fTxtSyn.Assign(srcopt.fTxtSyn);
     background := srcopt.background;
@@ -303,7 +299,7 @@ end;
 
 procedure TCEEditorOptionsBase.setSelCol(value: TSynSelectedColor);
 begin
-  fSelCol.Assign(value);
+  fSelAttribs.Assign(value);
 end;
 
 procedure TCEEditorOptionsBase.setFoldedColor(value: TSynSelectedColor);
@@ -313,12 +309,12 @@ end;
 
 procedure TCEEditorOptionsBase.setMouseLinkColor(value: TSynSelectedColor);
 begin
-  fMouseLinkColor.Assign(value);
+  fMouseLinkAttribs.Assign(value);
 end;
 
 procedure TCEEditorOptionsBase.setBracketMatchColor(value: TSynSelectedColor);
 begin
-  fBracketMatchColor.Assign(value);
+  fBracketMatchAttribs.Assign(value);
 end;
 
 procedure TCEEditorOptionsBase.SetIdentifierMarkup(value: TSynSelectedColor);
@@ -427,9 +423,8 @@ end;
 
 procedure TCEEditorOptions.docClosing(aDoc: TCESynMemo);
 begin
-  fCompletionMenuHeight:=aDoc.completionMenu.TheForm.Height;
-  fCompletionMenuWidth:=aDoc.completionMenu.TheForm.Width;
-  fCompletionMenuLines:=aDoc.completionMenu.LinesInWindow;
+  fCompletionMenuWidth := aDoc.completionMenu.TheForm.Width;
+  fCompletionMenuLines := aDoc.completionMenu.LinesInWindow;
 end;
 {$ENDREGION}
 
@@ -564,15 +559,14 @@ begin
   anEditor.Font.Assign(font);
   anEditor.Font.Size := savedSize;
 
-  anEditor.completionMenu.TheForm.Height  := fCompletionMenuHeight;
   anEditor.completionMenu.TheForm.Width   := fCompletionMenuWidth;
   anEditor.completionMenu.LinesInWindow   := fCompletionMenuLines;
   anEditor.completionMenu.CaseSensitive   := fCompletionMenuCaseCare;
 
-  anEditor.SelectedColor.Assign(fSelCol);
+  anEditor.SelectedColor.Assign(fSelAttribs);
   anEditor.FoldedCodeColor.Assign(fFoldedColor);
-  anEditor.MouseLinkColor.Assign(fMouseLinkColor);
-  anEditor.BracketMatchColor.Assign(fBracketMatchColor);
+  anEditor.MouseLinkColor.Assign(fMouseLinkAttribs);
+  anEditor.BracketMatchColor.Assign(fBracketMatchAttribs);
   anEditor.HighlightAllColor.Assign(fIdentifierMarkup);
   anEditor.TabWidth := tabulationWidth;
   anEditor.BlockIndent := blockIdentation;

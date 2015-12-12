@@ -20,14 +20,13 @@ type
     fToken: TTokenKind;
     fTokStart, fTokStop: Integer;
     fLineBuf: string;
-    fCurrIdent: string;
     procedure setSymAttribs(aValue: TSynHighlighterAttributes);
     procedure setTxtAttribs(aValue: TSynHighlighterAttributes);
     procedure setWhiAttribs(aValue: TSynHighlighterAttributes);
   published
-    property symbAttributes: TSynHighlighterAttributes read fSymAttribs write setSymAttribs;
-    property textAttributes: TSynHighlighterAttributes read fTxtAttribs write setTxtAttribs;
-    property whitAttributes: TSynHighlighterAttributes read fWhiAttribs write setWhiAttribs;
+    property symbols: TSynHighlighterAttributes read fSymAttribs write setSymAttribs;
+    property text:    TSynHighlighterAttributes read fTxtAttribs write setTxtAttribs;
+    property whites:  TSynHighlighterAttributes read fWhiAttribs write setWhiAttribs;
   public
     constructor Create(aOwner: TComponent); override;
     //

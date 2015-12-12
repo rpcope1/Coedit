@@ -843,7 +843,7 @@ end;
 procedure TCESynMemo.highlightCurrentIdentifier;
 begin
   fIdentifier := GetWordAtRowCol(LogicalCaretXY);
-  SetHighlightSearch(fIdentifier,[ssoEntireScope]);
+  SetHighlightSearch(fIdentifier,[ssoEntireScope, ssoMatchCase]);
 end;
 
 procedure TCESynMemo.changeNotify(Sender: TObject);

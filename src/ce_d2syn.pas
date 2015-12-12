@@ -108,7 +108,6 @@ type
 		fCommtAttrib: TSynHighlighterAttributes;
 		fStrngAttrib: TSynHighlighterAttributes;
     fKeywdAttrib: TSynHighlighterAttributes;
-    fCurrIAttrib: TSynHighlighterAttributes;
     fDDocsAttrib: TSynHighlighterAttributes;
     fAsblrAttrib: TSynHighlighterAttributes;
     fSpeckAttrib: TSynHighlighterAttributes;
@@ -128,7 +127,6 @@ type
     procedure setCommtAttrib(value: TSynHighlighterAttributes);
     procedure setStrngAttrib(value: TSynHighlighterAttributes);
     procedure setKeywdAttrib(value: TSynHighlighterAttributes);
-    procedure setCurrIAttrib(value: TSynHighlighterAttributes);
     procedure setDDocsAttrib(value: TSynHighlighterAttributes);
     procedure setAsblrAttrib(value: TSynHighlighterAttributes);
     procedure setSpeckAttrib(value: TSynHighlighterAttributes);
@@ -137,15 +135,14 @@ type
   protected
     function GetRangeClass: TSynCustomHighlighterRangeClass; override;
 	published
-    property FoldKinds: TFoldKinds read fFoldKinds write setFoldKinds;
-    property WhiteAttrib: TSynHighlighterAttributes read fWhiteAttrib write setWhiteAttrib;
-    property NumbrAttrib: TSynHighlighterAttributes read fNumbrAttrib write setNumbrAttrib;
-    property SymblAttrib: TSynHighlighterAttributes read fSymblAttrib write setSymblAttrib;
-    property IdentAttrib: TSynHighlighterAttributes read fIdentAttrib write setIdentAttrib;
-    property CommtAttrib: TSynHighlighterAttributes read fCommtAttrib write setCommtAttrib;
-    property StrngAttrib: TSynHighlighterAttributes read fStrngAttrib write setStrngAttrib;
-    property KeywdAttrib: TSynHighlighterAttributes read fKeywdAttrib write setKeywdAttrib;
-    property CurrIAttrib: TSynHighlighterAttributes read fCurrIAttrib write setCurrIAttrib stored false;
+    property foldKinds:   TFoldKinds read fFoldKinds write setFoldKinds;
+    property whites:      TSynHighlighterAttributes read fWhiteAttrib write setWhiteAttrib;
+    property numbers:     TSynHighlighterAttributes read fNumbrAttrib write setNumbrAttrib;
+    property symbols:     TSynHighlighterAttributes read fSymblAttrib write setSymblAttrib;
+    property identifiers: TSynHighlighterAttributes read fIdentAttrib write setIdentAttrib;
+    property comments:    TSynHighlighterAttributes read fCommtAttrib write setCommtAttrib;
+    property strings:     TSynHighlighterAttributes read fStrngAttrib write setStrngAttrib;
+    property keywords:    TSynHighlighterAttributes read fKeywdAttrib write setKeywdAttrib;
     property DDocsAttrib: TSynHighlighterAttributes read fDDocsAttrib write setDDocsAttrib;
     property AsblrAttrib: TSynHighlighterAttributes read fAsblrAttrib write setAsblrAttrib;
     property SpeckAttrib: TSynHighlighterAttributes read fSpeckAttrib write setSpeckAttrib;
@@ -302,7 +299,6 @@ begin
 	fCommtAttrib := TSynHighlighterAttributes.Create('Comment','Comment');
 	fStrngAttrib := TSynHighlighterAttributes.Create('String','String');
   fKeywdAttrib := TSynHighlighterAttributes.Create('Keyword','Keyword');
-  fCurrIAttrib := TSynHighlighterAttributes.Create('CurrentIdentifier','CurrentIdentifier');
   fDDocsAttrib := TSynHighlighterAttributes.Create('DDoc','DDoc');
   fAsblrAttrib := TSynHighlighterAttributes.Create('Asm','Asm');
   fSpeckAttrib := TSynHighlighterAttributes.Create('SpecialKeywords','SpecialKeywords');
@@ -315,11 +311,6 @@ begin
   fKeywdAttrib.Foreground := clNavy;
   fAsblrAttrib.Foreground := clGray;
   fSpeckAttrib.Foreground := clNavy;
-
-  fCurrIAttrib.Foreground := clBlack;
-  fCurrIAttrib.FrameEdges := sfeAround;
-  fCurrIAttrib.FrameColor := $D4D4D4;
-  fCurrIAttrib.Background := $F0F0F0;
 
   fDDocsAttrib.Foreground := clTeal;
 
@@ -335,7 +326,6 @@ begin
   AddAttribute(fCommtAttrib);
   AddAttribute(fStrngAttrib);
   AddAttribute(fKeywdAttrib);
-  AddAttribute(fCurrIAttrib);
   AddAttribute(fDDocsAttrib);
   AddAttribute(fAsblrAttrib);
   AddAttribute(fSpeckAttrib);
@@ -369,7 +359,7 @@ begin
   if Source is TSynD2Syn then
   begin
     srcsyn := TSynD2Syn(Source);
-    FoldKinds := srcsyn.FoldKinds;
+    foldKinds := srcsyn.foldKinds;
   end;
 end;
 
@@ -432,11 +422,6 @@ end;
 procedure TSynD2Syn.setKeywdAttrib(value: TSynHighlighterAttributes);
 begin
   fKeywdAttrib.Assign(value);
-end;
-
-procedure TSynD2Syn.setCurrIAttrib(value: TSynHighlighterAttributes);
-begin
-  fCurrIAttrib.Assign(value);
 end;
 
 procedure TSynD2Syn.setDDocsAttrib(value: TSynHighlighterAttributes);
@@ -524,7 +509,7 @@ begin
     end;
   end;
 
-  // line comment / region beg-end
+  // line comments / region beg-end
   if (fCurrRange.rangeKinds = []) or (fCurrRange.rangeKinds = [rkTokString]) or
     (fCurrRange.rangeKinds = [rkAsm])
       then if readDelim(reader, fTokStop, '//') then
@@ -831,7 +816,7 @@ begin
     fTokKind := tkIdent; // invalid op not colorized.
   end;
 
-  // Keyword - Identifier
+  // Keyword - identifiers
   if not isWhite(reader^) then
   begin
     fTokKind := tkIdent;
