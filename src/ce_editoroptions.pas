@@ -188,6 +188,7 @@ begin
   //
   fIdentifierMarkup.Foreground:= clNone;
   fIdentifierMarkup.Background:= clSilver;
+  fIdentifierMarkup.BackAlpha:=70;
   //
   fCompletionMenuWidth:= 160;
   fCompletionMenuLines:= 15;

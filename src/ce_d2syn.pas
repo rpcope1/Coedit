@@ -288,7 +288,7 @@ begin
   fKeyWords.create(D2Kw);
   fSpecKw.create(D2SpecKw);
 
-  fFoldKinds := [fkBrackets];
+  fFoldKinds := [fkBrackets,fkRegion];
 
   WordBreakChars := WordBreakChars - ['@'];
 

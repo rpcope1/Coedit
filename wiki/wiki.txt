@@ -52,13 +52,14 @@ The latest Coedit version requires at least DMD 2.066.
 * Go to [the release page](https://github.com/BBasile/Coedit/releases),
 * Choose the zipped setup for your platform (at the bottom of a release log, the buttons labeled `coedit.<version>.<platform>.setup.zip`).
 * The content must be extracted and executed:
-	* notice that the option `--nodcd` can be typed to skip the installation of the completion daemon.
+	* note that the option `--nodcd` can be typed to skip the installation of the completion daemon.
 	* Linux, all users, in a console `cd` to the file location and type `sudo .\coedit.<version>.<platform>.setup`.
 	* Linux, only you, in a console `cd` to the file location and type: `.\coedit.<version>.<platform>.setup`.
 	* Windows: double click, and confirm in the UAC dialog box.
 * To uninstall, run the same program but with the `-u` option.
 	* Linux: if coedit has been setup with `sudo` you must also uninstall with elevated privileges: `sudo .\coedit.<version>.<platform>.setup -u`.
 	* Windows: start a console as administrator and execute: `coedit.<version>.win32.setup -u`.
+	* Troubleshooting: run the setup program with the `-l` (or `--list`) option to get the status of the files and use the report to uninstall manually the files.
 	
 Note for the future versions:
 * Updating doesn't require to uninstall.
@@ -86,8 +87,7 @@ or `chmod a+x` the file in a console.
 Under linux, since no **.deb** or **.rpm** are provided, you can verify that the following packages are already present.
 Since they are mostly related to gtk2, they already should be installed:
 
->
-libpthread.so.0
+> libpthread.so.0
 libX11.so.6
 libgdk_pixbuf-2.0.so.0
 libgtk-x11-2.0.so.0
@@ -156,12 +156,16 @@ The process is based on _git_ and _Github_, using what's often called the _fork 
 
 The maintainer will be notified of the request, which could be merged after review.
 
+## Linux packages
+
+In addition to the setup program, **.deb** and **.rpm** would be welcome. They can be build using the binaries that are proposed in a zip for each release.
+
 ## Documentation
 
 The documentation (the sources of this wiki) need to be reviewed, as it's currently written by a non native English speaker.
 The wiki can be edited locally by cloning [this git repository](https://github.com/BBasile/Coedit.wiki.git).
-As tool, one of the numerous markdown editor available on the web can be used, 
-for example [StackEdit](https://stackedit.io/editor) as it supports the specific GitHub markdown extensions.
+It's also possible to propose pull requests in the main repository since the [wiki source is present](https://github.com/BBasile/Coedit/tree/master/wiki).
+As tool, one of the numerous markdown editor available on the web can be used, for example [StackEdit](https://stackedit.io/editor).
 
 There is also a huge need to split the wiki in pages. Because the page became huge and a long to load,
 the browsers often fail to scroll to a particular anchor.
