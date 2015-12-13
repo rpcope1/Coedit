@@ -7,21 +7,25 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output/coedit.2alpha3.win32.setup'
+      pathsOptions.outputFilename = 'output\coedit.2alpha3.win32.setup.exe'
       pathsOptions.importStringPaths.Strings = (
-        'win32/'
+        'win32\'
       )
       preBuildProcess.executable = 'cmd'
       preBuildProcess.workingDirectory = '<CPP>'
+      preBuildProcess.options = [poUsePipes, poStderrToOutPut]
       preBuildProcess.parameters.Strings = (
         '/c'
         ' zip-win32.bat'
       )
+      preBuildProcess.showWindow = swoHIDE
       postBuildProcess.executable = 'setupzip-win32.bat'
       postBuildProcess.workingDirectory = '<CPP>'
+      postBuildProcess.options = [poUsePipes, poStderrToOutPut]
       postBuildProcess.parameters.Strings = (
         '<CPO>'
       )
+      postBuildProcess.showWindow = swoHIDE
     end  
     item
       name = 'nux32'
@@ -29,9 +33,9 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output/coedit.2alpha3.linux32.setup'
+      pathsOptions.outputFilename = 'output\coedit.2alpha3.linux32.setup'
       pathsOptions.importStringPaths.Strings = (
-        'nux32/'
+        'nux32\'
       )
       preBuildProcess.executable = 'sh'
       preBuildProcess.options = [poUsePipes, poStderrToOutPut]
@@ -51,9 +55,9 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output/coedit.2alpha3.linux64.setup'
+      pathsOptions.outputFilename = 'output\coedit.2alpha3.linux64.setup'
       pathsOptions.importStringPaths.Strings = (
-        'nux64/'
+        'nux64\'
       )
       preBuildProcess.executable = 'sh'
       preBuildProcess.options = [poUsePipes, poStderrToOutPut]
@@ -74,13 +78,13 @@ object CurrentProject: TCENativeProject
       outputOptions.boundsCheck = offAlways
       outputOptions.optimizations = True
       outputOptions.release = True
-      pathsOptions.outputFilename = 'output/coedit.2alpha3.win32.setup'
+      pathsOptions.outputFilename = 'output\coedit.2alpha3.win32.setup'
       pathsOptions.importStringPaths.Strings = (
-        'win32/'
+        'win32\'
       )
     end>
   Sources.Strings = (
     'cesetup.d'
   )
-  ConfigurationIndex = 2
+  ConfigurationIndex = 0
 end
