@@ -498,6 +498,7 @@ begin
   //
   HighlightAllColor.Foreground := clNone;
   HighlightAllColor.Background := clSilver;
+  HighlightAllColor.BackAlpha  := 70;
   //
   LineHighlightColor.Background := color - $080808;
   LineHighlightColor.Foreground := clNone;
