@@ -243,6 +243,6 @@ initialization
   RegisterPropertyEditor(TypeInfo(TCEPathname), nil, '', TCEPathnameEditor);
   RegisterPropertyEditor(TypeInfo(TCEFilename), nil, '', TCEfilenameEditor);
   RegisterPropertyEditor(TypeInfo(TCEEditEvent), nil, '', TCEActionInEditor);
-  //RegisterPropertyEditor(TypeInfo(TColor), nil, '', TCEColorEditor);
+  RegisterPropertyEditor(TypeInfo(TColor), nil, '', TCEColorEditor);
 end.
 
