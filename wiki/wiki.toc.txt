@@ -7,6 +7,7 @@ __________
 	* [setup program](https://github.com/BBasile/Coedit/wiki#setup-program)
 	* [from binaries](https://github.com/BBasile/Coedit/wiki#binaries)
 	* [build the sources](https://github.com/BBasile/Coedit/wiki#build-the-sources)
+	* [Linux package](https://github.com/BBasile/Coedit/wiki#linux-package)
 * [Contribute](https://github.com/BBasile/Coedit/wiki#how-to-contribute)
 * [Menu reference](https://github.com/BBasile/Coedit/wiki#menu-reference)
 	* [File](https://github.com/BBasile/Coedit/wiki#file)

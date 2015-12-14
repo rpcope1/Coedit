@@ -38,10 +38,11 @@ A summary of the content is accessible in the right side-bar.
 
 # Detailed setup procedure
 
-There are three ways to get the program, from the simplest to the most complex:
+There are four ways to get the program, from the simplest to the most complex:
 * download and run the setup program build for each release.
 * download and extract the binaries build for each release.
 * build the program from the sources.
+* (not recommended) download and install the official package for a linux distribution.
 
 In the three cases, the _DMD_ D2 compiler must setup and its location added to your environment PATH variable:
 If it's not already installed, [download](http://dlang.org/download.html) and setup DMD2 for your platform. 
@@ -137,6 +138,10 @@ After what Coedit executable should be build. The executable is output to the _b
 
 Note that additionally you'll have to build [the completion daemon **DCD**][lnk_dcd], [the symbol list builder **cesyms**][lnk_cesyms] and [the todo comment parser **cetodo**][lnk_cetodo]. 
 See the products documentation for more information.
+
+## Linux package
+
+Only the _x86-64_ _rpm_ is available (Fedora, openSuse, ...). After the installation, you must also build [DCD][lnk_dcd].
 
 # How to contribute
 

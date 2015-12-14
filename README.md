@@ -41,6 +41,7 @@ Download the zipped binaries or the zipped setup program for you platform:
 - :package: [binaries for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_3/coedit.2alpha3.linux64.zip)
 - :package: [setup program for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_3/coedit.2alpha3.win32.setup.zip)
 - :package: [binaries for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_3/coedit.2alpha3.win32.zip)
+- :package: [rpm for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_alpha_3/coedit-2-alpha3.x86_64.rpm)
 
 [**See the wiki**](https://github.com/BBasile/Coedit/wiki#detailed-setup-procedure) for more information about the setup. 
 
