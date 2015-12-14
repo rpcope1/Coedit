@@ -39,7 +39,8 @@ type
     fIdentifierMarkup: TSynSelectedColor;
     fFont: TFont;
     //
-    fCurrLineColor: TColor;
+
+    fLineNumEvery: Integer;
     fDDocDelay: Integer;
     fAutoDotDelay: Integer;
     fTabWidth: Integer;
@@ -69,6 +70,7 @@ type
     procedure setDDocDelay(value: Integer);
     procedure setAutoDotDelay(value: Integer);
     procedure setCompletionMenuLines(value: byte);
+    procedure setLineNumEvery(value: integer);
   published
     property currentLine: TSynSelectedColor read fCurrLineAttribs write setCurrLineAttribs;
     property completionMenuCaseCare: boolean read fCompletionMenuCaseCare write fCompletionMenuCaseCare;
@@ -96,6 +98,7 @@ type
     property highlighterDlang: TPersistent read fD2Syn write setD2Syn;
     property highlighterGeneric: TPersistent read fTxtSyn write setTxtSyn;
     property shortcuts: TCollection read fShortCuts write setShortcuts;
+    property lineNumberEvery: integer read fLineNumEvery write setLineNumEvery default 5;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -193,6 +196,7 @@ begin
   fCompletionMenuWidth:= 160;
   fCompletionMenuLines:= 15;
   //
+  fLineNumEvery := 5;
   rightEdge := 80;
   tabulationWidth := 4;
   blockIdentation := 4;
@@ -262,6 +266,7 @@ begin
     fD2Syn.Assign(srcopt.fD2Syn);
     fTxtSyn.Assign(srcopt.fTxtSyn);
     background := srcopt.background;
+    lineNumberEvery := srcopt.lineNumberEvery;
 
     tabulationWidth := srcopt.tabulationWidth;
     blockIdentation := srcopt.blockIdentation;
@@ -297,6 +302,13 @@ begin
   if value < 5 then value := 5
   else if value > 64 then value := 64;
   fCompletionMenuLines := value;
+end;
+
+procedure TCEEditorOptionsBase.setLineNumEvery(value: integer);
+begin
+  if value < 1 then value := 1
+  else if value > 10 then value := 10;
+  fLineNumEvery := value;
 end;
 
 procedure TCEEditorOptionsBase.setShortcuts(value: TCollection);
@@ -579,6 +591,8 @@ begin
   anEditor.completionMenu.TheForm.Width   := fCompletionMenuWidth;
   anEditor.completionMenu.LinesInWindow   := fCompletionMenuLines;
   anEditor.completionMenu.CaseSensitive   := fCompletionMenuCaseCare;
+
+  anEditor.Gutter.LineNumberPart.ShowOnlyLineNumbersMultiplesOf:=fLineNumEvery;
 
   anEditor.SelectedColor.Assign(fSelAttribs);
   anEditor.FoldedCodeColor.Assign(fFoldedColor);
