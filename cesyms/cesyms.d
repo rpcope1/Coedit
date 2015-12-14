@@ -351,8 +351,8 @@ class SymbolListBuilder : ASTVisitor
     
     final override void visit(const AnonymousEnumDeclaration decl) 
     {
-        if (decl.members.length > 0)
-            namedVisitorImpl!(AnonymousEnumMember, SymbolType._enum)(decl.members[0]);
+        if (decl.members.length) foreach(mem; decl.members)
+            namedVisitorImpl!(AnonymousEnumMember, SymbolType._enum)(mem);
     }
      
     final override void visit(const ClassDeclaration decl) 
