@@ -209,12 +209,15 @@ begin
       except
         if assigned(fJSON) then
           FreeAndNil(fJSON);
+        fFilename := '';
       end;
     finally
       parser.Free;
     end;
   finally
     loader.Free;
+    if not assigned(fJSON) then
+      fJson := TJSONObject.Create(['name','invalid json']);
     updateFields;
     subjProjChanged(fProjectSubject, self);
     fModified := false;

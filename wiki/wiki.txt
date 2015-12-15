@@ -297,7 +297,10 @@ Even if designed upon _DMD_ options, it's also possible to compile a CE project 
 
 # DUB projects.
 
-Since the version 2 alpha 1, Coedit also handles DUB projects (JSON descriptions only).
+Since the version 2 alpha 1, Coedit also handles DUB projects.
+
+DUB project description must be in JSON format. JSON format must be strictly compliant with RFC 4627.
+For example, some descriptions that are well handled by DUB could fail to load in Coedit because of trailing commas.
 
 Dub projects are handled exactly as the native projects are. The _project_ menu proposes the same features.
 However the configuration is done in another widget, see the [dedicated paragraph][lnk_widg_dub].
@@ -719,7 +722,7 @@ Note that it's possible to specify which compiler DUB uses in the application op
 
 ### Editor
 
-The second panel displays the list of the project properties. The can be modified in the field at the bottom.
+The second panel displays the tree of the project properties. The can be modified in the field at the bottom.
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dub_edit1.png)
 
