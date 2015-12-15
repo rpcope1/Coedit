@@ -862,7 +862,9 @@ begin
   if (length(fIdentifier) > 2) and (not SelAvail) then
     SetHighlightSearch(fIdentifier, fMatchIdentOpts)
   else if SelAvail then
-    SetHighlightSearch(SelText,fMatchSelectionOpts);
+    SetHighlightSearch(SelText,fMatchSelectionOpts)
+  else
+    SetHighlightSearch('',[]);
 end;
 
 procedure TCESynMemo.setMatchOpts(value: TIdentifierMatchOptions);
