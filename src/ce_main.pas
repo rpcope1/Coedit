@@ -602,9 +602,11 @@ begin
   begin
     str := fDocuments.Strings[i];
     if FileExists(str) then
+    begin
       docHandler.openDocument(str);
-    if i = fDocIndex then
-      focusedName := str;
+      if i = fDocIndex then
+        focusedName := str;
+    end;
   end;
   //
   if focusedName <> '' then
