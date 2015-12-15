@@ -16,6 +16,13 @@ type
 
   TCESynMemo = class;
 
+  TIdentifierMatchOption = (
+    caseSensitive = longInt(ssoMatchCase),
+    wholeWord = longInt(ssoWholeWord)
+  );
+
+  TIdentifierMatchOptions = set of TIdentifierMatchOption;
+
   TBreakPointModification = (bpAdded, bpRemoved);
 
   // breakpoint added or removed
@@ -118,6 +125,10 @@ type
     fImages: TImageList;
     fBreakPoints: TFPList;
     fBreakpointEvent: TBreakPointModifyEvent;
+    fMatchSelectionOpts: TSynSearchOptions;
+    fMatchIdentOpts: TSynSearchOptions;
+    fMatchOpts: TIdentifierMatchOptions;
+    procedure setMatchOpts(value: TIdentifierMatchOptions);
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
     procedure highlightCurrentIdentifier;
@@ -175,6 +186,7 @@ type
     function breakPointLine(index: integer): integer;
     property onBreakpointModify: TBreakPointModifyEvent read fBreakpointEvent write fBreakpointEvent;
     //
+    property IdentifierMatchOptions: TIdentifierMatchOptions read fMatchOpts write setMatchOpts;
     property Identifier: string read fIdentifier;
     property fileName: string read fFilename;
     property modified: boolean read fModified;
@@ -499,6 +511,7 @@ begin
   HighlightAllColor.Foreground := clNone;
   HighlightAllColor.Background := clSilver;
   HighlightAllColor.BackAlpha  := 70;
+  IdentifierMatchOptions:= [caseSensitive];
   //
   LineHighlightColor.Background := color - $080808;
   LineHighlightColor.Foreground := clNone;
@@ -846,9 +859,16 @@ procedure TCESynMemo.highlightCurrentIdentifier;
 begin
   fIdentifier := GetWordAtRowCol(LogicalCaretXY);
   if (length(fIdentifier) > 2) and (not SelAvail) then
-    SetHighlightSearch(fIdentifier,[ssoMatchCase])
+    SetHighlightSearch(fIdentifier, fMatchIdentOpts)
   else if SelAvail then
-    SetHighlightSearch(SelText,[ssoMatchCase]);
+    SetHighlightSearch(SelText,fMatchSelectionOpts);
+end;
+
+procedure TCESynMemo.setMatchOpts(value: TIdentifierMatchOptions);
+begin
+  fMatchOpts:= value;
+  fMatchIdentOpts := TSynSearchOptions(fMatchOpts);
+  fMatchSelectionOpts:= TSynSearchOptions(fMatchOpts - [wholeWord]);
 end;
 
 procedure TCESynMemo.changeNotify(Sender: TObject);

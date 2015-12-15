@@ -39,7 +39,7 @@ type
     fIdentifierMarkup: TSynSelectedColor;
     fFont: TFont;
     //
-
+    fIdentiMatchOpts: TIdentifierMatchOptions;
     fLineNumEvery: Integer;
     fDDocDelay: Integer;
     fAutoDotDelay: Integer;
@@ -99,6 +99,7 @@ type
     property highlighterGeneric: TPersistent read fTxtSyn write setTxtSyn;
     property shortcuts: TCollection read fShortCuts write setShortcuts;
     property lineNumberEvery: integer read fLineNumEvery write setLineNumEvery default 5;
+    property identifierMatchOptions: TIdentifierMatchOptions read fIdentiMatchOpts write fIdentiMatchOpts default [caseSensitive];
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -192,6 +193,7 @@ begin
   fIdentifierMarkup.Foreground:= clNone;
   fIdentifierMarkup.Background:= clSilver;
   fIdentifierMarkup.BackAlpha:=70;
+  fIdentiMatchOpts := [caseSensitive];
   //
   fCompletionMenuWidth:= 160;
   fCompletionMenuLines:= 15;
@@ -267,6 +269,7 @@ begin
     fTxtSyn.Assign(srcopt.fTxtSyn);
     background := srcopt.background;
     lineNumberEvery := srcopt.lineNumberEvery;
+    identifierMatchOptions:=srcopt.identifierMatchOptions;
 
     tabulationWidth := srcopt.tabulationWidth;
     blockIdentation := srcopt.blockIdentation;
@@ -610,6 +613,7 @@ begin
   anEditor.Color := background;
   anEditor.RightEdge := rightEdge;
   anEditor.RightEdgeColor := rightEdgeColor;
+  anEditor.IdentifierMatchOptions:= identifierMatchOptions;
   for i := 0 to anEditor.Keystrokes.Count-1 do
   begin
     kst := anEditor.Keystrokes.Items[i];
