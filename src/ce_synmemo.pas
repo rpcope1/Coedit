@@ -443,6 +443,7 @@ begin
   inherited;
   //
   fDefaultFontSize := 10;
+  Font.Size:=10;
   SetDefaultCoeditKeystrokes(Self); // not called in inherited if owner = nil !
   //
   ShowHint := false;
@@ -786,7 +787,7 @@ begin
     begin
       fCanAutoDot:=false;
       fCompletion.Execute(GetWordAtRowCol(LogicalCaretXY),
-        ClientToScreen(point(CaretXPix, CaretYPix)));
+        ClientToScreen(point(CaretXPix, CaretYPix + LineHeight)));
     end;
     ecPreviousLocation:
       fPositions.back;
@@ -837,7 +838,7 @@ begin
   if not fCanAutoDot then exit;
   if fAutoDotDelay = 0 then exit;
   fCanAutoDot := false;
-  fCompletion.Execute('', ClientToScreen(point(CaretXPix, CaretYPix + Font.Size)));
+  fCompletion.Execute('', ClientToScreen(point(CaretXPix, CaretYPix + LineHeight)));
 end;
 
 procedure TCESynMemo.setAutoDotDelay(aValue: Integer);
@@ -1039,6 +1040,8 @@ procedure TCESynMemo.KeyDown(var Key: Word; Shift: TShiftState);
 begin
   inherited;
   highlightCurrentIdentifier;
+  if fCompletion.IsActive then
+      fCompletion.CurrentString:= GetWordAtRowCol(LogicalCaretXY);
   case Key of
     VK_BROWSER_BACK: fPositions.back;
     VK_BROWSER_FORWARD: fPositions.next;
@@ -1054,8 +1057,6 @@ begin
     VK_SUBTRACT: if Font.Size > 3 then Font.Size := Font.Size - 1;
     VK_DECIMAL: Font.Size := fDefaultFontSize;
   end;
-  if fCompletion.IsActive then
-    fCompletion.CurrentString:= GetWordAtRowCol(LogicalCaretXY);
   fCanShowHint:=false;
   fDDocWin.Hide;
 end;
