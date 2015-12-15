@@ -442,7 +442,11 @@ end;
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
 procedure TCEEditorOptions.docNew(aDoc: TCESynMemo);
 begin
+  //apply...des not modify font size to preserve current zoom
+  // when called after the options are edited
   applyChangeToEditor(aDoc);
+  // must be set manually for a new doc
+  aDoc.Font.Size:=self.font.Size;
 end;
 
 procedure TCEEditorOptions.docFocused(aDoc: TCESynMemo);
