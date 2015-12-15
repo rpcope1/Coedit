@@ -772,7 +772,8 @@ begin
     ecCompletionMenu:
     begin
       fCanAutoDot:=false;
-      fCompletion.Execute('', ClientToScreen(point(CaretXPix, CaretYPix + Font.Size)));
+      fCompletion.Execute(GetWordAtRowCol(LogicalCaretXY),
+        ClientToScreen(point(CaretXPix, CaretYPix)));
     end;
     ecPreviousLocation:
       fPositions.back;
@@ -844,7 +845,10 @@ end;
 procedure TCESynMemo.highlightCurrentIdentifier;
 begin
   fIdentifier := GetWordAtRowCol(LogicalCaretXY);
-  SetHighlightSearch(fIdentifier,[ssoEntireScope, ssoMatchCase]);
+  if (length(fIdentifier) > 2) and (not SelAvail) then
+    SetHighlightSearch(fIdentifier,[ssoMatchCase])
+  else if SelAvail then
+    SetHighlightSearch(SelText,[ssoMatchCase]);
 end;
 
 procedure TCESynMemo.changeNotify(Sender: TObject);
@@ -1030,7 +1034,8 @@ begin
     VK_SUBTRACT: if Font.Size > 3 then Font.Size := Font.Size - 1;
     VK_DECIMAL: Font.Size := fDefaultFontSize;
   end;
-  TCEEditorHintWindow.FontSize := Font.Size;
+  if fCompletion.IsActive then
+    fCompletion.CurrentString:= GetWordAtRowCol(LogicalCaretXY);
   fCanShowHint:=false;
   fDDocWin.Hide;
 end;
@@ -1057,6 +1062,8 @@ begin
     '(': getCallTips;
     ')': fCallTipWin.Hide;
   end;
+  if fCompletion.IsActive then
+    fCompletion.CurrentString:=GetWordAtRowCol(LogicalCaretXY);
 end;
 
 procedure TCESynMemo.MouseLeave;
