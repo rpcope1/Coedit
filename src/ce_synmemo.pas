@@ -1025,12 +1025,10 @@ begin
       str := TStringList.Create;
       try
         str.LoadFromFile(fFilename);
-        ClearAll;
-        if str.Count > 0 then
-        begin
-          DoCopyToClipboard(str.Text);
-          PasteFromClipboard;
-        end;
+        SelectAll;
+        SelText:= str.Text;
+        SelStart:=0;
+        SelEnd:=0;
         fModified := true;
       finally
         str.Free;
