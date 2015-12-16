@@ -1,0 +1,73 @@
+inherited CEDfmtWidget: TCEDfmtWidget
+  Left = 562
+  Height = 365
+  Top = 245
+  Width = 458
+  Caption = 'Dfmt commander'
+  ClientHeight = 365
+  ClientWidth = 458
+  inherited Back: TPanel
+    Left = 4
+    Height = 357
+    Top = 4
+    Width = 450
+    BorderSpacing.Around = 4
+    ClientHeight = 357
+    ClientWidth = 450
+    inherited Content: TPanel
+      Height = 357
+      Width = 450
+      ClientHeight = 357
+      ClientWidth = 450
+      object dfmtOptionEditor: TTIPropertyGrid[0]
+        Left = 4
+        Height = 313
+        Top = 4
+        Width = 442
+        Align = alClient
+        BorderSpacing.Around = 4
+        CheckboxForBoolean = False
+        DefaultValueFont.Color = clWindowText
+        Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkObject, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
+        Indent = 10
+        NameFont.Color = clWindowText
+        OnEditorFilter = dfmtOptionEditorEditorFilter
+        PreferredSplitterX = 220
+        SplitterX = 220
+        ValueFont.Color = clGreen
+      end
+      object pnlFooter: TPanel[1]
+        Left = 4
+        Height = 32
+        Top = 321
+        Width = 442
+        Align = alBottom
+        BorderSpacing.Around = 4
+        BevelOuter = bvLowered
+        ClientHeight = 32
+        ClientWidth = 442
+        TabOrder = 1
+        object btnCancel: TSpeedButton
+          Left = 375
+          Height = 26
+          Hint = 'restore previous format'
+          Top = 3
+          Width = 30
+          Align = alRight
+          BorderSpacing.Left = 2
+          BorderSpacing.Around = 2
+        end
+        object btnApply: TSpeedButton
+          Left = 409
+          Height = 26
+          Hint = 'apply formating'
+          Top = 3
+          Width = 30
+          Align = alRight
+          BorderSpacing.Left = 2
+          BorderSpacing.Around = 2
+        end
+      end
+    end
+  end
+end

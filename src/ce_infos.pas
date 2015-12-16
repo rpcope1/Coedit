@@ -176,7 +176,11 @@ begin
   fIsModal := true;
   fIsDockable := false;
   //
-  toolItem := TToolInfo.Construct(self, tikOptional, 'gdc',
+  toolItem := TToolInfo.Construct(self, tikOptional, 'dfmt',
+    'optional, the D source code formater, needed by the Dfmt commander widget');
+  toolItem.Parent := boxTools;
+  toolItem.ReAlign;
+  toolItem := TToolInfo.Construct(self, tikOptional, 'dfmt',
     'optional, the GDC D compiler');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
