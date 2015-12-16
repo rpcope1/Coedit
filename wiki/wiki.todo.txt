@@ -3,3 +3,4 @@
 - project config widget, base/overridden config specifications. Note about pre/post build proc as their options cant be overridden.
 - project config widget, base/overridden config. screenshot for widget view 'All categories'.
 - applications options (MRU & reload last stuff).
+- editor, toolbar description, split view description + screenshot.

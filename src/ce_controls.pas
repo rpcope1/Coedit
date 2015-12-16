@@ -69,6 +69,7 @@ type
     function getCurrentPage: TCEPage;
     function getPageCount: integer;
     function getPage(index: integer): TCEPage;
+    function getSplitPage: TCEPage;
 
     procedure changedNotify;
     procedure updateButtonsState;
@@ -83,6 +84,7 @@ type
     procedure movePageRight;
     procedure movePageLeft;
 
+    property splitPage: TCEPage read getSplitPage;
     property currentPage: TCEPage read getCurrentPage write setCurrentPage;
     property pageIndex: integer read fPageIndex write setPageIndex;
     property pageCount: integer read getPageCount;
@@ -371,6 +373,14 @@ end;
 function TCEPageControl.getPage(index: integer): TCEPage;
 begin
   exit(TCEPage(fPages.Items[index]));
+end;
+
+function TCEPageControl.getSplitPage: TCEPage;
+begin
+  if fSplittedPageIndex = -1 then
+    exit(nil)
+  else
+    exit(getPage(fSplittedPageIndex));
 end;
 
 procedure TCEPageControl.movePageRight;

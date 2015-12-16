@@ -199,6 +199,8 @@ begin
   exit('ICEMultiDocHandler');
 end;
 
+//TODO-cfeature: jump to definition, don't open/select tab if origin is in right split view
+
 function TCEEditorWidget.documentCount: Integer;
 begin
   exit(PageControl.PageCount);
@@ -347,6 +349,7 @@ end;
 
 procedure TCEEditorWidget.getSymbolLoc;
 var
+  page: TCEPage;
   srcpos, i, sum, linelen: Integer;
   fname: string;
   len: byte;
@@ -354,8 +357,16 @@ begin
   if not DcdWrapper.available then exit;
   //
   DcdWrapper.getDeclFromCursor(fname, srcpos);
-  if fname <> fDoc.fileName then if fileExists(fname) then
-    openDocument(fname);
+  if (fname <> fDoc.fileName) and fileExists(fname) then
+  begin
+    page := pageControl.splitPage;
+    if assigned(page) then
+    begin
+      fDoc := TCESynMemo(page.Controls[0]);
+      if fDoc.fileName <> fname then
+        openDocument(fname);
+    end;
+  end;
   if srcpos <> -1 then
   begin
     sum := 0;
