@@ -41,6 +41,7 @@ __________
  * [Run](https://github.com/BBasile/Coedit/wiki#run-options)
  * [All](https://github.com/BBasile/Coedit/wiki#all-categories)
 * [DUB editor](https://github.com/BBasile/Coedit/wiki#dub-project-editor)
+* [Dfmt commander](https://github.com/BBasile/Coedit/wiki#dfmt-commander)
 * [Messages](https://github.com/BBasile/Coedit/wiki#message-widget)
 * [Custom tools](https://github.com/BBasile/Coedit/wiki#custom-tools-widget)
 * [Todo list](https://github.com/BBasile/Coedit/wiki#todo-list)

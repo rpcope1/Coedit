@@ -733,6 +733,20 @@ New properties can be added or removed:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dub_edit2.png)
 
+## Dfmt Commander
+
+The _Dfmt commander_ widget is a simple but complete interface for the D source code formater [Dfmt](https://github.com/Hackerpilot/dfmt). The background tool has to be build and installed in one of the _PATH_ known by the operating system.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dfmt1.png)
+
+A property inspector allows to tweak the format. See the [official documentation](https://github.com/Hackerpilot/dfmt#configuration) to learn more about the options.
+
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/accept.png): apply the formatting. The editor state is backed up before each formatting.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/cancel.png): restore the previous backup.
+
+The formatting is applied in memory and is undo-able either from the widget or from the code editor. The changes are not physically applied until the file is explicitly saved.
+Formatting options are saved between each session in [Coedit data folder][lnk_widg_opts].
+
 ## Message widget
 
 The message widget displays a stream of information about the current file or about the current project.

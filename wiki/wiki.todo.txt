@@ -4,4 +4,3 @@
 - project config widget, base/overridden config. screenshot for widget view 'All categories'.
 - applications options (MRU & reload last stuff).
 - editor, toolbar description, split view description + screenshot.
-- widget section for Dfmt commander.
