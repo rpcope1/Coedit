@@ -180,7 +180,7 @@ begin
     'optional, the D source code formater, needed by the Dfmt commander widget');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
-  toolItem := TToolInfo.Construct(self, tikOptional, 'dfmt',
+  toolItem := TToolInfo.Construct(self, tikOptional, 'gdc',
     'optional, the GDC D compiler');
   toolItem.Parent := boxTools;
   toolItem.ReAlign;
