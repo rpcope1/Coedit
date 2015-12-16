@@ -365,7 +365,8 @@ begin
       fDoc := TCESynMemo(page.Controls[0]);
       if fDoc.fileName <> fname then
         openDocument(fname);
-    end;
+    end
+    else openDocument(fname);
   end;
   if srcpos <> -1 then
   begin
