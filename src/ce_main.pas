@@ -1575,7 +1575,7 @@ begin
   if fDoc = nil then exit;
   if (fDoc.modified or(fDoc.fileName = fDoc.tempFilename))
       and (dlgFileChangeClose(fDoc.fileName) = mrCancel) then exit;
-  fDoc.Free;
+ getMultiDocHandler.closeDocument(fDoc);
 end;
 
 procedure TCEMainForm.actFileSaveAllExecute(Sender: TObject);

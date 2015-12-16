@@ -36,6 +36,7 @@ begin
   AssignPng(fPageControl.addButton.Glyph, 'document_add');
   AssignPng(fPageControl.moveLeftButton.Glyph, 'document_back');
   AssignPng(fPageControl.moveRightButton.Glyph, 'document_next');
+  AssignPng(fPageControl.splitButton.Glyph, 'splitter');
 end;
 
 procedure TForm1.pageControlChanged(sender: TObject);

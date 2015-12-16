@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
   SynEdit, SynPluginSyncroEdit, SynCompletion, SynEditKeyCmds, LazSynEditText,
   SynHighlighterLFM, SynEditHighlighter, SynEditMouseCmds, SynEditFoldedView,
-  SynEditMarks, SynEditMarkup, SynEditTypes,
+  SynEditMarks, SynEditMarkup, SynEditTypes, Messages, LMessages,
   ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs,
   ce_sharedres;
 
@@ -103,6 +103,7 @@ type
     fIsDSource: boolean;
     fIsTxtFile: boolean;
     fIsConfig: boolean;
+    fFocusForInput: boolean;
     fIdentifier: string;
     fTempFileName: string;
     fMultiDocSubject: TCECustomSubject;
@@ -154,6 +155,8 @@ type
     procedure removeBreakPoint(line: integer);
     function  findBreakPoint(line: integer): boolean;
   protected
+    procedure DoEnter; override;
+    procedure DoExit; override;
     procedure DoOnProcessCommand(var Command: TSynEditorCommand; var AChar: TUTF8Char;
       Data: pointer); override;
     procedure MouseLeave; override;
@@ -556,6 +559,25 @@ begin
   subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
 end;
 
+procedure TCESynMemo.DoEnter;
+begin
+  inherited;
+  checkFileDate;
+  if not fFocusForInput then
+    subjDocFocused(TCEMultiDocSubject(fMultiDocSubject), self);
+  fFocusForInput := true;
+end;
+
+procedure TCESynMemo.DoExit;
+begin
+  inherited;
+  fFocusForInput := false;
+  fDDocWin.Hide;
+  fCallTipWin.Hide;
+  if fCompletion.IsActive then
+    fCompletion.Deactivate;
+end;
+
 procedure TCESynMemo.SetVisible(Value: Boolean);
 begin
   inherited;
@@ -569,7 +591,7 @@ begin
   else begin
     fDDocWin.Hide;
     fCallTipWin.Hide;
-    if  fCompletion.IsActive then
+    if fCompletion.IsActive then
       fCompletion.Deactivate;
   end;
 end;
@@ -1091,6 +1113,7 @@ end;
 
 procedure TCESynMemo.MouseLeave;
 begin
+  inherited;
   fDDocWin.Hide;
   fCallTipWin.Hide;
 end;

@@ -77,6 +77,7 @@ type
     function findDocument(aFilename: string): TCESynMemo;
     procedure openDocument(aFilename: string);
     function closeDocument(index: Integer): boolean;
+    function closeDocument(doc: TCESynMemo): boolean;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -102,6 +103,7 @@ begin
   AssignPng(pageControl.moveRightButton, 'go_next');
   AssignPng(pageControl.addButton, 'document_add');
   AssignPng(pageControl.closeButton, 'document_delete');
+  AssignPng(pageControl.splitButton, 'splitter');
 
   fTokList := TLexTokenList.Create;
   fErrList := TLexErrorList.Create;
@@ -244,6 +246,16 @@ begin
   pageControl.pageIndex:=index;
   doc.Free;
   result := true;
+end;
+
+function TCEEditorWidget.closeDocument(doc: TCESynMemo): boolean;
+var
+  page: TCEPage = nil;
+begin
+  page := TCEPage(doc.Parent);
+  if not assigned(page) then
+    exit(false);
+  exit(closeDocument(page.index));
 end;
 {$ENDREGION}
 

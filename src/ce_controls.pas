@@ -8,11 +8,11 @@ uses
   Classes, SysUtils, Forms, Controls, ComCtrls, ExtCtrls, buttons;
 
 type
-  TCEPageControlButton = (pbClose, pbMoveLeft, pbMoveRight, pbAdd);
+  TCEPageControlButton = (pbClose, pbMoveLeft, pbMoveRight, pbAdd, pbSplit);
   TCEPageControlButtons = set of TCEPageControlButton;
 
 const
-  CEPageControlDefaultButtons = [pbClose, pbMoveLeft, pbMoveRight, pbAdd];
+  CEPageControlDefaultButtons = [pbClose, pbMoveLeft, pbMoveRight, pbAdd, pbSplit];
 
 type
 
@@ -30,8 +30,9 @@ type
    * Minimalist page-control dedicated to Coedit
    *
    * - get rid of the framed aspect of the default LCL one
-   * - no published props, since CE has to be compilable w/o extra IDE comps
+   * - no published props, no need for design time support
    * - add/close/move left and right speed buttons
+   * - a particular tab can be set to reside on a split view
    *)
   TCEPageControl = class(TWinControl)
   private
@@ -41,17 +42,22 @@ type
     fMoveLeftBtn: TSpeedButton;
     fMoveRightBtn: TSpeedButton;
     fAddBtn: TSpeedButton;
+    fSplitBtn: TSpeedButton;
     fContent: TPanel;
     fPages: TFPList;
     fPageIndex: integer;
+    fSplittedPageIndex: integer;
     fButtons: TCEPageControlButtons;
     fOnChanged: TNotifyEvent;
     fOnChanging: TTabChangingEvent;
+    fSplitter: TSplitter;
+    fOldSplitPos: integer;
 
     procedure btnCloseClick(sender: TObject);
     procedure btnMoveLeftClick(sender: TObject);
     procedure btnMoveRightClick(sender: TObject);
     procedure btnAddClick(sender: TObject);
+    procedure btnSplitClick(sender: TObject);
 
     procedure tabsChanging(Sender: TObject; var AllowChange: Boolean);
     procedure tabsChanged(sender: TObject);
@@ -87,6 +93,7 @@ type
     property moveLeftButton: TSpeedButton read fMoveLeftBtn;
     property moveRightButton: TSpeedButton read fMoveRightBtn;
     property addButton: TSpeedButton read fAddBtn;
+    property splitButton: TSpeedButton read fSplitBtn;
 
     property onChanged: TNotifyEvent read fOnChanged write fOnChanged;
     property onChanging: TTabChangingEvent read fOnChanging write fOnChanging;
@@ -125,6 +132,8 @@ begin
   fHeader.Parent:= self;
   fHeader.Align := alTop;
   fHeader.Height:= 32;
+
+  fSplittedPageIndex:=-1;
 
   fTabs := TTabControl.Create(self);
   fTabs.Parent:= fHeader;
@@ -169,6 +178,15 @@ begin
   fCloseBtn.OnClick:=@btnCloseClick;
   fCloseBtn.Hint:='close current page';
 
+  fSplitBtn := TSpeedButton.Create(self);
+  fSplitBtn.Parent := fHeader;
+  fSplitBtn.Align:= alRight;
+  fSplitBtn.Width:= 28;
+  fSplitBtn.BorderSpacing.Around:= 2;
+  fSplitBtn.ShowCaption:=false;
+  fSplitBtn.OnClick:=@btnSplitClick;
+  fSplitBtn.Hint:= 'pin or un-pin the page to the right';
+
   fContent := TPanel.Create(self);
   fContent.Parent := self;
   fContent.Align  := alClient;
@@ -176,6 +194,12 @@ begin
   fContent.BevelOuter:= bvNone;
   fContent.BorderStyle:=bsNone;
   fContent.BorderSpacing.Top:=3;
+
+  fSplitter := TSplitter.Create(self);
+  fSplitter.Parent := fContent;
+  fSplitter.Visible:= false;
+  fSplitter.Align := alLeft;
+  fSplitter.Width := 6;
 
   fPages := TFPList.Create;
   fPageIndex := -1;
@@ -201,7 +225,8 @@ end;
 
 procedure TCEPageControl.tabsChanged(sender: TObject);
 begin
-  setPageIndex(fTabs.TabIndex);
+  if fTabs.TabIndex < fPages.Count then
+    setPageIndex(fTabs.TabIndex);
 end;
 
 procedure TCEPageControl.tabsChanging(Sender: TObject; var AllowChange: Boolean);
@@ -229,6 +254,8 @@ begin
     exit;
 
   pge := TCEPage(fPages.Items[index]);
+  if (fSplittedPageIndex = -1) or (index = fSplittedPageIndex) then
+    pge.Align:=alClient;
   pge.Visible:=true;
   pge.Repaint;
   for ctl in pge.GetEnumeratorControls do
@@ -236,15 +263,42 @@ begin
 end;
 
 procedure TCEPageControl.setPageIndex(index: integer);
+var
+  leftp, rightp: TCEPage;
 begin
+  if (fPageIndex <> fSplittedPageIndex) then
+    fOldSplitPos := fSplitter.Left;
   if (index > fPages.Count-1) then
     index := fPages.Count-1;
   if (index < 0) then
       exit;
 
-  hidePage(fPageIndex);
-  fPageIndex := index;
-  showPage(fPageIndex);
+  if (fSplittedPageIndex = -1) or (index = fSplittedPageIndex) then
+  begin
+    hidePage(fPageIndex);
+    fPageIndex := index;
+    showPage(fPageIndex);
+    fSplitter.Visible:= false;
+  end
+  else if (fSplittedPageIndex <> -1)  then
+  begin
+    hidePage(fPageIndex);
+    fPageIndex := index;
+
+    fSplitter.Visible:= true;
+
+    leftp := getPage(fPageIndex);
+    leftp.Align := alLeft;
+    if fOldSplitPos = 0 then
+      leftp.Width:= (fContent.Width - fSplitter.Width) div 2
+    else
+      leftp.Width:= fOldSplitPos;
+    showPage(fPageIndex);
+
+    rightp := getPage(fSplittedPageIndex);
+    rightp.Align := alClient;
+    showPage(fSplittedPageIndex);
+  end;
 
   if fTabs.TabIndex <> fPageIndex then
     fTabs.TabIndex:= fPageIndex;
@@ -272,12 +326,18 @@ begin
   if (index > fPages.Count-1) or (index < 0) then
     exit;
 
+  if index = fSplittedPageIndex then
+    fSplittedPageIndex := -1
+  else if index < fSplittedPageIndex then
+    fSplittedPageIndex -= 1;
+
   TCEPage(fPages.Items[index]).Free;
+  if fPageIndex >= fPages.Count then
+    fPageIndex -= 1;
+
   fPages.Delete(index);
   fTabs.Tabs.Delete(index);
 
-  if fPageIndex >= fPages.Count then
-    fPageIndex -= 1;
   updateButtonsState;
   if fPages.Count = 0 then
     exit;
@@ -320,6 +380,8 @@ begin
 
   fPages.Exchange(fPageIndex, fPageIndex + 1);
   fTabs.Tabs.Exchange(fPageIndex, fPageIndex + 1);
+  if fPageIndex = fSplittedPageIndex then
+    fSplittedPageIndex += 1;
   setPageIndex(fPageIndex+1);
 end;
 
@@ -330,6 +392,8 @@ begin
 
   fPages.Exchange(fPageIndex, fPageIndex - 1);
   fTabs.Tabs.Exchange(fPageIndex, fPageIndex - 1);
+  if fPageIndex = fSplittedPageIndex then
+      fSplittedPageIndex -= 1;
   setPageIndex(fPageIndex-1);
 end;
 
@@ -353,6 +417,19 @@ begin
   addPage;
 end;
 
+procedure TCEPageControl.btnSplitClick(sender: TObject);
+begin
+  if fPageIndex = fSplittedPageIndex then
+    fSplittedPageIndex := -1
+  else
+  begin
+    if (fSplittedPageIndex <> -1) then
+      hidePage(fSplittedPageIndex);
+    fSplittedPageIndex:= fPageIndex;
+  end;
+  setPageIndex(fPageIndex);
+end;
+
 procedure TCEPageControl.setButtons(value: TCEPageControlButtons);
 begin
   if fButtons = value then
@@ -370,6 +447,7 @@ begin
   fMoveLeftBtn.Visible:= pbMoveLeft in fButtons;
   fCloseBtn.Visible:= pbMoveRight in fButtons;
   fAddBtn.Visible:= pbAdd in fButtons;
+  fSplitBtn.Visible:= pbSplit in fButtons;
   fHeader.EnableAlign;
   fCloseBtn.Enabled := fPageIndex <> -1;
   fMoveLeftBtn.Enabled := fPageIndex > 0;

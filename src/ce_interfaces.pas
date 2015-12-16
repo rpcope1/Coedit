@@ -289,14 +289,16 @@ type
   ICEMultiDocHandler = interface(ICESingleService)
     // returns the count of opened document
     function documentCount: Integer;
-    // returns the index-th document
+    // returns the nth document
     function getDocument(index: Integer): TCESynMemo;
     // returns true if the document matching aFielanme is already opened.
     function findDocument(aFilename: string): TCESynMemo;
     // open or set the focus on the document matching aFilename
     procedure openDocument(aFilename: string);
-    // close the index-th document
+    // close the nth document
     function closeDocument(index: Integer): boolean;
+    // close a particular document
+    function closeDocument(doc: TCESynMemo): boolean;
     // conveniance property
     property document[index: integer]: TCESynMemo read getDocument;
   end;
