@@ -422,22 +422,27 @@ It's based on the [**Synedit**](http://wiki.freepascal.org/SynEdit) suite, a pow
 which can be described as a _"Scintilla for Pascal"_. It features:
 
 - folding (curly brackets blocks, multi-line strings, block comments, nested block comments, DDoc comments blocks).
-- colorization of the following categories: keywords, numbers, symbols, comments, ASM operands and identifiers, DDoc comments.
-- colorization of the current identifier in the whole view.
+- colorization of the following categories: keywords, numbers, symbols, comments, assembler instructions and identifiers, DDoc comments.
+- current identifier markup, selection markup.
 - standard keyboard navigation shortcuts <kbd>CTRL</kbd> + (<kbd>SHIFT</kbd> +) <kbd>LEFT</kbd>/<kbd>RIGHT</kbd>, <kbd>CTRL</kbd> + <kbd>HOME</kbd>, <kbd>CTRL</kbd> + <kbd>END</kbd> etc.
 - macro recording and playback using  <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>R</kbd> (start/stop recording) or <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>P</kbd> (play).
 - synchro-edit (activated when clicking the pen icon located in the gutter, or with the shortcut <kbd>CTRL</kbd>+<kbd>E</kbd> and <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>E</kbd>).
 - zoom: (<kbd>CTRL</kbd>+<kbd>WHEEL</kbd>, <kbd>CTRL</kbd>+<kbd>MIDDLE MB</kbd>, <kbd>CTRL</kbd>+<kbd>+</kbd>, <kbd>CTRL</kbd>+<kbd>-</kbd>, <kbd>CTRL</kbd>+<kbd>.</kbd>).
 - display cache: for each document, the zoom ratio, the folds and the caret position are saved between two sessions. A cache file has a fixed life-time of three months from its last modification.
-- drag drop editing.
+- drag & drop editing.
 - external modification tracking. Each time the focus is put on a document (switch document, show & hide application), Coedit verifies if its time stamp has changed.
 - static macros.
 - custom folded regions.
 - huge amount of options.
+- split view: an editor can be pined to the right.
+- most recent location buffer: instead of bookmarks, the most recent caret positions are stored in a buffer. Positions can be recovered with the lateral mouse buttons (_X1_ & _X2_) or with the multimedia keyboard keys _next web page_ & _previous web page_.
 
-The custom folded regions can be defined in a single line comments.
-A region starts with a comment ending with at least three hyphens and a add symbol 
-and stops with a comment ending with at least four hyphens.
+### Custom regions
+
+The custom regions are defined in single line comments.
+A region starts with a comment that ends with at least three hyphens and a add symbol.
+A region stops with a comment ending with at least four hyphens.
+
 For example:
 
 ```D
@@ -453,28 +458,45 @@ T opIndex(size_t i){}
 // ----
 ```
 
+### Static macros
+
 The static macros can be described as *parameter-less code snippets*.
 A static macro starts with the dollar symbol and ends with an alphabetic character.
 For example after typing `$a`, `auto` is inserted. 
-Confer with the [source code](https://github.com/BBasile/Coedit/blob/master/src/ce_staticmacro.pas#L57) too see the hard-coded macros list.
+Confer with the [source code](https://github.com/BBasile/Coedit/blob/master/src/ce_staticmacro.pas#L57) too see the pre-defined macros list.
 Custom macros can be edited in the [options editor][lnk_widg_opts]:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optmacros.png)
 
-The editor options as well:
+Note that the pre-defined macros are not hardcoded anymore and they can be completly deleted.
 
-![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/opted.png)
+### Editor options
 
-The editor shortcuts are listed there:
+Editor options are displayed in the [option editor][lnk_widg_opts].
+They cover many aspects of the editor:
+- highlighterDlang: options for D2 highlighter such as colors, font styles, folding, etc.
+- highlighterText: options for generic highlighter such as colors, font styles, etc.
+- ddocDelay, autoDotDelay: tweak how fast [DCD][lnk_dcd] features are.
+- options1 & options2: about 50 boolean options to define if the special characters are shown, if the trailing spaces are trimmed, if the tabs are converted to spaces, etc.
+- and much more.
 
-![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optshortcut.png)
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/editor.options.png)
 
-Note that you can edit text files in Coedit too (as well as any other file type such as _*.dd_ D documentation files)
-A simple highlighter is automatically set for this purpose:
+The editor shortcuts are listed here:
 
-![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/sourceditor2.png)
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/editor.shortcuts.png)
 
-It's also customizable in the option editor but the highlighter only recognizes identifiers and symbols.
+### Split view
+
+The split view allows to pin one of the document to the right of the other documents.
+To pin a document, open it in an editor and click the right-most toolbar button.
+The other editors will get this document displayed at their right.
+To unpin a document, select its page and click the same button.
+The document to pin can be replaced on the fly, still using the same button, and even if the split view is already active.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/editor.splitview.png)
+
+It's useful to display a module that contains the types, the enums or the prototypes of a library binding since it's not anymore necessary to change the editor page to verify the members of an enum or the parameters of a function.
 
 ## Find & replace widget
 

@@ -21,7 +21,7 @@ type
   private
     fEol: DfmtEol;
     fTabStyle: DfmtIdentstyle;
-    fIdentSize: integer;
+    fIndentSize: integer;
     fTabWidth: integer;
     fHardLLen: integer;
     fSoftLLen: integer;
@@ -30,10 +30,14 @@ type
     fSplitOp: boolean;
     fCompactLbl: boolean;
     fSpaceSelImp: boolean;
+    procedure setSoftLLen(value: integer);
+    procedure setHardLLen(value: integer);
+    procedure setTabWidth(value: integer);
+    procedure setIndentSize(value: integer);
   published
     property endOfline: DfmtEol read fEol write fEol default lf;
     property identationStyle: DfmtIdentstyle read fTabStyle write fTabStyle default space;
-    property identSize: integer read fIdentSize write fIdentSize default 4;
+    property identSize: integer read fIndentSize write fIndentSize default 4;
     property tabWidth: integer read fTabWidth write fTabWidth default 8;
     property hardLineLen: integer read fHardLLen write fHardLLen default 120;
     property softLineLen: integer read fSoftLLen write fSoftLLen default 80;
@@ -44,7 +48,7 @@ type
     property compactLabeledStatements: boolean read fCompactLbl write fCompactLbl default true;
   public
     constructor create(AOwner: TComponent); override;
-    procedure getCommandLine(str: TStrings);
+    procedure getParameters(str: TStrings);
   end;
 
   { TCEDfmtWidget }
@@ -113,7 +117,7 @@ begin
   inherited;
   fEol          := lf;
   fTabStyle     := DfmtIdentstyle.space;
-  fIdentSize    := 4;
+  fIndentSize   := 4;
   fTabWidth     := 8;
   fHardLLen     := 120;
   fSoftLLen     := 80;
@@ -131,6 +135,42 @@ begin
     'Tag', 'Name': aShow := false;
     else aShow := true;
   end;
+end;
+
+procedure TCEDmtWrapper.setSoftLLen(value: integer);
+begin
+  if value < 60 then
+    value := 60
+  else if value > 512 then
+    value := 512;
+  fSoftLLen := value;
+end;
+
+procedure TCEDmtWrapper.setHardLLen(value: integer);
+begin
+  if value < 60 then
+    value := 60
+  else if value > 512 then
+    value := 512;
+  fHardLLen := value;
+end;
+
+procedure TCEDmtWrapper.setTabWidth(value: integer);
+begin
+  if value < 1 then
+    value := 1
+  else if value > 8 then
+    value := 8;
+  fTabWidth := value;
+end;
+
+procedure TCEDmtWrapper.setIndentSize(value: integer);
+begin
+  if value < 1 then
+    value := 1
+  else if value > 8 then
+    value := 8;
+  fIndentSize := value;
 end;
 {$ENDREGION}
 
@@ -160,7 +200,7 @@ end;
 {$ENDREGION}
 
 {$REGION Dfmt things -----------------------------------------------------------}
-procedure TCEDmtWrapper.getCommandLine(str: TStrings);
+procedure TCEDmtWrapper.getParameters(str: TStrings);
 const
   eol: array[DfmtEol] of string = ('cr', 'lf', 'crlf');
   falsetrue: array[boolean] of string = ('false', 'true');
@@ -192,7 +232,7 @@ begin
   fBackup.Assign(fDoc.Lines);
   prc := TProcess.create(nil);
   try
-    fDmtWrapper.getCommandLine(prc.Parameters);
+    fDmtWrapper.getParameters(prc.Parameters);
     prc.Options:= prc.Options + [poUsePipes, poStderrToOutPut];
     prc.Executable:= exeFullName('dfmt' + exeExt);
     prc.Execute;
