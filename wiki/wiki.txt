@@ -745,7 +745,7 @@ A property inspector allows to tweak the format. See the [official documentation
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/cancel.png): restore the previous backup.
 
 The formatting is applied in memory and is undo-able either from the widget or from the code editor. The changes are not physically applied until the file is explicitly saved.
-Formatting options are saved between each session in [Coedit data folder][lnk_widg_opts].
+Formatting options are saved between each session in the [Coedit data folder][lnk_widg_opts].
 
 ## Message widget
 

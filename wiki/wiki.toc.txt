@@ -23,7 +23,6 @@ __________
 
 **Widgets**
 
-* [Technical notes](https://github.com/BBasile/Coedit/wiki#technical-notes)
 * [Editor](https://github.com/BBasile/Coedit/wiki#editor-widget)
 * [Find](https://github.com/BBasile/Coedit/wiki#find--replace-widget)
 * [Library manager](https://github.com/BBasile/Coedit/wiki#library-manager-widget)

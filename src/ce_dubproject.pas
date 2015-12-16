@@ -795,7 +795,7 @@ begin
   try
     try
       maybe.loadFromFile(filename);
-      if maybe.json = nil then
+      if (maybe.json = nil) or (maybe.filename = '') then
         result := false
       else if maybe.json.Find('name') = nil then
         result := false;
