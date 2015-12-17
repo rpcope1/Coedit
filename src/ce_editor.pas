@@ -13,8 +13,6 @@ uses
 
 type
 
-  //TODO-crefact: moves the macro recorded to TCESynMemo, + add visual feedback + declare shortcuts ecXXXX
-
   { TCEEditorWidget }
 
   TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler)
@@ -199,8 +197,6 @@ begin
   exit('ICEMultiDocHandler');
 end;
 
-//TODO-cfeature: jump to definition, don't open/select tab if origin is in right split view
-
 function TCEEditorWidget.documentCount: Integer;
 begin
   exit(PageControl.PageCount);
@@ -275,7 +271,6 @@ end;
 
 procedure TCEEditorWidget.focusedEditorChanged;
 begin
-  macRecorder.Clear;
   if fDoc = nil then exit;
   //
   macRecorder.Editor:= fDoc;
@@ -320,8 +315,24 @@ procedure TCEEditorWidget.memoCmdProcessed(Sender: TObject; var Command: TSynEdi
 begin
   fLastCommand := Command;
   //
-  if Command = ecJumpToDeclaration then
-    getSymbolLoc;
+  case Command of
+    ecJumpToDeclaration:
+      getSymbolLoc;
+    ecRecordMacro:
+    begin
+      if macRecorder.State = msStopped then
+        macRecorder.RecordMacro(fDoc)
+      else
+        macRecorder.Stop;
+      updateImperative;
+    end;
+    ecPlayMacro:
+    begin
+      macRecorder.Stop;
+      macRecorder.PlaybackMacro(fDoc);
+      updateImperative;
+    end;
+  end;
 end;
 
 procedure TCEEditorWidget.memoKeyPress(Sender: TObject; var Key: char);
@@ -399,10 +410,17 @@ begin
     editorStatus.Panels[0].Text := '';
     editorStatus.Panels[1].Text := '';
     editorStatus.Panels[2].Text := '';
+    editorStatus.Panels[3].Text := '';
   end else begin
     editorStatus.Panels[0].Text := format('%d : %d | %d', [fDoc.CaretY, fDoc.CaretX, fDoc.SelEnd - fDoc.SelStart]);
     editorStatus.Panels[1].Text := modstr[fDoc.modified];
     editorStatus.Panels[2].Text := fDoc.fileName;
+    if macRecorder.State = msRecording then
+      editorStatus.Panels[3].Text := 'recording macro'
+    else if macRecorder.IsEmpty then
+      editorStatus.Panels[3].Text := 'no macro'
+    else
+      editorStatus.Panels[3].Text := 'macro ready';
     if Visible and (pageControl.currentPage <> nil) and ((pageControl.currentPage.Caption = '') or
       (pageControl.currentPage.Caption = '<new document>')) then
     begin

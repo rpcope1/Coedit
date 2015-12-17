@@ -220,6 +220,8 @@ const
   ecJumpToDeclaration = ecUserFirst + 2;
   ecPreviousLocation  = ecUserFirst + 3;
   ecNextLocation      = ecUserFirst + 4;
+  ecRecordMacro       = ecUserFirst + 5;
+  ecPlayMacro         = ecUserFirst + 6;
 
 var
   D2Syn: TSynD2Syn;     // used as model to set the options when no editor exists.
@@ -687,6 +689,8 @@ begin
     AddKey(ecJumpToDeclaration, VK_UP, [ssCtrl,ssShift], 0, []);
     AddKey(ecPreviousLocation, 0, [], 0, []);
     AddKey(ecNextLocation, 0, [], 0, []);
+    AddKey(ecRecordMacro, ord('R'), [ssCtrl,ssShift], 0, []);
+    AddKey(ecPlayMacro, ord('P'), [ssCtrl,ssShift], 0, []);
   end;
 end;
 
@@ -697,6 +701,8 @@ begin
     'ecJumpToDeclaration':  begin Int := ecJumpToDeclaration; exit(true); end;
     'ecPreviousLocation':   begin Int := ecPreviousLocation; exit(true); end;
     'ecNextLocation':       begin Int := ecNextLocation; exit(true); end;
+    'ecRecordMacro':        begin Int := ecRecordMacro; exit(true); end;
+    'ecPlayMacro':          begin Int := ecPlayMacro; exit(true); end;
     else exit(false);
   end;
 end;
@@ -704,10 +710,12 @@ end;
 function CustomCommandToSstring(Int: Longint; var Ident: string): Boolean;
 begin
   case Int of
-    ecCompletionMenu:   begin Ident := 'ecCompletionMenu'; exit(true); end;
-    ecJumpToDeclaration: begin Ident := 'ecJumpToDeclaration'; exit(true); end;
-    ecPreviousLocation: begin Ident := 'ecPreviousLocation'; exit(true); end;
-    ecNextLocation:     begin Ident := 'ecNextLocation'; exit(true); end;
+    ecCompletionMenu:     begin Ident := 'ecCompletionMenu'; exit(true); end;
+    ecJumpToDeclaration:  begin Ident := 'ecJumpToDeclaration'; exit(true); end;
+    ecPreviousLocation:   begin Ident := 'ecPreviousLocation'; exit(true); end;
+    ecNextLocation:       begin Ident := 'ecNextLocation'; exit(true); end;
+    ecRecordMacro:        begin Ident := 'ecRecordMacro'; exit(true); end;
+    ecPlayMacro:          begin Ident := 'ecPlayMacro'; exit(true); end;
     else exit(false);
   end;
 end;
@@ -800,24 +808,6 @@ begin
   getCompletionList;
 end;
 
-procedure TCESynMemo.DoOnProcessCommand(var Command: TSynEditorCommand;
-  var AChar: TUTF8Char; Data: pointer);
-begin
-  inherited;
-  case Command of
-    ecCompletionMenu:
-    begin
-      fCanAutoDot:=false;
-      fCompletion.Execute(GetWordAtRowCol(LogicalCaretXY),
-        ClientToScreen(point(CaretXPix, CaretYPix + LineHeight)));
-    end;
-    ecPreviousLocation:
-      fPositions.back;
-    ecNextLocation:
-      fPositions.next;
-  end;
-end;
-
 procedure TCESynMemo.getCompletionList;
 begin
   if not DcdWrapper.available then exit;
@@ -871,6 +861,24 @@ end;
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION Coedit memo things ----------------------------------------------------}
+procedure TCESynMemo.DoOnProcessCommand(var Command: TSynEditorCommand;
+  var AChar: TUTF8Char; Data: pointer);
+begin
+  inherited;
+  case Command of
+    ecCompletionMenu:
+    begin
+      fCanAutoDot:=false;
+      fCompletion.Execute(GetWordAtRowCol(LogicalCaretXY),
+        ClientToScreen(point(CaretXPix, CaretYPix + LineHeight)));
+    end;
+    ecPreviousLocation:
+      fPositions.back;
+    ecNextLocation:
+      fPositions.next;
+  end;
+end;
+
 procedure TCESynMemo.SetHighlighter(const Value: TSynCustomHighlighter);
 begin
   inherited;

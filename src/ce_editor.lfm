@@ -21,7 +21,6 @@ inherited CEEditorWidget: TCEEditorWidget
         Height = 18
         Top = 386
         Width = 465
-        AutoSize = False
         BorderSpacing.Bottom = 2
         Panels = <        
           item
@@ -32,6 +31,9 @@ inherited CEEditorWidget: TCEEditorWidget
           end        
           item
             Width = 200
+          end        
+          item
+            Width = 50
           end>
         SimplePanel = False
       end
@@ -42,8 +44,8 @@ inherited CEEditorWidget: TCEEditorWidget
     top = 16
   end
   object macRecorder: TSynMacroRecorder[2]
-    RecordShortCut = 24658
-    PlaybackShortCut = 24656
+    RecordShortCut = 0
+    PlaybackShortCut = 0
     left = 80
     top = 16
   end
