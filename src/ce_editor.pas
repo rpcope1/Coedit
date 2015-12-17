@@ -414,13 +414,13 @@ begin
   end else begin
     editorStatus.Panels[0].Text := format('%d : %d | %d', [fDoc.CaretY, fDoc.CaretX, fDoc.SelEnd - fDoc.SelStart]);
     editorStatus.Panels[1].Text := modstr[fDoc.modified];
-    editorStatus.Panels[2].Text := fDoc.fileName;
     if macRecorder.State = msRecording then
-      editorStatus.Panels[3].Text := 'recording macro'
+      editorStatus.Panels[2].Text := 'recording macro'
     else if macRecorder.IsEmpty then
-      editorStatus.Panels[3].Text := 'no macro'
+      editorStatus.Panels[2].Text := 'no macro'
     else
-      editorStatus.Panels[3].Text := 'macro ready';
+      editorStatus.Panels[2].Text := 'macro ready';
+    editorStatus.Panels[3].Text := fDoc.fileName;
     if Visible and (pageControl.currentPage <> nil) and ((pageControl.currentPage.Caption = '') or
       (pageControl.currentPage.Caption = '<new document>')) then
     begin

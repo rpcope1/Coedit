@@ -18,24 +18,27 @@ inherited CEEditorWidget: TCEEditorWidget
       ClientWidth = 465
       object editorStatus: TStatusBar[0]
         Left = 0
-        Height = 18
-        Top = 386
+        Height = 20
+        Top = 384
         Width = 465
+        AutoSize = False
         BorderSpacing.Bottom = 2
         Panels = <        
           item
             Width = 110
           end        
           item
-            Width = 150
+            Width = 80
           end        
           item
-            Width = 200
+            Width = 120
           end        
           item
-            Width = 50
+            Width = 2000
           end>
         SimplePanel = False
+        SizeGrip = False
+        UseSystemFont = False
       end
     end
   end
