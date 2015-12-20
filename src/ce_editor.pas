@@ -284,7 +284,9 @@ end;
 
 procedure TCEEditorWidget.PageControlChanged(Sender: TObject);
 begin
-  //updateImperative;
+  if fDoc = nil then exit;
+  fDoc.hideCallTips;
+  fDoc.hideDDocs;
 end;
 
 procedure TCEEditorWidget.PageControlChanging(Sender: TObject; var AllowChange: Boolean);
