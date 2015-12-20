@@ -222,6 +222,8 @@ const
   ecNextLocation      = ecUserFirst + 4;
   ecRecordMacro       = ecUserFirst + 5;
   ecPlayMacro         = ecUserFirst + 6;
+  ecShowDdoc          = ecUserFirst + 7;
+  ecShowCallTips      = ecUserFirst + 8;
 
 var
   D2Syn: TSynD2Syn;     // used as model to set the options when no editor exists.
@@ -691,6 +693,8 @@ begin
     AddKey(ecNextLocation, 0, [], 0, []);
     AddKey(ecRecordMacro, ord('R'), [ssCtrl,ssShift], 0, []);
     AddKey(ecPlayMacro, ord('P'), [ssCtrl,ssShift], 0, []);
+    AddKey(ecShowDdoc, 0, [], 0, []);
+    AddKey(ecShowCallTips, 0, [], 0, []);
   end;
 end;
 
@@ -703,6 +707,8 @@ begin
     'ecNextLocation':       begin Int := ecNextLocation; exit(true); end;
     'ecRecordMacro':        begin Int := ecRecordMacro; exit(true); end;
     'ecPlayMacro':          begin Int := ecPlayMacro; exit(true); end;
+    'ecShowDdoc':           begin Int := ecShowDdoc; exit(true); end;
+    'ecShowCallTips':       begin Int := ecShowCallTips; exit(true); end;
     else exit(false);
   end;
 end;
@@ -716,7 +722,39 @@ begin
     ecNextLocation:       begin Ident := 'ecNextLocation'; exit(true); end;
     ecRecordMacro:        begin Ident := 'ecRecordMacro'; exit(true); end;
     ecPlayMacro:          begin Ident := 'ecPlayMacro'; exit(true); end;
+    ecShowDdoc:           begin Ident := 'ecShowDdoc'; exit(true); end;
+    ecShowCallTips:       begin Ident := 'ecShowCallTips'; exit(true); end;
     else exit(false);
+  end;
+end;
+
+procedure TCESynMemo.DoOnProcessCommand(var Command: TSynEditorCommand;
+  var AChar: TUTF8Char; Data: pointer);
+begin
+  inherited;
+  case Command of
+    ecCompletionMenu:
+    begin
+      fCanAutoDot:=false;
+      fCompletion.Execute(GetWordAtRowCol(LogicalCaretXY),
+        ClientToScreen(point(CaretXPix, CaretYPix + LineHeight)));
+    end;
+    ecPreviousLocation:
+      fPositions.back;
+    ecNextLocation:
+      fPositions.next;
+    ecShowDdoc:
+    begin
+      hideCallTips;
+      hideDDocs;
+      showDDocs;
+    end;
+    ecShowCallTips:
+    begin
+      hideCallTips;
+      hideDDocs;
+      showCallTips;
+    end;
   end;
 end;
 {$ENDREGIOn}
@@ -742,7 +780,21 @@ procedure TCESynMemo.showCallTips;
 var
   str: string;
   pnt: TPoint;
+  i: integer;
 begin
+  str := LineText[1..CaretX];
+  i := CaretX;
+  while true do
+  begin
+    if i = 1 then
+      break;
+    if str[i-1] = '(' then
+    begin
+      CaretX := i;
+      break;
+    end;
+    i -= 1;
+  end;
   DcdWrapper.getCallTip(str);
   if str <> '' then
   begin
@@ -861,24 +913,6 @@ end;
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION Coedit memo things ----------------------------------------------------}
-procedure TCESynMemo.DoOnProcessCommand(var Command: TSynEditorCommand;
-  var AChar: TUTF8Char; Data: pointer);
-begin
-  inherited;
-  case Command of
-    ecCompletionMenu:
-    begin
-      fCanAutoDot:=false;
-      fCompletion.Execute(GetWordAtRowCol(LogicalCaretXY),
-        ClientToScreen(point(CaretXPix, CaretYPix + LineHeight)));
-    end;
-    ecPreviousLocation:
-      fPositions.back;
-    ecNextLocation:
-      fPositions.next;
-  end;
-end;
-
 procedure TCESynMemo.SetHighlighter(const Value: TSynCustomHighlighter);
 begin
   inherited;
