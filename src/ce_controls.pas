@@ -289,6 +289,10 @@ begin
 
     fSplitter.Visible:= true;
 
+    rightp := getPage(fSplittedPageIndex);
+    rightp.Align := alClient;
+    showPage(fSplittedPageIndex);
+
     leftp := getPage(fPageIndex);
     leftp.Align := alLeft;
     if fOldSplitPos = 0 then
@@ -296,10 +300,6 @@ begin
     else
       leftp.Width:= fOldSplitPos;
     showPage(fPageIndex);
-
-    rightp := getPage(fSplittedPageIndex);
-    rightp.Align := alClient;
-    showPage(fSplittedPageIndex);
   end;
 
   if fTabs.TabIndex <> fPageIndex then
