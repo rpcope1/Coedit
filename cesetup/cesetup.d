@@ -146,7 +146,7 @@ void main(string[] args)
         return;
     }
 
-    if (!uninstall) Formater.justify!'C'("Coedit 2 alpha 3 - setup");
+    if (!uninstall) Formater.justify!'C'("Coedit 2 alpha 4 - setup");
     else Formater.justify!'C'("Coedit uninstaller");
     
     Formater.separate;
@@ -346,12 +346,15 @@ void postInstall()
         File f = File(shortCutPath ~ "coedit.desktop", "w");
         f.writeln("[Desktop Entry]");
         f.writeln("Name=coedit");
+        f.writeln("Path=" ~ exePath);
         f.writeln("Exec=coedit %f");
         f.writeln("Icon=" ~ datPath ~ "coedit.png");
         f.writeln("Type=Application");
         f.writeln("Categories=Application;IDE;Development;");
         f.writeln("Keywords=editor;Dlang;IDE;dmd;");
+        f.writeln("StartupNotify=true");
         f.writeln("Terminal=false");
+        f.writeln("TerminalOptions=");
         f.close;
     }
 }
