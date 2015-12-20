@@ -354,7 +354,6 @@ void postInstall()
         f.writeln("Keywords=editor;Dlang;IDE;dmd;");
         f.writeln("StartupNotify=true");
         f.writeln("Terminal=false");
-        f.writeln("TerminalOptions=");
         f.close;
     }
 }
