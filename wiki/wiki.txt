@@ -523,7 +523,7 @@ _Find all_ results are displayed in the [messages widget][lnk_widg_msg] and are 
 
 The most recent searches and replacements are saved between each session.
 
-Note that to find a symbol, <kbd>Ctrl</kbd>+<kbd>MB Right</kbd> or the [symbol list][lnk_widg_symlist] are faster.
+Note that to find a symbol, <kbd>Ctrl</kbd>+<kbd>MB Left</kbd> or the [symbol list][lnk_widg_symlist] are faster.
 
 ## Library manager widget
 
@@ -594,7 +594,7 @@ If this choice has avoided a painful GUI designing work, it also perfectly repre
 Notes: 
 - changing the configuration name is only possible in the section [**All Categories**](https://github.com/BBasile/Coedit/wiki#all-categories), field **name**.
 
-### General options:
+#### General options:
 
 The general options are common to each configuration.
 
@@ -613,7 +613,7 @@ This field can be used to specify another one, either relative or absolute. This
 It's recommended to use the [project inspector][lnk_widg_prjinsp] instead of this archaic editor. To include a folder of source it's also possible to specify a path with a asterisk in the **Paths** options, **extraSources** editor.
 This avoids to manually remove the obsolete source or to manually add the new source files.
 
-### Message options:
+#### Message options:
 
 Groups the options related to the messages emitted by the compiler.
 These options are defined per-configuration.
@@ -629,7 +629,7 @@ These options are defined per-configuration.
 - verbose: sets if verbose. (**-v**)
 - warnings: sets if the warnings are displayed. (**-w**)
 
-### Debugging options:
+#### Debugging options:
 
 Groups the options related to the debugging information added to the output binary.
 These options are defined per-configuration.
@@ -643,7 +643,7 @@ These options are defined per-configuration.
 - debugIdentifiers: list of debug identifier. (for each item **-debug=item**). One item per line.
 - generateMapFile: sets if a map file is generated. (**-map**)
 
-### Documentation options:
+#### Documentation options:
 
 Groups the options related to the generation of the project documentation.
 These options are defined per-configuration.
@@ -655,7 +655,7 @@ These options are defined per-configuration.
 - generateJSON: sets if the JSON documentation is generated. This field is constrained to _true_ if the JSON file name is defined. (**-X**)
 - JSONFilename: sets the JSON file name. (**-Xf**)
 
-### Output options:
+#### Output options:
 
 Groups the options related to the code generation.
 These options are defined per-configuration.
@@ -674,7 +674,7 @@ These options are defined per-configuration.
 - unittest: generates the unittest code. (**-unittest**)
 - versionIdentifiers: list of version identifiers. One per line, the switches **-version=** are added automatically. An entry can be disabled by prefixing it with a semicolon or a pair of backslash.
 
-### Other Options:
+#### Other Options:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.others1.png)
 
@@ -687,7 +687,7 @@ Most of the existing switches are hard-coded however for the few missing ones th
 
 These custom switches are defined per-configuration.
 
-### Path options:
+#### Path options:
 
 Groups the options defining the location of the files used or produced by the compiler.
 These options are defined per-configuration.
@@ -701,7 +701,7 @@ These options are defined per-configuration.
 - objectDirectory: the directory where object files (_*.o_ or _*.obj_) must be written. (**-od**)
 - outputFilename: the output filename. The identifier should only include a period to specify a non default extension otherwise it prevents _DMD_ to add the default one. (**-of**)
 
-### Pre/Post build process options:
+#### Pre/Post build process options:
 
 They define the options of two processes, respectively executed before and after the compilation.
 These options are defined per-configuration.
@@ -720,7 +720,7 @@ This can be used as a trick to compile from another tool.
 An interesting post-build process feature is that it can be set on the executable that's just been build, like in the example named _cleaner.coedit_.
 This is possible by using the [symbolic string][lnk_sym] **<CPO>** (Current Project Output).
 
-### Run options:
+#### Run options:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.runoptions1.png)
 
@@ -729,7 +729,7 @@ The _executable_ field is not present because it's defined by the project option
 If the output is piped then the [process input widget][lnk_widg_procinp] can be used to pass the input to the program being executed.
 These options are defined per-configuration.
 
-### All categories
+#### All categories
 
 Unfiltered options, sub categories can be expanded or collapsed. The field ***name*** matches the current configurations name. Actually this is the only place (except if you directly edit the project file) where it's possible to modify the identifier.
 
@@ -739,14 +739,14 @@ Unfiltered options, sub categories can be expanded or collapsed. The field ***na
 
 The DUB project editor is widget is divided in two panels:
 
-### Inspector
+#### Inspector
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dub_inspect.png)
 
 The first panel displays the sources list and the combination of _each build type_ with each _build configuration_. Sources can be opened in a new editor by double clicking. To select a configuration defines which type and which configuration will be build by DUB when clicking _compile_ in the _project_ menu.
 Note that it's possible to specify which compiler DUB uses in the application options _dubCompiler_.
 
-### Editor
+#### Editor
 
 The second panel displays the tree of the project properties. The can be modified in the field at the bottom.
 

@@ -964,6 +964,8 @@ var
   maybe: TCENativeProject;
 begin
   result := false;
+  if isDlangCompilable(ExtractFileExt(filename)) then
+    exit;
   // avoid the project to notify the observers, current project is not replaced
   EntitiesConnector.beginUpdate;
   maybe := TCENativeProject.create(nil);

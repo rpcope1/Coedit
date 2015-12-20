@@ -788,6 +788,8 @@ function isValidDubProject(const filename: string): boolean;
 var
   maybe: TCEDubProject;
 begin
+  if (UpperCase(ExtractFileExt(filename)) <> '.JSON') then
+    exit(false);
   result := true;
   // avoid the project to notify the observers, current project is not replaced
   EntitiesConnector.beginUpdate;
