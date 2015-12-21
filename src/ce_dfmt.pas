@@ -253,6 +253,8 @@ var
 begin
   if not assigned(fDoc) then
     exit;
+  if not exeInSysPath('dfmt') then
+    exit;
 
   fBackup.Assign(fDoc.Lines);
   prc := TProcess.create(nil);
