@@ -26,7 +26,7 @@ inherited CEDfmtWidget: TCEDfmtWidget
         Width = 442
         Align = alClient
         BorderSpacing.Around = 4
-        CheckboxForBoolean = False
+        CheckboxForBoolean = True
         DefaultValueFont.Color = clWindowText
         Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkObject, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper]
         Indent = 10

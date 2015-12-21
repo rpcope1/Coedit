@@ -12,7 +12,7 @@ uses
 type
 
   DfmtEol = (cr, lf, crlf);
-  DfmtIdentstyle = (tab, space);
+  DfmtIndentstyle = (tab, space);
   DfmtBraceStyle = (allman, otbs, stroustrup);
 
   // wraps dfmt options to build the command line with ease
@@ -20,7 +20,7 @@ type
   TCEDmtWrapper = class(TWritableLfmTextComponent)
   private
     fEol: DfmtEol;
-    fTabStyle: DfmtIdentstyle;
+    fTabStyle: DfmtIndentstyle;
     fIndentSize: integer;
     fTabWidth: integer;
     fHardLLen: integer;
@@ -34,14 +34,17 @@ type
     procedure setHardLLen(value: integer);
     procedure setTabWidth(value: integer);
     procedure setIndentSize(value: integer);
+    procedure setEol(value: DfmtEol);
+    procedure setBraceStyle(value: DfmtBraceStyle);
+    procedure setIndentStyle(value: DfmtIndentstyle);
   published
-    property endOfline: DfmtEol read fEol write fEol default lf;
-    property identationStyle: DfmtIdentstyle read fTabStyle write fTabStyle default space;
-    property identSize: integer read fIndentSize write fIndentSize default 4;
+    property endOfline: DfmtEol read fEol write setEol default lf;
+    property indentationStyle: DfmtIndentstyle read fTabStyle write setIndentStyle default space;
+    property indentSize: integer read fIndentSize write fIndentSize default 4;
     property tabWidth: integer read fTabWidth write fTabWidth default 8;
     property hardLineLen: integer read fHardLLen write fHardLLen default 120;
     property softLineLen: integer read fSoftLLen write fSoftLLen default 80;
-    property braceStyle: DfmtBraceStyle read fBraceStyle write fBraceStyle default allman;
+    property braceStyle: DfmtBraceStyle read fBraceStyle write setBraceStyle default allman;
     property spaceAfterCast: boolean read fSpaceCast write fSpaceCast default true;
     property spaceAfterImport: boolean read fSpaceSelImp write fSpaceSelImp default true;
     property splitOpAtPrevLine: boolean read fSplitOp write fSplitOp default true;
@@ -116,7 +119,7 @@ constructor TCEDmtWrapper.create(AOwner: TComponent);
 begin
   inherited;
   fEol          := lf;
-  fTabStyle     := DfmtIdentstyle.space;
+  fTabStyle     := DfmtIndentstyle.space;
   fIndentSize   := 4;
   fTabWidth     := 8;
   fHardLLen     := 120;
@@ -172,6 +175,28 @@ begin
     value := 8;
   fIndentSize := value;
 end;
+
+procedure TCEDmtWrapper.setEol(value: DfmtEol);
+begin
+  if not (value in [DfmtEol.cr, DfmtEol.lf, DfmtEol.crlf]) then
+    value := DfmtEol.lf;
+  fEol:=value;
+end;
+
+procedure TCEDmtWrapper.setBraceStyle(value: DfmtBraceStyle);
+begin
+  if not (value in [DfmtBraceStyle.allman, DfmtBraceStyle.otbs,
+    DfmtBraceStyle.stroustrup]) then
+      value := DfmtBraceStyle.allman;
+  fBraceStyle:=value;
+end;
+
+procedure TCEDmtWrapper.setIndentStyle(value: DfmtIndentstyle);
+begin
+  if not (value in [DfmtIndentstyle.space, DfmtIndentstyle.tab]) then
+    value := DfmtIndentstyle.space;
+  fTabStyle:=value;
+end;
 {$ENDREGION}
 
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
@@ -204,14 +229,14 @@ procedure TCEDmtWrapper.getParameters(str: TStrings);
 const
   eol: array[DfmtEol] of string = ('cr', 'lf', 'crlf');
   falsetrue: array[boolean] of string = ('false', 'true');
-  idtstyle: array[DfmtIdentstyle] of string = ('tab', 'space');
+  idtstyle: array[DfmtIndentstyle] of string = ('tab', 'space');
   brc: array[DfmtBraceStyle] of string = ('allman', 'otbs', 'stroustrup');
 begin
   str.Add('--end_of_line=' + eol[endOfline]);
   str.Add('--max_line_length=' + intToStr(hardLineLen));
   str.Add('--soft_max_line_length=' + intToStr(softLineLen));
-  str.Add('--indent_size='  + intToStr(identSize));
-  str.Add('--indent_style=' + idtstyle[identationStyle]);
+  str.Add('--indent_size='  + intToStr(indentSize));
+  str.Add('--indent_style=' + idtstyle[indentationStyle]);
   str.Add('--tab_width=' + intToStr(tabWidth));
   str.Add('--brace_style=' + brc[braceStyle]);
   str.Add('--split_operator_at_line_end=' + falsetrue[splitOpAtPrevLine]);
