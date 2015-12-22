@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Graphics,
-  SynEditHighlighter, SynEditHighlighterFoldBase,
+  SynEditHighlighter, SynEditHighlighterFoldBase, SynEditTypes,
   ce_dlangutils;
 
 const
@@ -134,6 +134,7 @@ type
     procedure doChanged;
   protected
     function GetRangeClass: TSynCustomHighlighterRangeClass; override;
+    function GetIdentChars: TSynIdentChars; override;
 	published
     property foldKinds:   TFoldKinds read fFoldKinds write setFoldKinds;
     property whites:      TSynHighlighterAttributes read fWhiteAttrib write setWhiteAttrib;
@@ -366,6 +367,11 @@ end;
 function TSynD2Syn.GetRangeClass: TSynCustomHighlighterRangeClass;
 begin
   result := TSynD2SynRange;
+end;
+
+function TSynD2Syn.GetIdentChars: TSynIdentChars;
+begin
+  result := ['_', 'A'..'Z', 'a'..'z', '0'..'9'];
 end;
 
 procedure TSynD2Syn.doChanged;
