@@ -11,7 +11,7 @@ uses
   Windows, JwaTlHelp32,
   {$ENDIF}
   {$IFDEF LINUX}
-  ExtCtrls, FileUtil,
+  ExtCtrls, FileUtil, LazFileUtils,
   {$ENDIF}
   {$IFNDEF CEBUILD}
   forms,

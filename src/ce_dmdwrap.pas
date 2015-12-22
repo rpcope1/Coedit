@@ -921,7 +921,7 @@ end;
 
 procedure TPathsOpts.getOpts(aList: TStrings; base: TOptsGroup = nil);
 var
-  str: string;
+  str, sym: string;
   exts: TStringList;
   baseopt: TPathsOpts;
   rightList: TStringList;
@@ -935,9 +935,9 @@ begin
       begin
         if isStringDisabled(str) then
           continue;
-        str := symbolExpander.get(str);
-        if not listAsteriskPath(str, aList, exts) then
-          aList.Add(str);
+        sym := symbolExpander.get(str);
+        if not listAsteriskPath(sym, aList, exts) then
+          aList.Add(sym);
       end;
     finally
       exts.Free;
@@ -962,9 +962,9 @@ begin
       begin
         if isStringDisabled(str) then
           continue;
-        str := symbolExpander.get(str);
-        if not listAsteriskPath(str, aList, exts) then
-          aList.Add(str);
+        sym := symbolExpander.get(str);
+        if not listAsteriskPath(sym, aList, exts) then
+          aList.Add(sym);
       end;
     finally
       exts.Free;

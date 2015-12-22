@@ -3,6 +3,7 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
   Height = 258
   Top = 260
   Width = 341
+  ActiveControl = Tree
   AllowDropFiles = True
   Caption = 'Native project inspector'
   ClientHeight = 258
@@ -27,7 +28,7 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
         Align = alClient
         AutoExpand = True
         BorderSpacing.Around = 2
-        DefaultItemHeight = 18
+        DefaultItemHeight = 16
         Images = imgList
         ReadOnly = True
         RightClickSelect = True

@@ -406,7 +406,7 @@ procedure TCEEditorWidget.updateImperative;
 const
   modstr: array[boolean] of string = ('...', 'MODIFIED');
 var
-  md: string;
+  md: string = '';
 begin
   if fDoc = nil then begin
     editorStatus.Panels[0].Text := '';

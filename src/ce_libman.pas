@@ -5,7 +5,7 @@ unit ce_libman;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, ce_common, ce_writableComponent, ce_dcd,
+  Classes, SysUtils, FileUtil, ce_common, ce_writableComponent, ce_dcd, LazFileUtils,
   ce_dialogs;
 
 type
@@ -129,7 +129,7 @@ end;
 
 destructor TLibraryManager.destroy;
 begin
-  forceDirectory(getCoeditDocPath);
+  ForceDirectoriesUTF8(getCoeditDocPath);
   LibMan.saveToFile(getCoeditDocPath + libFname);
   fCol.Free;
   inherited;

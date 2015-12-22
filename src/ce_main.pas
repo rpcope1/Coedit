@@ -5,7 +5,7 @@ unit ce_main;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, SynEditKeyCmds, SynHighlighterLFM, Forms, StdCtrls,
+  Classes, SysUtils, LazFileUtils, SynEditKeyCmds, SynHighlighterLFM, Forms, StdCtrls,
   AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls, Graphics, strutils,
   Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, SynExportHTML,
   ce_common, ce_dmdwrap, ce_nativeproject, ce_dcd, ce_synmemo, ce_writableComponent,
@@ -592,7 +592,8 @@ end;
 procedure TCELastDocsAndProjs.afterLoad;
 var
   docHandler: ICEMultiDocHandler;
-  str, focusedName: string;
+  str: string;
+  focusedName: string = '';
   i: integer;
 begin
   docHandler := getMultiDocHandler;

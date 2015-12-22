@@ -610,7 +610,7 @@ end;
 function TCESymbolListWidget.TreeFilterEdit1FilterItem(Item: TObject; out
   Done: Boolean): Boolean;
 begin
-  if not fSmartFilter then exit;
+  if not fSmartFilter then exit(false);
   //
   if TreeFilterEdit1.Filter <> '' then
     tree.FullExpand
@@ -686,6 +686,7 @@ function getCatNode(node: TTreeNode; stype: TSymbolType ): TTreeNode;
   end;
   //
 begin
+  result := nil;
   if node = nil then case stype of
     _alias    : exit(ndAlias);
     _class    : exit(ndClass);

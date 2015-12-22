@@ -884,7 +884,7 @@ var
   len: Integer;
 begin
   // empty items can be produced if completion list is too long
-  if aKey = '' then exit;
+  if aKey = '' then exit(true);
   // otherwise always at least 20 chars but...
   // ... '20' depends on ce_dcd, case knd of, string literals length
   result := true;

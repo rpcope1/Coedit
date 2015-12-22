@@ -107,7 +107,7 @@ libc.so.6
 
 Download ans setup the tools:
 
-* [Download](http://lazarus.freepascal.org/index.php?page=downloads) and setup the latest Lazarus (1.4.4) version and  FPC / FPC sources (2.6.4) for your platform.
+* [Download](http://lazarus.freepascal.org/index.php?page=downloads) and setup the latest Lazarus version (1.6) and  FPC + FPC sources (3.0.0.1) for your platform.
 	* Windows: the three packages are bundled in an installer. Even on Windows 64 bit, the 32 version must be setup.
 	* Linux: the three packages must be downloaded and setup individually. Take care to the version number because the official rpm/deb source of a Linux distribution does not always propose the latest version !
 

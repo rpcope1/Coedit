@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Graphics,
-  SynEditHighlighter, SynEditHighlighterFoldBase, SynEditTypes,
+  SynEditHighlighter, SynEditHighlighterFoldBase,
   ce_dlangutils;
 
 const
@@ -454,7 +454,7 @@ end;
 //TODO-cD2Syn: nested comments with multiple nesting on the same line.
 procedure TSynD2Syn.next;
 var
-  reader: PChar;
+  reader: PChar = nil;
 
 label
   _postString1;

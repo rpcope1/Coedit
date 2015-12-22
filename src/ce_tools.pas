@@ -5,7 +5,7 @@ unit ce_tools;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, process, menus, ce_processes,
+  Classes, SysUtils, LazFileUtils, process, menus, ce_processes,
   ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_inspectors,
   ce_synmemo;
 
@@ -139,7 +139,7 @@ end;
 
 procedure TCEToolItem.setChainBefore(value: TStringList);
 begin
-  // kept to reload old setting files. 'xhainBefore' is not saved anymore.
+  // kept to reload old setting files. 'chainBefore' is not saved anymore.
 end;
 
 procedure TCEToolItem.setChainAfter(value: TStringList);
@@ -271,7 +271,7 @@ destructor TCETools.destroy;
 begin
   EntitiesConnector.removeObserver(self);
   //
-  forceDirectory(getCoeditDocPath);
+  ForceDirectoriesUTF8(getCoeditDocPath);
   saveToFile(getCoeditDocPath + toolsFname);
   fTools.Free;
   inherited;

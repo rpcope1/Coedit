@@ -5,7 +5,7 @@ unit ce_projinspect;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, TreeFilterEdit, Forms, Controls, Graphics, actnlist,
+  Classes, SysUtils, TreeFilterEdit, Forms, Controls, Graphics, actnlist,
   Dialogs, ExtCtrls, ComCtrls, Menus, Buttons, lcltype, ce_nativeproject, ce_interfaces,
   ce_common, ce_widget, ce_observer, ce_dialogs, ce_sharedres;
 
@@ -376,7 +376,7 @@ end;
 
 procedure TCEProjectInspectWidget.updateImperative;
 var
-  src, fold, conf: string;
+  src, fold, conf, str: string;
   lst: TStringList;
   itm: TTreeNode;
   hasProj: boolean;
@@ -417,11 +417,11 @@ begin
     end;
   end;
   // display Imports (-J)
-  for fold in FProject.currentConfiguration.pathsOptions.importStringPaths do
+  for str in FProject.currentConfiguration.pathsOptions.importStringPaths do
   begin
-    if fold = '' then
+    if str = '' then
       continue;
-    fold := expandFilenameEx(fProject.basePath, fold);
+    fold := expandFilenameEx(fProject.basePath, str);
     fold := symbolExpander.get(fold);
     itm := Tree.Items.AddChild(fImpsNode, fold);
     itm.ImageIndex := 5;
@@ -429,11 +429,11 @@ begin
   end;
   fImpsNode.Collapse(false);
   // display Includes (-I)
-  for fold in FProject.currentConfiguration.pathsOptions.importModulePaths do
+  for str in FProject.currentConfiguration.pathsOptions.importModulePaths do
   begin
-    if fold = '' then
+    if str = '' then
       continue;
-    fold := expandFilenameEx(fProject.basePath, fold);
+    fold := expandFilenameEx(fProject.basePath, str);
     fold := symbolExpander.get(fold);
     itm := Tree.Items.AddChild(fInclNode, fold);
     itm.ImageIndex := 5;
@@ -441,11 +441,11 @@ begin
   end;
   fInclNode.Collapse(false);
   // display extra sources (external .lib, *.a, *.d)
-  for src in FProject.currentConfiguration.pathsOptions.extraSources do
+  for str in FProject.currentConfiguration.pathsOptions.extraSources do
   begin
-    if src = '' then
+    if str = '' then
       continue;
-    src := expandFilenameEx(fProject.basePath, src);
+    src := expandFilenameEx(fProject.basePath, str);
     src := symbolExpander.get(src);
     lst := TStringList.Create;
     try
