@@ -144,9 +144,9 @@ type
     property comments:    TSynHighlighterAttributes read fCommtAttrib write setCommtAttrib;
     property strings:     TSynHighlighterAttributes read fStrngAttrib write setStrngAttrib;
     property keywords:    TSynHighlighterAttributes read fKeywdAttrib write setKeywdAttrib;
-    property DDocsAttrib: TSynHighlighterAttributes read fDDocsAttrib write setDDocsAttrib;
-    property AsblrAttrib: TSynHighlighterAttributes read fAsblrAttrib write setAsblrAttrib;
-    property SpeckAttrib: TSynHighlighterAttributes read fSpeckAttrib write setSpeckAttrib;
+    property ddoc:        TSynHighlighterAttributes read fDDocsAttrib write setDDocsAttrib;
+    property inlineAsm:   TSynHighlighterAttributes read fAsblrAttrib write setAsblrAttrib;
+    property special:     TSynHighlighterAttributes read fSpeckAttrib write setSpeckAttrib;
 	public
 		constructor create(aOwner: TComponent); override;
     destructor destroy; override;
