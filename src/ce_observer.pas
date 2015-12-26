@@ -68,15 +68,19 @@ type
     procedure updateObservers;
   end;
 
+  // Base type for an interface that contains the methods of a subject.
+  ISubjectType = interface
+  end;
+
   (**
    * Standard implementation of an ICESubject.
    * Any descendant adds itself to the global EntitiesConnector.
    *)
-  TCECustomSubject = class(ICESubject)
+  generic TCECustomSubject<T:ISubjectType> = class(ICESubject)
   protected
     fObservers: TObjectList;
     // test for a specific interface when adding an observer.
-    function acceptObserver(aObject: TObject): boolean; virtual;
+    function acceptObserver(aObject: TObject): boolean;
     function getObserversCount: Integer;
     function getObserver(index: Integer): TObject;
   public
@@ -242,7 +246,7 @@ end;
 
 function TCECustomSubject.acceptObserver(aObject: TObject): boolean;
 begin
-  exit(False);
+  exit(aObject is T);
 end;
 
 function TCECustomSubject.getObserversCount: Integer;

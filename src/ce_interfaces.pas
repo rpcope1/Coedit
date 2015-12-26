@@ -22,7 +22,7 @@ type
    * Each project format has its own dedicated editors.
    * A few common properties allow some generic operations whatever is the format.
    *)
-  ICECommonProject = interface
+  ICECommonProject = interface(ISubjectType)
   ['ICECommonProject']
 
     // general properties ------------------------------------------------------
@@ -90,7 +90,7 @@ type
   (**
    * An implementer declares some actions on demand.
    *)
-  ICEContextualActions = interface
+  ICEContextualActions = interface(ISubjectType)
   ['ICEContextualActions']
     // declares a context name for the actions
     function contextName: string;
@@ -105,7 +105,7 @@ type
   (**
    * An implementer is informed about the current file(s).
    *)
-  ICEMultiDocObserver = interface
+  ICEMultiDocObserver = interface(ISubjectType)
   ['ICEMultiDocObserver']
     // aDoc has been created (empty, runnable, project source, ...).
     procedure docNew(aDoc: TCESynMemo);
@@ -119,17 +119,14 @@ type
   (**
    * An implementer informs some ICEMultiDocObserver about the current file(s)
    *)
-  TCEMultiDocSubject = class(TCECustomSubject)
-  protected
-    function acceptObserver(aObject: TObject): boolean; override;
-  end;
+  TCEMultiDocSubject = specialize TCECustomSubject<ICEMultiDocObserver>;
 
 
 
   (**
    * An implementer is informed about the current project(s).
    *)
-  ICEProjectObserver = interface
+  ICEProjectObserver = interface(ISubjectType)
   ['ICEProjectObserver']
     // aProject has been created/opened
     procedure projNew(aProject: ICECommonProject);
@@ -145,17 +142,14 @@ type
   (**
    * An implementer informs some ICEProjectObserver about the current project(s)
    *)
-  TCEProjectSubject = class(TCECustomSubject)
-  protected
-    function acceptObserver(aObject: TObject): boolean; override;
-  end;
+  TCEProjectSubject = specialize TCECustomSubject<ICEProjectObserver>;
 
 
 
   (**
    * An implementer can add a main menu entry.
    *)
-  ICEMainMenuProvider = interface
+  ICEMainMenuProvider = interface(ISubjectType)
   ['ICEMainMenuProvider']
     // item is a new mainMenu entry. item must be filled with the sub-items to be added.
     procedure menuDeclare(item: TMenuItem);
@@ -165,10 +159,7 @@ type
   (**
    * An implementer collects and updates its observers menus.
    *)
-  TCEMainMenuSubject = class(TCECustomSubject)
-  protected
-    function acceptObserver(aObject: TObject): boolean; override;
-  end;
+  TCEMainMenuSubject = specialize TCECustomSubject<ICEMainMenuProvider>;
 
 
 
@@ -176,7 +167,7 @@ type
    * An implementer declares some actions which have their own main menu entry and
    * whose shortcuts are automatically handled
    *)
-  ICEActionProvider = interface
+  ICEActionProvider = interface(ISubjectType)
   ['ICEActionProvider']
     // the action handler will clear the references to the actions collected previously and start collecting if result.
     function actHandlerWantRecollect: boolean;
@@ -190,17 +181,14 @@ type
   (**
    * An implementer handles its observers actions.
    *)
-  TCEActionProviderSubject = class(TCECustomSubject)
-  protected
-    function acceptObserver(aObject: TObject): boolean; override;
-  end;
+  TCEActionProviderSubject = specialize TCECustomSubject<ICEActionProvider>;
 
 
 
   (**
    * An implementer can expose some customizable shortcuts to be edited in a dedicated widget.
    *)
-  ICEEditableShortCut = interface
+  ICEEditableShortCut = interface(ISubjectType)
   ['ICEEditableShortCut']
     // a TCEEditableShortCutSubject will start to collect shortcuts if result
     function scedWantFirst: boolean;
@@ -212,10 +200,7 @@ type
   (**
    * An implementer manages its observers shortcuts.
    *)
-  TCEEditableShortCutSubject = class(TCECustomSubject)
-  protected
-    function acceptObserver(aObject: TObject): boolean; override;
-  end;
+  TCEEditableShortCutSubject = specialize TCECustomSubject<ICEEditableShortCut>;
 
 
 
@@ -227,7 +212,7 @@ type
   (**
    * An implementer can expose some options to be edited in a dedicated widget.
    *)
-  ICEEditableOptions = interface
+  ICEEditableOptions = interface(ISubjectType)
   ['ICEEditableOptions']
     // the widget wants the category.
     function optionedWantCategory(): string;
@@ -243,10 +228,7 @@ type
   (**
    * An implementer displays its observers editable options.
    *)
-  TCEEditableOptionsSubject = class(TCECustomSubject)
-  protected
-    function acceptObserver(aObject: TObject): boolean; override;
-  end;
+  TCEEditableOptionsSubject = specialize TCECustomSubject<ICEEditableOptions>;
 
 
 
@@ -377,11 +359,6 @@ type
 implementation
 
 {$REGION TCEMultiDocSubject ----------------------------------------------------}
-function TCEMultiDocSubject.acceptObserver(aObject: TObject): boolean;
-begin
-  exit(aObject is ICEMultiDocObserver);
-end;
-
 procedure subjDocNew(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);
 var
   i: Integer;
@@ -416,11 +393,6 @@ end;
 {$ENDREGION}
 
 {$REGION TCEProjectSubject -----------------------------------------------------}
-function TCEProjectSubject.acceptObserver(aObject: TObject): boolean;
-begin
-  exit(aObject is ICEProjectObserver);
-end;
-
 procedure subjProjNew(aSubject: TCEProjectSubject; aProj: ICECommonProject);
 var
   i: Integer;
@@ -459,28 +431,6 @@ var
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
     (fObservers.Items[i] as ICEProjectObserver).projCompiling(aProj);
-end;
-{$ENDREGION}
-
-{$REGION Misc subjects ---------------------------------------------------------}
-function TCEMainMenuSubject.acceptObserver(aObject: TObject): boolean;
-begin
-  exit(aObject is ICEMainMenuProvider);
-end;
-
-function TCEEditableShortCutSubject.acceptObserver(aObject: TObject): boolean;
-begin
-  exit(aObject is ICEEditableShortCut);
-end;
-
-function TCEEditableOptionsSubject.acceptObserver(aObject: TObject): boolean;
-begin
-  exit(aObject is ICEEditableOptions);
-end;
-
-function TCEActionProviderSubject.acceptObserver(aObject: TObject): boolean;
-begin
-  exit(aObject is ICEActionProvider);
 end;
 {$ENDREGION}
 

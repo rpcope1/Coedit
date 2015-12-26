@@ -106,7 +106,7 @@ type
     fFocusForInput: boolean;
     fIdentifier: string;
     fTempFileName: string;
-    fMultiDocSubject: TCECustomSubject;
+    fMultiDocSubject: TObject;
     fDefaultFontSize: Integer;
     fPositions: TCESynMemoPositions;
     fMousePos: TPoint;
