@@ -829,6 +829,7 @@ end;
 
 procedure TCESynMemo.hideDDocs;
 begin
+  fCanShowHint := false;
   fDDocWin.Hide;
 end;
 

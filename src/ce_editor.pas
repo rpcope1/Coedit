@@ -275,6 +275,8 @@ begin
   //
   macRecorder.Editor:= fDoc;
   fDoc.PopupMenu := mnuEditor;
+  fDoc.hideCallTips;
+  fDoc.hideDDocs;
   if (pageControl.currentPage.Caption = '') then
   begin
     fKeyChanged := true;
