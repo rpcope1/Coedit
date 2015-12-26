@@ -10,6 +10,9 @@ uses
   ce_common, ce_widget, ce_observer, ce_dialogs, ce_sharedres;
 
 type
+
+  { TCEProjectInspectWidget }
+
   TCEProjectInspectWidget = class(TCEWidget, ICEProjectObserver)
     btnRemFold: TSpeedButton;
     imgList: TImageList;
@@ -247,7 +250,8 @@ begin
     else if DirectoryExists(fLastFileOrFolder) then
       InitialDir := fLastFileOrFolder;
     filter := DdiagFilter;
-    if execute then begin
+    if execute then
+    begin
       fProject.beginUpdate;
       fProject.addSource(filename);
       fProject.endUpdate;
@@ -326,7 +330,8 @@ begin
   begin
     fname := Tree.Selected.Text;
     i := fProject.Sources.IndexOf(fname);
-    if i > -1 then begin
+    if i > -1 then
+    begin
       fProject.beginUpdate;
       fProject.Sources.Delete(i);
       fProject.endUpdate;
@@ -379,7 +384,6 @@ var
   src, fold, conf, str: string;
   lst: TStringList;
   itm: TTreeNode;
-  hasProj: boolean;
   i: NativeInt;
 begin
   fConfNode.DeleteChildren;
@@ -388,8 +392,8 @@ begin
   fInclNode.DeleteChildren;
   fXtraNode.DeleteChildren;
   //
-  hasProj := fProject <> nil;
-  if not hasProj then exit;
+  if not assigned(fProject) then
+    exit;
   //
   Tree.BeginUpdate;
   // display main sources
@@ -449,11 +453,13 @@ begin
     src := symbolExpander.get(src);
     lst := TStringList.Create;
     try
-      if listAsteriskPath(src, lst) then for src in lst do begin
+      if listAsteriskPath(src, lst) then for src in lst do
+      begin
         itm := Tree.Items.AddChild(fXtraNode, src);
         itm.ImageIndex := 2;
         itm.SelectedIndex := 2;
-      end else begin
+      end else
+      begin
         itm := Tree.Items.AddChild(fXtraNode, src);
         itm.ImageIndex := 2;
         itm.SelectedIndex := 2;
