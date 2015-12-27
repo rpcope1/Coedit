@@ -147,6 +147,7 @@ begin
   itm.Caption := notav;
   itm.SubItems.Add(notav);
   itm.SubItems.Add(notav);
+  itm.SubItems.Add(notav);
   SetFocus;
   itm.Selected := True;
 end;
