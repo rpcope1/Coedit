@@ -3831,7 +3831,7 @@ object CEMainForm: TCEMainForm
       ImageIndex = 22
       OnExecute = actFileCompAndRunExecute
       OnUpdate = updateDocumentBasedAction
-      ShortCut = 16503
+      ShortCut = 116
     end
     object actProjSave: TAction
       Category = 'Project'
@@ -3903,7 +3903,7 @@ object CEMainForm: TCEMainForm
       ImageIndex = 21
       OnExecute = actProjCompileExecute
       OnUpdate = updateProjectBasedAction
-      ShortCut = 16504
+      ShortCut = 120
     end
     object actProjCompileAndRun: TAction
       Category = 'Project'
@@ -3911,7 +3911,7 @@ object CEMainForm: TCEMainForm
       ImageIndex = 21
       OnExecute = actProjCompileAndRunExecute
       OnUpdate = updateProjectBasedAction
-      ShortCut = 24696
+      ShortCut = 121
     end
     object actProjCompAndRunWithArgs: TAction
       Category = 'Project'
@@ -3970,6 +3970,7 @@ object CEMainForm: TCEMainForm
       ImageIndex = 22
       OnExecute = actFileCompileAndRunOutExecute
       OnUpdate = updateDocumentBasedAction
+      ShortCut = 117
     end
     object actFileCompAndRunWithArgs: TAction
       Category = 'File'
