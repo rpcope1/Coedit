@@ -302,7 +302,15 @@ procedure TCEEditorWidget.memoKeyDown(Sender: TObject; var Key: Word; Shift: TSh
 begin
   case Key of
     VK_CLEAR,VK_RETURN,VK_BACK : fKeyChanged := true;
-    VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT: updateImperative;
+    VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT:
+    begin
+      if Shift <> [ssCtrl, ssAlt, ssShift] then
+        updateImperative
+      else begin
+        if Key = VK_LEFT then pageControl.pageIndex := pageControl.pageIndex -1
+        else if Key = VK_RIGHT then pageControl.pageIndex := pageControl.pageIndex +1;
+      end;
+    end;
   end;
   if fKeyChanged then
     beginDelayedUpdate;
