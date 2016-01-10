@@ -282,7 +282,7 @@ var
   i: integer;
   res: array of TPoint = nil;
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   //
   fSearchMru.Insert(0,fToFind);
   cbToFind.Items.Assign(fSearchMru);
@@ -320,7 +320,7 @@ end;
 
 procedure TCESearchWidget.actFindNextExecute(sender: TObject);
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   //
   fSearchMru.Insert(0,fToFind);
   cbToFind.Items.Assign(fSearchMru);
@@ -356,7 +356,7 @@ end;
 
 procedure TCESearchWidget.actReplaceNextExecute(sender: TObject);
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   //
   fSearchMru.Insert(0, fToFind);
   fReplaceMru.Insert(0, fReplaceWth);
@@ -389,7 +389,7 @@ procedure TCESearchWidget.actReplaceAllExecute(sender: TObject);
 var
   opts: TSynSearchOptions;
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   cbReplaceWth.Items.Assign(fReplaceMru);
   opts := getOptions + [ssoReplace];
   opts -= [ssoBackwards];
@@ -463,12 +463,12 @@ end;
 
 procedure TCESearchWidget.updateImperative;
 begin
-  btnFind.Enabled := (fDoc <> nil) and (fToFind <> '');
-  btnFindAll.Enabled := (fDoc <> nil) and (fToFind <> '');
-  btnReplace.Enabled := (fDoc <> nil) and (chkEnableRep.Checked) and (fToFind <> '');
+  btnFind.Enabled := fDoc.isNotNil and (fToFind <> '');
+  btnFindAll.Enabled := fDoc.isNotNil and (fToFind <> '');
+  btnReplace.Enabled := fDoc.isNotNil and (chkEnableRep.Checked) and (fToFind <> '');
   btnReplaceAll.Enabled := btnReplace.Enabled;
-  cbReplaceWth.Enabled := (fDoc <> nil) and (chkEnableRep.Checked);
-  cbToFind.Enabled := fDoc <> nil;
+  cbReplaceWth.Enabled := fDoc.isNotNil and (chkEnableRep.Checked);
+  cbToFind.Enabled := fDoc.isNotNil;
 end;
 {$ENDREGION}
 

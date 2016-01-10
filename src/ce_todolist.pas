@@ -378,11 +378,11 @@ end;
 {$REGION Todo list things ------------------------------------------------------}
 function TCETodoListWidget.getContext: TTodoContext;
 begin
-  if ((fProj = nil) and (fDoc = nil)) then
+  if (fProj = nil) and fDoc.isNil then
     exit(tcNone);
-  if ((fProj = nil) and (fDoc <> nil)) then
+  if (fProj = nil) and fDoc.isNotNil then
     exit(tcFile);
-  if ((fProj <> nil) and (fDoc = nil)) then
+  if (fProj <> nil) and fDoc.isNil then
     exit(tcProject);
   //
   if fProj.isSource(fDoc.fileName) then
@@ -393,7 +393,7 @@ end;
 
 procedure TCETodoListWidget.killToolProcess;
 begin
-  if fToolProc = nil then
+  if fToolProc.isNil then
     exit;
   //
   fToolProc.Terminate(0);
@@ -521,9 +521,7 @@ var
   itm: TTodoItem;
   fname, ln: string;
 begin
-  if lstItems.Selected = nil then
-    exit;
-  if lstItems.Selected.Data = nil then
+  if lstItems.Selected.isNil or lstItems.Selected.Data.isNil then
     exit;
   // the collection will be cleared if a file is opened
   // docFocused->callToolProcess->fTodos....clear
@@ -533,7 +531,7 @@ begin
   ln := itm.line;
   getMultiDocHandler.openDocument(fname);
   //
-  if fDoc = nil then
+  if fDoc.isNil then
     exit;
   fDoc.CaretY := StrToInt(ln);
   fDoc.SelectLine;
@@ -549,7 +547,7 @@ procedure TCETodoListWidget.lstItemsColumnClick(Sender: TObject; Column: TListCo
 var
   curr: TListItem;
 begin
-  if lstItems.Selected = nil then
+  if lstItems.Selected.isNil then
     exit;
   lstItems.BeginUpdate;
   curr := lstItems.Selected;
@@ -630,8 +628,8 @@ end;
 
 procedure TCETodoListWidget.refreshVisibleColumns;
 begin
-  if lstItems = nil then exit;
-  if lstItems.Columns = nil then exit;
+  if lstItems.isNil then exit;
+  if lstItems.Columns.isNil then exit;
   if lstItems.ColumnCount <> 6 then exit;
   //
   lstItems.Column[1].Visible := TTodoColumn.category in fColumns ;

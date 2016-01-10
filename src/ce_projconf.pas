@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, RTTIGrids, RTTICtrls, Forms, Controls, Graphics,
   Dialogs, ExtCtrls, ComCtrls, StdCtrls, Menus, Buttons, rttiutils, typinfo,
   PropEdits, ObjectInspector, ce_dmdwrap, ce_nativeproject, ce_widget,
-  ce_interfaces, ce_observer, ce_sharedres;
+  ce_interfaces, ce_observer, ce_sharedres, ce_common;
 
 type
 
@@ -112,7 +112,7 @@ end;
 
 procedure TCEProjectConfigurationWidget.projClosing(aProject: ICECommonProject);
 begin
-  if fProj = nil then exit;
+  if fProj.isNil then exit;
   if fProj <> aProject.getProject then
     exit;
   inspector.TIObject := nil;
@@ -125,7 +125,7 @@ end;
 
 procedure TCEProjectConfigurationWidget.projChanged(aProject: ICECommonProject);
 begin
-  if fProj = nil then exit;
+  if fProj.isNil then exit;
   if fProj <> aProject.getProject then
     exit;
   if Visible then updateImperative;
@@ -151,7 +151,7 @@ end;
 {$REGION config. things --------------------------------------------------------}
 procedure TCEProjectConfigurationWidget.selConfChange(Sender: TObject);
 begin
-  if fProj = nil then exit;
+  if fProj.isNil then exit;
   if Updating then exit;
   if selConf.ItemIndex = -1 then exit;
   //
@@ -164,7 +164,7 @@ procedure TCEProjectConfigurationWidget.TreeChange(Sender: TObject;
   Node: TTreeNode);
 begin
   inspector.TIObject := getGridTarget;
-  selconf.Enabled := (inspector.TIObject <> fProj) and (fProj <> nil);
+  selconf.Enabled := (inspector.TIObject <> fProj) and fProj.isNotNil;
 end;
 
 procedure TCEProjectConfigurationWidget.setSyncroMode(aValue: boolean);
@@ -200,9 +200,9 @@ var
   trg_obj: TPersistent;
   i: Integer;
 begin
-  if fProj = nil then exit;
+  if fProj.isNil then exit;
   if not fSyncroMode then exit;
-  if inspector.TIObject = nil then exit;
+  if inspector.TIObject.isNil then exit;
   if inspector.ItemIndex = -1 then exit;
   //
   storage := nil;
@@ -270,7 +270,7 @@ var
   nme: string;
   cfg: TCompilerConfiguration;
 begin
-  if fProj = nil then exit;
+  if fProj.isNil then exit;
   //
   nme := '';
   beginImperativeUpdate;
@@ -283,7 +283,7 @@ end;
 
 procedure TCEProjectConfigurationWidget.btnDelConfClick(Sender: TObject);
 begin
-  if fProj = nil then exit;
+  if fProj.isNil then exit;
   if fProj.OptionsCollection.Count = 1 then exit;
   //
   beginImperativeUpdate;
@@ -300,7 +300,7 @@ var
   nme: string;
   trg,src: TCompilerConfiguration;
 begin
-  if fProj = nil then exit;
+  if fProj.isNil then exit;
   //
   nme := '';
   beginImperativeUpdate;
@@ -318,14 +318,14 @@ procedure TCEProjectConfigurationWidget.btnSyncEditClick(Sender: TObject);
 begin
   fSynchroValue.Clear;
   fSynchroItem.Clear;
-  if fProj = nil then exit;
+  if fProj.isNil then exit;
   syncroMode := not syncroMode;
 end;
 
 procedure TCEProjectConfigurationWidget.GridFilter(Sender: TObject; aEditor: TPropertyEditor;
   var aShow: boolean);
 begin
-  if fProj = nil then exit;
+  if fProj.isNil then exit;
 
   // filter TComponent things.
   if getGridTarget = fProj then
@@ -361,9 +361,9 @@ end;
 
 function TCEProjectConfigurationWidget.getGridTarget: TPersistent;
 begin
-  if fProj = nil then exit(nil);
+  if fProj.isNil then exit(nil);
   if fProj.ConfigurationIndex = -1 then exit(nil);
-  if Tree.Selected = nil then exit(nil);
+  if Tree.Selected.isNil then exit(nil);
   // Warning: TTreeNode.StateIndex is usually made for the images...it's not a tag
   case Tree.Selected.StateIndex of
     1: exit( fProj );
@@ -387,8 +387,8 @@ var
 begin
   selConf.ItemIndex:= -1;
   selConf.Clear;
-  selconf.Enabled := (inspector.TIObject <> fProj) and (fProj <> nil);
-  if fProj = nil then exit;
+  selconf.Enabled := (inspector.TIObject <> fProj) and fProj.isNotNil;
+  if fProj.isNil then exit;
   //
   for i:= 0 to fProj.OptionsCollection.Count-1 do
     selConf.Items.Add(fProj.configuration[i].name);

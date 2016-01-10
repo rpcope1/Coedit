@@ -92,7 +92,7 @@ procedure TCELibManEditorWidget.updateButtonsState;
 begin
   btnReg.Enabled := (fProj <> nil) and (fProj.binaryKind = staticlib) and
     FileExists(fProj.Filename);
-  btnOpenProj.Enabled := (List.Selected <> nil) and
+  btnOpenProj.Enabled := (List.Selected.isNotNil) and
     (fileExists(List.Selected.SubItems[2]));
 end;
 
@@ -168,7 +168,7 @@ var
 begin
   if not InputQuery('DUB library import', 'please enter the name of the package',
     nme) then exit;
-  if List.Items.FindCaption(0, nme, false, false, false) <> nil then
+  if List.Items.FindCaption(0, nme, false, false, false).isNotNil then
   begin
     dlgOkInfo(format('a library item with the alias "%s" already exists, delete it before trying again.',
       [nme]));
@@ -296,7 +296,7 @@ procedure TCELibManEditorWidget.btnEditAliasClick(Sender: TObject);
 var
   al: string;
 begin
-  if List.Selected = nil then
+  if List.Selected.isNil then
     exit;
   al := List.Selected.Caption;
   if inputQuery('library alias', '', al) then
@@ -308,7 +308,7 @@ procedure TCELibManEditorWidget.btnOpenProjClick(Sender: TObject);
 var
   fname: string;
 begin
-  if List.Selected = nil then exit;
+  if List.Selected.isNil then exit;
   fname := List.Selected.SubItems[2];
   if not FileExists(fname) then exit;
   //
@@ -397,7 +397,7 @@ end;
 
 procedure TCELibManEditorWidget.btnRemLibClick(Sender: TObject);
 begin
-  if List.Selected = nil then
+  if List.Selected.isNil then
     exit;
   List.Items.Delete(List.Selected.Index);
   gridToData;
@@ -407,7 +407,7 @@ procedure TCELibManEditorWidget.btnSelProjClick(Sender: TObject);
 var
   ini: string = '';
 begin
-  if List.Selected = nil then
+  if List.Selected.isNil then
     exit;
   if List.Selected.SubItems.Count > 2 then
     ini := List.Selected.SubItems[2]
@@ -427,7 +427,7 @@ procedure TCELibManEditorWidget.btnSelFileClick(Sender: TObject);
 var
   ini: string = '';
 begin
-  if List.Selected = nil then
+  if List.Selected.isNil then
     exit;
   if List.Selected.SubItems.Count > 0 then
     ini := List.Selected.SubItems[0]
@@ -457,7 +457,7 @@ procedure TCELibManEditorWidget.btnSelfoldOfFilesClick(Sender: TObject);
 var
   dir, outdir: string;
 begin
-  if List.Selected = nil then
+  if List.Selected.isNil then
     exit;
   if List.Selected.SubItems.Count > 0 then
     dir := List.Selected.SubItems[0]
@@ -475,7 +475,7 @@ procedure TCELibManEditorWidget.btnSelRootClick(Sender: TObject);
 var
   dir, outdir: string;
 begin
-  if List.Selected = nil then
+  if List.Selected.isNil then
     exit;
   if List.Selected.SubItems.Count > 1 then
     dir := List.Selected.SubItems[1]
@@ -492,7 +492,7 @@ end;
 
 procedure TCELibManEditorWidget.btnMoveUpClick(Sender: TObject);
 begin
-  if list.Selected = nil then
+  if list.Selected.isNil then
     exit;
   if list.Selected.Index = 0 then
     exit;
@@ -503,7 +503,7 @@ end;
 
 procedure TCELibManEditorWidget.btnMoveDownClick(Sender: TObject);
 begin
-  if list.Selected = nil then
+  if list.Selected.isNil then
     exit;
   if list.Selected.Index = list.Items.Count - 1 then
     exit;
@@ -524,7 +524,7 @@ var
   row: TListItem;
   i: Integer;
 begin
-  if LibMan = nil then
+  if LibMan.isNil then
     exit;
   List.BeginUpdate;
   List.Clear;
@@ -545,7 +545,7 @@ var
   itm: TLibraryItem;
   row: TListItem;
 begin
-  if LibMan = nil then
+  if LibMan.isNil then
     exit;
   LibMan.libraries.BeginUpdate;
   LibMan.libraries.Clear;

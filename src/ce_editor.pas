@@ -134,7 +134,7 @@ end;
 
 function TCEEditorWidget.closeQuery: boolean;
 begin
-  result := inherited and (Parent = nil);
+  result := inherited and Parent.isNil;
 end;
 {$ENDREGION}
 
@@ -164,7 +164,7 @@ end;
 
 procedure TCEEditorWidget.docClosing(aDoc: TCESynMemo);
 begin
-  if aDoc = nil then
+  if aDoc.isNil then
     exit;
   aDoc.Parent := nil;
   if aDoc = fDoc then
@@ -225,7 +225,7 @@ var
   doc: TCESynMemo;
 begin
   doc := findDocument(aFilename);
-  if doc <> nil then begin
+  if doc.isNotNil then begin
     PageControl.currentPage := TCEPage(doc.Parent);
     exit;
   end;
@@ -238,7 +238,7 @@ var
   doc: TCESynMemo;
 begin
   doc := getDocument(index);
-  if not assigned(doc) then exit(false);
+  if doc.isNil then exit(false);
   if (doc.modified or (doc.fileName = doc.tempFilename)) and
     (dlgFileChangeClose(doc.fileName) = mrCancel) then exit(false);
   pageControl.pageIndex:=index;
@@ -251,7 +251,7 @@ var
   page: TCEPage = nil;
 begin
   page := TCEPage(doc.Parent);
-  if not assigned(page) then
+  if page.isNil then
     exit(false);
   exit(closeDocument(page.index));
 end;
@@ -271,7 +271,7 @@ end;
 
 procedure TCEEditorWidget.focusedEditorChanged;
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   //
   macRecorder.Editor:= fDoc;
   fDoc.PopupMenu := mnuEditor;
@@ -286,14 +286,14 @@ end;
 
 procedure TCEEditorWidget.PageControlChanged(Sender: TObject);
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   fDoc.hideCallTips;
   fDoc.hideDDocs;
 end;
 
 procedure TCEEditorWidget.PageControlChanging(Sender: TObject; var AllowChange: Boolean);
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   fDoc.hideCallTips;
   fDoc.hideDDocs;
 end;

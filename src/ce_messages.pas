@@ -339,9 +339,9 @@ procedure TCEMessagesWidget.listDeletion(Sender: TObject; Node: TTreeNode);
 var
   i: integer;
 begin
-  if node.Data <> nil then
+  if node.data.isNotNil then
     Dispose(PMessageData(Node.Data));
-  if fToDemangleObjs <> nil then
+  if fToDemangleObjs.isNotNil then
   begin
     i := fToDemangleObjs.IndexOf(node);
     if i <> -1 then if i < fToDemangleObjs.Count then
@@ -389,7 +389,7 @@ var
   btn: TToolButton;
   i: Integer;
 begin
-  if sender = nil then
+  if sender.isNil then
     exit;
   //
   fCtxt := amcAll;
@@ -573,7 +573,7 @@ begin
   case fCtxt of
     amcAll, amcApp, amcMisc :
       clearbyContext(fCtxt);
-    amcEdit: if fDoc <> nil then
+    amcEdit: if fDoc.isNotNil then
       clearbyData(fDoc);
     amcProj: if fProj <> nil then
       clearbyData(fProj);
@@ -746,7 +746,7 @@ var
   i: Integer;
   msgdt: PMessageData;
 begin
-  if aData = nil then
+  if aData.isNil then
     exit;
   list.BeginUpdate;
   for i := List.Items.Count-1 downto 0 do
@@ -811,7 +811,7 @@ begin
   for i := 0 to fToDemangleObjs.Count -1 do
   begin
     itm := TTreeNode(fToDemangleObjs.Items[i]);
-    if itm = nil then continue;
+    if itm.isNil then continue;
     itm.Text := fToDemangle.Strings[i];
   end;
   freeDemangler;
@@ -819,7 +819,7 @@ end;
 
 procedure TCEMessagesWidget.freeDemangler;
 begin
-  if fDemangler = nil then
+  if fDemangler.isNil then
     exit;
   //
   if fDemangler.Active then
@@ -862,7 +862,7 @@ procedure TCEMessagesWidget.scrollToBack;
 begin
   if not Visible then
     exit;
-  if List.BottomItem <> nil then
+  if List.BottomItem.isNotNil then
     List.BottomItem.MakeVisible;
 end;
 
@@ -873,14 +873,14 @@ var
 begin
   //TODO-cbugfix: AV the the 3rd time a same message is clicked (when option singleClick is set),
   // click to open matching file, back to editor, click (nothing, item is null), then click again: AV
-  if List.Selected = nil then
+  if List.Selected.isNil then
     exit;
   msg := List.Selected.Text;
   if not openFileFromDmdMessage(msg) then
     exit;
   // from here, since a doc has the focus, List.Selected is nil
   pos := getLineFromMessage(msg);
-  if fDoc = nil then
+  if fDoc.isNil then
     exit;
   fDoc.CaretXY := pos;
   fDoc.SelectLine;

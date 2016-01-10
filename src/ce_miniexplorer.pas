@@ -206,7 +206,7 @@ end;
 
 procedure TCEMiniExplorerWidget.lstDeletion(Sender: TObject; Item: TListItem);
 begin
-  if Item.Data <> nil then
+  if Item.Data.isNotNil then
     DisposeStr(PString(Item.Data));
 end;
 {$ENDREGION}
@@ -281,7 +281,7 @@ procedure TCEMiniExplorerWidget.btnRemFavClick(Sender: TObject);
 var
   i: Integer;
 begin
-  if lstFav.Selected = nil then exit;
+  if lstFav.Selected.isNil then exit;
   i := fFavorites.IndexOf(PString(lstFav.Selected.Data)^);
   if i <> -1 then fFavorites.Delete(i);
   lstFiles.Clear;
@@ -294,13 +294,13 @@ end;
 
 procedure TCEMiniExplorerWidget.btnAddFavClick(Sender: TObject);
 begin
-  if Tree.Selected = nil then exit;
+  if Tree.Selected.isNil then exit;
   fFavorites.Add(PString(Tree.Selected.Data)^);
 end;
 
 procedure TCEMiniExplorerWidget.lstFavDblClick(Sender: TObject);
 begin
-  if lstFav.Selected = nil then exit;
+  if lstFav.Selected.isNil then exit;
   lstFiles.Items.Clear;
   expandPath(lstFav.Selected.Caption);
   tree.MakeSelectionVisible;
@@ -343,8 +343,8 @@ var
   fname: string;
   proj: boolean = false;
 begin
-  if lstFiles.Selected = nil then exit;
-  if lstFiles.Selected.Data = nil then exit;
+  if lstFiles.Selected.isNil then exit;
+  if lstFiles.Selected.Data.isNil then exit;
   fname := PString(lstFiles.Selected.Data)^;
   if not fileExists(fname) then exit;
   {$IFNDEF WINDOWS}
@@ -394,19 +394,19 @@ var
 begin
   if fLastListOrTree = lstFiles then
   begin
-    if lstFiles.Selected = nil then exit;
-    if lstFiles.Selected.Data = nil then exit;
+    if lstFiles.Selected.isNil then exit;
+    if lstFiles.Selected.data.isNil then exit;
     fname := PString(lstFiles.Selected.Data)^;
   end else if fLastListOrTree = Tree then
   begin
-    if tree.Selected = nil then exit;
-    if tree.Selected.Data = nil then exit;
+    if tree.Selected.isNil then exit;
+    if tree.Selected.Data.isNil then exit;
     fname := PString(tree.Selected.Data)^;
   end
   else if fLastListOrTree = lstFav then
   begin
-    if lstFav.Selected = nil then exit;
-    if lstFav.Selected.Data = nil then exit;
+    if lstFav.Selected.isNil then exit;
+    if lstFav.Selected.Data.isNil then exit;
     fname := PString(lstFav.Selected.Data)^;
   end;
   if fileExists(fname) then if not shellOpen(fname) then
@@ -428,7 +428,7 @@ end;
 
 procedure TCEMiniExplorerWidget.treeDeletion(Sender: TObject; Item: TTreeNode);
 begin
-  if Item.Data <> nil then
+  if Item.Data.isNotNil then
     DisposeStr(PString(Item.Data));
 end;
 
@@ -458,7 +458,7 @@ var
   lst: TStringList;
   pth: string;
 begin
-  if Tree.Selected = nil then exit;
+  if Tree.Selected.isNil then exit;
   //
   lst := TStringList.Create;
   try
@@ -499,14 +499,14 @@ end;
 
 procedure TCEMiniExplorerWidget.treeExpanding(Sender: TObject; Node: TTreeNode; var allow: boolean);
 begin
-  if Node <> nil then
+  if Node.isNotNil then
     treeScanSubFolders(Node);
   allow := true;
 end;
 
 procedure TCEMiniExplorerWidget.treeChanged(Sender: TObject; Node: TTreeNode);
 begin
-  if Node = nil then exit;
+  if Node.isNil then exit;
   Node.DeleteChildren;
   treeScanSubFolders(Node);
   lstFilesFromTree;
@@ -519,7 +519,7 @@ end;
 
 procedure TCEMiniExplorerWidget.treeClick(sender: TObject);
 begin
-  if Tree.Selected = nil then exit;
+  if Tree.Selected.isNil then exit;
   if Tree.Selected.Expanded then exit;
   treeScanSubFolders(Tree.Selected);
 end;
@@ -540,7 +540,7 @@ begin
   {$ENDIF}
   for i := 0 to aRoot.Count-1 do
   begin
-    if aRoot.Items[i].Data = nil then
+    if aRoot.Items[i].Data.isNil then
       continue;
     str := PString(aRoot.Items[i].Data)^;
     if SameText(LeftStr(aPath, length(str)), str) then

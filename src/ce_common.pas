@@ -36,6 +36,18 @@ type
   TCEFilename = type string;
   TCEEditEvent = type boolean;
 
+  // sugar for classes
+  TObjectHelper = class helper for TObject
+    function isNil: boolean;
+    function isNotNil: boolean;
+  end;
+
+  // sugar for pointers
+  TPointerHelper = type helper for Pointer
+    function isNil: boolean;
+    function isNotNil: boolean;
+  end;
+
   (**
    * Workaround for a TAsyncProcess Linux issue: OnTerminate event not called.
    * An idle timer is started when executing and trigs the event if necessary.
@@ -282,6 +294,26 @@ begin
     fShortcut := src.fShortcut;
   end
   else inherited;
+end;
+
+function TObjectHelper.isNil: boolean;
+begin
+  exit(self = nil);
+end;
+
+function TObjectHelper.isNotNil: boolean;
+begin
+  exit(self <> nil);
+end;
+
+function TPointerHelper.isNil: boolean;
+begin
+  exit(self = nil);
+end;
+
+function TPointerHelper.isNotNil: boolean;
+begin
+  exit(self <> nil);
 end;
 
 {$IFDEF LINUX}

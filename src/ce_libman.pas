@@ -168,7 +168,7 @@ begin
   for i := 0 to fCol.Count-1 do
   begin
     itm := TLibraryItem(fCol.Items[i]);
-    if someAliases <> nil then
+    if someAliases.isNotNil then
       if someAliases.IndexOf(itm.libAlias) = -1 then
         continue;
     // single lib files
@@ -212,7 +212,7 @@ begin
   for i := 0 to fCol.Count-1 do
   begin
     itm := TLibraryItem(fCol.Items[i]);
-    if someAliases <> nil then
+    if someAliases.isNotNil then
       if someAliases.IndexOf(itm.libAlias) = -1 then
         continue;
     //

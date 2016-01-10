@@ -28,7 +28,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
         TabOrder = 0
         object TabSheet1: TTabSheet
           Caption = 'Inspector'
-          ClientHeight = 388
+          ClientHeight = 380
           ClientWidth = 395
           object pnlToolBar1: TPanel
             Left = 4
@@ -59,7 +59,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
           end
           object treeInspect: TTreeView
             Left = 4
-            Height = 352
+            Height = 344
             Top = 32
             Width = 387
             Align = alClient
@@ -81,7 +81,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
         end
         object TabSheet2: TTabSheet
           Caption = 'Editor'
-          ClientHeight = 388
+          ClientHeight = 380
           ClientWidth = 395
           object propTree: TTreeView
             Left = 4

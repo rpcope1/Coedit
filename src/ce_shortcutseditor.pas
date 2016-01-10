@@ -258,18 +258,18 @@ end;
 
 procedure TCEShortcutEditor.btnActivateClick(Sender: TObject);
 begin
-  if tree.Selected = nil then exit;
+  if tree.Selected.isNil then exit;
   if tree.Selected.Level = 0 then exit;
-  if tree.Selected.Data = nil then exit;
+  if tree.Selected.Data.isNil then exit;
   //
   shortcutCatcher.Enabled := not shortcutCatcher.Enabled;
 end;
 
 procedure TCEShortcutEditor.btnClearClick(Sender: TObject);
 begin
-  if tree.Selected = nil then exit;
+  if tree.Selected.isNil then exit;
   if tree.Selected.Level = 0 then exit;
-  if tree.Selected.Data = nil then exit;
+  if tree.Selected.Data.isNil then exit;
   //
   if TShortcutItem(tree.Selected.Data).data <> 0 then
   begin
@@ -289,9 +289,9 @@ var
 const
   msg = '"%s" is already assigned in the same category by "%s". The new shortcut will be ignored';
 begin
-  if tree.Selected = nil then exit;
+  if tree.Selected.isNil then exit;
   if tree.Selected.Level = 0 then exit;
-  if tree.Selected.Data = nil then exit;
+  if tree.Selected.Data.isNil then exit;
   //
   if Key = VK_RETURN then
     shortcutCatcher.Enabled := false
@@ -305,7 +305,7 @@ begin
       if i <> tree.Selected.Index then
         if TShortcutItem(tree.Selected.Parent.Items[i].Data).data = sh then
           dup := TShortcutItem(tree.Selected.Parent.Items[i].Data);
-    if assigned(dup) then
+    if dup.isNotNil then
       dlgOkInfo(format(msg,[ShortCutToText(sh), dup.identifier]))
     else if TShortcutItem(tree.Selected.Data).data <> sh then
     begin
@@ -321,9 +321,9 @@ procedure TCEShortcutEditor.updateEditCtrls;
 begin
   schrtText.Caption := '';
   //
-  if tree.Selected = nil then exit;
+  if tree.Selected.isNil then exit;
   if tree.Selected.Level = 0 then exit;
-  if tree.Selected.Data = nil then exit;
+  if tree.Selected.Data.isNil then exit;
   //
   schrtText.Caption := TShortcutItem(tree.Selected.Data).combination;
   shortcutCatcher.Text := '';
@@ -372,7 +372,7 @@ begin
   if cat = '' then exit;
   if idt = '' then exit;
   prt := findCategory(cat, obs);
-  if prt = nil then
+  if prt.isNil then
     prt := tree.Items.AddObject(nil, cat, obs);
   // item as child
   itm := TShortcutItem(fShortcuts.items.Add);

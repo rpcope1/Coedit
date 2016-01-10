@@ -251,7 +251,7 @@ var
   prc: TProcess;
   str: TStringList;
 begin
-  if not assigned(fDoc) then
+  if fDoc.isNil then
     exit;
   if not exeInSysPath('dfmt') then
     exit;
@@ -283,9 +283,8 @@ end;
 
 procedure TCEDfmtWidget.doCancel(sender: TObject);
 begin
-  if not assigned(fDoc) then
+  if fDoc.isNil then
     exit;
-
   fDoc.Lines.Assign(fBackup);
 end;
 {$ENDREGION}

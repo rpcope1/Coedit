@@ -715,7 +715,8 @@ begin
   EntitiesConnector.forceUpdate;
   //
   getCMdParams;
-  if fNativeProject = nil then newNativeProj;
+  if fNativeProject.isNil then
+    newNativeProj;
   //
   fInitialized := true;
 end;
@@ -1065,7 +1066,7 @@ procedure TCEMainForm.FreeRunnableProc;
 var
   fname: string;
 begin
-  if fRunProc = nil then
+  if fRunProc.isNil then
     exit;
   //
   fname := fRunProc.Executable;
@@ -1139,7 +1140,7 @@ end;
 
 procedure TCEMainForm.ApplicationProperties1Exception(Sender: TObject;E: Exception);
 begin
-  if fMesgWidg = nil then
+  if fMesgWidg.isNil then
     dlgOkError(E.Message)
   else
     fMsgs.message(E.Message, nil, amcApp, amkErr);
@@ -1163,7 +1164,7 @@ end;
 
 procedure TCEMainForm.updateDocumentBasedAction(sender: TObject);
 begin
-  TAction(sender).Enabled := fDoc <> nil;
+  TAction(sender).Enabled := fDoc.isNotNil;
 end;
 
 procedure TCEMainForm.updateProjectBasedAction(sender: TObject);
@@ -1173,7 +1174,7 @@ end;
 
 procedure TCEMainForm.updateDocEditBasedAction(sender: TObject);
 begin
-  if (fDoc <> nil) and fDoc.Focused then
+  if fDoc.isNotNil and fDoc.Focused then
     TAction(sender).Enabled := true
   else
     TAction(sender).Enabled := false;
@@ -1187,7 +1188,7 @@ begin
   try
     clearActProviderEntries;
     collectedActProviderEntries;
-    if (AAction <> nil ) then
+    if AAction.isNotNil then
       if not AAction.Update then
         TAction(AAction).enabled := true;
     updateMainMenuProviders;
@@ -1235,9 +1236,9 @@ var
   i: NativeInt;
 begin
   srcLst := TCEMruFileList(Sender);
-  if srcLst = nil then exit;
+  if srcLst.isNil then exit;
   trgMnu := TMenuItem(srcLst.objectTag);
-  if trgMnu = nil then exit;
+  if trgMnu.isNil then exit;
 
   if fUpdateCount > 0 then exit;
   Inc(fUpdateCount);
@@ -1276,7 +1277,7 @@ var
   srcLst: TCEMruFileList;
 begin
   srcLst := TCEMruFileList(TmenuItem(Sender).Tag);
-  if srcLst = nil then exit;
+  if srcLst.isNil then exit;
   //
   srcLst.Clear;
 end;
@@ -1441,7 +1442,7 @@ procedure TCEMainForm.actFileHtmlExportExecute(Sender: TObject);
 var
   exp: TSynExporterHTML;
 begin
-  if fDoc = nil then
+  if fDoc.isNil then
     exit;
   exp := TSynExporterHTML.Create(nil);
   try
@@ -1487,8 +1488,6 @@ end;
 
 procedure TCEMainForm.actFileOpenExecute(Sender: TObject);
 begin
-  if fEditWidg = nil then exit;
-  //
   with TOpenDialog.Create(nil) do
   try
     filter := DdiagFilter;
@@ -1533,7 +1532,7 @@ end;
 
 procedure TCEMainForm.actFileSaveAsExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   //
   with TSaveDialog.Create(nil) do
   try
@@ -1549,7 +1548,7 @@ procedure TCEMainForm.actFileSaveExecute(Sender: TObject);
 var
   str: string;
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   //
   str := fDoc.fileName;
   if (str <> fDoc.tempFilename) and (fileExists(str)) then
@@ -1560,7 +1559,7 @@ end;
 
 procedure TCEMainForm.actFileAddToProjExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   if fDoc.isProjectFile then exit;
   if fProjectInterface = nil then exit;
   //
@@ -1576,9 +1575,8 @@ end;
 
 procedure TCEMainForm.actFileCloseExecute(Sender: TObject);
 begin
-  if fDoc = nil then
-    exit;
-  getMultiDocHandler.closeDocument(fDoc);
+  if fDoc.isNotNil then
+    getMultiDocHandler.closeDocument(fDoc);
 end;
 
 procedure TCEMainForm.actFileSaveAllExecute(Sender: TObject);
@@ -1610,7 +1608,7 @@ procedure TCEMainForm.actFileSaveCopyAsExecute(Sender: TObject);
 var
   str: TStringList;
 begin
-  if fDoc = nil then
+  if fDoc.isNil then
     exit;
   with TSaveDialog.create(nil) do
   try
@@ -1635,43 +1633,43 @@ end;
 {$REGION edit ------------------------------------------------------------------}
 procedure TCEMainForm.actEdCopyExecute(Sender: TObject);
 begin
-  if assigned(fDoc) then
+  if fDoc.isNotNil then
     fDoc.CopyToClipboard;
 end;
 
 procedure TCEMainForm.actEdCutExecute(Sender: TObject);
 begin
-  if assigned(fDoc) then
+  if fDoc.isNotNil then
     fDoc.CutToClipboard;
 end;
 
 procedure TCEMainForm.actEdPasteExecute(Sender: TObject);
 begin
-  if assigned(fDoc) then
+  if fDoc.isNotNil then
     fDoc.PasteFromClipboard;
 end;
 
 procedure TCEMainForm.actEdUndoExecute(Sender: TObject);
 begin
-  if assigned(fDoc) then
+  if fDoc.isNotNil then
     fDoc.Undo;
 end;
 
 procedure TCEMainForm.actEdRedoExecute(Sender: TObject);
 begin
-  if assigned(fDoc) then
+  if fDoc.isNotNil then
     fDoc.Redo;
 end;
 
 procedure TCEMainForm.actEdMacPlayExecute(Sender: TObject);
 begin
-  if assigned(fDoc) then
+  if fDoc.isNotNil then
     fEditWidg.macRecorder.PlaybackMacro(fDoc);
 end;
 
 procedure TCEMainForm.actEdMacStartStopExecute(Sender: TObject);
 begin
-  if assigned(fDoc) then
+  if fDoc.isNotNil then
   begin
     if fEditWidg.macRecorder.State = msRecording then
       fEditWidg.macRecorder.Stop
@@ -1681,13 +1679,13 @@ end;
 
 procedure TCEMainForm.actEdIndentExecute(Sender: TObject);
 begin
-  if assigned(fDoc) then
+  if fDoc.isNotNil then
     fDoc.ExecuteCommand(ecBlockIndent, '', nil);
 end;
 
 procedure TCEMainForm.actEdUnIndentExecute(Sender: TObject);
 begin
-  if assigned(fDoc) then
+  if fDoc.isNotNil then
     fDoc.ExecuteCommand(ecBlockUnIndent, '', nil);
 end;
 
@@ -1697,10 +1695,10 @@ var
   str: string;
 begin
   win := DockMaster.GetAnchorSite(fFindWidg);
-  if win = nil then exit;
+  if win.isNil then exit;
   win.Show;
   win.BringToFront;
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   //
   if fDoc.SelAvail then
     str := fDoc.SelText
@@ -1811,7 +1809,7 @@ begin
 
   fMsgs.clearByData(fDoc);
   FreeRunnableProc;
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   if fDoc.Lines.Count = 0 then exit;
 
   firstlineFlags := fDoc.Lines[0];
@@ -1906,34 +1904,33 @@ end;
 
 procedure TCEMainForm.actFileUnittestExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  compileAndRunFile(true);
+  if fDoc.isNotNil then
+    compileAndRunFile(true);
 end;
 
 procedure TCEMainForm.actFileCompAndRunExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  compileAndRunFile(false);
+  if fDoc.isNotNil then
+    compileAndRunFile(false);
 end;
 
 procedure TCEMainForm.actFileCompileAndRunOutExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  compileAndRunFile(false, false);
+  if fDoc.isNotNil then
+    compileAndRunFile(false, false);
 end;
 
 procedure TCEMainForm.actFileCompAndRunWithArgsExecute(Sender: TObject);
 var
   runargs: string = '';
 begin
-  if fDoc = nil then exit;
-  if InputQuery('Execution arguments', '', runargs) then
+  if fDoc.isNotNil and InputQuery('Execution arguments', '', runargs) then
     compileAndRunFile(false, true, runargs);
 end;
 
 procedure TCEMainForm.actFileOpenContFoldExecute(Sender: TObject);
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   if not fileExists(fDoc.fileName) then exit;
   //
   DockMaster.GetAnchorSite(fExplWidg).Show;
@@ -1991,7 +1988,7 @@ var
   widg: TCEWidget;
   act: TAction;
 begin
-  if sender = nil then exit;
+  if sender.isNil then exit;
   act := TAction(sender);
   if act.Tag = 0 then exit;
   //
@@ -2012,7 +2009,7 @@ var
   widg: TCEWidget;
 begin
   widg := TCEWidget( TComponent(sender).tag );
-  if widg = nil then exit;
+  if widg.isNil then exit;
   //
   widg.showWidget;
 end;
@@ -2128,8 +2125,8 @@ var
 const
   fstyle: array[boolean] of TFormStyle = (fsNormal, fsStayOnTop);
 begin
-  for widg in fWidgList do if (widg.Parent <> nil) and
-    (widg.Parent.Parent = nil) and widg.isDockable then
+  for widg in fWidgList do if widg.Parent.isNotNil and
+    widg.Parent.Parent.isNil and widg.isDockable then
   begin
     TForm(widg.Parent).FormStyle := fstyle[onTop];
     //TODO-bugfix: floating widg on top from true to false, widg remains on top
@@ -2277,7 +2274,7 @@ begin
     pfNative: win := DockMaster.GetAnchorSite(fPrjCfWidg);
   end
   else win := DockMaster.GetAnchorSite(fPrjCfWidg);
-  if assigned(win) then
+  if win.isNotNil then
   begin
     win.Show;
     win.BringToFront;

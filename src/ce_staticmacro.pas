@@ -387,13 +387,13 @@ end;
 
 procedure TCEStaticEditorMacro.Execute;
 begin
-  if fDoc <> nil then
+  if fDoc.isNotNil then
     fCompletor.Execute(fDoc.Identifier, fDoc);
 end;
 
 procedure TCEStaticEditorMacro.Execute(aEditor: TCustomSynEdit; const aToken: string);
 begin
-  if aEditor <> nil then
+  if aEditor.isNotNil then
     fCompletor.Execute(aToken, aEditor);
 end;
 {$ENDREGION}

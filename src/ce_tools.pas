@@ -178,7 +178,7 @@ procedure TCEToolItem.setToolAlias(value: string);
 var
   i: integer = 0;
 begin
-  while fToolItems.findTool(value) <> nil do
+  while fToolItems.findTool(value).isNotNil do
   begin
     value += intToStr(i);
     i += 1;
@@ -216,7 +216,7 @@ begin
   if FileExists(fProcess.Executable) then
   begin
     fProcess.Execute;
-    if (previous <> nil) and (previous.outputToNext)
+    if previous.isNotNil and previous.outputToNext
       and (poUsePipes in previous.Options) and (poUsePipes in Options) then
     begin
       setLength(inp, previous.process.OutputStack.Size);
@@ -249,7 +249,7 @@ begin
   if (not fProcess.Running) and (fNextToolAlias <> '') then
   begin
     nxt := fToolItems.findTool(fNextToolAlias);
-    if assigned(nxt) then nxt.execute(self);
+    if nxt.isNotNil then nxt.execute(self);
   end;
 end;
 {$ENDREGION --------------------------------------------------------------------}
@@ -313,7 +313,7 @@ var
   colitm: TCEToolItem;
   mnuitm: TMenuItem;
 begin
-  if item = nil then exit;
+  if item.isNil then exit;
   if item.Count <> tools.Count then
     menuDeclare(item)
   else for i:= 0 to tools.Count-1 do
@@ -404,11 +404,11 @@ procedure TCETools.executeTool(aTool: TCEToolItem);
 var
   txt: string;
 begin
-  if aTool = nil then exit;
+  if aTool.isNil then exit;
   //
   aTool.execute(nil);
-  if aTool.editorToInput and assigned(fDoc) and (poUsePipes in aTool.options)
-    and (aTool.fProcess.Input <> nil) then
+  if aTool.editorToInput and fDoc.isNotNil and (poUsePipes in aTool.options)
+    and aTool.fProcess.Input.isNotNil then
   begin
     txt := fDoc.Text;
     aTool.fProcess.Input.Write(txt[1], length(txt));

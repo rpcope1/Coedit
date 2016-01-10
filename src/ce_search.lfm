@@ -129,7 +129,7 @@ inherited CESearchWidget: TCESearchWidget
         Align = alClient
         BorderSpacing.Around = 4
         Caption = 'Options'
-        ClientHeight = 78
+        ClientHeight = 92
         ClientWidth = 382
         TabOrder = 4
         object chkWWord: TCheckBox

@@ -81,18 +81,18 @@ begin
 
   // TODO-cfeature: process list, imply that each TCESynMemo must have its own runnable TProcess
   // currently they share the CEMainForm.fRunProc variable.
-  if fProc <> nil then
+  if fProc.isNotNil then
     if fProc.Running then
       fProc.Terminate(0);
 
   txtExeName.Caption := 'no process';
   fProc := nil;
-  if aProcess = nil then
+  if aProcess.isNil then
     exit;
   if not (poUsePipes in aProcess.Options) then
     exit;
   fProc := aProcess;
-  if fProc <> nil then Panel1.Enabled:=true;
+  if fProc.isNotNil then Panel1.Enabled:=true;
   txtExeName.Caption := shortenPath(fProc.Executable);
 end;
 
@@ -125,9 +125,8 @@ end;
 
 procedure TCEProcInputWidget.btnSendClick(Sender: TObject);
 begin
-  if fProc = nil then
-    exit;
-  sendInput;
+  if fProc.isNotNil then
+    sendInput;
 end;
 
 procedure TCEProcInputWidget.txtInpKeyDown(Sender: TObject; var Key: Word;
@@ -135,7 +134,7 @@ procedure TCEProcInputWidget.txtInpKeyDown(Sender: TObject; var Key: Word;
 begin
   case Key of
     VK_RETURN:
-      if fProc <> nil then sendInput;
+      if fProc.isNotNil then sendInput;
     VK_UP: begin
       fMruPos += 1;
       if fMruPos > fMru.Count-1 then fMruPos := 0;

@@ -372,7 +372,7 @@ procedure TDocOpts.getOpts(aList: TStrings; base: TOptsGroup = nil);
 var
   baseopt: TDocOpts;
 begin
-  if base = nil then
+  if base.isNil then
   begin
     if fGenDoc then
       aList.Add('-D');
@@ -483,7 +483,7 @@ var
 const
   DepStr : array[TDepHandling] of string = ('-d', '', '-de');
 begin
-  if base = nil then
+  if base.isNil then
   begin
     dep := DepStr[fDepHandling];
     if dep <> '' then aList.Add(dep);
@@ -609,7 +609,7 @@ const
   binKindStr: array[TProjectBinaryKind] of string = ('', '-lib', '-shared', '-c');
   bchKindStr: array[TBoundCheckKind] of string = ('on', 'safeonly', 'off');
 begin
-  if base = nil then
+  if base.isNil then
   begin
     str := binKindStr[fBinKind];
     if str <> '' then aList.Add(str);
@@ -796,7 +796,7 @@ var
   idt: string;
   baseopt: TDebugOpts;
 begin
-  if base = nil then
+  if base.isNil then
   begin
     if fDebug then aList.Add('-debug');
     if fDbgLevel <> 0 then
@@ -926,7 +926,7 @@ var
   baseopt: TPathsOpts;
   rightList: TStringList;
 begin
-  if base = nil then
+  if base.isNil then
   begin
     exts := TStringList.Create;
     try
@@ -1093,7 +1093,7 @@ var
   baseopt: TOtherOpts;
   rightList: TStringList;
 begin
-  if base = nil then
+  if base.isNil then
     begin
     for str1 in fCustom do if str1 <> '' then
     begin

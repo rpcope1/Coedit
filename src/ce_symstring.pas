@@ -127,7 +127,7 @@ end;
 
 procedure TCESymbolExpander.docFocused(aDoc: TCESynMemo);
 begin
-  if (aDoc <> nil) and (fDoc = aDoc) then
+  if (aDoc.isNotNil) and (fDoc = aDoc) then
     exit;
   fDoc := aDoc;
   fNeedUpdate := true;
@@ -158,9 +158,9 @@ begin
   if not fNeedUpdate then exit;
   fNeedUpdate := false;
   //
-  hasNativeProj := fProj <> nil;
+  hasNativeProj := fProj.isNotNil;
   hasProjItf := fProjInterface <> nil;
-  hasDoc := fDoc <> nil;
+  hasDoc := fDoc.isNotNil;
   //
   for e := low(TCESymbol) to high(TCESymbol) do
     fSymbols[e] := na;
@@ -259,7 +259,7 @@ begin
     elem := '';
     for i := 0 to elems.Count - 1 do
     begin
-      if elems.Objects[i] = nil then
+      if elems.Objects[i].isNil then
         Result += elems.Strings[i]
       else
         case elems.Strings[i] of

@@ -169,7 +169,7 @@ end;
 
 procedure TCEDubProjectEditorWidget.projChanged(aProject: ICECommonProject);
 begin
-  if fProj = nil then
+  if fProj.isNil then
     exit;
   if aProject.getProject <> fProj then
     exit;
@@ -182,7 +182,7 @@ end;
 
 procedure TCEDubProjectEditorWidget.projClosing(aProject: ICECommonProject);
 begin
-  if fProj = nil then
+  if fProj.isNil then
     exit;
   if aProject.getProject <> fProj then
     exit;
@@ -219,18 +219,18 @@ begin
   fSelectedNode := nil;
   btnDelProp.Enabled := false;
   btnAddProp.Enabled := false;
-  if propTree.Selected = nil then exit;
+  if propTree.Selected.isNil then exit;
   //
   fSelectedNode := propTree.Selected;
   btnDelProp.Enabled := (fSelectedNode.Level > 0) and (fSelectedNode.Text <> 'name')
-    and (fSelectedNode.data <> nil);
+    and fSelectedNode.data.isNotNil;
   updateValueEditor;
   btnAddProp.Enabled := TJSONData(fSelectedNode.Data).JSONType in [jtObject, jtArray];
 end;
 
 procedure TCEDubProjectEditorWidget.btnAcceptPropClick(Sender: TObject);
 begin
-  if fSelectedNode = nil then exit;
+  if fSelectedNode.isNil then exit;
   //
   setJsonValueFromEditor;
   propTree.FullExpand;
@@ -240,7 +240,7 @@ procedure TCEDubProjectEditorWidget.btnAddPropClick(Sender: TObject);
 var
   pnl: TCEDubProjectPropAddPanel;
 begin
-  if fSelectedNode = nil then exit;
+  if fSelectedNode.isNil then exit;
   //
   pnl := TCEDubProjectPropAddPanel.construct(@addProp);
   pnl.ShowModal;
@@ -254,7 +254,7 @@ var
   obj: TJSONObject;
   nod: TTreeNode;
 begin
-  if fSelectedNode = nil then exit;
+  if fSelectedNode.isNil then exit;
   //
   fProj.beginModification;
   if TJSONData(fSelectedNode.Data).JSONType = jtArray then
@@ -278,9 +278,9 @@ begin
   fProj.endModification;
   propTree.FullExpand;
   nod := propTree.Items.FindNodeWithText('<value>');
-  if nod = nil then
+  if nod.isNil then
     nod := propTree.Items.FindNodeWithText(propName);
-  if nod <> nil then
+  if nod.isNotNil then
   begin
     propTree.Selected := nod;
     propTree.MakeSelectionVisible;
@@ -291,11 +291,11 @@ procedure TCEDubProjectEditorWidget.btnDelPropClick(Sender: TObject);
 var
   prt: TJSONData;
 begin
-  if fSelectedNode = nil then exit;
+  if fSelectedNode.isNil then exit;
   if fSelectedNode.Level = 0 then exit;
   if fSelectedNode.Text = 'name' then exit;
-  if fSelectedNode.Data = nil then exit;
-  if fSelectedNode.Parent.Data = nil then exit;
+  if fSelectedNode.Data.isNil then exit;
+  if fSelectedNode.Parent.Data.isNil then exit;
   //
   fProj.beginModification;
   prt := TJSONData(fSelectedNode.Parent.Data);
@@ -316,9 +316,9 @@ var
   vInt64: int64;
   vBool: boolean;
 begin
-  if fSelectedNode = nil then exit;
-  if fSelectedNode.Data = nil then exit;
-  if fProj = nil then exit;
+  if fSelectedNode.isNil then exit;
+  if fSelectedNode.Data.isNil then exit;
+  if fProj.isNil then exit;
   //
   fProj.beginModification;
   dat := TJSONData(fSelectedNode.Data);
@@ -349,8 +349,8 @@ var
   dat: TJSONData;
 begin
   edProp.Clear;
-  if fSelectedNode = nil then exit;
-  if fSelectedNode.Data = nil then exit;
+  if fSelectedNode.isNil then exit;
+  if fSelectedNode.Data.isNil then exit;
   //
   dat := TJSONData(fSelectedNode.Data);
   case dat.JSONType of
@@ -416,7 +416,7 @@ procedure TCEDubProjectEditorWidget.updateEditor;
 begin
   propTree.Items.Clear;
   edProp.Clear;
-  if (fProj = nil) or (fProj.json = nil) then
+  if fProj.isNil or fProj.json.isNil then
     exit;
   //
   propTree.BeginUpdate;
@@ -432,13 +432,13 @@ var
   j: integer;
   node : TTreeNode;
 begin
-  if (fNodeConfig = nil) or (fNodeSources = nil) then
+  if fNodeConfig.isNil or fNodeSources.isNil then
     exit;
   //
   fNodeConfig.DeleteChildren;
   fNodeSources.DeleteChildren;
   //
-  if (fProj = nil) then
+  if fProj.isNil then
     exit;
   //
   j := fProj.getActiveConfigurationIndex;
@@ -478,8 +478,8 @@ var
   node: TTreeNode;
   fname: string;
 begin
-  if treeInspect.Selected = nil then exit;
-  if fProj = nil then exit;
+  if treeInspect.Selected.isNil then exit;
+  if fProj.isNil then exit;
   node := treeInspect.Selected;
   // open file
   if node.Parent = fNodeSources then

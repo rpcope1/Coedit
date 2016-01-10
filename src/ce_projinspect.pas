@@ -150,7 +150,7 @@ end;
 
 procedure TCEProjectInspectWidget.projClosing(aProject: ICECommonProject);
 begin
-  if fProject = nil then exit;
+  if fProject.isNil then exit;
   if fProject <> aProject.getProject then
     exit;
   fProject := nil;
@@ -174,7 +174,7 @@ end;
 
 procedure TCEProjectInspectWidget.projChanged(aProject: ICECommonProject);
 begin
-  if fProject = nil then exit;
+  if fProject.isNil then exit;
   if fProject <> aProject.getProject then
     exit;
   if Visible then beginDelayedUpdate;
@@ -195,9 +195,7 @@ end;
 procedure TCEProjectInspectWidget.TreeSelectionChanged(Sender: TObject);
 begin
   actUpdate(sender);
-  if fProject = nil then
-    exit;
-  if Tree.Selected = nil then
+  if fProject.isNil or Tree.Selected.isNil then
     exit;
   if (Tree.Selected.Parent = fFileNode) then
     fLastFileOrFolder := expandFilenameEx(fProject.basePath,tree.Selected.Text)
@@ -210,8 +208,8 @@ var
   fname: string;
   i: NativeInt;
 begin
-  if fProject = nil then exit;
-  if Tree.Selected = nil then exit;
+  if fProject.isNil or Tree.Selected.isNil then
+    exit;
   //
   if (Tree.Selected.Parent = fFileNode) or (Tree.Selected.Parent = fXtraNode) then
   begin
@@ -234,14 +232,14 @@ procedure TCEProjectInspectWidget.actUpdate(sender: TObject);
 begin
   fActSelConf.Enabled := false;
   fActOpenFile.Enabled := false;
-  if Tree.Selected = nil then exit;
+  if Tree.Selected.isNil then exit;
   fActSelConf.Enabled := Tree.Selected.Parent = fConfNode;
   fActOpenFile.Enabled := Tree.Selected.Parent = fFileNode;
 end;
 
 procedure TCEProjectInspectWidget.btnAddFileClick(Sender: TObject);
 begin
-  if fProject = nil then exit;
+  if fProject.isNil then exit;
   //
   with TOpenDialog.Create(nil) do
   try
@@ -267,7 +265,7 @@ var
   lst: TStringList;
   i: NativeInt;
 begin
-  if fProject = nil then exit;
+  if fProject.isNil then exit;
   //
   dir := '';
   if FileExists(fLastFileOrFolder) then
@@ -300,8 +298,8 @@ var
   dir, fname: string;
   i: Integer;
 begin
-  if fProject = nil then exit;
-  if Tree.Selected = nil then exit;
+  if fProject.isNil or Tree.Selected.isNil then
+    exit;
   if Tree.Selected.Parent <> fFileNode then exit;
   //
   fname := Tree.Selected.Text;
@@ -323,8 +321,8 @@ var
   fname: string;
   i: NativeInt;
 begin
-  if fProject = nil then exit;
-  if Tree.Selected = nil then exit;
+  if fProject.isNil or Tree.Selected.isNil then
+    exit;
   //
   if Tree.Selected.Parent = fFileNode then
   begin
@@ -355,7 +353,7 @@ var
   fname, direntry: string;
   lst: TStringList;
 begin
-  if fProject = nil then exit;
+  if fProject.isNil then exit;
   lst := TStringList.Create;
   fProject.beginUpdate;
   try for fname in Filenames do
@@ -392,7 +390,7 @@ begin
   fInclNode.DeleteChildren;
   fXtraNode.DeleteChildren;
   //
-  if not assigned(fProject) then
+  if fProject.isNil then
     exit;
   //
   Tree.BeginUpdate;

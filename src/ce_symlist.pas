@@ -458,8 +458,8 @@ end;
 
 procedure TCESymbolListWidget.actCopyIdentExecute(Sender: TObject);
 begin
-  if Tree.Selected = nil then exit;
-  Clipboard.AsText:= Tree.Selected.Text;
+  if Tree.Selected.isNotNil then
+    Clipboard.AsText:= Tree.Selected.Text;
 end;
 {$ENDREGION}
 
@@ -551,7 +551,7 @@ end;
 
 procedure TCESymbolListWidget.updateVisibleCat;
 begin
-  if (fDoc <> nil) then
+  if fDoc.isNotNil then
   begin
     ndAlias.Visible := ndAlias.Count > 0;
     ndClass.Visible := ndClass.Count > 0;
@@ -614,7 +614,7 @@ begin
   //
   if TreeFilterEdit1.Filter <> '' then
     tree.FullExpand
-  else if tree.Selected = nil then
+  else if tree.Selected.isNil then
     tree.FullCollapse
   else tree.MakeSelectionVisible;
   result := false;
@@ -636,9 +636,9 @@ procedure TCESymbolListWidget.TreeDblClick(Sender: TObject);
 var
   line: NativeUint;
 begin
-  if fDoc = nil then exit;
-  if Tree.Selected = nil then exit;
-  if Tree.Selected.Data = nil then exit;
+  if fDoc.isNil then exit;
+  if Tree.Selected.isNil then exit;
+  if Tree.Selected.Data.isNil then exit;
   //
   {$HINTS OFF}
   line := NativeUInt(Tree.Selected.Data);
@@ -658,7 +658,7 @@ var
   str: string;
 begin
   if not fHasToolExe then exit;
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   if fDoc.Lines.Count = 0 then exit;
   if not fDoc.isDSource then exit;
   //
@@ -682,12 +682,13 @@ function getCatNode(node: TTreeNode; stype: TSymbolType ): TTreeNode;
   function newCat(const aCat: string): TTreeNode;
   begin
     result := node.FindNode(aCat);
-    if result = nil then result := node.TreeNodes.AddChild(node, aCat);
+    if result.isNil then
+      result := node.TreeNodes.AddChild(node, aCat);
   end;
   //
 begin
   result := nil;
-  if node = nil then case stype of
+  if node.isNil then case stype of
     _alias    : exit(ndAlias);
     _class    : exit(ndClass);
     _enum     : exit(ndEnum);
@@ -738,10 +739,10 @@ var
   i: Integer;
   flt: string;
 begin
-  if ndAlias = nil then exit;
+  if ndAlias.isNil then exit;
   clearTree;
   updateVisibleCat;
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   //
   fToolProc.OnTerminate := nil;
   fToolProc.OnReadData  := nil;
@@ -786,9 +787,9 @@ var
   begin
     for i := 0 to root.Count-1 do
     begin
-      if root.Items[i].Data = nil then
+      if root.Items[i].Data.isNil then
         continue;
-      if root.Items[i].Parent = nil then
+      if root.Items[i].Parent.isNil then
         continue;
       case root.Items[i].Parent.Text of
         'Alias', 'Enum', 'Import', 'Variable':
@@ -808,12 +809,12 @@ var
   end;
 
 begin
-  if not assigned(fDoc) then exit;
+  if fDoc.isNil then exit;
   //
   target := fDoc.CaretY;
   for i := 0 to tree.Items.Count-1 do
     look(tree.Items[i]);
-  if assigned(toExpand) then
+  if toExpand.isNotNil then
   begin
     tree.Selected := toExpand;
     toExpand.MakeVisible;

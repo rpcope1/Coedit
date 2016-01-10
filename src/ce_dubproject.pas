@@ -203,6 +203,8 @@ begin
     //
     FreeAndNil(fJSON);
     parser := TJSONParser.Create(loader, true);
+    //TODO-cDUB: uses parser.options to allow trailing comma (from FPC 3.02)
+    // http://bugs.freepascal.org/view.php?id=29357
     try
       try
         fJSON := parser.Parse as TJSONObject;
@@ -446,7 +448,7 @@ begin
   if fConfigIx = 0 then exit;
   //
   item := fJSON.Find('configurations');
-  if not assigned(item) then exit;
+  if item.isNil then exit;
   //
   confs := TJSONArray(item);
   if fConfigIx > confs.Count -1 then exit;
@@ -461,7 +463,7 @@ begin
   if not assigned(fJSON) then
     exit;
   value := fJSON.Find('name');
-  if not assigned(value) then fPackageName := ''
+  if value.isNil then fPackageName := ''
   else fPackageName := value.AsString;
 end;
 
@@ -476,7 +478,7 @@ var
 begin
   fBuildTypes.Clear;
   fConfigs.Clear;
-  if not assigned(fJSON) then
+  if fJSON.isNil then
     exit;
   // the CE interface for dub doesn't make the difference between build type
   //and config, instead each possible combination type + build is generated.
@@ -486,7 +488,7 @@ begin
     for i:= 0 to arr.Count-1 do
     begin
       item := TJSONObject(arr.Items[i]);
-      if item.Find('name') = nil then
+      if item.Find('name').isNil then
         continue;
       fConfigs.Add(item.Strings['name']);
     end;
@@ -499,7 +501,7 @@ begin
 
   fBuildTypes.AddStrings(DubBuiltTypeName);
   dat := fJSON.Find('buildTypes');
-  if  assigned(dat) and (dat.JSONType = jtObject) then
+  if dat.isNotNil and (dat.JSONType = jtObject) then
   begin
     obj := fJSON.Objects['buildTypes'];
     for i := 0 to obj.Count-1 do
@@ -526,7 +528,7 @@ var
   i: integer;
 begin
   item := from.Find('excludedSourceFiles');
-  if assigned(item) and (item.JSONType = jtArray) then
+  if item.isNotNil and (item.JSONType = jtArray) then
   begin
     arr := TJSONArray(item);
     for i := 0 to arr.Count-1 do
@@ -556,13 +558,13 @@ begin
   try
     // auto folders & files
     item := fJSON.Find('mainSourceFile');
-    if assigned(item) then
+    if item.isNotNil then
       fSrcs.Add(patchPlateformPath(ExtractRelativepath(fBasePath, item.AsString)));
     tryAddFromFolder(fBasePath + 'src');
     tryAddFromFolder(fBasePath + 'source');
     // custom folders
     item := fJSON.Find('sourcePaths');
-    if assigned(item) then
+    if item.isNotNil then
     begin
       arr := TJSONArray(item);
       for i := 0 to arr.Count-1 do
@@ -576,21 +578,21 @@ begin
     end;
     // custom files
     item := fJSON.Find('sourceFiles');
-    if assigned(item) then
+    if item.isNotNil then
     begin
       arr := TJSONArray(item);
       for i := 0 to arr.Count-1 do
         fSrcs.Add(patchPlateformPath(ExtractRelativepath(fBasePath, arr.Strings[i])));
     end;
     conf := getCurrentCustomConfig;
-    if assigned(conf) then
+    if conf.isNotNil then
     begin
       item := conf.Find('mainSourceFile');
-      if assigned(item) then
+      if item.isNotNil then
         fSrcs.Add(patchPlateformPath(ExtractRelativepath(fBasePath, item.AsString)));
       // custom folders in current config
       item := conf.Find('sourcePaths');
-      if assigned(item) then
+      if item.isNotNil then
       begin
         arr := TJSONArray(item);
         for i := 0 to arr.Count-1 do
@@ -604,7 +606,7 @@ begin
       end;
       // custom files in current config
       item := conf.Find('sourceFiles');
-      if assigned(item) then
+      if item.isNotNil then
       begin
         arr := TJSONArray(item);
         for i := 0 to arr.Count-1 do
@@ -616,7 +618,7 @@ begin
     lst.Clear;
     getExclusion(fJSON);
     conf := getCurrentCustomConfig;
-    if assigned(conf) then
+    if conf.isNotNil then
       getExclusion(conf);
     for i := fSrcs.Count-1 downto 0 do
       for j := 0 to lst.Count-1 do
@@ -633,13 +635,13 @@ var
   tt: TJSONData;
 begin
   result := true;
-  if value.Find('mainSourceFile') <> nil then
+  if value.Find('mainSourceFile').isNotNil then
   begin
     fBinKind := executable;
     exit;
   end;
   tt := value.Find('targetType');
-  if tt <> nil then
+  if tt.isNotNil then
   begin
     case tt.AsString of
       'executable': fBinKind := executable;
@@ -658,11 +660,11 @@ var
   src: string;
 begin
   fBinKind := executable;
-  if not assigned(fJSON) then exit;
+  if fJSON.isNil then exit;
   // note: in Coedit this is only used to known if output can be launched
   found := findTargetKindInd(fJSON);
   conf := getCurrentCustomConfig;
-  if assigned(conf) then
+  if conf.isNotNil then
     found := found or findTargetKindInd(conf);
   if not found then
   begin
@@ -700,11 +702,11 @@ procedure TCEDubProject.updateImportPathsFromJson;
 var
   conf: TJSONObject;
 begin
-  if not assigned(fJSON) then exit;
+  if fJSON.isNil then exit;
   //
   addFrom(fJSON);
   conf := getCurrentCustomConfig;
-  if assigned(conf) then addFrom(conf);
+  if conf.isNotNil then addFrom(conf);
 end;
 
 procedure TCEDubProject.updateOutputNameFromJson;
@@ -718,20 +720,20 @@ var
   begin
     p := obj.Find('targetPath');
     n := obj.Find('targetName');
-    if assigned(p) then pathPart := p.AsString;
-    if assigned(n) then namePart := n.AsString;
+    if p.isNotNil then pathPart := p.AsString;
+    if n.isNotNil then namePart := n.AsString;
   end;
 begin
   fOutputFileName := '';
-  if not assigned(fJSON) then exit;
+  if fJSON.isNil then exit;
   item := fJSON.Find('name');
-  if not assigned(item) then
-    exit;
+  if item.isNil then exit;
+
   namePart := item.AsString;
   pathPart := fBasePath;
   setFrom(fJSON);
   conf := getCurrentCustomConfig;
-  if assigned(conf) then
+  if conf.isNotNil then
     setFrom(conf);
   pathPart := TrimRightSet(pathPart, ['/','\']);
   {$IFDEF WINDOWS}
@@ -799,7 +801,7 @@ begin
       maybe.loadFromFile(filename);
       if (maybe.json = nil) or (maybe.filename = '') then
         result := false
-      else if maybe.json.Find('name') = nil then
+      else if maybe.json.Find('name').isNil then
         result := false;
     except
       result := false;

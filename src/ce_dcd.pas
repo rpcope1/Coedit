@@ -95,7 +95,7 @@ begin
   fTempLines := TStringList.Create;
   fImportCache := TStringList.Create;
 
-  if (fServer <> nil) then
+  if fServer.isNotNil then
     fServer.Execute;
   updateServerlistening;
   //
@@ -111,10 +111,11 @@ destructor TCEDcdWrapper.destroy;
 begin
   EntitiesConnector.removeObserver(self);
   fImportCache.Free;
-  if fTempLines <> nil then
+  if fTempLines.isNotNil then
     fTempLines.Free;
-  if fServer <> nil then begin
-    if not fServerWasRunning then killServer;
+  if fServer.isNotNil then begin
+    if not fServerWasRunning then
+      killServer;
     fServer.Free;
   end;
   fClient.Free;

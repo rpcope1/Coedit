@@ -271,7 +271,7 @@ procedure TCESynMemoCache.writeBreakpoints(str: TStream);
 var
   i: integer;
 begin
-  if fMemo = nil then exit;
+  if fMemo.isNil then exit;
   {$HINTS OFF}
   for i:= 0 to fMemo.fBreakPoints.Count-1 do
     str.Write(PtrUint(fMemo.fBreakPoints.Items[i]), sizeOf(PtrUint));
@@ -283,7 +283,7 @@ var
   i, cnt: integer;
   line: ptrUint = 0;
 begin
-  if fMemo = nil then exit;
+  if fMemo.isNil then exit;
   cnt := str.Size div sizeOf(PtrUint);
   for i := 0 to cnt-1 do
   begin
@@ -297,7 +297,7 @@ var
   i, start, prev: Integer;
   itm : TCEFoldCache;
 begin
-  if fMemo = nil then exit;
+  if fMemo.isNil then exit;
   //
   fCaretPosition := fMemo.SelStart;
   fSourceFilename := fMemo.fileName;
@@ -329,7 +329,7 @@ var
   i: integer;
   itm : TCEFoldCache;
 begin
-  if fMemo = nil then exit;
+  if fMemo.isNil then exit;
   //
   if fFontSize > 0 then
     fMemo.Font.Size := fFontSize;
@@ -762,13 +762,13 @@ end;
 {$REGION DDoc & CallTip --------------------------------------------------------}
 procedure TCESynMemo.InitHintWins;
 begin
-  if fCallTipWin = nil then
+  if fCallTipWin.isNil then
   begin
     fCallTipWin := TCEEditorHintWindow.Create(self);
     fCallTipWin.Color := clInfoBk + $01010100;
     fCallTipWin.Font.Color:= clInfoText;
   end;
-  if fDDocWin = nil then
+  if fDDocWin.isNil then
   begin
     fDDocWin := TCEEditorHintWindow.Create(self);
     fDDocWin.Color := clInfoBk + $01010100;
@@ -1247,7 +1247,7 @@ procedure TCESynMemo.removeBreakPoint(line: integer);
 begin
   if not findBreakPoint(line) then
     exit;
-  if (marks.Line[line] <> nil) and (marks.Line[line].Count > 0) then
+  if marks.Line[line].isNotNil and (marks.Line[line].Count > 0) then
     marks.Line[line].Clear(true);
   {$WARNINGS OFF}
   fBreakPoints.Remove(pointer(line));

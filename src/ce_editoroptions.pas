@@ -644,9 +644,7 @@ begin
     end;
   end;
 end;
-
 {$ENDREGION}
-
 
 initialization
   EditorOptions := TCEEditorOptions.Create(nil);

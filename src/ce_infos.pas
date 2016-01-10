@@ -112,7 +112,7 @@ procedure TToolInfo.refreshStatus;
 var
   pth: string;
 begin
-  if (fLabel = nil) or (fStatus = nil) then exit;
+  if fLabel.isNil or fStatus.isNil then exit;
   //
   fLabel.Caption:= fToolName;
   case fKind of

@@ -97,7 +97,7 @@ var
   ed: ICEEditableOptions;
   sel: string = '';
 begin
-  if selCat.Selected <> nil then
+  if selCat.Selected.isNotNil then
     sel := selCat.Selected.Text;
   fUpdatingCat := true;
   inspector.TIObject := nil;
@@ -127,7 +127,7 @@ end;
 
 procedure TCEOptionEditorWidget.selCatDeletion(Sender: TObject; Node: TTreeNode);
 begin
-  if node.Data <> nil then
+  if node.Data.isNotNil then
     Dispose(PCategoryData(node.Data));
 end;
 
@@ -138,8 +138,8 @@ begin
   result := true;
   if fUpdatingCat then exit;
   if csDestroying in ComponentState then exit;
-  if selCat.Selected = nil then exit;
-  if selCat.Selected.Data = nil then exit;
+  if selCat.Selected.isNil then exit;
+  if selCat.Selected.Data.isNil then exit;
   // accept/cancel is relative to a single category
   dt := PCategoryData(selCat.Selected.Data);
   // generic editor, changes are tracked directly here
@@ -155,7 +155,7 @@ begin
   end else
   begin
     dt := PCategoryData(selCat.Selected.Data);
-    if dt^.container = nil then exit;
+    if dt^.container.isNil then exit;
     if dt^.observer = nil then exit;
     if dt^.observer.optionedOptionsModified() then
     begin
@@ -180,11 +180,11 @@ begin
   if pnlEd.ControlCount > 0 then
     pnlEd.Controls[0].Parent := nil;
   //
-  if selCat.Selected = nil then exit;
-  if selCat.Selected.Data = nil then exit;
+  if selCat.Selected.isNil then exit;
+  if selCat.Selected.Data.isNil then exit;
   //
   dt := PCategoryData(selCat.Selected.Data);
-  if dt^.container = nil then exit;
+  if dt^.container.isNil then exit;
   case dt^.kind of
     oekControl:
       begin
@@ -213,8 +213,8 @@ end;
 
 procedure TCEOptionEditorWidget.inspectorModified(Sender: TObject);
 begin
-  if selCat.Selected = nil then exit;
-  if selcat.Selected.Data = nil then exit;
+  if selCat.Selected.isNil then exit;
+  if selcat.Selected.Data.isNil then exit;
   //
   fCatChanged := true;
   PCategoryData(selCat.Selected.Data)^
@@ -224,11 +224,11 @@ end;
 
 procedure TCEOptionEditorWidget.btnCancelClick(Sender: TObject);
 begin
-  if selCat.Selected = nil then exit;
-  if selcat.Selected.Data = nil then exit;
+  if selCat.Selected.isNil then exit;
+  if selcat.Selected.Data.isNil then exit;
   //
   fCatChanged := false;
-  if inspector.Parent <> nil then
+  if inspector.Parent.isNotNil then
     inspector.ItemIndex := -1;
   PCategoryData(selCat.Selected.Data)^
     .observer
@@ -263,11 +263,11 @@ end;
 
 procedure TCEOptionEditorWidget.btnAcceptClick(Sender: TObject);
 begin
-  if selCat.Selected = nil then exit;
-  if selcat.Selected.Data = nil then exit;
+  if selCat.Selected.isNil then exit;
+  if selcat.Selected.Data.isNil then exit;
   //
   fCatChanged := false;
-  if inspector.Parent <> nil then
+  if inspector.Parent.isNotNil then
     inspector.ItemIndex := -1;
   PCategoryData(selCat.Selected.Data)^
     .observer

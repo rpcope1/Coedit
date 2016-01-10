@@ -691,7 +691,7 @@ begin
   result := false;
   config := currentConfiguration;
   msgs := getMessageDisplay;
-  if config = nil then
+  if config.isNil then
   begin
     msgs.message('unexpected project error: no active configuration',
       self as ICECommonProject, amcProj, amkErr);
