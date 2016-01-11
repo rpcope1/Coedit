@@ -796,7 +796,7 @@ begin
     i -= 1;
   end;
   DcdWrapper.getCallTip(str);
-  if str <> '' then
+  if str.isNotEmpty then
   begin
     pnt := ClientToScreen(point(CaretXPix, CaretYPix));
     fCallTipWin.FontSize := Font.Size;
@@ -818,7 +818,7 @@ begin
   fCanShowHint := false;
   DcdWrapper.getDdocFromCursor(str);
   //
-  if str <> '' then
+  if str.isNotEmpty then
   begin
     fDDocWin.FontSize := Font.Size;
     fDDocWin.HintRect := fDDocWin.CalcHintRect(0, str, nil);
@@ -885,7 +885,7 @@ var
   len: Integer;
 begin
   // empty items can be produced if completion list is too long
-  if aKey = '' then exit(true);
+  if aKey.isEmpty then exit(true);
   // otherwise always at least 20 chars but...
   // ... '20' depends on ce_dcd, case knd of, string literals length
   result := true;

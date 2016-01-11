@@ -392,7 +392,7 @@ begin
   if i = 0 then
     updateServerlistening;
   setLength(str, i);
-  if str <> '' then
+  if str.isNotEmpty then
   begin
     i := Pos(#9, str);
     if i = -1 then

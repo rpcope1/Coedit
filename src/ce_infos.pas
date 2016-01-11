@@ -119,7 +119,7 @@ begin
     tikFindable:
     begin
       pth := exeFullName(fToolName + exeExt);
-      if pth = '' then
+      if pth.isEmpty then
       begin
         fStatus.Caption:= ' the tool cannot be found';
         AssignPng(fIco, 'bullet_red');
@@ -133,7 +133,7 @@ begin
     tikOptional:
     begin
       pth := exeFullName(fToolName + exeExt);
-      if pth = '' then
+      if pth.isEmpty then
       begin
         fStatus.Caption:= ' the tool cannot be found';
         AssignPng(fIco, 'bullet_yellow');
@@ -147,7 +147,7 @@ begin
     tikRunning:
     begin
       pth := exeFullName(fToolName + exeExt);
-      if pth = '' then
+      if pth.isEmpty then
       begin
         fStatus.Caption:= ' the tool cannot be found';
         AssignPng(fIco, 'bullet_red');

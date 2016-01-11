@@ -421,7 +421,7 @@ begin
   // display Imports (-J)
   for str in FProject.currentConfiguration.pathsOptions.importStringPaths do
   begin
-    if str = '' then
+    if str.isEmpty then
       continue;
     fold := expandFilenameEx(fProject.basePath, str);
     fold := symbolExpander.get(fold);
@@ -433,7 +433,7 @@ begin
   // display Includes (-I)
   for str in FProject.currentConfiguration.pathsOptions.importModulePaths do
   begin
-    if str = '' then
+    if str.isEmpty then
       continue;
     fold := expandFilenameEx(fProject.basePath, str);
     fold := symbolExpander.get(fold);
@@ -445,7 +445,7 @@ begin
   // display extra sources (external .lib, *.a, *.d)
   for str in FProject.currentConfiguration.pathsOptions.extraSources do
   begin
-    if str = '' then
+    if str.isEmpty then
       continue;
     src := expandFilenameEx(fProject.basePath, str);
     src := symbolExpander.get(src);

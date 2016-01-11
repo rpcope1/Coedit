@@ -259,7 +259,7 @@ begin
       prj.loadFromFile(pth + DirectorySeparator + 'dub.json')
     else if FileExists(pth + DirectorySeparator + 'package.json') then
       prj.loadFromFile(pth + DirectorySeparator + 'package.json');
-    if (prj.filename <> '') and (prj.binaryKind = staticlib) then
+    if prj.filename.isNotEmpty and (prj.binaryKind = staticlib) then
     begin
       str := TStringList.Create;
       try
@@ -368,7 +368,7 @@ begin
       root := commonFolder(str);
       root := ExtractFileDir(root);
     end;
-    if root = '' then
+    if root.isEmpty then
     begin
       dlgOkInfo('the static library can not be registered because its source files have no common folder');
       exit;
@@ -443,7 +443,7 @@ begin
         else
         begin
           List.Selected.SubItems[0] := filename;
-          if (List.Selected.Caption = '') or (List.Selected.Caption = notav) then
+          if (List.Selected.Caption.isEmpty) or (List.Selected.Caption = notav) then
             List.Selected.Caption := ChangeFileExt(extractFileName(filename), '');
         end;
       end;

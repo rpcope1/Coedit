@@ -209,7 +209,7 @@ begin
   begin
     prm := '';
     if InputQuery('Parameters', '', prm) then
-      if prm <> '' then fProcess.Parameters.AddText(symbolExpander.get(prm));
+      if prm.isNotEmpty then fProcess.Parameters.AddText(symbolExpander.get(prm));
   end;
   ensureNoPipeIfWait(fProcess);
   //
@@ -234,7 +234,7 @@ var
   str: string;
   nxt: TCEToolItem;
 begin
-  if ((not fOutputToNext) or (fNextToolAlias = '')) and (poUsePipes in options) then
+  if ((not fOutputToNext) or fNextToolAlias.isEmpty) and (poUsePipes in options) then
   begin
     getMessageDisplay(fMsgs);
     lst := TStringList.Create;
@@ -246,7 +246,7 @@ begin
       lst.Free;
     end;
   end;
-  if (not fProcess.Running) and (fNextToolAlias <> '') then
+  if (not fProcess.Running) and fNextToolAlias.isNotEmpty then
   begin
     nxt := fToolItems.findTool(fNextToolAlias);
     if nxt.isNotNil then nxt.execute(self);

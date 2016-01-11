@@ -3,6 +3,7 @@ inherited CETodoListWidget: TCETodoListWidget
   Height = 337
   Top = 196
   Width = 584
+  ActiveControl = btnRefresh
   Caption = 'Todo list'
   ClientHeight = 337
   ClientWidth = 584

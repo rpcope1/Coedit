@@ -463,11 +463,11 @@ end;
 
 procedure TCESearchWidget.updateImperative;
 begin
-  btnFind.Enabled := fDoc.isNotNil and (fToFind <> '');
-  btnFindAll.Enabled := fDoc.isNotNil and (fToFind <> '');
-  btnReplace.Enabled := fDoc.isNotNil and (chkEnableRep.Checked) and (fToFind <> '');
+  btnFind.Enabled := fDoc.isNotNil and fToFind.isNotEmpty;
+  btnFindAll.Enabled := fDoc.isNotNil and fToFind.isNotEmpty;
+  btnReplace.Enabled := fDoc.isNotNil and chkEnableRep.Checked and fToFind.isNotEmpty;
   btnReplaceAll.Enabled := btnReplace.Enabled;
-  cbReplaceWth.Enabled := fDoc.isNotNil and (chkEnableRep.Checked);
+  cbReplaceWth.Enabled := fDoc.isNotNil and chkEnableRep.Checked;
   cbToFind.Enabled := fDoc.isNotNil;
 end;
 {$ENDREGION}

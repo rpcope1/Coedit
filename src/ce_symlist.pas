@@ -603,7 +603,7 @@ end;
 
 procedure TCESymbolListWidget.TreeFilterEdit1AfterFilter(Sender: TObject);
 begin
-  if TreeFilterEdit1.Filter = '' then
+  if TreeFilterEdit1.Filter.isEmpty then
     updateVisibleCat;
 end;
 
@@ -612,7 +612,7 @@ function TCESymbolListWidget.TreeFilterEdit1FilterItem(Item: TObject; out
 begin
   if not fSmartFilter then exit(false);
   //
-  if TreeFilterEdit1.Filter <> '' then
+  if TreeFilterEdit1.Filter.isNotEmpty then
     tree.FullExpand
   else if tree.Selected.isNil then
     tree.FullCollapse
@@ -769,7 +769,7 @@ begin
   if fSmartExpander then
     smartExpand;
   tree.EndUpdate;
-  if flt <> '' then
+  if flt.isNotEmpty then
     TreeFilterEdit1.Text := flt;
 end;
 

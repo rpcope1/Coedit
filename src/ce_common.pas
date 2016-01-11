@@ -48,6 +48,11 @@ type
     function isNotNil: boolean;
   end;
 
+  TStringHelper = type helper for string
+    function isEmpty: boolean;
+    function isNotEmpty: boolean;
+  end;
+
   (**
    * Workaround for a TAsyncProcess Linux issue: OnTerminate event not called.
    * An idle timer is started when executing and trigs the event if necessary.
@@ -314,6 +319,16 @@ end;
 function TPointerHelper.isNotNil: boolean;
 begin
   exit(self <> nil);
+end;
+
+function TStringHelper.isEmpty: boolean;
+begin
+  exit(self = '');
+end;
+
+function TStringHelper.isNotEmpty: boolean;
+begin
+  exit(self <> '');
 end;
 
 {$IFDEF LINUX}
@@ -653,7 +668,7 @@ var
   files: TStringList;
 begin
   result := false;
-  if aPath = '' then
+  if aPath.isEmpty then
     exit;
   //
   if aPath[length(aPath)] = '*' then
@@ -759,7 +774,7 @@ var
   env: string;
 begin
   ext := extractFileExt(anExeName);
-  if ext = '' then
+  if ext.isEmpty then
     anExeName += exeExt;
   //full path already specified
   if FileExists(anExeName) and (not FileExists(ExtractFileName(anExeName))) then
@@ -1083,7 +1098,7 @@ end;
 function isStringDisabled(const str: string): boolean;
 begin
   result := false;
-  if str = '' then
+  if str.isEmpty then
     exit;
   if str[1] = ';' then
     result := true;

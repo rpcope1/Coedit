@@ -554,7 +554,7 @@ begin
     itf := TCEMainForm(aDestination).fProjectInterface;
     if (itf <> nil) and (itf.filename = fProject) then
       exit;
-    if fProject <> '' then if FileExists(fProject) then
+    if fProject.isNotEmpty and FileExists(fProject) then
       TCEMainForm(aDestination).openProj(fProject);
   end else
     inherited;
@@ -740,14 +740,14 @@ begin
   if application.ParamCount > 0 then
   begin
     value := application.Params[1];
-    if value <> '' then
+    if value.isNotEmpty then
     begin
       lst := TStringList.Create;
       try
         lst.DelimitedText := value;
         for value in lst do
         begin
-          if value = '' then continue;
+          if value.isEmpty then continue;
           if isEditable(ExtractFileExt(value)) then
             openFile(value)
           else if isValidNativeProject(value) or isValidDubProject(value) then
@@ -764,10 +764,10 @@ begin
     end;
   end;
   value := application.GetOptionValue('p', 'project');
-  if (value <> '') and fileExists(value) then
+  if value.isNotEmpty and fileExists(value) then
     openProj(value);
   value := application.GetOptionValue('f', 'files');
-  if value <> '' then
+  if value.isNotEmpty then
   begin
     lst := TStringList.Create;
     try
@@ -1790,9 +1790,9 @@ begin
     RemoveTrailingChars(cur, [#0..#30]);
     fRunnableSw += (cur + #13);
   end;
-  if (fRunnableSw <> '') and (fRunnableSw[length(fRunnableSw)] = #13) then
+  if fRunnableSw.isNotEmpty and (fRunnableSw[length(fRunnableSw)] = #13) then
     fRunnableSw := fRunnableSw[1..length(fRunnableSw)-1];
-  if fRunnableSw = '' then
+  if fRunnableSw.isEmpty then
     fRunnableSw := '-vcolumns'#13'-w'#13'-wi';
   //
   form.Free;
@@ -1846,7 +1846,7 @@ begin
     else fDoc.saveTempFile;
     fname := stripFileExt(fDoc.fileName);
 
-    if fRunnableSw = '' then
+    if fRunnableSw.isEmpty then
       fRunnableSw := '-vcolumns'#13'-w'#13'-wi';
     {$IFDEF RELEASE}
     dmdProc.ShowWindow := swoHIDE;
@@ -1879,7 +1879,7 @@ begin
       fMsgs.message(shortenPath(fDoc.fileName, 25) + ' successfully compiled',
         fDoc, amcEdit, amkInf);
       fRunProc.CurrentDirectory := extractFileDir(fRunProc.Executable);
-      if runArgs <> '' then
+      if runArgs.isNotEmpty then
       begin
         extraArgs.Clear;
         CommandToList(symbolExpander.get(runArgs), extraArgs);
@@ -2249,7 +2249,7 @@ end;
 procedure TCEMainForm.actProjSaveExecute(Sender: TObject);
 begin
   if fProjectInterface = nil then exit;
-  if fProjectInterface.filename <> '' then saveProj
+  if fProjectInterface.filename.isNotEmpty then saveProj
   else actProjSaveAs.Execute;
 end;
 

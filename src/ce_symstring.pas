@@ -175,7 +175,7 @@ begin
       fDoc.saveTempFile;
     fSymbols[CFF] := fDoc.fileName;
     fSymbols[CFP] := ExtractFilePath(fDoc.fileName);
-    if fDoc.Identifier <> '' then
+    if fDoc.Identifier.isNotEmpty then
       fSymbols[CI] := fDoc.Identifier;
   end;
   // project interface
@@ -212,7 +212,7 @@ begin
     if fileExists(fProj.fileName) then
     begin
       fSymbols[CPR] := expandFilenameEx(fProj.basePath, fProj.RootFolder);
-      if fSymbols[CPR] = '' then
+      if fSymbols[CPR].isEmpty then
         fSymbols[CPR] := fSymbols[CPP];
     end;
   end;
@@ -226,7 +226,7 @@ var
   i: integer;
 begin
   Result := '';
-  if symString = '' then
+  if symString.isEmpty then
     exit;
   //
   updateSymbols;

@@ -402,7 +402,7 @@ begin
     if (fConfigs.Count <> 1) and (fConfigs.Strings[0] <> DubDefaultConfigName) then
       dubproc.Parameters.Add('--config=' + fConfigs.Strings[fConfigIx]);
     dubProc.Parameters.Add('--compiler=' + DubCompilerFilename);
-    if run and (runArgs <> '') then
+    if run and runArgs.isNotEmpty then
       dubproc.Parameters.Add('--' + runArgs);
     dubproc.Execute;
     while dubproc.Running do
@@ -799,7 +799,7 @@ begin
   try
     try
       maybe.loadFromFile(filename);
-      if (maybe.json = nil) or (maybe.filename = '') then
+      if maybe.json.isNil or maybe.filename.isEmpty then
         result := false
       else if maybe.json.Find('name').isNil then
         result := false;
@@ -824,7 +824,7 @@ begin
     gdc: DubCompilerFilename := exeFullName('gdc' + exeExt);
     ldc: DubCompilerFilename := exeFullName('ldc2' + exeExt);
   end;
-  if (not fileExists(DubCompilerFilename)) or (DubCompilerFilename = '') then
+  if (not fileExists(DubCompilerFilename)) or DubCompilerFilename.isEmpty then
   begin
     value := dmd;
     DubCompilerFilename:= 'dmd' + exeExt;

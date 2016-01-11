@@ -608,7 +608,7 @@ procedure TCENativeProject.updateOutFilename;
 begin
   fOutputFilename := currentConfiguration.pathsOptions.outputFilename;
   // field is specified
-  if fOutputFilename <> '' then
+  if fOutputFilename.isNotEmpty then
   begin
     fOutputFilename := symbolExpander.get(fOutputFilename);
     fOutputFilename := expandFilenameEx(fBasePath, fOutputFilename);
@@ -652,9 +652,9 @@ var
   i, j: integer;
 begin
   pname := symbolExpander.get(processInfo.executable);
-  if (not exeInSysPath(pname)) and (pname <> '') then
+  if (not exeInSysPath(pname)) and pname.isNotEmpty then
     exit(false)
-  else if (pname = '') then
+  else if pname.isEmpty then
     exit(true);
   //
   process := TProcess.Create(nil);
@@ -666,7 +666,7 @@ begin
       process.Parameters.AddText(symbolExpander.get(process.Parameters.Strings[i]));
     for i:= 0 to j do
       process.Parameters.Delete(0);
-    if process.CurrentDirectory <> '' then
+    if process.CurrentDirectory.isNotEmpty then
       process.CurrentDirectory := symbolExpander.get(process.CurrentDirectory);
     // else cwd is set to project dir in compile()
     ensureNoPipeIfWait(process);
@@ -766,13 +766,13 @@ begin
   //
   fRunner := TCEProcess.Create(nil); // fRunner can use the input process widget.
   currentConfiguration.runOptions.setProcess(fRunner);
-  if runArgs <> '' then
+  if runArgs.isNotEmpty then
   begin
     i := 1;
     repeat
       prm := ExtractDelimited(i, runArgs, [' ']);
       prm := symbolExpander.get(prm);
-      if prm <> '' then
+      if prm.isNotEmpty then
         fRunner.Parameters.AddText(prm);
       Inc(i);
     until prm = '';
@@ -786,7 +786,7 @@ begin
   end;
   //
   fRunner.Executable := outputFilename;
-  if fRunner.CurrentDirectory = '' then
+  if fRunner.CurrentDirectory.isEmpty then
   begin
     fRunnerOldCwd := GetCurrentDir;
     cwd := extractFilePath(fRunner.Executable);
@@ -991,7 +991,7 @@ begin
     ldc: NativeProjectCompilerFilename := exeFullName('ldmd2' + exeExt);
   end;
   if (not fileExists(NativeProjectCompilerFilename))
-    or (NativeProjectCompilerFilename = '') then
+    or NativeProjectCompilerFilename.isEmpty then
   begin
     value := dmd;
     NativeProjectCompilerFilename:= 'dmd' + exeExt;

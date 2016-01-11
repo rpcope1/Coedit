@@ -299,7 +299,7 @@ begin
   begin
     sh := Shortcut(Key, Shift);
     sht := shortCutToText(sh);
-    if sht = '' then
+    if sht.isEmpty then
       exit;
     for i:= 0 to tree.Selected.Parent.Count-1 do
       if i <> tree.Selected.Index then
@@ -369,8 +369,8 @@ var
   prt: TTreeNode;
 begin
   // root category
-  if cat = '' then exit;
-  if idt = '' then exit;
+  if cat.isEmpty or idt.isEmpty then
+    exit;
   prt := findCategory(cat, obs);
   if prt.isNil then
     prt := tree.Items.AddObject(nil, cat, obs);
@@ -413,7 +413,7 @@ begin
   begin
     shc := fShortcuts[i];
     cat := findCategory(shc);
-    if cat = '' then
+    if cat.isEmpty then
       continue;
     if shc.declarator = nil then
       continue;

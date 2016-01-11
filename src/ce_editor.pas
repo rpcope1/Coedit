@@ -443,7 +443,7 @@ begin
         fTokList.Clear;
         fErrList.Clear;
       end;
-      if md = '' then md := extractFileName(fDoc.fileName);
+      if md.isEmpty then md := extractFileName(fDoc.fileName);
       pageControl.currentPage.Caption := md;
     end;
   end;
@@ -480,7 +480,8 @@ begin
     fTokList.Clear;
     fErrList.Clear;
   end;
-  if md = '' then md := extractFileName(fDoc.fileName);
+  if md.isEmpty then
+    md := extractFileName(fDoc.fileName);
   pageControl.currentPage.Caption := md;
 end;
 {$ENDREGION}

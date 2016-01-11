@@ -374,7 +374,7 @@ end;
 
 procedure TCEMessagesWidget.TreeFilterEdit1AfterFilter(Sender: TObject);
 begin
-  fFiltering := TreeFilterEdit1.Filter <> '';
+  fFiltering := TreeFilterEdit1.Filter.isNotEmpty;
   filterMessages(fCtxt);
 end;
 
@@ -786,7 +786,7 @@ begin
     if dat^.demangled then continue;
     dat^.demangled := true;
     str := list.Items.Item[i].Text;
-    if str = '' then continue;
+    if str.isEmpty then continue;
     fToDemangleObjs.add(list.Items.Item[i]);
     fToDemangle.Add(str);
   end;

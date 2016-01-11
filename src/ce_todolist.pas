@@ -493,7 +493,7 @@ begin
     trg.SubItems.Add(src.priority);
     trg.SubItems.Add(shortenPath(src.filename, 25));
     //
-    if flt <> '' then
+    if flt.isNotEmpty then
       if flt <> '(filter)' then
         if not AnsiContainsText(src.Text, flt) then
           if not AnsiContainsText(src.category, flt) then
@@ -505,13 +505,13 @@ begin
                   continue;
                 end;
     //
-    if src.category <> '' then
+    if src.category.isNotEmpty then
       lstItems.Column[1].Visible := True;
-    if src.assignee <> '' then
+    if src.assignee.isNotEmpty then
       lstItems.Column[2].Visible := True;
-    if src.status <> '' then
+    if src.status.isNotEmpty then
       lstItems.Column[3].Visible := True;
-    if src.priority <> '' then
+    if src.priority.isNotEmpty then
       lstItems.Column[4].Visible := True;
   end;
 end;
