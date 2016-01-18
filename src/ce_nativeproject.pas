@@ -228,7 +228,7 @@ begin
 
   fFilename := aValue;
   oldBase := fBasePath;
-  fBasePath := extractFilePath(fFilename);
+  fBasePath := fFilename.extractFilePath;
   //
   for i:= 0 to fSrcs.Count-1 do
   begin
@@ -414,7 +414,7 @@ begin
     begin
       abs := expandFilenameEx(fBasePath, rel);
       if ex_files.IndexOf(abs) = -1 then
-        if ex_folds.IndexOf(ExtractFilePath(abs)) = -1
+        if ex_folds.IndexOf(abs.extractFilePath) = -1
           then aList.Add(abs); // note: process.inc ln 249. double quotes are added if there's a space.
     end;
     // libraries: an asterisk in list selects all the entries
@@ -493,7 +493,7 @@ var
     dirHint := fSrcs.Strings[i];
     while (dirHint[1] = '.') or (dirHint[1] = DirectorySeparator) do
         dirHint := dirHint[2..length(dirHint)];
-    ini := extractFilePath(fFilename);
+    ini := fFilename.extractFilePath;
     if not selectDirectory( format('select the folder (that contains "%s")',[dirHint]), ini, newdir) then
       exit;
     for i := 0 to fSrcs.Count-1 do
@@ -524,11 +524,11 @@ var
       //
       opendlg := TOpenDialog.Create(nil);
       try
-        opendlg.InitialDir := extractFilePath(fFilename);
+        opendlg.InitialDir := fFilename.extractFilePath;
         opendlg.FileName := fSrcs[i];
         if opendlg.execute then
         begin
-          if ExtractFileName(oldsrc) <> ExtractFileName(opendlg.filename) then
+          if oldsrc.extractFileName <> opendlg.filename.extractFileName then
             if dlgOkCancel('the filenames are different, replace the old file ?') <> mrOk then
               continue;
             fSrcs[i] := ExtractRelativepath(fBasePath, opendlg.Filename);
@@ -625,10 +625,10 @@ begin
   else if Sources.Count > 0 then
   begin
     // ideally, main() should be searched for, when project binaryKind is executable
-    fOutputFilename := extractFilename(Sources.Strings[0]);
+    fOutputFilename := Sources.Strings[0].extractFileName;
     fOutputFilename := stripFileExt(fOutputFilename);
-    if FileExists(fileName) then
-      fOutputFilename := extractFilePath(fileName) + fOutputFilename
+    if fileName.fileExists then
+      fOutputFilename := fileName.extractFilePath + fOutputFilename
     else
       fOutputFilename := GetTempDir(false) + fOutputFilename;
     // force extension
@@ -701,7 +701,7 @@ begin
   msgs.clearByData(self as ICECommonProject);
   subjProjCompiling(fProjectSubject, Self);
   //
-  prjpath := extractFilePath(fFileName);
+  prjpath := fFileName.extractFilePath;
   oldCwd := GetCurrentDir;
   SetCurrentDir(prjpath);
   //
@@ -789,7 +789,7 @@ begin
   if fRunner.CurrentDirectory.isEmpty then
   begin
     fRunnerOldCwd := GetCurrentDir;
-    cwd := extractFilePath(fRunner.Executable);
+    cwd := fRunner.Executable.extractFilePath;
     chDir(cwd);
     fRunner.CurrentDirectory := cwd;
   end;

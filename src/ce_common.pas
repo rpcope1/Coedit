@@ -48,9 +48,15 @@ type
     function isNotNil: boolean;
   end;
 
+  // sugar for strings
   TStringHelper = type helper for string
     function isEmpty: boolean;
     function isNotEmpty: boolean;
+    function extractFileName: string;
+    function extractFileExt: string;
+    function extractFilePath: string;
+    function fileExists: boolean;
+    function dirExists: boolean;
   end;
 
   (**
@@ -331,6 +337,31 @@ begin
   exit(self <> '');
 end;
 
+function TStringHelper.extractFileName: string;
+begin
+  exit(sysutils.extractFileName(self));
+end;
+
+function TStringHelper.extractFileExt: string;
+begin
+  exit(sysutils.extractFileExt(self));
+end;
+
+function TStringHelper.extractFilePath: string;
+begin
+  exit(sysutils.extractFilePath(self));
+end;
+
+function TStringHelper.fileExists: boolean;
+begin
+  exit(sysutils.FileExists(self));
+end;
+
+function TStringHelper.dirExists: boolean;
+begin
+  exit(sysutils.DirectoryExists(self));
+end;
+
 {$IFDEF LINUX}
 constructor TCheckedAsyncProcess.Create(aOwner: TComponent);
 begin
@@ -399,7 +430,7 @@ begin
     str1.WriteComponent(aComp);
     str1.Position := 0;
     ObjectBinaryToText(str1,str2);
-    ForceDirectories(ExtractFilePath(aFilename));
+    ForceDirectories(aFilename.extractFilePath);
     str2.SaveToFile(aFilename);
   finally
     str1.Free;
@@ -777,16 +808,16 @@ begin
   if ext.isEmpty then
     anExeName += exeExt;
   //full path already specified
-  if FileExists(anExeName) and (not FileExists(ExtractFileName(anExeName))) then
+  if anExeName.fileExists and (not anExeName.extractFileName.fileExists) then
     exit(anExeName);
   //
   env := sysutils.GetEnvironmentVariable('PATH');
   // maybe in current dir
-  if FileExists(anExeName) then
+  if anExeName.fileExists then
     env += PathSeparator + GetCurrentDir;
   {$IFNDEF CEBUILD}
   if Application <> nil then
-    env += PathSeparator + ExtractFileDir(ExtractFilePath(application.ExeName));
+    env += PathSeparator + ExtractFileDir(application.ExeName.ExtractFilePath);
   {$ENDIF}
   exit(ExeSearch(anExeName, env));
 end;
@@ -950,7 +981,7 @@ begin
   try
     sink.Assign(someFiles);
     for i := sink.Count-1 downto 0 do
-      if (not FileExists(sink.Strings[i])) and (not DirectoryExists(sink.Strings[i])) then
+      if (not sink.Strings[i].fileExists) and (not DirectoryExists(sink.Strings[i])) then
         sink.Delete(i);
     // folders count
     cnt := 256;

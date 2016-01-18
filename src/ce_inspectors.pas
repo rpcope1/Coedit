@@ -189,7 +189,7 @@ begin
   case fType of
     ptFile:
       with TOpenDialog.create(nil) do try
-        InitialDir := ExtractFileName(GetValue);
+        InitialDir := GetValue.extractFileName;
         FileName := GetValue;
         if Execute then SetValue(FileName);
       finally

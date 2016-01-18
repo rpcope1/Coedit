@@ -320,7 +320,7 @@ begin
   lstFiles.BeginUpdate;
   for fname in aList do
   begin
-    itemText := extractFileName(fname);
+    itemText := fname.extractFileName;
     if noFilter or AnsiContainsText(itemText,lstFilter.Filter) then
     begin
       itm := lstFiles.Items.Add;
@@ -484,7 +484,7 @@ begin
     listFolders(lst, PString(aRoot.Data)^ + directorySeparator);
     for fold in lst do
     begin
-      itm := Tree.Items.AddChild(aRoot, extractFileName(fold));
+      itm := Tree.Items.AddChild(aRoot, fold.extractFileName);
       itm.Data := NewStr(fold);
       itm.ImageIndex := 1;
       itm.SelectedIndex := 1;

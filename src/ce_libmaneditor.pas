@@ -438,13 +438,13 @@ begin
       filename := ini;
       if Execute then
       begin
-        if not fileExists(filename) then
-          List.Selected.SubItems[0] := extractFilePath(filename)
+        if not filename.fileExists then
+          List.Selected.SubItems[0] := filename.extractFilePath
         else
         begin
           List.Selected.SubItems[0] := filename;
           if (List.Selected.Caption.isEmpty) or (List.Selected.Caption = notav) then
-            List.Selected.Caption := ChangeFileExt(extractFileName(filename), '');
+            List.Selected.Caption := ChangeFileExt(filename.extractFileName, '');
         end;
       end;
     finally

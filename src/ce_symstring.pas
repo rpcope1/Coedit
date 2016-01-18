@@ -167,14 +167,14 @@ begin
   //
   // application
   fSymbols[CAF] := Application.ExeName;
-  fSymbols[CAP] := ExtractFilePath(fSymbols[CAF]);
+  fSymbols[CAP] := fSymbols[CAF].extractFilePath;
   // document
   if hasDoc then
   begin
     if not fileExists(fDoc.fileName) then
       fDoc.saveTempFile;
     fSymbols[CFF] := fDoc.fileName;
-    fSymbols[CFP] := ExtractFilePath(fDoc.fileName);
+    fSymbols[CFP] := fDoc.fileName.extractFilePath;
     if fDoc.Identifier.isNotEmpty then
       fSymbols[CI] := fDoc.Identifier;
   end;
@@ -183,8 +183,8 @@ begin
   begin
     fname := fProjInterface.filename;
     fSymbols[CPF] := fname;
-    fSymbols[CPP] := ExtractFilePath(fSymbols[CPF]);
-    fSymbols[CPN] := stripFileExt(extractFileName(fSymbols[CPF]));
+    fSymbols[CPP] := fSymbols[CPF].extractFilePath;
+    fSymbols[CPN] := stripFileExt(fSymbols[CPF].extractFileName);
     fSymbols[CPO] := fProjInterface.outputFilename;
     if fProjInterface.sourcesCount <> 0 then
     begin
@@ -193,7 +193,7 @@ begin
         for i := 0 to fProjInterface.sourcesCount-1 do
         begin
           fname := fProjInterface.sourceAbsolute(i);
-          if not isEditable(ExtractFileExt(fname)) then
+          if not isEditable(fname.extractFileExt) then
             continue;
           str.Add(fname);
         end;

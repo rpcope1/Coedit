@@ -243,9 +243,9 @@ begin
   //
   with TOpenDialog.Create(nil) do
   try
-    if FileExists(fLastFileOrFolder) then
-      InitialDir := ExtractFilePath(fLastFileOrFolder)
-    else if DirectoryExists(fLastFileOrFolder) then
+    if fLastFileOrFolder.fileExists then
+      InitialDir := fLastFileOrFolder.extractFilePath
+    else if fLastFileOrFolder.dirExists then
       InitialDir := fLastFileOrFolder;
     filter := DdiagFilter;
     if execute then
@@ -268,12 +268,12 @@ begin
   if fProject.isNil then exit;
   //
   dir := '';
-  if FileExists(fLastFileOrFolder) then
-    dir := extractFilePath(fLastFileOrFolder)
-  else if DirectoryExists(fLastFileOrFolder) then
+  if fLastFileOrFolder.fileExists then
+    dir := fLastFileOrFolder.extractFilePath
+  else if fLastFileOrFolder.dirExists then
     dir := fLastFileOrFolder
-  else if fileExists(fProject.fileName) then
-    dir := extractFilePath(fProject.fileName);
+  else if fProject.fileName.fileExists then
+    dir := fProject.fileName.extractFilePath;
   if selectDirectory('sources', dir, dir, true, 0) then
   begin
     fProject.beginUpdate;
@@ -306,12 +306,12 @@ begin
   i := fProject.Sources.IndexOf(fname);
   if i = -1 then exit;
   fname := fProject.sourceAbsolute(i);
-  dir := extractFilePath(fname);
-  if not DirectoryExists(dir) then exit;
+  dir := fname.extractFilePath;
+  if not dir.dirExists then exit;
   //
   fProject.beginUpdate;
   for i:= fProject.Sources.Count-1 downto 0 do
-    if extractFilePath(fProject.sourceAbsolute(i)) = dir then
+    if fProject.sourceAbsolute(i).extractFilePath = dir then
       fProject.Sources.Delete(i);
   fProject.endUpdate;
 end;

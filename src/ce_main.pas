@@ -1077,9 +1077,8 @@ begin
     getprocInputHandler.addProcess(nil);
   end;
   killProcess(fRunProc);
-  if fileExists(fname) then
-    if ExtractFilePath(fname) = GetTempDir(false) then
-      sysutils.DeleteFile(fname);
+  if fname.fileExists and (fname.extractFilePath = GetTempDir(false)) then
+    sysutils.DeleteFile(fname);
 end;
 
 procedure TCEMainForm.SaveLastDocsAndProj;
@@ -1504,7 +1503,7 @@ begin
   if not fileExists(fProjectInterface.filename) then exit;
   //
   DockMaster.GetAnchorSite(fExplWidg).Show;
-  fExplWidg.expandPath(extractFilePath(fProjectInterface.filename));
+  fExplWidg.expandPath(fProjectInterface.filename.extractFilePath);
 end;
 
 procedure TCEMainForm.actFileNewExecute(Sender: TObject);
@@ -1856,7 +1855,7 @@ begin
     dmdproc.Options := [poUsePipes, poStderrToOutPut];
     dmdproc.Executable := 'dmd';
     dmdproc.Parameters.Add(fDoc.fileName);
-    dmdproc.Parameters.Add('-J' + ExtractFilePath(fDoc.fileName));
+    dmdproc.Parameters.Add('-J' + fDoc.fileName.extractFilePath);
     dmdproc.Parameters.AddText(fRunnableSw);
     CommandToList(firstlineFlags, extraArgs);
     dmdproc.Parameters.AddStrings(extraArgs);
@@ -1934,7 +1933,7 @@ begin
   if not fileExists(fDoc.fileName) then exit;
   //
   DockMaster.GetAnchorSite(fExplWidg).Show;
-  fExplWidg.expandPath(extractFilePath(fDoc.fileName));
+  fExplWidg.expandPath(fDoc.fileName.extractFilePath);
 end;
 
 procedure TCEMainForm.actProjCompileExecute(Sender: TObject);
@@ -2045,7 +2044,7 @@ begin
       DockMaster.GetAnchorSite(fWidgList.widget[i]).Close;
   end;
   //
-  forceDirectory(extractFilePath(aFilename));
+  forceDirectory(aFilename.extractFilePath);
   xcfg := TXMLConfigStorage.Create(aFilename + '.tmp', false);
   try
     DockMaster.SaveLayoutToConfig(xcfg);
@@ -2088,7 +2087,7 @@ begin
     for i := 0 to lst.Count-1 do
     begin
       itm := TMenuItem.Create(self);
-      itm.Caption := extractFileName(lst.Strings[i]);
+      itm.Caption := lst.Strings[i].extractFileName;
       itm.Caption := stripFileExt(itm.Caption);
       itm.OnClick := @layoutMnuItemClick;
       itm.ImageIndex := 32;
@@ -2112,8 +2111,8 @@ begin
   if not InputQuery('New layout name', '', fname) then
     exit;
   //
-  fname := extractFileName(fname);
-  if extractFileExt(fname) <> '.xml' then
+  fname := fname.extractFileName;
+  if fname.extractFileExt <> '.xml' then
     fname += '.xml';
   layoutSaveToFile(getCoeditDocPath + 'layouts' + DirectorySeparator + fname);
   layoutUpdateMenu;
