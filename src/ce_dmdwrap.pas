@@ -71,7 +71,7 @@ type
     fDepHandling : TDepHandling;
     fVerbose: boolean;
     fWarnings: boolean;
-    fWarnEx: boolean;
+    fWarnInfo: boolean;
     fVtls: boolean;
     fQuiet: boolean;
     fVgc: boolean;
@@ -79,7 +79,7 @@ type
     procedure setDepHandling(const aValue: TDepHandling);
     procedure setVerbose(const aValue: boolean);
     procedure setWarnings(const aValue: boolean);
-    procedure setWarnEx(const aValue: boolean);
+    procedure setWarnInfo(const aValue: boolean);
     procedure setVtls(const aValue: boolean);
     procedure setQuiet(const aValue: boolean);
     procedure setVgc(const aValue: boolean);
@@ -88,7 +88,8 @@ type
     property depreciationHandling: TDepHandling read fDepHandling write setDepHandling default warning;
     property verbose: boolean read fVerbose write setVerbose default false;
     property warnings: boolean read fWarnings write setWarnings default true;
-    property additionalWarnings: boolean read fWarnEx write setWarnEx default false;
+    property additionalWarnings: boolean read fWarnInfo write setWarnInfo stored false; deprecated;
+    property warningsAsInfo: boolean read fWarnInfo write setWarnInfo default false;
     property tlsInformations: boolean read fVtls write setVtls default false;
     property quiet: boolean read fQuiet write setQuiet default false;
     property showHiddenAlloc: boolean read fVgc write setVgc default false;
@@ -486,10 +487,10 @@ begin
   if base.isNil then
   begin
     dep := DepStr[fDepHandling];
-    if dep <> '' then aList.Add(dep);
+    if dep.isNotEmpty then aList.Add(dep);
     if fVerbose then aList.Add('-v');
     if fWarnings then aList.Add('-w');
-    if fWarnEx then aList.Add('-wi');
+    if fWarnInfo then aList.Add('-wi');
     if fVtls then aList.Add('-vtls');
     if fQuiet then aList.Add('-quiet');
     if fVgc then aList.Add('-vgc');
@@ -502,7 +503,7 @@ begin
     if dep <> depbase then aList.Add(dep) else aList.Add(depbase);
     if baseopt.fVerbose or fVerbose then aList.Add('-v');
     if baseopt.fWarnings or fWarnings then aList.Add('-w');
-    if baseopt.fWarnEx or fWarnEx then aList.Add('-wi');
+    if baseopt.fWarnInfo or fWarnInfo then aList.Add('-wi');
     if baseopt.fVtls or fVtls then aList.Add('-vtls');
     if baseopt.fQuiet or fQuiet then aList.Add('-quiet');
     if baseopt.fVgc or fVgc then aList.Add('-vgc');
@@ -521,7 +522,7 @@ begin
     fDepHandling := src.fDepHandling;
     fVerbose  := src.fVerbose;
     fWarnings := src.fWarnings;
-    fWarnEx   := src.fWarnEx;
+    fWarnInfo   := src.fWarnInfo;
     fVtls     := src.fVtls;
     fQuiet    := src.fQuiet;
     fVgc      := src.fVgc;
@@ -551,10 +552,10 @@ begin
   doChanged;
 end;
 
-procedure TMsgOpts.setWarnEx(const aValue: boolean);
+procedure TMsgOpts.setWarnInfo(const aValue: boolean);
 begin
-  if fWarnEx = aValue then exit;
-  fWarnEx := aValue;
+  if fWarnInfo = aValue then exit;
+  fWarnInfo := aValue;
   doChanged;
 end;
 
@@ -612,9 +613,9 @@ begin
   if base.isNil then
   begin
     str := binKindStr[fBinKind];
-    if str <> '' then aList.Add(str);
+    if str.isNotEmpty then aList.Add(str);
     str := trgKindStr[fTrgKind];
-    if str <> '' then aList.Add(str);
+    if str.isNotEmpty then aList.Add(str);
     if fUnittest then aList.Add('-unittest');
     if fInline then aList.Add('-inline');
     if fOptimz then aList.Add('-O');
@@ -983,12 +984,12 @@ begin
     str := '';
     if fFname <> '' then str := fFname else
       if baseopt.fFname <> '' then str := baseopt.fFname;
-    if str <> '' then aList.Add('-of' + symbolExpander.get(str));
+    if str.isNotEmpty then aList.Add('-of' + symbolExpander.get(str));
     //
     str := '';
     if fObjDir <> '' then str := fObjDir else
       if baseopt.fObjDir <> '' then str := baseopt.fObjDir;
-    if str <> '' then aList.Add('-od' + symbolExpander.get(str));
+    if str.isNotEmpty then aList.Add('-od' + symbolExpander.get(str));
   end;
 end;
 

@@ -357,6 +357,9 @@ begin
     else if aEditor.GetName = 'addDInformations' then
       aShow := false;
   end;
+  if getGridTarget = fProj.currentConfiguration.messagesOptions then
+    if aEditor.GetName = 'additionalWarnings' then
+      aShow := false;
 end;
 
 function TCEProjectConfigurationWidget.getGridTarget: TPersistent;

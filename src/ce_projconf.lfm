@@ -103,7 +103,7 @@ inherited CEProjectConfigurationWidget: TCEProjectConfigurationWidget
           Width = 160
           Align = alLeft
           AutoExpand = True
-          DefaultItemHeight = 18
+          DefaultItemHeight = 16
           HideSelection = False
           ReadOnly = True
           ScrollBars = ssAutoBoth
