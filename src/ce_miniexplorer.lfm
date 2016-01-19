@@ -3,6 +3,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
   Height = 598
   Top = 4
   Width = 343
+  ActiveControl = lstFav
   Caption = 'Mini explorer'
   ClientHeight = 598
   ClientWidth = 343
@@ -28,7 +29,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
         AutoWidthLastColumn = True
         Columns = <        
           item
-            Width = 314
+            Width = 330
           end>
         ReadOnly = True
         ShowColumnHeaders = False
@@ -90,7 +91,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           AutoWidthLastColumn = True
           Columns = <          
             item
-              Width = 314
+              Width = 330
             end>
           ReadOnly = True
           ShowColumnHeaders = False

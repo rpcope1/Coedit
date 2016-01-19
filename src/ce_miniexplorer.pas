@@ -8,9 +8,32 @@ uses
   Classes, SysUtils, FileUtil, ListFilterEdit, Forms, Controls, Graphics,
   ExtCtrls, Menus, ComCtrls, Buttons, lcltype, strutils, ce_widget, ce_sharedres,
   ce_common, ce_interfaces, ce_observer, ce_writableComponent, ce_dubproject,
-  ce_nativeproject, EditBtn, ce_dialogs;
+  ce_nativeproject, EditBtn, ce_dialogs, ce_synmemo;
 
 type
+
+  TExplorerDoubleClick = (openInside, openOutside);
+
+  TCEMiniExplorerWidget = class;
+
+  TCEMiniExplorerEditableOptions = class(TPersistent, ICEEditableOptions)
+  private
+    fDblClick: TExplorerDoubleClick;
+    fContextExpand: boolean;
+    fExplorer: TCEMiniExplorerWidget;
+    function optionedWantCategory(): string;
+    function optionedWantEditorKind: TOptionEditorKind;
+    function optionedWantContainer: TPersistent;
+    procedure optionedEvent(anEvent: TOptionEditorEvent);
+    function optionedOptionsModified: boolean;
+    procedure apply;
+  published
+    property doubleClick: TExplorerDoubleClick read fDblClick write fDblClick;
+    property contextExpand: boolean read fContextExpand write fContextExpand;
+  public
+    constructor create(miniexpl: TCEMiniExplorerWidget);
+    destructor destroy; override;
+  end;
 
   TCEMiniExplorerOptions = class(TWritableLfmTextComponent)
   private
@@ -18,12 +41,16 @@ type
     fSplitter1Position: integer;
     fSplitter2Position: integer;
     fLastFolder: string;
+    fDblClick: TExplorerDoubleClick;
+    fContextExpand: boolean;
     procedure setFavoriteFolders(aValue: TStringList);
   published
     property splitter1Position: integer read fSplitter1Position write fSplitter1Position;
     property splitter2Position: integer read fSplitter2Position write fSplitter2Position;
     property lastFolder: string read fLastFolder write fLastFolder;
     property favoriteFolders: TStringList read fFavoriteFolders write setFavoriteFolders;
+    property doubleClick: TExplorerDoubleClick read fDblClick write fDblClick;
+    property contextExpand: boolean read fContextExpand write fContextExpand;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -33,7 +60,7 @@ type
 
   { TCEMiniExplorerWidget }
 
-  TCEMiniExplorerWidget = class(TCEWidget, ICEProjectObserver)
+  TCEMiniExplorerWidget = class(TCEWidget, ICEProjectObserver, ICEMultiDocObserver)
     btnAddFav: TBitBtn;
     btnEdit: TBitBtn;
     btnShellOpen: TBitBtn;
@@ -60,6 +87,9 @@ type
     fFavorites: TStringList;
     fLastFold: string;
     fLastListOrTree: TControl;
+    fDblClick: TExplorerDoubleClick;
+    fContextExpand: boolean;
+    fEditableOptions: TCEMiniExplorerEditableOptions;
     procedure lstFavDblClick(Sender: TObject);
     procedure updateFavorites;
     procedure treeSetRoots;
@@ -82,6 +112,11 @@ type
     procedure projClosing(aProject: ICECommonProject);
     procedure projFocused(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    //
+    procedure docNew(aDoc: TCESynMemo);
+    procedure docFocused(aDoc: TCESynMemo);
+    procedure docChanged(aDoc: TCESynMemo);
+    procedure docClosing(aDoc: TCESynMemo);
   public
     constructor create(aIwner: TComponent); override;
     destructor destroy; override;
@@ -94,6 +129,52 @@ implementation
 
 const
   OptsFname = 'miniexplorer.txt';
+
+
+{$REGION TCEMiniExplorerEditableOptions}
+constructor TCEMiniExplorerEditableOptions.create(miniexpl: TCEMiniExplorerWidget);
+begin
+  fExplorer := miniexpl;
+  EntitiesConnector.addObserver(self);
+end;
+
+destructor TCEMiniExplorerEditableOptions.destroy;
+begin
+  EntitiesConnector.removeObserver(self);
+  inherited;
+end;
+
+procedure TCEMiniExplorerEditableOptions.apply;
+begin
+  fExplorer.fContextExpand:= fContextExpand;
+  fExplorer.fDblClick:= fDblClick;
+end;
+
+function TCEMiniExplorerEditableOptions.optionedWantCategory(): string;
+begin
+  exit('Mini explorer');
+end;
+
+function TCEMiniExplorerEditableOptions.optionedWantEditorKind: TOptionEditorKind;
+begin
+  exit(oekGeneric);
+end;
+
+function TCEMiniExplorerEditableOptions.optionedWantContainer: TPersistent;
+begin
+  exit(self);
+end;
+
+procedure TCEMiniExplorerEditableOptions.optionedEvent(anEvent: TOptionEditorEvent);
+begin
+  apply;
+end;
+
+function TCEMiniExplorerEditableOptions.optionedOptionsModified: boolean;
+begin
+  exit(false);
+end;
+{$ENDREGION}
 
 {$REGION TCEMiniExplorerOptions ------------------------------------------------}
 constructor TCEMiniExplorerOptions.create(aOwner: TComponent);
@@ -119,6 +200,8 @@ begin
     fLastFolder := widg.fLastFold;
     fSplitter1Position := widg.Splitter1.GetSplitterPosition;
     fSplitter2Position := widg.Splitter2.GetSplitterPosition;
+    fDblClick:= widg.fDblClick;
+    fContextExpand:=widg.fContextExpand;
   end
   else inherited;
 end;
@@ -134,6 +217,10 @@ begin
     widg.fLastFold:=fLastFolder;
     widg.Splitter1.SetSplitterPosition(fSplitter1Position);
     widg.Splitter2.SetSplitterPosition(fSplitter2Position);
+    widg.fDblClick := fDblClick;
+    widg.fEditableOptions.fDblClick := fDblClick;
+    widg.fContextExpand := fContextExpand;
+    widg.fEditableOptions.fContextExpand := fContextExpand;
     widg.updateFavorites;
     if widg.fLastFold.dirExists then
       widg.expandPath(fLastFolder);
@@ -153,6 +240,8 @@ var
   fname: string;
 begin
   inherited;
+  //
+  fEditableOptions:= TCEMiniExplorerEditableOptions.create(self);
   //
   AssignPng(btnAddFav, 'folder_add');
   AssignPng(btnRemFav, 'folder_delete');
@@ -200,6 +289,7 @@ begin
     free;
   end;
   //
+  fEditableOptions.Free;
   fFavorites.Free;
   inherited;
 end;
@@ -230,9 +320,31 @@ end;
 procedure TCEMiniExplorerWidget.projFocused(aProject: ICECommonProject);
 begin
   fProj := aProject;
+  if visible and aProject.fileName.fileExists and fContextExpand then
+    expandPath(aProject.fileName.extractFilePath);
 end;
 
 procedure TCEMiniExplorerWidget.projCompiling(aProject: ICECommonProject);
+begin
+end;
+{$ENDREGION}
+
+{$REGION ICEMultidocObserver ---------------------------------------------------}
+procedure TCEMiniExplorerWidget.docNew(aDoc: TCESynMemo);
+begin
+end;
+
+procedure TCEMiniExplorerWidget.docFocused(aDoc: TCESynMemo);
+begin
+  if visible and aDoc.fileName.fileExists and fContextExpand then
+    expandPath(aDoc.fileName.extractFilePath);
+end;
+
+procedure TCEMiniExplorerWidget.docChanged(aDoc: TCESynMemo);
+begin
+end;
+
+procedure TCEMiniExplorerWidget.docClosing(aDoc: TCESynMemo);
 begin
 end;
 {$ENDREGION}
@@ -380,7 +492,10 @@ end;
 
 procedure TCEMiniExplorerWidget.lstFilesDblClick(Sender: TObject);
 begin
-  shellOpenSelected;
+  case fDblClick of
+    openInside: btnEditClick(nil);
+    openOutside: shellOpenSelected;
+  end;
 end;
 
 procedure TCEMiniExplorerWidget.lstFilesEnter(Sender: TObject);
