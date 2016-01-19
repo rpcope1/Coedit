@@ -485,7 +485,7 @@ begin
   if node.Parent = fNodeSources then
   begin
     fname := fProj.sourceAbsolute(node.Index);
-    if isEditable(extractFileExt(fname)) then
+    if isEditable(fname.extractFileExt) then
       getMultiDocHandler.openDocument(fname);
   end
   // select active config

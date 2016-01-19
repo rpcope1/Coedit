@@ -180,7 +180,7 @@ begin
   pth := GetEnvironmentVariable('HOME') + '/.dub/packages/' + nme + '-master';
   {$ENDIF}
   itf := getMessageDisplay;
-  if DirectoryExists(pth) then
+  if pth.dirExists then
   begin
     upd := true;
     itf.message('information, the dub package is already fetched and will be upgraded', nil, amcApp, amkInf);
@@ -378,7 +378,7 @@ begin
     with List.Items.Add do
     begin
       Caption := ExtractFileNameOnly(fname);
-      if ExtractFileExt(fname) <> libExt then
+      if fname.extractFileExt <> libExt then
         SubItems.add(fname + libExt)
       else
         SubItems.add(fname);

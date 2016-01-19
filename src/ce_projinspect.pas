@@ -217,7 +217,7 @@ begin
     i := fProject.Sources.IndexOf(fname);
     if i > -1 then
       fname := fProject.sourceAbsolute(i);
-    if isEditable(ExtractFileExt(fname)) and fileExists(fname) then
+    if isEditable(fname.extractFileExt) and fname.fileExists then
       getMultiDocHandler.openDocument(fname);
   end
   else if Tree.Selected.Parent = fConfNode then
@@ -283,7 +283,7 @@ begin
       for i := 0 to lst.Count-1 do
       begin
         fname := lst.Strings[i];
-        if isDlangCompilable(extractFileExt(fname)) then
+        if isDlangCompilable(fname.extractFileExt) then
           fProject.addSource(fname);
       end;
     finally
@@ -342,7 +342,7 @@ procedure addFile(const aFilename: string);
 var
   ext: string;
 begin
-  ext := ExtractFileExt(aFilename);
+  ext := aFilename.extractFileExt;
   if not isDlangCompilable(ext) then
     exit;
   fProject.addSource(aFilename);
@@ -359,7 +359,7 @@ begin
   try for fname in Filenames do
     if FileExists(fname) then
       addFile(fname)
-    else if DirectoryExists(fname) then
+    else if fname.dirExists then
     begin
       lst.Clear;
       listFiles(lst, fname, true);

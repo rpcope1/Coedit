@@ -57,6 +57,7 @@ type
     function extractFilePath: string;
     function fileExists: boolean;
     function dirExists: boolean;
+    function upperCase: string;
   end;
 
   (**
@@ -278,7 +279,7 @@ begin
   err := false;
   doneLinuxDataMigration := true;
   oldLocation := sysutils.GetEnvironmentVariable('HOME') +'/Coedit';
-  if not DirectoryExists(oldLocation) then exit;
+  if not oldLocation.dirExists then exit;
   newLocation := getUserDataPath + 'Coedit';
   try
     try
@@ -360,6 +361,11 @@ end;
 function TStringHelper.dirExists: boolean;
 begin
   exit(sysutils.DirectoryExists(self));
+end;
+
+function TStringHelper.upperCase: string;
+begin
+  exit(sysutils.upperCase(self));
 end;
 
 {$IFDEF LINUX}
@@ -474,7 +480,7 @@ var
 begin
   getDir(0, curr);
   try
-    if (curr <> aBasePath) and DirectoryExists(aBasePath) then
+    if (curr <> aBasePath) and aBasePath.dirExists then
       chDir(aBasePath);
     result := expandFileName(aFilename);
   finally
@@ -533,7 +539,7 @@ function patchPlateformExt(const aFilename: string): string;
 var
   ext, newext: string;
 begin
-  ext := extractFileExt(aFilename);
+  ext := aFilename.extractFileExt;
   newext := '';
   {$IFDEF MSWINDOWS}
   case ext of
@@ -707,7 +713,7 @@ begin
     pth := aPath[1..length(aPath)-1];
     if pth[length(pth)] in ['/', '\'] then
       pth := pth[1..length(pth)-1];
-    if not directoryExists(pth) then exit(false);
+    if not pth.dirExists then exit(false);
     //
     files := TStringList.Create;
     try
@@ -718,7 +724,7 @@ begin
           aList.Add(fname)
         else
         begin
-          ext := extractFileExt(fname);
+          ext := fname.extractFileExt;
           if someExts.IndexOf(ext) <> -1 then
             aList.Add(fname);
         end;
@@ -804,7 +810,7 @@ var
   ext: string;
   env: string;
 begin
-  ext := extractFileExt(anExeName);
+  ext := anExeName.extractFileExt;
   if ext.isEmpty then
     anExeName += exeExt;
   //full path already specified
@@ -981,7 +987,7 @@ begin
   try
     sink.Assign(someFiles);
     for i := sink.Count-1 downto 0 do
-      if (not sink.Strings[i].fileExists) and (not DirectoryExists(sink.Strings[i])) then
+      if (not sink.Strings[i].fileExists) and (not sink.Strings[i].dirExists) then
         sink.Delete(i);
     // folders count
     cnt := 256;

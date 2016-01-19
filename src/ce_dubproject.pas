@@ -389,10 +389,10 @@ begin
       msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
       if modified then saveToFile(fFilename);
     end;
-    chDir(extractFilePath(fFilename));
+    chDir(fFilename.extractFilePath);
     dubproc.Executable := 'dub' + exeExt;
     dubproc.Options := dubproc.Options + [poStderrToOutPut, poUsePipes];
-    dubproc.CurrentDirectory := extractFilePath(fFilename);
+    dubproc.CurrentDirectory := fFilename.extractFilePath;
     dubproc.ShowWindow := swoHIDE;
     if not run then
       dubproc.Parameters.Add('build')
@@ -539,12 +539,12 @@ procedure tryAddFromFolder(const pth: string);
 var
   abs: string;
 begin
-  if DirectoryExists(pth) then
+  if pth.dirExists then
   begin
     lst.Clear;
     listFiles(lst, pth, true);
     for abs in lst do
-      if isDlangCompilable(extractFileExt(abs)) then
+      if isDlangCompilable(abs.extractFileExt) then
         fSrcs.Add(ExtractRelativepath(fBasePath, abs));
   end;
 end;
@@ -570,7 +570,7 @@ begin
       for i := 0 to arr.Count-1 do
       begin
         pth := TrimRightSet(arr.Strings[i], ['/','\']);
-        if DirectoryExists(pth) then
+        if pth.dirExists then
           tryAddFromFolder(pth)
         else
           tryAddFromFolder(fBasePath + pth);
@@ -598,7 +598,7 @@ begin
         for i := 0 to arr.Count-1 do
         begin
           pth := TrimRightSet(arr.Strings[i], ['/','\']);
-          if DirectoryExists(pth) then
+          if pth.dirExists then
             tryAddFromFolder(pth)
           else
             tryAddFromFolder(fBasePath + pth);
@@ -790,7 +790,7 @@ function isValidDubProject(const filename: string): boolean;
 var
   maybe: TCEDubProject;
 begin
-  if (UpperCase(ExtractFileExt(filename)) <> '.JSON') then
+  if (filename.extractFileExt.upperCase <> '.JSON') then
     exit(false);
   result := true;
   // avoid the project to notify the observers, current project is not replaced

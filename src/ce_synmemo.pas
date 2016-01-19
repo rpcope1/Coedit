@@ -951,7 +951,7 @@ procedure TCESynMemo.loadFromFile(const aFilename: string);
 var
   ext: string;
 begin
-  ext := extractFileExt(aFilename);
+  ext := aFilename.extractFileExt;
   if not hasDlangSyntax(ext) then
     Highlighter := TxtSyn;
   Lines.LoadFromFile(aFilename);
@@ -974,7 +974,7 @@ var
 begin
   Lines.SaveToFile(aFilename);
   fFilename := aFilename;
-  ext := extractFileExt(aFilename);
+  ext := aFilename.extractFileExt;
   if hasDlangSyntax(ext) then
     Highlighter := fD2Highlighter;
   FileAge(fFilename, fFileDate);

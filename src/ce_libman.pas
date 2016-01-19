@@ -92,19 +92,16 @@ begin
     {$ENDIF}
     {$IFDEF LINUX}
     // add phobos
-    if DirectoryExists('/usr/include/dmd/phobos') then
+    if '/usr/include/dmd/phobos'.dirExists then
     begin
       with TLibraryItem(fCol.Add) do begin
         libAlias := 'phobos';
-        if FileExists('/usr/lib/libphobos2.a') then
-          libFile  := '/usr/lib/libphobos2.a'
-        else if FileExists('/usr/lib32/libphobos2.a') then
-          libFile  := '/usr/lib32/libphobos2.a';
+        libFile := '';
         libSourcePath := '/usr/include/dmd/phobos';
       end;
     end;
     // add druntime (no lib - only for DCD)
-    if DirectoryExists('/usr/include/dmd/druntime/import') then
+    if '/usr/include/dmd/druntime/import'.dirExists then
     begin
       with TLibraryItem(fCol.Add) do begin
         libAlias := 'druntime';
@@ -179,7 +176,7 @@ begin
       aList.Add(itm.libFile);
     end
     // folder of lib file
-    else if directoryExists(itm.libFile) then
+    else if itm.libFile.dirExists then
     begin
       lst := TStringList.Create;
       try
@@ -189,7 +186,7 @@ begin
         listFiles(lst, dir);
         for j:= 0 to lst.Count-1 do
         begin
-          if extractFileExt(lst.Strings[j]) = libExt then
+          if lst.Strings[j].extractFileExt = libExt then
             if aList.IndexOf(lst.Strings[j]) = -1 then
               aList.Add(lst.Strings[j]);
         end;
@@ -218,7 +215,7 @@ begin
     //
     if aList.IndexOf(itm.libSourcePath) <> -1 then
       continue;
-    if not directoryExists(itm.libSourcePath) then
+    if not itm.libSourcePath.dirExists then
       continue;
     aList.Add('-I' + itm.libSourcePath);
   end;

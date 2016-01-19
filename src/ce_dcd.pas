@@ -151,8 +151,8 @@ begin
   	for i := 0 to fProj.importsPathCount-1 do
   	begin
     	fold := fProj.importPath(i);
-    	if DirectoryExists(fold) and (folds.IndexOf(fold) = -1) then
-     		folds.Add(fold);
+      if fold.dirExists and (folds.IndexOf(fold) = -1) then
+        folds.Add(fold);
     end;
     for fold in folds do addImportFolder(fold);
   finally

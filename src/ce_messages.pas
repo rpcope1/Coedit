@@ -1028,7 +1028,7 @@ begin
       exit;
     // '(': line will be indicated after fname
     // -mixin: dmd, error in mixin(token string) '<fname>-mixinXX<index>('
-    if isEditable(extractFileExt(ident)) and ((aMessage[i] = '(') or
+    if isEditable(ident.extractFileExt) and ((aMessage[i] = '(') or
       ((aMessage[i] = '-') and (i < length(aMessage)-5)
         and (aMessage[i..i+5] = '-mixin'))) then
     begin

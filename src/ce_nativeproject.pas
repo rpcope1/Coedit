@@ -196,9 +196,9 @@ var
   relSrc, absSrc: string;
   expand: boolean;
 begin
-  if not isDlangCompilable(ExtractFileExt(aFilename)) then
+  if not isDlangCompilable(aFilename.extractFileExt) then
     exit;
-  expand := DirectoryExists(fBasePath);
+  expand := fBasePath.dirExists;
   for relSrc in fSrcs do
   begin
     if not expand then absSrc := relSrc
@@ -402,11 +402,11 @@ begin
       rel := expandFilenameEx(fBasePath, currentConfiguration.pathsOptions.exclusions.Strings[i]);
       if fileExists(str) then
         ex_files.Add(str)
-      else if DirectoryExists(str) then
+      else if str.dirExists then
         ex_folds.Add(str);
-      if fileExists(rel) then
+      if rel.fileExists then
         ex_files.Add(rel)
-      else if DirectoryExists(rel) then
+      else if rel.dirExists then
         ex_folds.Add(rel);
     end;
     // sources
@@ -721,7 +721,7 @@ begin
   try
     msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
     // this doesn't work under linux, so the  previous ChDir.
-    if directoryExists(prjpath) then
+    if prjpath.dirExists then
       compilproc.CurrentDirectory := prjpath;
     compilproc.Executable := NativeProjectCompilerFilename;
     compilproc.Options := compilproc.Options + [poStderrToOutPut, poUsePipes];
@@ -761,7 +761,7 @@ var
 begin
   result := false;
   killProcess(fRunner);
-  if DirectoryExists(fRunnerOldCwd) then
+  if fRunnerOldCwd.dirExists then
     ChDir(fRunnerOldCwd);
   //
   fRunner := TCEProcess.Create(nil); // fRunner can use the input process widget.
@@ -955,7 +955,7 @@ end;
 function TCENativeProject.importPath(index: integer): string;
 begin
   result := currentConfiguration.pathsOptions.importModulePaths.Strings[index];
-  if DirectoryExists(fBasePath) then
+  if fBasePath.dirExists then
     result := expandFilenameEx(fBasePath, result);
 end;
 
@@ -964,7 +964,7 @@ var
   maybe: TCENativeProject;
 begin
   result := false;
-  if isDlangCompilable(ExtractFileExt(filename)) then
+  if isDlangCompilable(filename.extractFileExt) then
     exit;
   // avoid the project to notify the observers, current project is not replaced
   EntitiesConnector.beginUpdate;

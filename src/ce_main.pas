@@ -748,7 +748,7 @@ begin
         for value in lst do
         begin
           if value.isEmpty then continue;
-          if isEditable(ExtractFileExt(value)) then
+          if isEditable(value.extractFileExt) then
             openFile(value)
           else if isValidNativeProject(value) or isValidDubProject(value) then
           begin
@@ -1815,7 +1815,7 @@ begin
   i := length(firstlineFlags);
   if ( i > 18) then
   begin
-    if UpperCase(firstlineFlags[1..17]) = '#!RUNNABLE-FLAGS:' then
+    if firstlineFlags.upperCase[1..17] = '#!RUNNABLE-FLAGS:' then
         firstlineFlags := symbolExpander.get(firstlineFlags[18..i])
     else firstlineFlags:= '';
   end else firstlineFlags:= '';
@@ -2212,7 +2212,7 @@ end;
 procedure TCEMainForm.openProj(const aFilename: string);
 begin
   closeProj;
-  if LowerCase(ExtractFileExt(aFilename)) = '.json' then
+  if aFilename.extractFileExt.upperCase = '.JSON' then
     newDubProj
   else
     newNativeProj;

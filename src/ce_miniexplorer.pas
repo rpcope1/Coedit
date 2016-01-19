@@ -135,7 +135,7 @@ begin
     widg.Splitter1.SetSplitterPosition(fSplitter1Position);
     widg.Splitter2.SetSplitterPosition(fSplitter2Position);
     widg.updateFavorites;
-    if DirectoryExists(widg.fLastFold) then
+    if widg.fLastFold.dirExists then
       widg.expandPath(fLastFolder);
   end
   else inherited;
