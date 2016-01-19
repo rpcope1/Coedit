@@ -583,9 +583,9 @@ end;
 
 function uniqueObjStr(const aObject: Tobject): string;
 begin
-  {$HINTS OFF}{$WARNINGS OFF}{$R-}
+  {$PUSH}{$HINTS OFF}{$WARNINGS OFF}{$R-}
   exit( format('%.8X',[NativeUint(aObject)]));
-  {$HINTS ON}{$WARNINGS ON}{$R+}
+  {$POP}
 end;
 
 function shortenPath(const aPath: string; charThresh: Word = 60): string;

@@ -129,6 +129,7 @@ type
     fMatchSelectionOpts: TSynSearchOptions;
     fMatchIdentOpts: TSynSearchOptions;
     fMatchOpts: TIdentifierMatchOptions;
+    fCallTipStrings: TStringList;
     procedure setMatchOpts(value: TIdentifierMatchOptions);
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
@@ -154,6 +155,7 @@ type
     procedure addBreakPoint(line: integer);
     procedure removeBreakPoint(line: integer);
     function  findBreakPoint(line: integer): boolean;
+    procedure showCallTips(const tips: string);
   protected
     procedure DoEnter; override;
     procedure DoExit; override;
@@ -429,6 +431,7 @@ const
   thresh = 6;
 begin
   fPos := 0;
+  {$PUSH}
   {$HINTS OFF}{$WARNINGS OFF}
   if fList.Count > 0 then
   begin
@@ -436,7 +439,7 @@ begin
     if (delta > -thresh) and (delta < thresh) then exit;
   end;
   fList.Insert(0, Pointer(NativeInt(fMemo.CaretY)));
-  {$HINTS ON}{$WARNINGS ON}
+  {$POP}
   while fList.Count > fMax do
     fList.Delete(fList.Count-1);
 end;
@@ -491,6 +494,7 @@ begin
   fCompletion.TheForm.ShowInTaskBar:=stNever;
   fCompletion.ShortCut:=0;
   fCompletion.LinesInWindow:=15;
+  fCallTipStrings:= TStringList.Create;
   //
   MouseLinkColor.Style:= [fsUnderline];
   with MouseActions.Add do begin
@@ -536,6 +540,7 @@ begin
   fPositions.Free;
   fCompletion.Free;
   fBreakPoints.Free;
+  fCallTipStrings.Free;
   //
   if fileExists(fTempFileName) then
     sysutils.DeleteFile(fTempFileName);
@@ -576,8 +581,8 @@ procedure TCESynMemo.DoExit;
 begin
   inherited;
   fFocusForInput := false;
-  fDDocWin.Hide;
-  fCallTipWin.Hide;
+  hideDDocs;
+  hideCallTips;
   if fCompletion.IsActive then
     fCompletion.Deactivate;
 end;
@@ -593,8 +598,8 @@ begin
     fCacheLoaded := true;
   end
   else begin
-    fDDocWin.Hide;
-    fCallTipWin.Hide;
+    hideDDocs;
+    hideCallTips;
     if fCompletion.IsActive then
       fCompletion.Deactivate;
   end;
@@ -779,9 +784,10 @@ end;
 procedure TCESynMemo.showCallTips;
 var
   str: string;
-  pnt: TPoint;
   i: integer;
 begin
+  if not fCallTipWin.Visible then
+    fCallTipStrings.Clear;
   str := LineText[1..CaretX];
   i := CaretX;
   while true do
@@ -798,16 +804,36 @@ begin
   DcdWrapper.getCallTip(str);
   if str.isNotEmpty then
   begin
-    pnt := ClientToScreen(point(CaretXPix, CaretYPix));
-    fCallTipWin.FontSize := Font.Size;
-	  fCallTipWin.HintRect := fCallTipWin.CalcHintRect(0, str, nil);
-    fCallTipWin.OffsetHintRect(pnt, Font.Size * 2);
-	  fCallTipWin.ActivateHint(str);
+    i := fCallTipStrings.Count;
+    if fCallTipStrings.Count <> 0 then
+      fCallTipStrings.Insert(0, '---');
+    fCallTipStrings.Insert(0, str);
+    i := fCallTipStrings.Count - i;
+    // overload count to delete on ')'
+    {$PUSH}{$HINTS OFF}{$WARNINGS OFF}
+    fCallTipStrings.Objects[0] := TObject(pointer(i));
+    {$POP}
+    str := fCallTipStrings.Text;
+    showCallTips(str);
   end;
+end;
+
+procedure TCESynMemo.showCallTips(const tips: string);
+var
+  pnt: TPoint;
+begin
+  if tips.isEmpty then exit;
+  //
+  pnt := ClientToScreen(point(CaretXPix, CaretYPix));
+  fCallTipWin.FontSize := Font.Size;
+	fCallTipWin.HintRect := fCallTipWin.CalcHintRect(0, tips, nil);
+  fCallTipWin.OffsetHintRect(pnt, Font.Size * 2);
+	fCallTipWin.ActivateHint(tips);
 end;
 
 procedure TCESynMemo.hideCallTips;
 begin
+  fCallTipStrings.Clear;
   fCallTipWin.Hide;
 end;
 
@@ -1112,8 +1138,8 @@ begin
     VK_BROWSER_FORWARD: fPositions.next;
     VK_ESCAPE:
       begin
-        fCallTipWin.Hide;
-        fDDocWin.Hide;
+        hideCallTips;
+        hideDDocs;
       end;
   end;
   if not (Shift = [ssCtrl]) then exit;
@@ -1141,12 +1167,24 @@ end;
 procedure TCESynMemo.UTF8KeyPress(var Key: TUTF8Char);
 var
   c: TUTF8Char;
+  i: integer;
 begin
   c := Key;
   inherited;
   case c of
     '(': getCallTips;
-    ')': fCallTipWin.Hide;
+    ')': if fCallTipWin.Visible then
+      begin
+        {$PUSH}{$HINTS OFF}{$WARNINGS OFF}
+        i := integer(pointer(fCallTipStrings.Objects[0]));
+        {$POP}
+        for i in [0..i-1] do
+          fCallTipStrings.Delete(0);
+        if fCallTipStrings.Count = 0 then
+          hideCallTips
+        else
+          showCallTips(fCallTipStrings.Text);
+      end;
   end;
   if fCompletion.IsActive then
     fCompletion.CurrentString:=GetWordAtRowCol(LogicalCaretXY);
@@ -1155,16 +1193,16 @@ end;
 procedure TCESynMemo.MouseLeave;
 begin
   inherited;
-  fDDocWin.Hide;
-  fCallTipWin.Hide;
+  hideDDocs;
+  hideCallTips;
 end;
 
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
 var
   dX, dY: Integer;
 begin
-  fDDocWin.Hide;
-  fCallTipWin.Hide;
+  hideDDocs;
+  hideCallTips;
   inherited;
   dx := X - fOldMousePos.x;
   dy := Y - fOldMousePos.y;
@@ -1184,8 +1222,8 @@ begin
   inherited;
   highlightCurrentIdentifier;
   fCanShowHint := false;
-  fDDocWin.Hide;
-  fCallTipWin.Hide;
+  hideCallTips;
+  hideDDocs;
 end;
 
 procedure TCESynMemo.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:Integer);
@@ -1219,9 +1257,9 @@ function TCESynMemo.BreakPointLine(index: integer): integer;
 begin
   if index >= fBreakPoints.Count then
     exit(0);
-  {$WARNINGS OFF}
+  {$PUSH}{$WARNINGS OFF}
   exit(Integer(fBreakPoints.Items[index]));
-  {$WARNINGS ON}
+  {$POP}
 end;
 
 procedure TCESynMemo.addBreakPoint(line: integer);
@@ -1236,9 +1274,9 @@ begin
   m.ImageIndex := 0;
   m.Visible := true;
   Marks.Add(m);
-  {$WARNINGS OFF}
+  {$PUSH}{$WARNINGS OFF}
   fBreakPoints.Add(pointer(line));
-  {$WARNINGS ON}
+  {$POP}
   if assigned(fBreakpointEvent) then
     fBreakpointEvent(self, line, bpAdded);
 end;
@@ -1249,18 +1287,18 @@ begin
     exit;
   if marks.Line[line].isNotNil and (marks.Line[line].Count > 0) then
     marks.Line[line].Clear(true);
-  {$WARNINGS OFF}
+  {$PUSH}{$WARNINGS OFF}
   fBreakPoints.Remove(pointer(line));
-  {$WARNINGS ON}
+  {$POP}
   if assigned(fBreakpointEvent) then
     fBreakpointEvent(self, line, bpRemoved);
 end;
 
 function TCESynMemo.findBreakPoint(line: integer): boolean;
 begin
-  {$WARNINGS OFF}
+  {$PUSH}{$WARNINGS OFF}
   exit(fBreakPoints.IndexOf(pointer(line)) <> -1);
-  {$WARNINGS ON}
+  {$POP}
 end;
 
 procedure TCESynMemo.gutterClick(Sender: TObject; X, Y, Line: integer; mark: TSynEditMark);
