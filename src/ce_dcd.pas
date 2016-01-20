@@ -274,7 +274,7 @@ begin
   //
   fTempLines.Delete(0);
   tips := fTempLines.Text;
-  tips := tips[1..length(tips)-2];
+  tips := tips[1..length(tips)-1];
 end;
 
 procedure TCEDcdWrapper.getComplAtCursor(aList: TStrings);
