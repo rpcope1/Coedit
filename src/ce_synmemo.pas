@@ -826,9 +826,9 @@ begin
   //
   pnt := ClientToScreen(point(CaretXPix, CaretYPix));
   fCallTipWin.FontSize := Font.Size;
-	fCallTipWin.HintRect := fCallTipWin.CalcHintRect(0, tips, nil);
+  fCallTipWin.HintRect := fCallTipWin.CalcHintRect(0, tips, nil);
   fCallTipWin.OffsetHintRect(pnt, Font.Size * 2);
-	fCallTipWin.ActivateHint(tips);
+  fCallTipWin.ActivateHint(tips);
 end;
 
 procedure TCESynMemo.hideCallTips;
@@ -948,14 +948,28 @@ begin
 end;
 
 procedure TCESynMemo.highlightCurrentIdentifier;
+var
+  str: string;
+  i: integer;
 begin
   fIdentifier := GetWordAtRowCol(LogicalCaretXY);
   if (length(fIdentifier) > 2) and (not SelAvail) then
     SetHighlightSearch(fIdentifier, fMatchIdentOpts)
   else if SelAvail then
-    SetHighlightSearch(SelText,fMatchSelectionOpts)
-  else
-    SetHighlightSearch('',[]);
+  begin
+    str := SelText;
+    for i := 1 to length(str) do
+    begin
+      if not (str[i] in [' ', #10, #13]) then
+      begin
+        SetHighlightSearch(str, fMatchSelectionOpts);
+        break;
+      end;
+      if i = length(str) then
+        SetHighlightSearch('', []);
+    end;
+  end
+  else SetHighlightSearch('', []);
 end;
 
 procedure TCESynMemo.setMatchOpts(value: TIdentifierMatchOptions);

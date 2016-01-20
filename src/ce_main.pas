@@ -146,6 +146,7 @@ type
     procedure actProjNewDubJsonExecute(Sender: TObject);
     procedure actProjNewNativeExecute(Sender: TObject);
     procedure actSetRunnableSwExecute(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure updateDocumentBasedAction(sender: TObject);
     procedure updateProjectBasedAction(sender: TObject);
     procedure updateDocEditBasedAction(sender: TObject);
@@ -904,7 +905,7 @@ begin
       if not widg.isDockable then continue;
       DockMaster.GetAnchorSite(widg).Header.HeaderPosition := adlhpTop;
       if not DockMaster.GetAnchorSite(widg).HasParent then
-        DockMaster.GetAnchorSite(widg).Close
+        DockMaster.GetAnchorSite(widg).Close;
     end;
   end;
 end;
@@ -1116,6 +1117,13 @@ begin
   end;
 end;
 
+procedure TCEMainForm.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  // saving doesnt work when csDestroying in comp.state (i.e in destroy)
+  if CloseAction = caFree then
+    SaveDocking;
+end;
+
 destructor TCEMainForm.destroy;
 begin
   SaveSettings;
@@ -1157,8 +1165,6 @@ begin
     if not fMultidoc.closeDocument(i) then exit;
   canClose := true;
   closeProj;
-  // saving doesnt work when csDestroying in comp.state (in Free)
-  SaveDocking;
 end;
 
 procedure TCEMainForm.updateDocumentBasedAction(sender: TObject);

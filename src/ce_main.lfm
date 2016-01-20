@@ -5,9 +5,6 @@ object CEMainForm: TCEMainForm
   Width = 745
   AllowDropFiles = True
   Caption = 'Coedit'
-  ChildSizing.Layout = cclLeftToRightThenTopToBottom
-  ClientHeight = 49
-  ClientWidth = 745
   Icon.Data = {
     F1B500000000010001000000000001002000DBB500001600000089504E470D0A
     1A0A0000000D49484452000001000000010008060000005C72A8660000B5A249
@@ -1467,11 +1464,11 @@ object CEMainForm: TCEMainForm
     07F7DABF1C7571F38F0000000049454E44AE426082
   }
   Menu = mainMenu
+  OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnDropFiles = FormDropFiles
   ShowHint = True
   LCLVersion = '1.6.0.2'
-  Visible = False
   object mainMenu: TMainMenu
     Images = imgList
     top = 1
