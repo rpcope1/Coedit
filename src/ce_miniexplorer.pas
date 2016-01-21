@@ -81,6 +81,7 @@ type
     procedure lstFavEnter(Sender: TObject);
     procedure lstFilesDblClick(Sender: TObject);
     procedure lstFilesEnter(Sender: TObject);
+    procedure lstFilesStartDrag(Sender: TObject; var DragObject: TDragObject);
     procedure TreeEnter(Sender: TObject);
   private
     fProj: ICECommonProject;
@@ -501,6 +502,12 @@ end;
 procedure TCEMiniExplorerWidget.lstFilesEnter(Sender: TObject);
 begin
   fLastListOrTree := lstFiles;
+end;
+
+procedure TCEMiniExplorerWidget.lstFilesStartDrag(Sender: TObject;
+  var DragObject: TDragObject);
+begin
+
 end;
 
 procedure TCEMiniExplorerWidget.shellOpenSelected;

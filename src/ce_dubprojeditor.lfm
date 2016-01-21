@@ -65,6 +65,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
             Align = alClient
             BorderSpacing.Around = 4
             DefaultItemHeight = 16
+            DragMode = dmAutomatic
             HideSelection = False
             Images = imgList
             ReadOnly = True
@@ -85,12 +86,12 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
           ClientWidth = 395
           object propTree: TTreeView
             Left = 4
-            Height = 324
+            Height = 316
             Top = 32
             Width = 387
             Align = alClient
             BorderSpacing.Around = 4
-            DefaultItemHeight = 18
+            DefaultItemHeight = 16
             HideSelection = False
             Images = imgList
             ReadOnly = True
@@ -152,7 +153,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
           object Panel1: TPanel
             Left = 2
             Height = 26
-            Top = 360
+            Top = 352
             Width = 391
             Align = alBottom
             BorderSpacing.Around = 2

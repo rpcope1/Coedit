@@ -52,6 +52,8 @@ type
     fOnChanging: TTabChangingEvent;
     fSplitter: TSplitter;
     fOldSplitPos: integer;
+    fOnDragDrop: TDragDropEvent;
+    fOnDragOver: TDragOverEvent;
 
     procedure btnCloseClick(sender: TObject);
     procedure btnMoveLeftClick(sender: TObject);
@@ -73,6 +75,9 @@ type
 
     procedure changedNotify;
     procedure updateButtonsState;
+
+    procedure setOnDragOver(value: TDragOverEvent);
+    procedure setOnDragDrop(value: TDragDropEvent);
 
   public
     constructor Create(aowner: TComponent); override;
@@ -99,6 +104,9 @@ type
 
     property onChanged: TNotifyEvent read fOnChanged write fOnChanged;
     property onChanging: TTabChangingEvent read fOnChanging write fOnChanging;
+
+    property OnDragOver read fOnDragOver write setOnDragOver;
+    property OnDragDrop read fOnDragDrop write setOnDragDrop;
   end;
 
 implementation
@@ -216,6 +224,23 @@ begin
     deletePage(fPages.Count-1);
   fPages.Free;
   inherited;
+end;
+
+procedure TCEPageControl.setOnDragOver(value: TDragOverEvent);
+begin
+  if fOnDragOver = value then
+    exit;
+  fOnDragOver:=value;
+  fContent.OnDragOver:=value;
+  fTabs.OnDragOver:=value;
+end;
+procedure TCEPageControl.setOnDragDrop(value: TDragDropEvent);
+begin
+  if fOnDragDrop = value then
+    exit;
+  fOnDragDrop:=value;
+  fContent.OnDragDrop:=value;
+  fTabs.OnDragDrop:=value;
 end;
 
 procedure TCEPageControl.changedNotify;

@@ -7,12 +7,12 @@ interface
 uses
   Classes, SysUtils, LazFileUtils, SynEditKeyCmds, SynHighlighterLFM, Forms, StdCtrls,
   AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls, Graphics, strutils,
-  Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, SynExportHTML,
+  Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, SynExportHTML, ComCtrls,
   ce_common, ce_dmdwrap, ce_nativeproject, ce_dcd, ce_synmemo, ce_writableComponent,
   ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
   ce_search, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist, ce_observer,
   ce_toolseditor, ce_procinput, ce_optionseditor, ce_symlist, ce_mru, ce_processes,
-  ce_infos, ce_dubproject, ce_dialogs, ce_dubprojeditor, ce_gdb, ce_dfmt;
+  ce_infos, ce_dubproject, ce_dialogs, ce_dubprojeditor, ce_gdb, ce_dfmt, ce_lcldragdrop;
 
 type
 
@@ -709,6 +709,8 @@ begin
   LoadSettings;
   layoutUpdateMenu;
   fMultidoc := getMultiDocHandler;
+  OnDragDrop:= @ddHandler.DragDrop;
+  OnDragOver:= @ddHandler.DragOver;
   //
   checkCompilo;
   //

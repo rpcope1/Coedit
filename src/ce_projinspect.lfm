@@ -29,6 +29,7 @@ inherited CEProjectInspectWidget: TCEProjectInspectWidget
         AutoExpand = True
         BorderSpacing.Around = 2
         DefaultItemHeight = 16
+        DragMode = dmAutomatic
         Images = imgList
         ReadOnly = True
         RightClickSelect = True

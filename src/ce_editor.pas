@@ -85,6 +85,9 @@ type
 implementation
 {$R *.lfm}
 
+uses
+  ce_lcldragdrop;
+
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEEditorWidget.create(aOwner: TComponent);
 begin
@@ -97,6 +100,8 @@ begin
   pageControl.onChanging:=@PageControlChanging;
   pageControl.closeButton.OnClick:=@pageCloseBtnClick;
   pageControl.addButton.OnClick:=@pageBtnAddCLick;
+  pageControl.OnDragDrop:= @ddHandler.DragDrop;
+  pageControl.OnDragOver:= @ddHandler.DragOver;
   AssignPng(pageControl.moveLeftButton, 'go_previous');
   AssignPng(pageControl.moveRightButton, 'go_next');
   AssignPng(pageControl.addButton, 'document_add');
@@ -380,7 +385,7 @@ begin
   if not DcdWrapper.available then exit;
   //
   DcdWrapper.getDeclFromCursor(fname, srcpos);
-  if (fname <> fDoc.fileName) and fileExists(fname) then
+  if (fname <> fDoc.fileName) and fname.fileExists then
   begin
     page := pageControl.splitPage;
     if assigned(page) then

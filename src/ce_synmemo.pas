@@ -235,7 +235,7 @@ var
 implementation
 
 uses
-  ce_interfaces, ce_staticmacro, ce_dcd, SynEditHighlighterFoldBase;
+  ce_interfaces, ce_staticmacro, ce_dcd, SynEditHighlighterFoldBase, ce_lcldragdrop;
 
 function TCEEditorHintWindow.CalcHintRect(MaxWidth: Integer; const AHint: String; AData: Pointer): TRect;
 begin
@@ -455,6 +455,9 @@ begin
   fDefaultFontSize := 10;
   Font.Size:=10;
   SetDefaultCoeditKeystrokes(Self); // not called in inherited if owner = nil !
+  //
+  OnDragDrop:= @ddHandler.DragDrop;
+  OnDragOver:= @ddHandler.DragOver;
   //
   ShowHint := false;
   InitHintWins;
