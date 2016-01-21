@@ -348,8 +348,12 @@ begin
       aShow := false;
   end;
   if getGridTarget = fProj.currentConfiguration.outputOptions  then
+  begin
     if aEditor.GetName = 'noBoundsCheck' then
+      aShow := false
+    else if aEditor.GetName = 'generateAllTmpCode' then
       aShow := false;
+  end;
   if getGridTarget = fProj.currentConfiguration.debugingOptions then
   begin
     if aEditor.GetName = 'addCInformations' then

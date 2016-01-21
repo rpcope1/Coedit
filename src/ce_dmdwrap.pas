@@ -614,6 +614,10 @@ begin
   begin
     str := binKindStr[fBinKind];
     if str.isNotEmpty then aList.Add(str);
+    {$IFDEF UNIX}
+    if fBinKind = sharedlib then
+      aList.Add('-fPIC');
+    {$ENDIF}
     str := trgKindStr[fTrgKind];
     if str.isNotEmpty then aList.Add(str);
     if fUnittest then aList.Add('-unittest');
@@ -640,7 +644,22 @@ begin
     baseopt := TOutputOpts(base);
     str := binKindStr[fBinKind];
     strbase := binKindStr[baseopt.fBinKind];
-    if (str <> strbase) then aList.Add(str) else aList.Add(strbase);
+    if (str <> strbase) then
+    begin
+      aList.Add(str);
+      {$IFDEF UNIX}
+      if fBinKind = sharedlib then
+        aList.Add('-fPIC');
+      {$ENDIF}
+    end
+    else
+    begin
+      aList.Add(strbase);
+      {$IFDEF UNIX}
+      if baseopt.fBinKind = sharedlib then
+        aList.Add('-fPIC');
+      {$ENDIF}
+    end;
     str := trgKindStr[fTrgKind];
     strbase := trgKindStr[baseopt.fTrgKind];
     if (str <> strbase) then aList.Add(str) else aList.Add(strbase);
