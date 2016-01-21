@@ -232,9 +232,12 @@ type
    *)
   TOtherOpts = class(TOptsGroup)
   private
+    fCov: boolean;
     fCustom: TStringList;
+    procedure setCov(const aValue: boolean);
     procedure setCustom(aValue: TStringList);
   published
+    property coverage: boolean read fCov write setCov default false;
     property customOptions: TStringList read fCustom write setCustom;
   public
     constructor create;
@@ -1097,6 +1100,7 @@ begin
   begin
     src := TOtherOpts(aValue);
     fCustom.Assign(src.fCustom);
+    fCov := src.fCov;
   end
   else inherited;
 end;
@@ -1105,6 +1109,13 @@ destructor TOtherOpts.destroy;
 begin
   fCustom.Free;
   inherited;
+end;
+
+procedure TOtherOpts.setCov(const aValue: boolean);
+begin
+  if fCov = aValue then exit;
+  fCov := aValue;
+  doChanged;
 end;
 
 procedure TOtherOpts.getOpts(aList: TStrings; base: TOptsGroup = nil);
@@ -1125,6 +1136,7 @@ begin
         str2 := str1;
       aList.AddText(symbolExpander.get(str2));
     end;
+    if fCov then aList.Add('-cov');
   end else
   begin
     baseopt := TOtherOpts(base);
@@ -1140,6 +1152,7 @@ begin
         str2 := str1;
       aList.AddText(symbolExpander.get(str2));
     end;
+    if baseopt.fCov or fCov then aList.Add('-cov');
   end;
 end;
 
