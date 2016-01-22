@@ -26,12 +26,12 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
         Top = 0
         Width = 335
         Align = alTop
-        AutoWidthLastColumn = True
         Columns = <        
           item
             Width = 314
           end>
         ReadOnly = True
+        ScrollBars = ssAutoBoth
         ShowColumnHeaders = False
         SmallImages = imgList
         TabOrder = 0
@@ -88,13 +88,13 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           Width = 335
           Align = alClient
           AutoSort = False
-          AutoWidthLastColumn = True
           Columns = <          
             item
-              Width = 314
+              Width = 331
             end>
           DragMode = dmAutomatic
           ReadOnly = True
+          ScrollBars = ssAutoBoth
           ShowColumnHeaders = False
           SmallImages = imgList
           TabOrder = 2
