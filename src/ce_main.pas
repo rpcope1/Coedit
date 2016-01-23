@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, LazFileUtils, SynEditKeyCmds, SynHighlighterLFM, Forms, StdCtrls,
   AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls, Graphics, strutils,
-  Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, SynExportHTML, ComCtrls,
+  Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, SynExportHTML,
   ce_common, ce_dmdwrap, ce_nativeproject, ce_dcd, ce_synmemo, ce_writableComponent,
   ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
   ce_search, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist, ce_observer,
@@ -307,6 +307,7 @@ type
     procedure mruClearClick(Sender: TObject);
 
     // layout
+    procedure LockTopWindow(Sender: TObject; var NewSize: Integer; var Accept: Boolean);
     procedure layoutMnuItemClick(sender: TObject);
     procedure layoutLoadFromFile(const aFilename: string);
     procedure layoutSaveToFile(const aFilename: string);
@@ -856,11 +857,19 @@ begin
   end;
 end;
 
+procedure TCEMainForm.LockTopWindow(Sender: TObject; var NewSize: Integer;
+    var Accept: Boolean);
+begin
+  accept := false;
+end;
+
 procedure TCEMainForm.InitDocking;
 var
   i: Integer;
   widg: TCEWidget;
   aManager: TAnchorDockManager;
+  topsite : TControl;
+  topsplt : TAnchorDockSplitter;
 begin
   DockMaster.MakeDockSite(Self, [akBottom], admrpChild);
   DockMaster.OnShowOptions := @ShowAnchorDockOptions;
@@ -910,6 +919,16 @@ begin
         DockMaster.GetAnchorSite(widg).Close;
     end;
   end;
+
+  // lock space wetween the menu and the widgets
+  if GetDockSplitterOrParent(DockMaster.GetSite(fEditWidg), akTop, topsite) then
+  begin
+    if topsite is TAnchorDockHostSite then
+      if TAnchorDockHostSite(topsite).BoundSplitter.isNotNil then
+        TAnchorDockHostSite(topsite).BoundSplitter.OnCanOffset:= @LockTopWindow;
+  end else if GetDockSplitter(DockMaster.GetSite(fEditWidg), akTop, topsplt) then
+    topsplt.OnCanOffset:= @LockTopWindow;
+
 end;
 
 procedure TCEMainForm.LoadSettings;
@@ -1109,12 +1128,17 @@ end;
 procedure TCEMainForm.DoShow;
 begin
   inherited;
-  // TODO-cbetterfix: clipboard doesn't work first time it's used on a reloaded doc.
-  // see: http://forum.lazarus.freepascal.org/index.php/topic,30616.0.htm
   if (not fFirstShown) then
   begin
+    // TODO-cbetterfix: clipboard doesn't work first time it's used on a reloaded doc.
+    // see: http://forum.lazarus.freepascal.org/index.php/topic,30616.0.htm
     if fAppliOpts.reloadLastDocuments then
       LoadLastDocsAndProj;
+
+    // http://bugs.freepascal.org/view.php?id=29475
+    // TODO-cbugfix: activate this when Laz 1.6 released.
+    // DockMaster.ResetSplitter;
+
     fFirstShown := true;
   end;
 end;
