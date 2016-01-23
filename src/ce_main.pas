@@ -549,16 +549,30 @@ end;
 procedure TCELastDocsAndProjs.AssignTo(aDestination: TPersistent);
 var
   itf: ICECommonProject = nil;
+  dst: TCEMainForm;
+  hdl: ICEMultiDocHandler;
+  mem: TCESynMemo = nil;
 begin
   if aDestination is TCEMainForm then
   begin
-    if TCEMainForm(aDestination).fProjFromCommandLine then
+    dst := TCEMainForm(aDestination);
+    if dst.fProjFromCommandLine then
       exit;
-    itf := TCEMainForm(aDestination).fProjectInterface;
+    itf := dst.fProjectInterface;
     if (itf <> nil) and (itf.filename = fProject) then
       exit;
-    if fProject.isNotEmpty and FileExists(fProject) then
-      TCEMainForm(aDestination).openProj(fProject);
+    if fProject.isNotEmpty and fProject.fileExists then
+    begin
+      dst.openProj(fProject);
+      hdl := getMultiDocHandler;
+      if assigned(hdl) then
+      mem := hdl.findDocument(dst.fProjectInterface.filename);
+      if mem.isNotNil then
+        if dst.fProjectInterface.getFormat = pfNative then
+          mem.Highlighter := LfmSyn
+        else
+          mem.Highlighter := JsSyn;
+    end;
   end else
     inherited;
 end;
@@ -583,7 +597,7 @@ begin
   begin
     document := docHandler.document[i];
     str := document.fileName;
-    if (str <> document.tempFilename) and FileExists(str) then
+    if (str <> document.tempFilename) and str.fileExists then
     begin
       fDocuments.Add(str);
       if document.Focused then
@@ -606,7 +620,7 @@ begin
   for i := 0 to fDocuments.Count-1 do
   begin
     str := fDocuments.Strings[i];
-    if FileExists(str) then
+    if str.fileExists then
     begin
       docHandler.openDocument(str);
       if i = fDocIndex then
@@ -614,11 +628,8 @@ begin
     end;
   end;
   //
-  if focusedName <> '' then
+  if focusedName.isNotEmpty then
     docHandler.openDocument(focusedName);
-
-  // TODO-cbugfix: if project file is reloaded to an editor it won't be linked to the matching project (e.g save file and project editor widget directly updated)
-  // same with MRU file or mini-explorer.
 end;
 {$ENDREGION}
 
@@ -1511,7 +1522,7 @@ end;
 
 procedure TCEMainForm.saveFile(aDocument: TCESynMemo);
 begin
-  if aDocument.Highlighter = LfmSyn then
+  if (aDocument.Highlighter = LfmSyn) or (aDocument.Highlighter = JsSyn) then
     saveProjSource(aDocument)
   else if fileExists(aDocument.fileName) then
     aDocument.save;
@@ -2323,8 +2334,10 @@ begin
   if not fileExists(fProjectInterface.filename) then exit;
   //
   openFile(fProjectInterface.filename);
-  //TODO-cDUB: add json highligher to edit json project in CE
-  fDoc.Highlighter := LfmSyn;
+  if fProjectInterface.getFormat = pfNative then
+    fDoc.Highlighter := LfmSyn
+  else
+    fDoc.Highlighter := JsSyn;
 end;
 
 procedure TCEMainForm.actProjOptViewExecute(Sender: TObject);

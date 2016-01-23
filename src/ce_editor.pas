@@ -15,7 +15,7 @@ type
 
   { TCEEditorWidget }
 
-  TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler)
+  TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler, ICEProjectObserver)
     mnuedCallTip: TMenuItem;
     mnuedDdoc: TMenuItem;
     mnuedCopy: TMenuItem;
@@ -47,6 +47,7 @@ type
     pageControl: TCEPageControl;
     fKeyChanged: boolean;
     fDoc: TCESynMemo;
+    fProj: ICECommonProject;
     fTokList: TLexTokenList;
     fErrList: TLexErrorList;
     fModStart: boolean;
@@ -68,6 +69,12 @@ type
     procedure docClosing(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
+    //
+    procedure projNew(aProject: ICECommonProject);
+    procedure projChanged(aProject: ICECommonProject);
+    procedure projClosing(aProject: ICECommonProject);
+    procedure projFocused(aProject: ICECommonProject);
+    procedure projCompiling(aProject: ICECommonProject);
     //
     function SingleServiceName: string;
     function documentCount: Integer;
@@ -196,6 +203,31 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION ICECommonProject ------------------------------------------------------}
+procedure TCEEditorWidget.projNew(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCEEditorWidget.projChanged(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCEEditorWidget.projClosing(aProject: ICECommonProject);
+begin
+  if fProj = aProject then
+    fProj := nil;
+end;
+
+procedure TCEEditorWidget.projFocused(aProject: ICECommonProject);
+begin
+  fProj := aProject;
+end;
+
+procedure TCEEditorWidget.projCompiling(aProject: ICECommonProject);
+begin
+end;
+{$ENDREGION}
+
 {$REGION ICEMultiDocHandler ----------------------------------------------------}
 function TCEEditorWidget.SingleServiceName: string;
 begin
@@ -236,6 +268,13 @@ begin
   end;
   doc := TCESynMemo.Create(nil);
   fDoc.loadFromFile(aFilename);
+  if assigned(fProj) and (fProj.filename = fDoc.fileName) then
+  begin
+    if fProj.getFormat = pfNative then
+      fDoc.Highlighter := LfmSyn
+    else
+      fDoc.Highlighter := JsSyn;
+  end;
 end;
 
 function TCEEditorWidget.closeDocument(index: Integer): boolean;

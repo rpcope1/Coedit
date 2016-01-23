@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, controls,lcltype, Forms, graphics, ExtCtrls, crc,
   SynEdit, SynPluginSyncroEdit, SynCompletion, SynEditKeyCmds, LazSynEditText,
   SynHighlighterLFM, SynEditHighlighter, SynEditMouseCmds, SynEditFoldedView,
-  SynEditMarks, SynEditTypes,
+  SynEditMarks, SynEditTypes, SynHighlighterJScript,
   ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs,
   ce_sharedres;
 
@@ -229,8 +229,10 @@ const
 
 var
   D2Syn: TSynD2Syn;     // used as model to set the options when no editor exists.
-  LfmSyn: TSynLfmSyn;   // used to highlight the native project format.
   TxtSyn: TSynTxtSyn;   // used as model to set the options when no editor exists.
+  LfmSyn: TSynLfmSyn;   // used to highlight the native projects.
+  JsSyn: TSynJScriptSyn; // used to highlight the DUB JSON projects.
+
 
 implementation
 
@@ -1216,7 +1218,7 @@ end;
 
 procedure TCESynMemo.MouseMove(Shift: TShiftState; X, Y: Integer);
 var
-  dX, dY: Integer;
+  dx, dy: Integer;
 begin
   hideDDocs;
   hideCallTips;
@@ -1333,11 +1335,21 @@ initialization
   D2Syn := TSynD2Syn.create(nil);
   LfmSyn := TSynLFMSyn.Create(nil);
   TxtSyn := TSynTxtSyn.create(nil);
+  JsSyn := TSynJScriptSyn.Create(nil);
   //
   LfmSyn.KeyAttri.Foreground := clNavy;
   LfmSyn.KeyAttri.Style := [fsBold];
   LfmSyn.NumberAttri.Foreground := clMaroon;
   LfmSyn.StringAttri.Foreground := clBlue;
+  LfmSyn.SymbolAttribute.Foreground:= clPurple;
+  LfmSyn.SymbolAttribute.Style := [fsBold];
+  //
+  JsSyn.KeyAttri.Foreground := clNavy;
+  JsSyn.KeyAttri.Style := [fsBold];
+  JsSyn.NumberAttri.Foreground := clMaroon;
+  JsSyn.StringAttri.Foreground := clBlue;
+  JsSyn.SymbolAttribute.Foreground:= clPurple;
+  JsSyn.SymbolAttribute.Style := [fsBold];
   //
   TCEEditorHintWindow.FontSize := 10;
   //
@@ -1346,6 +1358,7 @@ finalization
   D2Syn.Free;
   LfmSyn.Free;
   TxtSyn.Free;
+  JsSyn.Free;
   //
   TCESynMemo.cleanCache;
 end.
