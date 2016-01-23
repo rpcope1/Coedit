@@ -130,6 +130,7 @@ type
     function scedWantFirst: boolean;
     function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
     procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+    procedure scedSendDone;
     //
     procedure applyChangesFromSelf;
     procedure applyChangeToEditor(anEditor: TCESynMemo);
@@ -508,12 +509,13 @@ begin
   end;
   // note: shortcut modifications are not reversible,
   // they are sent from another option editor.
-  fShortcutCount -= 1;
-  // TODO: modifies interface so that the target knows when the last
-  // item has been sent.
-  if fShortcutCount = 0 then
-    applyChangesFromSelf;
 end;
+
+procedure TCEEditorOptions.scedSendDone;
+begin
+  applyChangesFromSelf;
+end;
+
 {$ENDREGION}
 
 {$REGION ICEEditableOptions ----------------------------------------------------}

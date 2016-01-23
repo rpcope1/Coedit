@@ -73,6 +73,7 @@ type
     function scedWantFirst: boolean;
     function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
     procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+    procedure scedSendDone;
   published
     // list of string with the format $<..>alnum=<..>
     property macros: TStringList read fMacros write setMacros;
@@ -336,6 +337,10 @@ begin
       fOptionBackup.shortcut := aShortcut;
       fOptions.shortcut := aShortcut;
     end;
+end;
+
+procedure TCEStaticEditorMacro.scedSendDone;
+begin
 end;
 {$ENDREGION}
 

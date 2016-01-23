@@ -260,6 +260,7 @@ type
     function scedWantFirst: boolean;
     function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
     procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+    procedure scedSendDone;
 
     //Init - Fina
     procedure getCMdParams;
@@ -1408,6 +1409,10 @@ begin
       continue;
     act.ShortCut := aShortcut;
   end;
+end;
+
+procedure TCEMainForm.scedSendDone;
+begin
 end;
 {$ENDREGION}
 

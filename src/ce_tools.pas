@@ -86,6 +86,7 @@ type
     function scedWantFirst: boolean;
     function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
     procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+    procedure scedSendDone;
   published
     property tools: TCEToolItems read fTools write setTools;
   public
@@ -359,6 +360,10 @@ begin
    tool[i].shortcut := aShortcut;
    break;
  end;
+end;
+
+procedure TCETools.scedSendDone;
+begin
 end;
 {$ENDREGION}
 

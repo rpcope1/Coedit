@@ -190,12 +190,14 @@ type
    *)
   ICEEditableShortCut = interface(ISubjectType)
   ['ICEEditableShortCut']
-    // a TCEEditableShortCutSubject will start to collect shortcuts if result
+    // a TCEEditableShortCutSubject will start to collect shortcuts if result.
     function scedWantFirst: boolean;
-    // a TCEEditableShortCutSubject collects the information on the shortcuts while result
+    // a TCEEditableShortCutSubject collects the information on the shortcuts while result.
     function scedWantNext(out category, identifier: string; out aShortcut: TShortcut): boolean;
-    // a TCEEditableShortCutSubject sends the possibly modified shortcut
+    // a TCEEditableShortCutSubject sends the possibly modified shortcut.
     procedure scedSendItem(const category, identifier: string; aShortcut: TShortcut);
+    // a TCEEditableShortCutSubject has finished to send the shortcuts.
+    procedure scedSendDone;
   end;
   (**
    * An implementer manages its observers shortcuts.

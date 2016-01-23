@@ -419,6 +419,7 @@ begin
       continue;
     shc.declarator.scedSendItem(cat, shc.identifier, shc.data);
   end;
+  shc.declarator.scedSendDone;
 end;
 
 {$ENDREGION}
