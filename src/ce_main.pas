@@ -1025,7 +1025,7 @@ begin
   try
     DockMaster.SaveLayoutToConfig(xcfg);
     xcfg.WriteToDisk;
-    // TODO: remove this when AnchorDocking wont save anymore invalid layout
+    // TODO-cdocking: remove this when AnchorDocking wont save anymore invalid layout
     with TMemoryStream.Create do try
       LoadFromFile(getCoeditDocPath + 'docking.xml.tmp');
       if Size < 10000 then
@@ -1148,7 +1148,7 @@ begin
       LoadLastDocsAndProj;
 
     // http://bugs.freepascal.org/view.php?id=29475
-    // TODO-cbugfix: activate this when Laz 1.6 released.
+    // TODO-cgonnawork: activate this when Laz 1.6 released.
     // DockMaster.ResetSplitter;
 
     fFirstShown := true;
@@ -2098,7 +2098,7 @@ begin
     DockMaster.SaveLayoutToConfig(xcfg);
     xcfg.WriteToDisk;
     // prevent any invalid layout to be saved (AnchorDocking bug)
-    // TODO: remove this when AnchorDocking wont save anymore invalid layout
+    // TODO-cdocking: remove this when AnchorDocking wont save anymore invalid layout
     with TMemoryStream.Create do try
       LoadFromFile(aFilename + '.tmp');
       if Size < 10000 then
@@ -2176,7 +2176,7 @@ begin
     widg.Parent.Parent.isNil and widg.isDockable then
   begin
     TForm(widg.Parent).FormStyle := fstyle[onTop];
-    //TODO-bugfix: floating widg on top from true to false, widg remains on top
+    //TODO-cbugfix: floating widg on top from true to false, widg remains on top
     if TForm(widg.Parent).Visible then if not onTop then
       TForm(widg.Parent).SendToBack;
   end;

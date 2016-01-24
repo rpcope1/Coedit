@@ -203,7 +203,7 @@ begin
     //
     FreeAndNil(fJSON);
     parser := TJSONParser.Create(loader, true);
-    //TODO-cDUB: uses parser.options to allow trailing comma (from FPC 3.02)
+    //TODO-cgonnawork: from FPC 3.02, uses parser.options to allow trailing comma in DUB descriptions
     // http://bugs.freepascal.org/view.php?id=29357
     try
       try

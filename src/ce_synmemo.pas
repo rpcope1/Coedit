@@ -130,6 +130,7 @@ type
     fMatchIdentOpts: TSynSearchOptions;
     fMatchOpts: TIdentifierMatchOptions;
     fCallTipStrings: TStringList;
+    fOverrideColMode: boolean;
     procedure setMatchOpts(value: TIdentifierMatchOptions);
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
@@ -309,7 +310,7 @@ begin
   fFontSize := fMemo.Font.Size;
   TCEEditorHintWindow.FontSize := fMemo.Font.Size;
   //
-  // TODO-cEditor Cache: >nested< folding persistence
+  // TODO-cimprovment: handle nested folding in TCESynMemoCache
   // cf. other ways: http://forum.lazarus.freepascal.org/index.php?topic=26748.msg164722#msg164722
   prev := fMemo.Lines.Count-1;
   for i := fMemo.Lines.Count-1 downto 0 do
@@ -765,6 +766,11 @@ begin
       hideDDocs;
       showCallTips;
     end;
+  end;
+  if fOverrideColMode and not SelAvail then
+  begin
+    fOverrideColMode := false;
+    Options := Options - [eoScrollPastEol];
   end;
 end;
 {$ENDREGIOn}
@@ -1243,6 +1249,12 @@ begin
   fCanShowHint := false;
   hideCallTips;
   hideDDocs;
+  if (emAltSetsColumnMode in MouseOptions) and not (eoScrollPastEol in Options)
+    and (ssLeft in shift) and (ssAlt in Shift) then
+  begin
+    fOverrideColMode := true;
+    Options := Options + [eoScrollPastEol];
+  end;
 end;
 
 procedure TCESynMemo.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:Integer);
@@ -1251,10 +1263,14 @@ begin
   case Button of
     mbMiddle: if (Shift = [ssCtrl]) then
       Font.Size := fDefaultFontSize;
-    // linux, kde: mbExtra are never called
     mbExtra1: fPositions.back;
     mbExtra2: fPositions.next;
     mbLeft:   fPositions.store;
+  end;
+  if fOverrideColMode and not SelAvail then
+  begin
+    fOverrideColMode := false;
+    Options := Options - [eoScrollPastEol];
   end;
 end;
 
