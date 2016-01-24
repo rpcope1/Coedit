@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Menus, StdCtrls, actnList, Buttons, SynEdit, SynEditSearch, SynEditTypes,
   ce_common, ce_mru, ce_widget, ce_synmemo, ce_interfaces, ce_observer,
-  ce_writableComponent, ce_dialogs;
+  ce_writableComponent, ce_dialogs, strutils;
 
 type
 
@@ -306,12 +306,12 @@ begin
     end;
     msgs := getMessageDisplay;
     msg := format('%d result(s) for the pattern <%s>', [length(res), fToFind]);
-    msgs.message(msg, fDoc, amcEdit, amkInf);
-    fmt := fDoc.fileName + '(%d,%d): match %d';
+    msgs.message(msg, fDoc, amcMisc, amkInf);
+    fmt := fDoc.fileName + '(%d,%d): "%s"';
     for i := 0 to high(res) do
     begin
-      msg := format(fmt, [res[i].Y, res[i].X, i]);
-      msgs.message(msg, fDoc, amcEdit, amkInf);
+      msg := format(fmt, [res[i].Y, res[i].X, Trim(fDoc.Lines.Strings[res[i].Y-1])]);
+      msgs.message(msg, fDoc, amcMisc, amkInf);
     end;
   finally
     search.free;
