@@ -407,19 +407,25 @@ procedure TCEShortcutEditor.sendShortcuts;
 var
   i: integer;
   shc: TShortcutItem;
+  decl: ICEEditableShortCut = nil;
   cat: string;
 begin
   for i := 0 to fShortcuts.count-1 do
   begin
     shc := fShortcuts[i];
+    decl:= shc.declarator;
+    if decl = nil then
+      continue;
     cat := findCategory(shc);
     if cat.isEmpty then
       continue;
-    if shc.declarator = nil then
-      continue;
-    shc.declarator.scedSendItem(cat, shc.identifier, shc.data);
+    decl.scedSendItem(cat, shc.identifier, shc.data);
+    if i = fShortcuts.count-1 then
+      decl.scedSendDone
+    // fShortcuts is always sorted by declarator, cf. receiveShortcuts()
+    else if decl <> fShortcuts[i+1].declarator then
+      decl.scedSendDone;
   end;
-  shc.declarator.scedSendDone;
 end;
 
 {$ENDREGION}
