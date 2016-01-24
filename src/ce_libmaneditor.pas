@@ -180,10 +180,10 @@ begin
   pth := GetEnvironmentVariable('HOME') + '/.dub/packages/' + nme + '-master';
   {$ENDIF}
   itf := getMessageDisplay;
-  if pth.dirExists then
+  if pth.dirExists and not DeleteDirectory(pth, false) then
   begin
     upd := true;
-    itf.message('information, the dub package is already fetched and will be upgraded', nil, amcApp, amkInf);
+    itf.message('information, the dub package is already fetched and will be upgraded', nil, amcMisc, amkInf);
   end;
 
   // fetch / updgrade
@@ -219,7 +219,7 @@ begin
   end;
   if err <> 0 then
   begin
-    itf.message('error, failed to fetch or upgrade the repository', nil, amcApp, amkErr);
+    itf.message('error, failed to fetch or upgrade the repository', nil, amcMisc, amkErr);
     exit;
   end;
 
@@ -247,7 +247,7 @@ begin
   end;
   if err <> 0 then
   begin
-    itf.message('error, failed to compile the package to register', nil, amcApp, amkErr);
+    itf.message('error, failed to compile the package to register', nil, amcMisc, amkErr);
     exit;
   end;
 
@@ -265,7 +265,7 @@ begin
       try
         for idx := 0 to prj.sourcesCount-1 do
           str.Add(prj.sourceAbsolute(idx));
-        if not upd then with List.Items.Add do
+        with List.Items.Add do
         begin
           Caption := nme;
           SubItems.Add(prj.outputFilename);
@@ -284,7 +284,7 @@ begin
       end;
     end else
       itf.message('warning, the package json description can not be found or the target is not a static library',
-        nil, amcApp, amkWarn);
+        nil, amcMisc, amkWarn);
   finally
     prj.Free;
     EntitiesConnector.endUpdate;
