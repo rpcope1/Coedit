@@ -414,6 +414,9 @@
       <Verbosity>
         <ShowHints Value="False"/>
       </Verbosity>
+      <CompilerMessages>
+        <IgnoredMessages idx5024="True"/>
+      </CompilerMessages>
       <CustomOptions Value="-dRELEASE"/>
     </Other>
   </CompilerOptions>

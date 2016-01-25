@@ -197,7 +197,7 @@ General questions and discussions (Q, BLA) about the use are also allowed since 
 - **"Add file to project"**: adds the file matching to the current editor to the project. If the current editor has been created using **"New empty file"** or **"New runnable module"** then the operation fails.
 - **"Compile file and run"**: compiles the current file and execute. See [runnable modules][lnk_runa].
 - **"Compile file and run outside"**: compiles the current file and execute without redirection. See [runnable modules][lnk_runa].
-- **"Compile file and run..."**: compiles the current file and execute with a set of options defined in a simple input-query dialog. The arguments must be separated with spaces and can include some double quotes.
+- **"Compile file and run..."**: compiles the current file and execute with a set of options defined in a simple input-query dialog. The arguments must be separated with spaces and can include double quotes.
 - **"Run file unittests": compiles and run the file with the options **-main -unittest**. This is useful to test a module that is part of a project and that doesn't already contain the _main()_ function.
 - **"Set runnable switches"**: allows to modify the switches passed to DMD when compiling a runnable module. One switch by line, invalid or duplicated switches are removed, such as _-main_ and _-unittest_ since they are set with _Run file unittests_.
 - **"View in mini explorer"**: expands the [mini-explorer][lnk_widg_miniexpl] tree on the folder containing the file.
@@ -211,14 +211,14 @@ General questions and discussions (Q, BLA) about the use are also allowed since 
 - **"Save project"**: saves the current project.
 - **"Save project as"**: saves the current project from a dialog.
 - **"Project configuration"**: displays the project configuration widget.
-- **"Edit project file"**: opens the project file in a new editor. The project files use the Pascal format called _"lfm"_ (Lazarus form module). Initially created to serialize the properties of the visual components it is also used to store some configurations because it has an advantageous readable aspect. When saved from a source editor, a project file is directly reloaded. It means that a particular care must be taken during the edition. Coedit will skip any error in the project file, without warnings.
+- **"Edit project file"**: opens the project file in a new editor. When saved from a source editor, a project file is directly reloaded. It means that a particular care must be taken during the edition. Coedit will skip any error in the project file, without warnings.
 - **"View project command line"**: displays the list of the switches and their arguments, as passed to DMD before the compilation. Note that under Windows, the content can be copied using the <kbd>Ctrl</kbd>+<kbd>C</kbd> shortcut on the dialog.
 - **"View in mini explorer"**: expands the [mini-explorer][lnk_widg_miniexpl] tree on the folder containing the project file.
 - **"Compile project"**: compiles the project using the current configuration.
 - **"Compile and run project"**: compiles the project using the current configuration and execute the output if the option _binaryKind_ is set to _executable_. 
-- **"Compile and run project..."**: Ditto. Before the execution of the output file an input-query dialog lets you pass some options to the process. Note that this command was added before the _runOptions_ of the project configuration, which allows to specify the parameters in a more advantageous way.
+- **"Compile and run project..."**: Ditto. Before the execution of the output file an input-query dialog lets you pass options to the process. Note that this command was added before the _runOptions_ of the project configuration, which allows to specify the parameters in a more advantageous way.
 - **"Run project"**: tries to execute the output if the project output option _binaryKind_ is set to _executable_.
-- **"Run project..."**: Ditto. Before the execution of the output file, an input-query dialog lets you specify  some switches and arguments to the process.
+- **"Run project..."**: Ditto. Before the execution of the output file, an input-query dialog lets you specify  switches and arguments to the process.
 
 # Runnable module
 
@@ -270,8 +270,8 @@ Note that the action _Run file unittest_ is based on the same internal function 
 Coedit features a native project format completely based on the _DMD_ options.
 Actually almost each DMD switch is represented by a project option.
 
-The project features some common parameters:
-- the source files. Either some modules, interfaces, static libraries or objects.
+The project has common parameters:
+- the source files. Either modules, interfaces, static libraries or objects.
 - library aliases: a list of aliases to specify which [_libman_ entries][lnk_widg_lib] are used by the project.
 
 but most of them are specific to each configuration.
@@ -299,8 +299,7 @@ Even if designed upon _DMD_ options, it's also possible to compile a CE project 
 
 Since the version 2 alpha 1, Coedit also handles DUB projects.
 
-DUB project description must be in JSON format. JSON format must be strictly compliant with RFC 4627.
-For example, some descriptions that are well handled by DUB could fail to load in Coedit because of trailing commas.
+DUB project description must be in JSON format. JSON format must be strictly compliant with RFC 4627 and trailing commas will cause errors. This restriction will be removed in the future (when CE will be build with FPC 3.0.2).
 
 Dub projects are handled exactly as the native projects are. The _project_ menu proposes the same features.
 However the configuration is done in another widget, see the [dedicated paragraph][lnk_widg_dub].
@@ -354,7 +353,7 @@ as a Coedit [custom tool][lnk_widg_tools].
 
 # Symbolic strings
 
-The symbolic strings represent some variables defined by the software. They are used by several widgets:
+The symbolic strings represent variables defined by the software. They are used by several widgets:
 - the processes: pre/post build [processes](https://github.com/BBasile/Coedit/wiki#prepost-build-process-options), runnable module processes, etc. The parameters (arguments) and the process name can include a symbol.
 - the [project](https://github.com/BBasile/Coedit/wiki#project-configuration-widget): the documentation folder, the json file, the output path, the object directory and the custom switches can include a symbol.
 - the [custom tools][lnk_widg_tools]: used similarly to the processes (parameters, working directory).
@@ -407,7 +406,7 @@ Docking can be customized in the [option editor][lnk_widg_opts]:
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optdock.png)
 
 Note that this feature relies on a component which is in beta state and in case of errors, it might be necessary
-to delete the configuration file named _docking.xml_ from the [data folder (see link target)][lnk_widg_opts],
+to delete the configuration file named _docking.xml_ from the [data folder][lnk_widg_opts],
 after what Coedit will start with the default layout.
 
 # Widgets
@@ -541,9 +540,9 @@ Coedit handles the task automatically (see later in the project configuration wi
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_up.png) **/** ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_down.png): change selected entry position.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_link.png): if the current project _binaryKind_ is set to _staticlib_ then the _libman_ will use its parameters to create an entry. This avoids to browse in the dialogs, for example if you wish to setup several [_metad_][lnk_metad] items. Note that sometimes the sources root folder has to be adjusted.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_open.png): if the selected item defines a _project_ then closes current project and opens the one matching to the entry.
-- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/dub_small.png): allows to fetch the master version of a DUB registry item. When the button is clicked, an input field allows to type the library name, after what, if the name is valid, the library will be downloaded, compiled and a new libman entry automatically set. This features is actually more useful for the native projects, since DUB projects handle the dependencies automatically. It allows to use every DUB library in a native project, even if it doesn't include a native project file.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/dub_small.png): allows to fetch the master version of a DUB registry item. When the button is clicked, an input field allows to type the library name, after what, if the name is valid, the library will be downloaded, compiled and a new libman entry automatically set. This features is actually more useful for the native projects and the runnable modules, since DUB projects handle the dependencies automatically. It allows to use every DUB library in a native project, even if it doesn't include a native project file.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_edit.png): edit the item alias.
-- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_brick.png): select the library file. In some rare case, this field can be omitted. 
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_brick.png): select the library file. In some rare case, this field can be omitted (for example if the library file is set in the _sc.ini_).
 This can be skipped if the library is only a small orphan _d_ source that's not been compiled as a static lib or if the entry is only used for the [DCD][lnk_dcd] completion.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/bricks.png): select a folder that contains several libraries files or several orphans modules.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_add.png): select the sources root folder. (the one commonly named 'import').
@@ -579,7 +578,7 @@ The project inspector widget is mostly designed to manipulate the project source
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_add.png): adds a folder of D source to the project from a dialog. The procedure is recursive.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/cog/wrench_orange.png): shows the project configuration widget.
 
-Notice that instead of using the dialogs to add some files, it's also possible to drop some items from a file explorer.
+Notice that instead of using the dialogs to add files, it's also possible to drop items from a file explorer.
 
 ## Project configuration widget
 
@@ -703,16 +702,18 @@ These options are defined per-configuration.
 
 #### Pre/Post build process options:
 
-They define the options of two processes, respectively executed before and after the compilation.
+They define the options of two processes and a ground of command, respectively executed before and after the compilation.
 These options are defined per-configuration.
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.preprocess1.png)
 
-- executable: the executable filename. If the system cannot solve its path using the environment variables then it must be included.
+- executable: the executable file name. If the system cannot solve its path using the environment variables then it must be included.
 It can also be substituted by a [symbolic string][lnk_sym].
 - options: a set of options. Activate **poUsesPipe** and **poStdErrToOutput** if you wish to redirect the process output to the messages widget.
 - parameters: a list of switches and arguments. As usual, one item per line, no double quotes.
 - showWindow: sets how the program window is displayed.
+- simpleCommands: additionally to the process, a list of shell commands can be specified, they are executed before the pre/post process. The Commands have fixed options: always piped to the message widget, the working directory is always the project path.
+The commands can include [symbolic string][lnk_sym].
 
 Even when a project has no sources files, the pre-build process is always executed. 
 This can be used as a trick to compile from another tool.
@@ -814,7 +815,6 @@ The tools are not just applications that are launched from the software. Since t
 A few typical examples:
 - launch a console with its working directory set to the project file directory.
 - analyze the current document in _Dscanner_. (see the tutorials).
-- format the current document with _dfmt_.
 - generate the documentation for all the project sources. (see the tutorials).
 - launch a custom build tool (_make_, _DUB_).
 - launch a script that will zip and upload the latest project build.
@@ -895,7 +895,7 @@ The mini explorer provides basic file browsing within the IDE.
 -  ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/pencil.png): if the selected file is a native or a DUB project then opens it as a project otherwise opens it in a new code editor.
 - ***input field***: filter the files whose name contains the text typed.
 
-The favorite folders are persistent.
+The favorite folders are persistent. The file list supports drag and drop. A few options are available in the [option editor][lnk_widg_opts].
 
 ## Options editor widget
 
