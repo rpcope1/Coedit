@@ -283,7 +283,7 @@ var
   fname: string;
 begin
   fname := aFilename;
-  if fileExists(fname) then
+  if fname.fileExists then
     fname := ExtractRelativepath(fBasePath, fname);
   result := fSrcs.IndexOf(fname) <> -1;
 end;
@@ -303,7 +303,7 @@ var
   fname: string;
 begin
   fname := fSrcs.Strings[index];
-  if FileExists(fname) then
+  if fname.fileExists then
     result := fname
   else
     result := expandFilenameEx(fBasePath, fname);
@@ -373,7 +373,7 @@ var
   msgs: ICEMessagesDisplay;
 begin
   result := false;
-  if not FileExists(fFilename) then
+  if not fFilename.fileExists then
   begin
     dlgOkInfo('The DUB project must be saved before being compiled or run !');
     exit;
@@ -824,7 +824,7 @@ begin
     gdc: DubCompilerFilename := exeFullName('gdc' + exeExt);
     ldc: DubCompilerFilename := exeFullName('ldc2' + exeExt);
   end;
-  if (not fileExists(DubCompilerFilename)) or DubCompilerFilename.isEmpty then
+  if (not DubCompilerFilename.fileExists) or DubCompilerFilename.isEmpty then
   begin
     value := dmd;
     DubCompilerFilename:= 'dmd' + exeExt;

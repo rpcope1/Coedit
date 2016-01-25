@@ -257,17 +257,20 @@ type
     fOptions: TProcessOptions;
     fParameters: TStringList;
     fShowWin: TShowWindowOptions;
+    fCommands: TStringList;
     procedure setExecutable(const aValue: TCEFilename);
     procedure setWorkDir(const aValue: TCEPathname);
     procedure setOptions(const aValue: TProcessOptions);
     procedure setParameters(aValue: TStringList);
     procedure setShowWin(const aValue: TShowWindowOptions);
+    procedure setCommands(aValue: TStringList);
   protected
     property executable: TCEFilename read fExecutable write setExecutable;
     property workingDirectory: TCEPathname read fWorkDir write setWorkDir;
     property options: TProcessOptions read fOptions write setOptions default [];
     property parameters: TStringList read fParameters write setParameters;
     property showWindow: TShowWindowOptions read fShowWin write setShowWin default swoNone;
+    property simpleCommands: TStringList read fCommands write setCommands;
   public
     constructor create;
     destructor destroy; override;
@@ -292,6 +295,7 @@ type
     property options default [];
     property parameters;
     property showWindow default swoNone;
+    property simpleCommands;
   end;
 
   (*****************************************************************************
@@ -1167,11 +1171,13 @@ end;
 constructor TCustomProcOptions.create;
 begin
   fParameters := TStringList.Create;
+  fCommands := TStringList.Create;
 end;
 
 destructor TCustomProcOptions.destroy;
 begin
   fParameters.Free;
+  fCommands.Free;
   inherited;
 end;
 
@@ -1264,6 +1270,12 @@ end;
 procedure TCustomProcOptions.setParameters(aValue: TStringList);
 begin
   fParameters.Assign(aValue);
+  doChanged;
+end;
+
+procedure TCustomProcOptions.setCommands(aValue: TStringList);
+begin
+  fCommands.Assign(aValue);
   doChanged;
 end;
 

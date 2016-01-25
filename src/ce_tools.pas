@@ -191,12 +191,14 @@ procedure TCEToolItem.execute(previous: TCEToolItem);
 var
   prm: string;
   inp: string;
+  old: string;
 begin
   ce_processes.killProcess(fProcess);
   //
   if fClearMessages then
     getMessageDisplay(fMsgs).clearByContext(amcMisc);
   //
+  old := GetCurrentDirUTF8;
   fProcess := TCEProcess.Create(nil);
   fProcess.OnReadData:= @processOutput;
   fProcess.OnTerminate:= @processOutput;
@@ -214,7 +216,7 @@ begin
   end;
   ensureNoPipeIfWait(fProcess);
   //
-  if FileExists(fProcess.Executable) then
+  if fProcess.Executable.fileExists then
   begin
     fProcess.Execute;
     if previous.isNotNil and previous.outputToNext
@@ -227,6 +229,8 @@ begin
       fProcess.CloseInput;
     end;
   end;
+  //
+  SetCurrentDirUTF8(old);
 end;
 
 procedure TCEToolItem.processOutput(sender: TObject);

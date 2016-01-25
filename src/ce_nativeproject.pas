@@ -12,7 +12,7 @@ uses
   ce_dialogs,
   {$ENDIF}
   Classes, SysUtils, process, strUtils, ce_common, ce_writableComponent,
-  ce_dmdwrap, ce_observer, ce_interfaces, ce_processes;
+  ce_dmdwrap, ce_observer, ce_interfaces, ce_processes, LazFileUtils;
 
 type
 
@@ -131,7 +131,7 @@ constructor TCENativeProject.create(aOwner: TComponent);
 begin
   inherited create(aOwner);
   //
-  fRunnerOldCwd := GetCurrentDir;
+  fRunnerOldCwd := GetCurrentDirUTF8;
   fProjectSubject := TCEProjectSubject.create;
   //
   fLibAliases := TStringList.Create;
@@ -400,7 +400,7 @@ begin
     begin
       str := symbolExpander.get(currentConfiguration.pathsOptions.exclusions.Strings[i]);
       rel := expandFilenameEx(fBasePath, currentConfiguration.pathsOptions.exclusions.Strings[i]);
-      if fileExists(str) then
+      if str.fileExists then
         ex_files.Add(str)
       else if str.dirExists then
         ex_folds.Add(str);
@@ -482,7 +482,7 @@ var
     if fSrcs.Count = 0 then exit;
     allMissing := true;
     for i:= 0 to fSrcs.Count-1 do
-      if fileExists(sourceAbsolute(i)) then
+      if sourceAbsolute(i).fileExists then
         allMissing := false;
     if not allMissing then exit;
     if dlgOkCancel( 'The project source(s) are all missing. ' + LineEnding +
@@ -516,7 +516,7 @@ var
     for i:= fSrcs.Count-1 downto 0 do
     begin
       oldsrc := sourceAbsolute(i);
-      if fileExists(oldsrc) then continue;
+      if oldsrc.fileExists then continue;
       if dlgOkCancel(format('a particular project source file ("%s") is missing. '
         + LineEnding + 'This happends if a source file has been moved, renamed ' +
         'or deleted.' + LineEnding + LineEnding +
@@ -572,7 +572,7 @@ begin
 end;
 
 procedure TCENativeProject.readerPropNoFound(Reader: TReader; Instance: TPersistent;
-      var PropName: string; IsPath: Boolean; var Handled, Skip: Boolean);
+  var PropName: string; IsPath: Boolean; var Handled, Skip: Boolean);
 //var
   //idt: string;
   //curr: TCompilerConfiguration;
@@ -642,41 +642,69 @@ begin
   //
   fCanBeRun := false;
   if currentConfiguration.outputOptions.binaryKind = executable then
-    fCanBeRun := fileExists(fOutputFilename);
+    fCanBeRun := fOutputFilename.fileExists;
 end;
 
 function TCENativeProject.runPrePostProcess(const processInfo: TCompileProcOptions): Boolean;
 var
-  process: TProcess;
+  lst: TStringList;
+  com: boolean;
+  proc: TProcess;
   pname: string;
   i, j: integer;
 begin
+  //
+  for i := 0 to processInfo.simpleCommands.Count-1 do
+  begin
+    pname := symbolExpander.get(processInfo.simpleCommands.Strings[i]);
+    proc := TProcess.Create(nil);
+    lst := TStringList.Create;
+    try
+      CommandToList(pname, lst);
+      proc.Executable := lst.Strings[0];
+      proc.Options:= [poUsePipes, poStderrToOutPut];
+      lst.Delete(0);
+      proc.Parameters.Assign(lst);
+      proc.Execute;
+      com := proc.ExitCode = 0;
+      lst.Clear;
+      ce_common.processOutputToStrings(proc, lst);
+      for j := 0 to lst.Count -1 do
+        getMessageDisplay.message(lst.Strings[j], self as ICECommonProject, amcProj, amkAuto);
+    finally
+      proc.Free;
+      lst.Free;
+    end;
+    if not com then
+      exit(false);
+  end;
+  //
   pname := symbolExpander.get(processInfo.executable);
   if (not exeInSysPath(pname)) and pname.isNotEmpty then
     exit(false)
   else if pname.isEmpty then
     exit(true);
   //
-  process := TProcess.Create(nil);
+  proc := TProcess.Create(nil);
   try
-    processInfo.setProcess(process);
-    process.Executable := exeFullName(pname);
-    j := process.Parameters.Count-1;
+    processInfo.setProcess(proc);
+    proc.Executable := exeFullName(pname);
+    j := proc.Parameters.Count-1;
     for i:= 0 to j do
-      process.Parameters.AddText(symbolExpander.get(process.Parameters.Strings[i]));
+      proc.Parameters.AddText(symbolExpander.get(proc.Parameters.Strings[i]));
     for i:= 0 to j do
-      process.Parameters.Delete(0);
-    if process.CurrentDirectory.isNotEmpty then
-      process.CurrentDirectory := symbolExpander.get(process.CurrentDirectory);
+      proc.Parameters.Delete(0);
+    if proc.CurrentDirectory.isNotEmpty then
+      proc.CurrentDirectory := symbolExpander.get(proc.CurrentDirectory);
     // else cwd is set to project dir in compile()
-    ensureNoPipeIfWait(process);
-    process.Execute;
-    while process.Running do
-      if poUsePipes in process.Options then
-        runProcOutput(process);
+    ensureNoPipeIfWait(proc);
+    proc.Execute;
+    while proc.Running do
+      if poUsePipes in proc.Options then
+        runProcOutput(proc);
   finally
-    result := process.ExitStatus = 0;
-    process.Free;
+    result := proc.ExitStatus = 0;
+    proc.Free;
   end;
 end;
 
@@ -702,17 +730,17 @@ begin
   subjProjCompiling(fProjectSubject, Self);
   //
   prjpath := fFileName.extractFilePath;
-  oldCwd := GetCurrentDir;
-  SetCurrentDir(prjpath);
+  oldCwd := GetCurrentDirUTF8;
+  SetCurrentDirUTF8(prjpath);
   //
   if not runPrePostProcess(config.preBuildProcess) then
-    msgs.message('project warning: the pre-compilation process has not been properly executed',
+    msgs.message('warning: pre-compilation process or commands not properly executed',
       self as ICECommonProject, amcProj, amkWarn);
-  SetCurrentDir(prjpath);
+  SetCurrentDirUTF8(prjpath);
   //
   if (Sources.Count = 0) and (config.pathsOptions.extraSources.Count = 0) then
   begin
-    SetCurrentDir(oldCwd);
+    SetCurrentDirUTF8(oldCwd);
     exit;
   end;
   //
@@ -745,12 +773,12 @@ begin
     updateOutFilename;
     compilproc.Free;
   end;
-  SetCurrentDir(prjpath);
+  SetCurrentDirUTF8(prjpath);
   //
   if not runPrePostProcess(config.PostBuildProcess) then
-    msgs.message( 'project warning: the post-compilation process has not been properly executed',
+    msgs.message( 'warning: post-compilation process or commands not properly executed',
       self as ICECommonProject, amcProj, amkWarn);
-  SetCurrentDir(oldCwd);
+  SetCurrentDirUTF8(oldCwd);
 end;
 
 function TCENativeProject.run(const runArgs: string = ''): Boolean;
@@ -778,7 +806,7 @@ begin
     until prm = '';
   end;
   //
-  if not fileExists(outputFilename) then
+  if not outputFilename.fileExists then
   begin
     getMessageDisplay.message('output executable missing: ' + shortenPath(outputFilename, 25),
       self as ICECommonProject, amcProj, amkErr);
@@ -788,7 +816,7 @@ begin
   fRunner.Executable := outputFilename;
   if fRunner.CurrentDirectory.isEmpty then
   begin
-    fRunnerOldCwd := GetCurrentDir;
+    fRunnerOldCwd := GetCurrentDirUTF8;
     cwd := fRunner.Executable.extractFilePath;
     chDir(cwd);
     fRunner.CurrentDirectory := cwd;
@@ -858,7 +886,7 @@ var
   i: integer;
 begin
   result := false;
-  if not FileExists(fOutputFilename) then exit;
+  if not fOutputFilename.fileExists then exit;
   dt := FileAge(fOutputFilename);
   for i := 0 to fSrcs.Count-1 do
     if fileAge(sourceAbsolute(i)) > dt then exit;
@@ -941,7 +969,7 @@ var
   fname: string;
 begin
   fname := fSrcs.Strings[index];
-  if FileExists(fname) then
+  if fname.fileExists then
     result := fname
   else
     result := expandFilenameEx(fBasePath, fname);
@@ -990,7 +1018,7 @@ begin
     gdc: NativeProjectCompilerFilename := exeFullName('cegdcldc' + exeExt);
     ldc: NativeProjectCompilerFilename := exeFullName('ldmd2' + exeExt);
   end;
-  if (not fileExists(NativeProjectCompilerFilename))
+  if (not NativeProjectCompilerFilename.fileExists)
     or NativeProjectCompilerFilename.isEmpty then
   begin
     value := dmd;
