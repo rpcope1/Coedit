@@ -306,12 +306,12 @@ begin
     end;
     msgs := getMessageDisplay;
     msg := format('%d result(s) for the pattern <%s>', [length(res), fToFind]);
-    msgs.message(msg, fDoc, amcMisc, amkInf);
+    msgs.message(msg, nil, amcMisc, amkInf);
     fmt := fDoc.fileName + '(%d,%d): "%s"';
     for i := 0 to high(res) do
     begin
       msg := format(fmt, [res[i].Y, res[i].X, Trim(fDoc.Lines.Strings[res[i].Y-1])]);
-      msgs.message(msg, fDoc, amcMisc, amkInf);
+      msgs.message(msg, nil, amcMisc, amkInf);
     end;
   finally
     search.free;
