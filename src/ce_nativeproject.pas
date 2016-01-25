@@ -814,11 +814,11 @@ begin
   end;
   //
   fRunner.Executable := outputFilename;
+  fRunnerOldCwd := GetCurrentDirUTF8;
   if fRunner.CurrentDirectory.isEmpty then
   begin
-    fRunnerOldCwd := GetCurrentDirUTF8;
     cwd := fRunner.Executable.extractFilePath;
-    chDir(cwd);
+    SetCurrentDirUTF8(cwd);
     fRunner.CurrentDirectory := cwd;
   end;
   if poUsePipes in fRunner.Options then begin
@@ -855,7 +855,7 @@ begin
   if not proc.Running then
   begin
     getprocInputHandler.removeProcess(TProcess(sender));
-    ChDir(fRunnerOldCwd);
+    SetCurrentDirUTF8(fRunnerOldCwd);
     //
     if (proc.ExitStatus <> 0) then
       msgs.message(format('error: the process (%s) has returned the signal %d',
