@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Menus, StdCtrls, actnList, Buttons, SynEdit, SynEditSearch, SynEditTypes,
   ce_common, ce_mru, ce_widget, ce_synmemo, ce_interfaces, ce_observer,
-  ce_writableComponent, ce_dialogs, strutils;
+  ce_writableComponent, ce_dialogs, ce_sharedres;
 
 type
 
@@ -43,7 +43,8 @@ type
   end;
 
   { TCESearchWidget }
-  TCESearchWidget = class(TCEWidget, ICEMultiDocObserver)
+  TCESearchWidget = class(TCEWidget, ICEMultiDocObserver, ICEProjectObserver)
+    btnAllScope: TBitBtn;
     btnFind: TBitBtn;
     btnFindAll: TBitBtn;
     btnReplace: TBitBtn;
@@ -60,6 +61,8 @@ type
     grpOpts: TGroupBox;
     imgList: TImageList;
     Panel1: TPanel;
+    Panel2: TPanel;
+    procedure btnAllScopeClick(Sender: TObject);
     procedure cbReplaceWthChange(Sender: TObject);
     procedure cbToFindChange(Sender: TObject);
     procedure chkEnableRepChange(Sender: TObject);
@@ -75,20 +78,30 @@ type
     fCancelAll: boolean;
     fHasSearched: boolean;
     fHasRestarted: boolean;
+    fProj: ICECommonProject;
+    fAllInProj: boolean;
     function getOptions: TSynSearchOptions;
     procedure actReplaceAllExecute(sender: TObject);
     procedure replaceEvent(Sender: TObject; const ASearch, AReplace:
       string; Line, Column: integer; var ReplaceAction: TSynReplaceAction);
-  protected
-    procedure updateImperative; override;
-  public
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
+    //
+    procedure projNew(aProject: ICECommonProject);
+    procedure projChanged(aProject: ICECommonProject);
+    procedure projClosing(aProject: ICECommonProject);
+    procedure projFocused(aProject: ICECommonProject);
+    procedure projCompiling(aProject: ICECommonProject);
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
+    //
+    procedure findAll(const filename: string; lines: TStrings);
+  protected
+    procedure updateImperative; override;
+  public
+    constructor Create(aOwner: TComponent); override;
+    destructor Destroy; override;
     //
     procedure actFindNextExecute(sender: TObject);
     procedure actReplaceNextExecute(sender: TObject);
@@ -215,6 +228,7 @@ begin
   btnReplace.Action := fActReplaceNext;
   btnReplaceAll.Action := fActReplaceAll;
   btnFindAll.Action := fActFindAll;
+  AssignPng(btnAllScope, 'document');
   updateImperative;
   //
   EntitiesConnector.addObserver(self);
@@ -256,7 +270,7 @@ begin
 end;
 
 procedure TCESearchWidget.replaceEvent(Sender: TObject; const ASearch, AReplace:
-      string; Line, Column: integer; var ReplaceAction: TSynReplaceAction);
+  string; Line, Column: integer; var ReplaceAction: TSynReplaceAction);
 begin
   case dlgReplaceAll of
     mrYes: ReplaceAction := raReplace;
@@ -272,6 +286,37 @@ end;
 
 procedure TCESearchWidget.actFindAllExecute(sender: TObject);
 var
+  i: integer;
+  syn: TSynEdit;
+  fnm: string;
+begin
+  if fDoc.isNil and not fAllInProj then
+    exit;
+  if (fProj = nil) and fAllInProj then
+    exit;
+  //
+  fSearchMru.Insert(0,fToFind);
+  cbToFind.Items.Assign(fSearchMru);
+  //
+  if fAllInProj then
+  begin
+    syn := TSynEdit.Create(nil);
+    try
+      for i := 0 to fProj.sourcesCount-1 do
+      begin
+        fnm := fProj.sourceAbsolute(i);
+        syn.Lines.LoadFromFile(fnm);
+        findAll(fnm, syn.Lines);
+      end;
+    finally
+      syn.Free;
+    end;
+  end
+  else findAll(fDoc.fileName, fDoc.Lines);
+end;
+
+procedure TCESearchWidget.findAll(const filename: string; lines: TStrings);
+var
   search: TSynEditSearch;
   options: TSynSearchOptions;
   start, stop: TPoint;
@@ -282,11 +327,6 @@ var
   i: integer;
   res: array of TPoint = nil;
 begin
-  if fDoc.isNil then exit;
-  //
-  fSearchMru.Insert(0,fToFind);
-  cbToFind.Items.Assign(fSearchMru);
-  //
   search := TSynEditSearch.Create;
   try
     options := getOptions;
@@ -294,10 +334,12 @@ begin
     search.Whole := ssoWholeWord in options;
     search.RegularExpressions:= ssoRegExpr in options;
     search.Pattern:=fToFind;
-    search.IdentChars:=fDoc.IdentChars;
+
+    // search.IdentChars:= [];
+
     start := Point(1,1);
-    stop := Point(high(integer), fDoc.Lines.Count);
-    while search.FindNextOne(fDoc.Lines, start, stop, startf, stopf) do
+    stop := Point(high(integer), lines.Count);
+    while search.FindNextOne(lines, start, stop, startf, stopf) do
     begin
       setLength(res, length(res) + 1);
       res[high(res)].X := startf.X;
@@ -307,10 +349,10 @@ begin
     msgs := getMessageDisplay;
     msg := format('%d result(s) for the pattern <%s>', [length(res), fToFind]);
     msgs.message(msg, nil, amcMisc, amkInf);
-    fmt := fDoc.fileName + '(%d,%d): "%s"';
+    fmt := fileName + '(%d,%d): "%s"';
     for i := 0 to high(res) do
     begin
-      msg := format(fmt, [res[i].Y, res[i].X, Trim(fDoc.Lines.Strings[res[i].Y-1])]);
+      msg := format(fmt, [res[i].Y, res[i].X, Trim(lines.Strings[res[i].Y-1])]);
       msgs.message(msg, nil, amcMisc, amkInf);
     end;
   finally
@@ -413,6 +455,35 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION ICEProjectObserver ----------------------------------------------------}
+procedure TCESearchWidget.projNew(aProject: ICECommonProject);
+begin
+  fProj := aProject;
+  updateImperative;
+end;
+
+procedure TCESearchWidget.projChanged(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCESearchWidget.projClosing(aProject: ICECommonProject);
+begin
+  if fProj = aProject then
+    fProj := nil;
+  updateImperative;
+end;
+
+procedure TCESearchWidget.projFocused(aProject: ICECommonProject);
+begin
+  fProj := aProject;
+  updateImperative;
+end;
+
+procedure TCESearchWidget.projCompiling(aProject: ICECommonProject);
+begin
+end;
+{$ENDREGION}
+
 {$REGION ICEMultiDocObserver ---------------------------------------------------}
 procedure TCESearchWidget.docNew(aDoc: TCESynMemo);
 begin
@@ -461,14 +532,33 @@ begin
   updateImperative;
 end;
 
-procedure TCESearchWidget.updateImperative;
+procedure TCESearchWidget.btnAllScopeClick(Sender: TObject);
 begin
+  fAllInProj := not fAllInProj;
+  if fAllInProj then
+  begin
+    AssignPng(btnAllScope, 'document_all');
+    btnAllScope.Hint := 'all project sources';
+  end
+  else
+  begin
+    AssignPng(btnAllScope, 'document');
+    btnAllScope.Hint := 'selected source';
+  end;
+  updateImperative;
+end;
+
+procedure TCESearchWidget.updateImperative;
+var
+  canAll: boolean;
+begin
+  canAll := (fDoc.isNotNil and not fAllInProj) or (fAllInProj and (fProj <> nil));
   btnFind.Enabled := fDoc.isNotNil and fToFind.isNotEmpty;
-  btnFindAll.Enabled := fDoc.isNotNil and fToFind.isNotEmpty;
+  btnFindAll.Enabled := canAll;
   btnReplace.Enabled := fDoc.isNotNil and chkEnableRep.Checked and fToFind.isNotEmpty;
   btnReplaceAll.Enabled := btnReplace.Enabled;
   cbReplaceWth.Enabled := fDoc.isNotNil and chkEnableRep.Checked;
-  cbToFind.Enabled := fDoc.isNotNil;
+  cbToFind.Enabled := canAll;
 end;
 {$ENDREGION}
 
