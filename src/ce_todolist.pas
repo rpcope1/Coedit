@@ -404,6 +404,7 @@ end;
 procedure TCETodoListWidget.callToolProcess;
 var
   ctxt: TTodoContext;
+  i: integer;
 begin
   clearTodoList;
   if not exeInSysPath(ToolExeName) then
@@ -423,9 +424,11 @@ begin
 
   // files passed to the tool argument
   if ctxt = tcProject then
-    fToolProc.Parameters.AddText(symbolExpander.get('<CPFS>'))
-  else
-    fToolProc.Parameters.Add(symbolExpander.get('<CFF>'));
+  begin
+    for i := 0 to fProj.sourcesCount-1 do
+      fToolProc.Parameters.Add(fProj.sourceAbsolute(i));
+  end
+  else fToolProc.Parameters.Add(fDoc.fileName);
   //
   fToolProc.Execute;
 end;

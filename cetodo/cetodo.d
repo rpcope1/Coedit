@@ -148,12 +148,12 @@ void main(string[] args)
     
     // efficient appending if the item text ~ fields is about 100 chars
     lfmApp.reserve(todoItems.length * 128 + 64);
-    
+
     // serialize the items using the pascal component streaming text format
     lfmApp.put("object TTodoItems\r  items = <");
     foreach(todoItem; todoItems) todoItem.serialize(lfmApp);
     lfmApp.put(">\rend\r\n");
-    
+
     // the widget has the LFM script in the output
     write(lfmApp.data);
     
@@ -192,7 +192,7 @@ void main(string[] args)
     {
         identifier ~= std.ascii.toUpper(text.front);
         text.popFront;   
-        if (canFind(["TODO","FIXME"], identifier)) 
+        if (identifier.among("TODO","FIXME"))
         {
             isTodoComment = true;
             break;
@@ -213,7 +213,7 @@ void main(string[] args)
         if (front == ':')
         {
             if (identifier.length) fields = identifier;
-            isWellFormed = (text.length > 0);
+            isWellFormed = text.length > 0;
             break;
         }
     }
@@ -223,24 +223,27 @@ void main(string[] args)
     
     // parses the item description fields
     string a, c, p, s;
-    if (fields.length) while (!fields.empty)
+    while (!fields.empty)
     {
-        auto front = fields.front;
+        dchar front = fields.front;
         fields.popFront;
         if ((front == '-' || fields.empty) && identifier.length > 2)
         {
-            auto field0 = identifier[0..2].toUpper;
-            auto field1 = identifier[2..$].strip;  
-                 if (field0 == "-A") a = field1;
-            else if (field0 == "-C") c = field1;
-            else if (field0 == "-P") p = field1;
-            else if (field0 == "-S") s = field1;
-            identifier = "";                
+            string fieldContent = identifier[2..$].strip;
+            switch(identifier[0..2].toUpper)
+            {
+                default: break;
+                case "-A": a = fieldContent; break;
+                case "-C": c = fieldContent; break;
+                case "-P": p = fieldContent; break;
+                case "-S": s = fieldContent; break;
+            }
+            identifier = "";
         }
         identifier ~= front;  
     }
-    
-    
+
+
     string line;
     try line = to!string(atok.line);
     catch(ConvException e) line = "0";
