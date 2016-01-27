@@ -1,20 +1,20 @@
 inherited CESearchWidget: TCESearchWidget
   Left = 742
-  Height = 287
+  Height = 288
   Top = 278
   Width = 393
   Caption = 'Search & replace'
-  ClientHeight = 287
+  ClientHeight = 288
   ClientWidth = 393
   inherited Back: TPanel
-    Height = 287
+    Height = 288
     Width = 393
-    ClientHeight = 287
+    ClientHeight = 288
     ClientWidth = 393
     inherited Content: TPanel
-      Height = 287
+      Height = 288
       Width = 393
-      ClientHeight = 287
+      ClientHeight = 288
       ClientWidth = 393
       object cbToFind: TComboBox[0]
         Left = 4
@@ -32,7 +32,7 @@ inherited CESearchWidget: TCESearchWidget
       object btnFind: TBitBtn[1]
         Left = 4
         Height = 24
-        Top = 167
+        Top = 176
         Width = 385
         Align = alBottom
         BorderSpacing.Around = 4
@@ -78,7 +78,7 @@ inherited CESearchWidget: TCESearchWidget
       object btnReplace: TBitBtn[2]
         Left = 4
         Height = 24
-        Top = 231
+        Top = 232
         Width = 385
         Align = alBottom
         BorderSpacing.Around = 4
@@ -123,13 +123,13 @@ inherited CESearchWidget: TCESearchWidget
       end
       object grpOpts: TGroupBox[3]
         Left = 4
-        Height = 105
+        Height = 114
         Top = 58
         Width = 385
         Align = alClient
         BorderSpacing.Around = 4
         Caption = 'Options'
-        ClientHeight = 75
+        ClientHeight = 84
         ClientWidth = 381
         TabOrder = 4
         object chkWWord: TCheckBox
@@ -190,7 +190,7 @@ inherited CESearchWidget: TCESearchWidget
       object btnReplaceAll: TBitBtn[4]
         Left = 4
         Height = 24
-        Top = 259
+        Top = 260
         Width = 385
         Align = alBottom
         BorderSpacing.Around = 4
@@ -268,22 +268,22 @@ inherited CESearchWidget: TCESearchWidget
         end
       end
       object Panel2: TPanel[6]
-        Left = 0
-        Height = 32
-        Top = 195
-        Width = 393
+        Left = 4
+        Height = 24
+        Top = 204
+        Width = 385
         Align = alBottom
+        BorderSpacing.Around = 4
         BevelOuter = bvNone
-        ClientHeight = 32
-        ClientWidth = 393
+        ClientHeight = 24
+        ClientWidth = 385
         TabOrder = 6
         object btnFindAll: TBitBtn
-          Left = 4
+          Left = 0
           Height = 24
-          Top = 4
-          Width = 352
+          Top = 0
+          Width = 354
           Align = alClient
-          BorderSpacing.Around = 4
           Caption = 'btnFindAll'
           Glyph.Data = {
             36040000424D3604000000000000360000002800000010000000100000000100
@@ -324,12 +324,12 @@ inherited CESearchWidget: TCESearchWidget
           TabOrder = 0
         end
         object btnAllScope: TBitBtn
-          Left = 360
+          Left = 356
           Height = 24
-          Top = 4
+          Top = 0
           Width = 29
           Align = alRight
-          BorderSpacing.Around = 4
+          BorderSpacing.Left = 2
           OnClick = btnAllScopeClick
           TabOrder = 1
         end
