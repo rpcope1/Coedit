@@ -54,7 +54,7 @@ begin
   fMru.maxCount := 25;
   EntitiesConnector.addSingleService(self);
   fname := getCoeditDocPath + OptsFname;
-  if fileExists(OptsFname) then
+  if OptsFname.fileExists then
     fMru.LoadFromFile(fname);
   if fMru.Count = 0 then
     fMru.Insert(0, '(your input here)');

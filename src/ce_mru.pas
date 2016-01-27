@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, ce_interfaces, ce_observer,
-  ce_nativeproject, ce_synmemo;
+  ce_nativeproject, ce_synmemo, ce_common;
 
 type
 
@@ -141,13 +141,13 @@ var
 begin
   inherited;
   for i := Count-1 downto 0 do
-    if not fileExists(Strings[i]) then
+    if not Strings[i].fileExists then
       Delete(i);
 end;
 
 function TCEMRUFileList.checkItem(const S: string): boolean;
 begin
-  exit( inherited checkItem(S) and fileExists(S));
+  exit( inherited checkItem(S) and S.fileExists);
 end;
 
 constructor TCEMRUDocumentList.create;
@@ -176,7 +176,7 @@ end;
 
 procedure TCEMRUDocumentList.docClosing(aDoc: TCESynMemo);
 begin
-  if FileExists(aDoc.fileName) and (aDoc.fileName <> aDoc.tempFilename) then
+  if aDoc.fileName.fileExists and not aDoc.isTemporary then
     Insert(0, aDoc.fileName);
 end;
 
@@ -215,7 +215,8 @@ begin
   if aProject = nil then exit;
   //
   fname := aProject.filename;
-  if FileExists(fname) then Insert(0, fname);
+  if fname.fileExists then
+    Insert(0, fname);
 end;
 
 initialization

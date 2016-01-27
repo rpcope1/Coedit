@@ -780,7 +780,7 @@ begin
     end;
   end;
   value := application.GetOptionValue('p', 'project');
-  if value.isNotEmpty and fileExists(value) then
+  if value.isNotEmpty and value.fileExists then
     openProj(value);
   value := application.GetOptionValue('f', 'files');
   if value.isNotEmpty then
@@ -790,7 +790,7 @@ begin
       lst.DelimitedText := value;
       for value in lst do
       begin
-        if fileExists(value) then
+        if value.fileExists then
           openFile(value);
       end;
     finally
@@ -949,7 +949,7 @@ var
 begin
   // project and files MRU
   fname := getCoeditDocPath + 'mostrecent.txt';
-  if fileExists(fname) then with TCEPersistentMainMrus.create(nil) do
+  if fname.fileExists then with TCEPersistentMainMrus.create(nil) do
   try
     setTargets(fFileMru, fProjMru);
     loadFromFile(fname);
@@ -958,7 +958,7 @@ begin
   end;
   // shortcuts for the actions standing in the main action list
   fname := getCoeditDocPath + 'mainshortcuts.txt';
-  if fileExists(fname) then with TCEPersistentMainShortcuts.create(nil) do
+  if fname.fileExists then with TCEPersistentMainShortcuts.create(nil) do
   try
     loadFromFile(fname);
     assignTo(self);
@@ -968,7 +968,7 @@ begin
   // globals opts
   fAppliOpts := TCEApplicationOptions.Create(self);
   fname := getCoeditDocPath + 'application.txt';
-  if fileExists(fname) then
+  if fname.fileExists then
   begin
     fAppliOpts.loadFromFile(fname);
     fAppliOpts.assignTo(self);
@@ -1524,7 +1524,7 @@ procedure TCEMainForm.saveFile(aDocument: TCESynMemo);
 begin
   if (aDocument.Highlighter = LfmSyn) or (aDocument.Highlighter = JsSyn) then
     saveProjSource(aDocument)
-  else if fileExists(aDocument.fileName) then
+  else if aDocument.fileName.fileExists then
     aDocument.save;
 end;
 
@@ -1548,7 +1548,7 @@ end;
 procedure TCEMainForm.actProjOpenContFoldExecute(Sender: TObject);
 begin
   if fProjectInterface = nil then exit;
-  if not fileExists(fProjectInterface.filename) then exit;
+  if not fProjectInterface.filename.fileExists then exit;
   //
   DockMaster.GetAnchorSite(fExplWidg).Show;
   fExplWidg.expandPath(fProjectInterface.filename.extractFilePath);
@@ -1598,7 +1598,7 @@ begin
   if fDoc.isNil then exit;
   //
   str := fDoc.fileName;
-  if (str <> fDoc.tempFilename) and (fileExists(str)) then
+  if (str <> fDoc.tempFilename) and str.fileExists then
     saveFile(fDoc)
   else
     actFileSaveAs.Execute;
@@ -1612,7 +1612,7 @@ begin
   //
   if fProjectInterface.getFormat = pfNative then
   begin
-    if fileExists(fDoc.fileName) and (not fDoc.isTemporary) then
+    if fDoc.fileName.fileExists and not fDoc.isTemporary then
       fNativeProject.addSource(fDoc.fileName)
     else dlgOkInfo('the file has not been added to the project because it does not exist');
   end else
@@ -1889,7 +1889,7 @@ begin
 
     fMsgs.message('compiling ' + shortenPath(fDoc.fileName, 25), fDoc, amcEdit, amkInf);
 
-    if fileExists(fDoc.fileName) then fDoc.save
+    if fDoc.fileName.fileExists then fDoc.save
     else fDoc.saveTempFile;
     fname := stripFileExt(fDoc.fileName);
 
@@ -1978,7 +1978,7 @@ end;
 procedure TCEMainForm.actFileOpenContFoldExecute(Sender: TObject);
 begin
   if fDoc.isNil then exit;
-  if not fileExists(fDoc.fileName) then exit;
+  if not fDoc.fileName.fileExists then exit;
   //
   DockMaster.GetAnchorSite(fExplWidg).Show;
   fExplWidg.expandPath(fDoc.fileName.extractFilePath);
@@ -2015,7 +2015,7 @@ begin
   if (not fProjectInterface.targetUpToDate) then if
     dlgOkCancel('The project output is not up-to-date, rebuild ?') = mrOK then
       fProjectInterface.compile;
-  if fileExists(fProjectInterface.outputFilename)
+  if fProjectInterface.outputFilename.fileExists
       or (fProjectInterface.getFormat = pfDub) then
         fProjectInterface.run;
 end;
@@ -2065,7 +2065,7 @@ procedure TCEMainForm.layoutLoadFromFile(const aFilename: string);
 var
   xcfg: TXMLConfigStorage;
 begin
-  if not fileExists(aFilename) then
+  if not aFilename.fileExists then
     exit;
   //
   xcfg := TXMLConfigStorage.Create(aFilename, true);
@@ -2186,7 +2186,7 @@ end;
 {$REGION project ---------------------------------------------------------------}
 procedure TCEMainForm.showProjTitle;
 begin
-  if (fProjectInterface <> nil) and fileExists(fProjectInterface.filename) then
+  if (fProjectInterface <> nil) and fProjectInterface.filename.fileExists then
     caption := format('Coedit - %s', [shortenPath(fProjectInterface.filename, 30)])
   else
     caption := 'Coedit';
@@ -2331,7 +2331,7 @@ end;
 procedure TCEMainForm.actProjSourceExecute(Sender: TObject);
 begin
   if fProjectInterface = nil then exit;
-  if not fileExists(fProjectInterface.filename) then exit;
+  if not fProjectInterface.filename.fileExists then exit;
   //
   openFile(fProjectInterface.filename);
   if fProjectInterface.getFormat = pfNative then

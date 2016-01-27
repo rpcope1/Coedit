@@ -208,7 +208,7 @@ begin
   fOptions := TStaticMacrosOptions.create(self);
   fOptionBackup := TStaticMacrosOptions.create(self);
   fname := getCoeditDocPath + OptFname;
-  if fileExists(fname) then
+  if fname.fileExists then
   begin
     fOptions.loadFromFile(fname);
     // old option file will create a streaming error.

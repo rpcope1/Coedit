@@ -91,9 +91,9 @@ end;
 procedure TCELibManEditorWidget.updateButtonsState;
 begin
   btnReg.Enabled := (fProj <> nil) and (fProj.binaryKind = staticlib) and
-    FileExists(fProj.Filename);
-  btnOpenProj.Enabled := (List.Selected.isNotNil) and
-    (fileExists(List.Selected.SubItems[2]));
+    fProj.Filename.fileExists;
+  btnOpenProj.Enabled := List.Selected.isNotNil and
+    List.Selected.SubItems[2].fileExists;
 end;
 
 procedure TCELibManEditorWidget.projNew(aProject: ICECommonProject);
@@ -310,7 +310,7 @@ var
 begin
   if List.Selected.isNil then exit;
   fname := List.Selected.SubItems[2];
-  if not FileExists(fname) then exit;
+  if not fname.fileExists then exit;
   //
   if isValidNativeProject(fname) then
   begin
@@ -384,7 +384,7 @@ begin
         SubItems.add(fname);
       SubItems.add(root);
       SubItems.add(fProj.filename);
-      if not FileExists(SubItems[0]) then
+      if not SubItems[0].fileExists then
         dlgOkInfo('the library file does not exist, maybe the project not been already compiled ?');
       Selected:= true;
     end;

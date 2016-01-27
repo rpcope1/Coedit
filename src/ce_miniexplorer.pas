@@ -268,7 +268,7 @@ begin
   treeSetRoots;
   //
   fname := getCoeditDocPath + OptsFname;
-  if fileExists(fname) then with TCEMiniExplorerOptions.create(nil) do
+  if fname.fileExists then with TCEMiniExplorerOptions.create(nil) do
   try
     loadFromFile(fname);
     assignTo(self);
@@ -459,7 +459,7 @@ begin
   if lstFiles.Selected.isNil then exit;
   if lstFiles.Selected.Data.isNil then exit;
   fname := PString(lstFiles.Selected.Data)^;
-  if not fileExists(fname) then exit;
+  if not fname.fileExists then exit;
   {$IFNDEF WINDOWS}
   fname := fname[2..length(fname)];
   {$ENDIF}
@@ -531,7 +531,7 @@ begin
     if lstFav.Selected.Data.isNil then exit;
     fname := PString(lstFav.Selected.Data)^;
   end;
-  if fileExists(fname) then if not shellOpen(fname) then
+  if fname.fileExists then if not shellOpen(fname) then
     getMessageDisplay.message((format('the shell failed to open "%s"',
     [shortenPath(fname, 25)])), nil, amcMisc, amkErr);
 end;

@@ -216,7 +216,7 @@ begin
   fReplaceMru:= TCEMruList.Create;
   //
   fname := getCoeditDocPath + OptsFname;
-  if FileExists(fname) then with TCESearchOptions.create(nil) do
+  if fname.fileExists then with TCESearchOptions.create(nil) do
   try
     loadFromFile(fname);
     AssignTo(self);

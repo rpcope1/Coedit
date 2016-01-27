@@ -225,7 +225,7 @@ begin
   AssignPng(btnGo, 'arrow_pen');
   //
   fname := getCoeditDocPath + OptFname;
-  if FileExists(fname) then
+  if fname.fileExists then
     fOptions.loadFromFile(fname);
   fOptions.AssignTo(self);
   //

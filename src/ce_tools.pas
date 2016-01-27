@@ -267,7 +267,7 @@ begin
   inherited;
   fTools := TCEToolItems.Create(TCEToolItem);
   fname := getCoeditDocPath + toolsFname;
-  if fileExists(fname) then loadFromFile(fname);
+  if fname.fileExists then loadFromFile(fname);
   //
   EntitiesConnector.addObserver(self);
 end;

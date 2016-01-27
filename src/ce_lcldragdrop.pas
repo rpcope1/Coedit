@@ -92,7 +92,7 @@ begin
     if trv.Selected.isNotNil then
     begin
       result := trv.Selected.Text;
-      if (not result.fileExists) and assigned(fProj) then
+      if not result.fileExists and assigned(fProj) then
         result := fProj.filename.extractFilePath + result;
     end;
   end;
@@ -104,7 +104,7 @@ var
   fname: string;
 begin
   fname := getFilename(Source);
-  Accept := fname.fileExists and (not fname.dirExists);
+  Accept := fname.fileExists and not fname.dirExists;
 end;
 
 procedure TDDHandler.DragDrop(Sender, Source: TObject; X, Y: Integer);

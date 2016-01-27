@@ -353,7 +353,7 @@ begin
   fOptions := TCESymbolListOptions.Create(self);
   fOptions.Name:= 'symbolListOptions';
   fname := getCoeditDocPath + OptsFname;
-  if FileExists(fname) then
+  if fname.fileExists then
     fOptions.loadFromFile(fname);
   fOptions.AssignTo(self);
   //
@@ -650,7 +650,7 @@ end;
 procedure TCESymbolListWidget.checkIfHasToolExe;
 begin
   fToolExeName := exeFullName(toolExeName);
-  fHasToolExe := FileExists(fToolExeName);
+  fHasToolExe := fToolExeName.fileExists;
 end;
 
 procedure TCESymbolListWidget.callToolProc;

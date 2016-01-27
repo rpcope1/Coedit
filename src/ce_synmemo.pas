@@ -362,7 +362,7 @@ var
 begin
   tempn := fMemo.fileName;
   if tempn = fMemo.tempFilename then exit;
-  if not fileExists(tempn) then exit;
+  if not tempn.fileExists then exit;
   //
   fname := getCoeditDocPath + 'editorcache' + DirectorySeparator;
   ForceDirectories(fname);
@@ -379,14 +379,14 @@ var
   chksm: Cardinal;
 begin
   tempn := fMemo.fileName;
-  if not fileExists(tempn) then exit;
+  if not tempn.fileExists then exit;
   //
   fname := getCoeditDocPath + 'editorcache' + DirectorySeparator;
   chksm := crc32(0, nil, 0);
   chksm := crc32(chksm, @tempn[1], length(tempn));
   fname := fname + format('%.8X.txt', [chksm]);
   //
-  if not fileExists(fname) then exit;
+  if not fname.fileExists then exit;
   loadFromFile(fname);
 end;
 {$IFDEF DEBUG}{$R+}{$ENDIF}
@@ -548,7 +548,7 @@ begin
   fBreakPoints.Free;
   fCallTipStrings.Free;
   //
-  if fileExists(fTempFileName) then
+  if fTempFileName.fileExists then
     sysutils.DeleteFile(fTempFileName);
   //
   inherited;

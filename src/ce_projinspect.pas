@@ -357,7 +357,7 @@ begin
   lst := TStringList.Create;
   fProject.beginUpdate;
   try for fname in Filenames do
-    if FileExists(fname) then
+    if fname.fileExists then
       addFile(fname)
     else if fname.dirExists then
     begin

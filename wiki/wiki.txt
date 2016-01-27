@@ -212,7 +212,7 @@ General questions and discussions (Q, BLA) about the use are also allowed since 
 - **"Save project as"**: saves the current project from a dialog.
 - **"Project configuration"**: displays the project configuration widget.
 - **"Edit project file"**: opens the project file in a new editor. When saved from a source editor, a project file is directly reloaded. It means that a particular care must be taken during the edition. Coedit will skip any error in the project file, without warnings.
-- **"View project command line"**: displays the list of the switches and their arguments, as passed to DMD before the compilation. Note that under Windows, the content can be copied using the <kbd>Ctrl</kbd>+<kbd>C</kbd> shortcut on the dialog.
+- **"View project command line"**: displays the list of the switches and their arguments, as passed to DMD before the compilation. Note that under Windows, the content can be copied using the <kbd>Ctrl</kbd> + <kbd>C</kbd> shortcut on the dialog.
 - **"View in mini explorer"**: expands the [mini-explorer][lnk_widg_miniexpl] tree on the folder containing the project file.
 - **"Compile project"**: compiles the project using the current configuration.
 - **"Compile and run project"**: compiles the project using the current configuration and execute the output if the option _binaryKind_ is set to _executable_. 
@@ -422,10 +422,10 @@ The _source editor widget_ is a standard code editor, specialized for highlighti
 - folding: curly brackets blocks, multi-line strings, block comments, nested block comments, DDoc comments blocks.
 - colorization of the following categories: keywords, special keywords, numbers, symbols, comments, assembler instructions and identifiers, DDoc comments.
 - current identifier markup, selection markup.
-- standard keyboard navigation shortcuts <kbd>CTRL</kbd> + (<kbd>SHIFT</kbd> +) <kbd>LEFT</kbd>/<kbd>RIGHT</kbd>, <kbd>CTRL</kbd> + <kbd>HOME</kbd>, <kbd>CTRL</kbd> + <kbd>END</kbd> etc.
-- macro recording and playback using  <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>R</kbd> (start/stop recording) or <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>P</kbd> (play).
-- synchro-edit (activated when clicking the pen icon located in the gutter, or with the shortcut <kbd>CTRL</kbd>+<kbd>E</kbd> and <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>E</kbd>).
-- zoom: (<kbd>CTRL</kbd>+<kbd>WHEEL</kbd>, <kbd>CTRL</kbd>+<kbd>MIDDLE MB</kbd>, <kbd>CTRL</kbd>+<kbd>+</kbd>, <kbd>CTRL</kbd>+<kbd>-</kbd>, <kbd>CTRL</kbd>+<kbd>.</kbd>).
+- standard keyboard navigation shortcuts <kbd>CTRL</kbd> + [<kbd>SHIFT</kbd> +] <kbd>LEFT</kbd> | <kbd>RIGHT</kbd>, <kbd>CTRL</kbd> + <kbd>HOME</kbd>, <kbd>CTRL</kbd> + <kbd>END</kbd> etc.
+- macro recording and playback using  <kbd>CTRL</kbd> + <kbd>SHIFT</kbd> + <kbd>R</kbd> (start or stop recording) or <kbd>CTRL</kbd> + <kbd>SHIFT</kbd> + <kbd>P</kbd> (play).
+- synchro-edit (activated when clicking the pen icon located in the gutter, or with the shortcut <kbd>CTRL</kbd> + <kbd>E</kbd> and <kbd>CTRL</kbd> + <kbd>SHIFT</kbd> + <kbd>E</kbd>).
+- zoom: <kbd>CTRL</kbd> + <kbd>WHEEL</kbd>, <kbd>CTRL</kbd> + <kbd>MIDDLE MB</kbd>, <kbd>CTRL</kbd> + <kbd>+</kbd> | <kbd>-</kbd> | <kbd>.</kbd>.
 - display cache: for each document, the zoom ratio, the folding state and the caret position are saved between two sessions. A cache file has a fixed life-time of three months from its last modification.
 - drag & drop editing.
 - external modification tracking. Each time the focus is put on a document (switch document, show & hide application), Coedit verifies if its time stamp has changed.
@@ -507,22 +507,23 @@ The _find and replace_ widget allows to find and replace text patterns in the fo
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/search1.png)
 
-- top field: the pattern to find.
-- second field: the expression used as replacement. Only active when **"replace with"** is checked.
-- whole word: only search for the whole expression.
-- backward: search from the bottom to the top.
+- first field: the pattern to find.
+- second field: the pattern used as replacement, only active when **"replace with"** is checked.
+- whole word: only search for the whole pattern.
+- backward: search from the current position to the top.
 - from cursor: when unchecked, the operation always starts from the top of the document.
-- case sensitive: when unchecked, character case is ignored.
-- prompt: a confirmation is required to replace an expression.
+- case sensitive: when unchecked, the case is ignored.
+- prompt: a confirmation is required to replace a match.
 - allow regex: when checked, the search is performed by a regex engine.
 
-By default <kbd>CTRL</kbd> + <kbd>F</kbd> is used to pass the current source code editor selection to the top field 
-and <kbd>F3</kbd> to execute a search. Unless _Find all_ is used, the results are directly visible in the editor.
+By default <kbd>CTRL</kbd> + <kbd>F</kbd> is used to pass the current identifier to the first field  and <kbd>F3</kbd> to execute a search.
+Unless _Find all_ is used, the results are directly visible in the editor.
 _Find all_ results are displayed in the [messages widget][lnk_widg_msg] and are clickable.
+The scope of _Find all_ can be set, either to the current editor or to the whole project, by clicking the icon at the right.
 
 The most recent searches and replacements are saved between each session.
 
-Note that to find a symbol, <kbd>Ctrl</kbd>+<kbd>MB Left</kbd> or the [symbol list][lnk_widg_symlist] are faster.
+Note that to find a symbol, <kbd>Ctrl</kbd> + <kbd>MB Left</kbd> or the [symbol list][lnk_widg_symlist] are faster.
 
 ## Library manager widget
 
@@ -1180,7 +1181,7 @@ as well as the additional source (the _libdparse.lib_).
 ### Completion and runnable
 
 In the **File** menu click **New runnable module**.
-type import **std.d** and hit <kbd>CTRL</kbd>+<kbd>SCPACE</kbd> to invoke the completion.
+type import **std.d** and hit <kbd>CTRL</kbd> + <kbd>SCPACE</kbd> to invoke the completion.
 [DCD][lnk_dcd], automatically aware of _libdparse_, will propose the item **lexer**,
 which matches to one of the module of the library (the D language lexer). 
 

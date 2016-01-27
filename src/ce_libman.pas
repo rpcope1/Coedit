@@ -64,13 +64,13 @@ begin
   inherited;
   fCol := TCollection.Create(TLibraryItem);
   fname := getCoeditDocPath + libFname;
-  if fileExists(fname) then
+  if fname.fileExists then
     loadFromFile(fname);
   if fCol.Count = 0 then
   begin
     {$IFDEF WINDOWS}
     fDmdPath := ExeSearch('dmd.exe');
-    if FileExists(fDmdPath) then
+    if fDmdPath.fileExists then
     begin
       // add phobos
       fname := ExtractFileDir(fDmdPath);

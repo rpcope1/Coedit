@@ -171,7 +171,7 @@ begin
   // document
   if hasDoc then
   begin
-    if not fileExists(fDoc.fileName) then
+    if not fDoc.fileName.fileExists then
       fDoc.saveTempFile;
     fSymbols[CFF] := fDoc.fileName;
     fSymbols[CFP] := fDoc.fileName.extractFilePath;
@@ -209,7 +209,7 @@ begin
   end;
   if hasNativeProj then
   begin
-    if fileExists(fProj.fileName) then
+    if fProj.fileName.fileExists then
     begin
       fSymbols[CPR] := expandFilenameEx(fProj.basePath, fProj.RootFolder);
       if fSymbols[CPR].isEmpty then

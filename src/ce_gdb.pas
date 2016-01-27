@@ -228,7 +228,7 @@ begin
     if not doc.isDSource then
       continue;
     nme := doc.fileName;
-    if not FileExists(nme) then
+    if not nme.fileExists then
       continue;
     {$WARNINGS OFF}
     for j := 0 to doc.breakPointsCount-1 do
@@ -250,7 +250,7 @@ begin
   if fGdb = nil then exit;
   if not fGdb.Running then exit;
   nme := sender.fileName;
-  if not FileExists(nme) then exit;
+  if not nme.fileExists then exit;
   //
   str := cmd[modification] + nme + ':' + intToStr(line);
   fGdb.Suspend;
@@ -267,7 +267,7 @@ begin
   if fProj = nil then exit;
   if fProj.binaryKind <> executable then exit;
   str := fProj.outputFilename;
-  if not FileExists(str) then exit;
+  if not str.fileExists then exit;
   // gdb process
   killGdb;
   fGdb := TCEProcess.create(nil);

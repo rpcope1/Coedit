@@ -96,7 +96,7 @@ begin
   fBackup := TStringList.Create;
   //
   fname := getCoeditDocPath + optFname;
-  if fileExists(fname) then
+  if fname.fileExists then
     fDmtWrapper.loadFromFile(fname);
   //
   btnCancel.OnClick := @doCancel;

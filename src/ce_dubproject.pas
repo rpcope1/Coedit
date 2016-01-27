@@ -169,7 +169,7 @@ var
 begin
   loader := TMemoryStream.Create;
   try
-    fBasePath := extractFilePath(aFilename);
+    fBasePath := aFilename.extractFilePath;
     fFilename := aFilename;
     loader.LoadFromFile(fFilename);
     fSaveAsUtf8 := false;

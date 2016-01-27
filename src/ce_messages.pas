@@ -312,7 +312,7 @@ begin
   AssignPng(btnClearCat, 'clean');
   //
   fname := getCoeditDocPath + optname;
-  if fileExists(fname) then
+  if fname.fileExists then
   begin
     fOptions.loadFromFile(fname);
     fOptions.AssignTo(self);
@@ -1031,27 +1031,27 @@ begin
         and (aMessage[i..i+5] = '-mixin'))) then
     begin
       // absolute fname
-      if fileExists(ident) then
+      if ident.fileExists then
       begin
         getMultiDocHandler.openDocument(ident);
         exit(true);
       end;
       // relative fname if project file is the base path to a rel. fname
       absName := ExpandFileName(ident);
-      if fileExists(absName) then
+      if absName.fileExists then
       begin
         getMultiDocHandler.openDocument(absName);
         exit(true);
       end;
       // if fname relative to native project path or project filed 'root'
       absName := expandFilenameEx(symbolExpander.get('<CPP>') + DirectorySeparator, ident);
-      if fileExists(absName) then
+      if absName.fileExists then
       begin
         getMultiDocHandler.openDocument(absName);
         exit(true);
       end;
       absName := expandFilenameEx(symbolExpander.get('<CPR>') + DirectorySeparator, ident);
-      if fileExists(absName) then
+      if absName.fileExists then
       begin
         getMultiDocHandler.openDocument(absName);
         exit(true);
