@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Menus, StdCtrls, actnList, Buttons, SynEdit, SynEditSearch, SynEditTypes,
   ce_common, ce_mru, ce_widget, ce_synmemo, ce_interfaces, ce_observer,
-  ce_writableComponent, ce_dialogs, ce_sharedres;
+  ce_writableComponent, ce_dialogs, ce_sharedres, SynEditTextBuffer;
 
 type
 
@@ -287,7 +287,7 @@ end;
 procedure TCESearchWidget.actFindAllExecute(sender: TObject);
 var
   i: integer;
-  syn: TSynEdit;
+  lst: TSynEditStringList;
   fnm: string;
 begin
   if fDoc.isNil and not fAllInProj then
@@ -300,16 +300,16 @@ begin
   //
   if fAllInProj then
   begin
-    syn := TSynEdit.Create(nil);
+    lst := TSynEditStringList.Create;
     try
       for i := 0 to fProj.sourcesCount-1 do
       begin
         fnm := fProj.sourceAbsolute(i);
-        syn.Lines.LoadFromFile(fnm);
-        findAll(fnm, syn.Lines);
+        lst.LoadFromFile(fnm);
+        findAll(fnm, lst);
       end;
     finally
-      syn.Free;
+      lst.Free;
     end;
   end
   else findAll(fDoc.fileName, fDoc.Lines);

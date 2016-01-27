@@ -78,7 +78,7 @@ inherited CESearchWidget: TCESearchWidget
       object btnReplace: TBitBtn[2]
         Left = 4
         Height = 24
-        Top = 195
+        Top = 231
         Width = 385
         Align = alBottom
         BorderSpacing.Around = 4
@@ -270,7 +270,7 @@ inherited CESearchWidget: TCESearchWidget
       object Panel2: TPanel[6]
         Left = 0
         Height = 32
-        Top = 223
+        Top = 195
         Width = 393
         Align = alBottom
         BevelOuter = bvNone
