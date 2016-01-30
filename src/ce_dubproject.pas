@@ -45,7 +45,7 @@ type
     procedure dubProcOutput(proc: TObject);
     procedure dubProcTerminated(proc: TObject);
     function getCurrentCustomConfig: TJSONObject;
-    function compileOrRun(run: boolean; const runArgs: string = ''): boolean;
+    procedure compileOrRun(run: boolean; const runArgs: string = '');
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -79,7 +79,7 @@ type
     //
     procedure compile;
     function compiled: boolean;
-    function run(const runArgs: string = ''): boolean;
+    procedure run(const runArgs: string = '');
     function targetUpToDate: boolean;
     //
     property json: TJSONObject read fJSON;
@@ -390,7 +390,7 @@ begin
   SetCurrentDirUTF8(fPreCompilePath);
 end;
 
-function TCEDubProject.compileOrRun(run: boolean; const runArgs: string = ''): boolean;
+procedure TCEDubProject.compileOrRun(run: boolean; const runArgs: string = '');
 var
   olddir: string;
   prjname: string;
@@ -460,9 +460,9 @@ begin
   exit(fCompiled);
 end;
 
-function TCEDubProject.run(const runArgs: string = ''): boolean;
+procedure TCEDubProject.run(const runArgs: string = '');
 begin
-  result := compileOrRun(true);
+  compileOrRun(true);
 end;
 
 function TCEDubProject.targetUpToDate: boolean;

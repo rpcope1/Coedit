@@ -39,7 +39,6 @@ type
     procedure Edit; override;
   end;
 
-
   TListDrawValueProc = procedure(const CurValue: ansistring; Index: integer;
     ACanvas: TCanvas; const ARect:TRect; AState: TPropEditDrawState) of object;
 
@@ -86,7 +85,7 @@ var
   vOldPenColor, vOldBrushColor: TColor;
   vOldPenStyle: TPenStyle;
   noFill: Boolean;
-  proc: TListDrawValueProc;
+  //proc: TListDrawValueProc;
   Style : TTextStyle;
   OldColor : TColor;
   rc: TRect;
@@ -173,8 +172,6 @@ begin
   end;
 
   ACanvas.TextRect(rc, rc.Left+2, rc.Top, CurValue, Style);
-
-
 end;
 
 function TCECustomPathEditor.GetAttributes: TPropertyAttributes;

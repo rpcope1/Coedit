@@ -80,8 +80,8 @@ type
       procedure compile;
       // indicates wether last complation was successful.
       function compiled: boolean;
-      // tries to un the project output and returns true if it did
-      function run(const runArgs: string = ''): boolean;
+      // tries to execute the project output.
+      procedure run(const runArgs: string = '');
       // returns true if the target has not to be recompiled
       function targetUpToDate: boolean;
 

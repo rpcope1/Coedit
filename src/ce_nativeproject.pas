@@ -106,7 +106,7 @@ type
     function importsPathCount: integer;
     function importPath(index: integer): string;
     //
-    function run(const runArgs: string = ''): Boolean;
+    procedure run(const runArgs: string = '');
     function compiled: Boolean;
     procedure compile;
     function targetUpToDate: boolean;
@@ -778,13 +778,12 @@ begin
   fCompilProc.Execute;
 end;
 
-function TCENativeProject.run(const runArgs: string = ''): Boolean;
+procedure TCENativeProject.run(const runArgs: string = '');
 var
   prm: string;
   i: Integer;
   cwd: string;
 begin
-  result := false;
   killProcess(fRunner);
   if fRunnerOldCwd.dirExists then
     ChDir(fRunnerOldCwd);
@@ -824,8 +823,6 @@ begin
     getprocInputHandler.addProcess(fRunner);
   end;
   fRunner.Execute;
-  //
-  result := true;
 end;
 
 procedure TCENativeProject.runProcOutput(sender: TObject);

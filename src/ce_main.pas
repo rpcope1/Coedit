@@ -12,7 +12,7 @@ uses
   ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
   ce_search, ce_miniexplorer, ce_libman, ce_libmaneditor, ce_todolist, ce_observer,
   ce_toolseditor, ce_procinput, ce_optionseditor, ce_symlist, ce_mru, ce_processes,
-  ce_infos, ce_dubproject, ce_dialogs, ce_dubprojeditor, ce_gdb, ce_dfmt, ce_lcldragdrop;
+  ce_infos, ce_dubproject, ce_dialogs, ce_dubprojeditor, {ce_gdb,} ce_dfmt, ce_lcldragdrop;
 
 type
 
