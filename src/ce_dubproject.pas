@@ -209,8 +209,9 @@ begin
     //
     FreeAndNil(fJSON);
     parser := TJSONParser.Create(loader, true);
-    //TODO-cgonnawork: from FPC 3.02, uses parser.options to allow trailing comma in DUB descriptions
-    // http://bugs.freepascal.org/view.php?id=29357
+    parser.Options:= parser.Options + [joIgnoreTrailingComma] - [joStrict];
+    //TODO-cfcl-json: remove etc/fcl-json the day they'll merge and rlz the version with 'Options'
+    //TODO-cfcl-json: track possible changes and fixes at http://svn.freepascal.org/cgi-bin/viewvc.cgi/trunk/packages/fcl-json/
     try
       try
         fJSON := parser.Parse as TJSONObject;

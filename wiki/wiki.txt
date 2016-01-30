@@ -300,10 +300,9 @@ To do so, the application option _Native project compiler_ must be set according
 
 Since the version 2 alpha 1, Coedit also handles DUB projects.
 
-DUB project description must be in JSON format. JSON format must be strictly compliant with RFC 4627 and trailing commas will cause errors.
-This restriction will be removed in the future (when CE will be build with FPC 3.0.2).
+DUB project description must be in JSON format, SDL in not handled.
 
-Dub projects are handled exactly as the native projects are. The _project_ menu proposes the same features.
+DUB projects are handled exactly as the CE projects are. The _project_ menu proposes the same features.
 However the configuration is done in another widget, see the [dedicated paragraph][lnk_widg_dub].
 
 # D Completion Daemon integration
