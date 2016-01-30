@@ -1391,12 +1391,19 @@ end;
 procedure TCEMainForm.projCompiled(aProject: ICECommonProject; success: boolean);
 var
   runArgs: string = '';
+  runprev: boolean = true;
 begin
   if fRunProjAfterCompile and assigned(fProjectInterface) then
   begin
-    if fRunProjAfterCompArg and not InputQuery('Execution arguments', '', runargs) then
-      runargs := '';
-    fProjectInterface.run(runargs);
+    if not success then
+      runprev := dlgOkCancel('last build failed, continue and run ?') = mrOK;
+    if runprev then
+    begin
+      if fRunProjAfterCompArg and
+        not InputQuery('Execution arguments', '', runargs) then
+          runargs := '';
+      fProjectInterface.run(runargs);
+    end;
   end;
   fRunProjAfterCompile := false;
   fRunProjAfterCompArg := false;
