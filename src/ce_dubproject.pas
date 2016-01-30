@@ -128,6 +128,7 @@ end;
 
 destructor TCEDubProject.destroy;
 begin
+  killProcess(fDubProc);
   subjProjClosing(fProjectSubject, self);
   fProjectSubject.free;
   //

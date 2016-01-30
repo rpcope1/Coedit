@@ -159,9 +159,9 @@ end;
 
 destructor TCENativeProject.destroy;
 begin
+  killProcess(fCompilProc);
   subjProjClosing(fProjectSubject, self);
   fProjectSubject.Free;
-  fCompilProc.Free;
   //
   fOnChange := nil;
   fLibAliases.Free;
