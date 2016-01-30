@@ -62,6 +62,7 @@ type
     procedure projClosing(aProject: ICECommonProject);
     procedure projFocused(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
     //
   protected
     procedure SetVisible(Value: boolean); override;
@@ -209,6 +210,10 @@ begin
 end;
 
 procedure TCEDubProjectEditorWidget.projCompiling(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCEDubProjectEditorWidget.projCompiled(aProject: ICECommonProject; success: boolean);
 begin
 end;
 {$ENDREGION}

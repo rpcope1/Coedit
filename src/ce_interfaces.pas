@@ -76,8 +76,10 @@ type
 
     // sub routines for the actions --------------------------------------------
 
-      // tries to compile and returns true if it does
-      function compile: boolean;
+      // tries to compile.
+      procedure compile;
+      // indicates wether last complation was successful.
+      function compiled: boolean;
       // tries to un the project output and returns true if it did
       function run(const runArgs: string = ''): boolean;
       // returns true if the target has not to be recompiled
@@ -138,6 +140,8 @@ type
     procedure projFocused(aProject: ICECommonProject);
     // aProject is about to be compiled
     procedure projCompiling(aProject: ICECommonProject);
+    // aProject compilation is finsihed
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
   end;
   (**
    * An implementer informs some ICEProjectObserver about the current project(s)
@@ -289,30 +293,6 @@ type
 
 
 
-  (**
-   * Single service provided by the library manager
-   * In both cases, if someAliases is empty then all the available entries are passed.
-   *)
-  ICELibraryInformer = interface(ICESingleService)
-    // fills aList with the filenames of the static libraries matching to someAliases content.
-    procedure getLibsFiles(someAliases: TStrings; aList: TStrings);
-    // fills aList with the path to static libraries sources matching to someAliases content.
-    procedure getLibsPaths(someAliases: TStrings; aList: TStrings);
-    // fills aList with all the available libraries aliases.
-    procedure getLibsAliases(aList: TStrings);
-  end;
-
-
-
-  (**
-   * Single service that allows objects with a short life-time
-   * to get the project information.
-   *)
-  //ICEProjectInfos = interface(ICESingleService)
-  //  function getCurrentProjectInterface: ICECommonProject;
-  //end;
-
-
 {
   subject primitives:
 
@@ -336,27 +316,16 @@ type
   procedure subjProjFocused(aSubject: TCEProjectSubject; aProj: ICECommonProject); {$IFDEF RELEASE}inline;{$ENDIF}
   procedure subjProjChanged(aSubject: TCEProjectSubject; aProj: ICECommonProject); {$IFDEF RELEASE}inline;{$ENDIF}
   procedure subjProjCompiling(aSubject: TCEProjectSubject; aProj: ICECommonProject);{$IFDEF RELEASE}inline;{$ENDIF}
+  procedure subjProjCompiled(aSubject: TCEProjectSubject; aProj: ICECommonProject; success: boolean);{$IFDEF RELEASE}inline;{$ENDIF}
 
 
 {
   Service getters:
-
-  The first overload assign the variable only when not yet set, the second is
-  designed for a punctual usage, for example if a widget needs the service in
-  a single and rarely called method.
 }
-
-  function getMessageDisplay(var obj: ICEMessagesDisplay): ICEMessagesDisplay; overload;
+  function getMessageDisplay(var obj: ICEMessagesDisplay): ICEMessagesDisplay;
   function getMessageDisplay: ICEMessagesDisplay; overload;
-
-  function getprocInputHandler(var obj: ICEProcInputHandler): ICEProcInputHandler; overload;
   function getprocInputHandler: ICEProcInputHandler; overload;
-
-  function getMultiDocHandler(var obj: ICEMultiDocHandler): ICEMultiDocHandler; overload;
   function getMultiDocHandler: ICEMultiDocHandler; overload;
-
-  function getLibraryInformer(var obj: ICELibraryInformer): ICELibraryInformer; overload;
-  function getLibraryInformer: ICELibraryInformer; overload;
 
 implementation
 
@@ -434,6 +403,15 @@ begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
     (fObservers.Items[i] as ICEProjectObserver).projCompiling(aProj);
 end;
+
+procedure subjProjCompiled(aSubject: TCEProjectSubject; aProj: ICECommonProject; success: boolean);
+var
+  i: Integer;
+begin
+  with aSubject do for i:= 0 to fObservers.Count-1 do
+    (fObservers.Items[i] as ICEProjectObserver).projCompiled(aProj, success);
+end;
+
 {$ENDREGION}
 
 {$REGION ICESingleService getters ----------------------------------------------}
@@ -471,18 +449,6 @@ end;
 function getMultiDocHandler: ICEMultiDocHandler;
 begin
   exit(EntitiesConnector.getSingleService('ICEMultiDocHandler') as ICEMultiDocHandler);
-end;
-
-function getLibraryInformer(var obj: ICELibraryInformer): ICELibraryInformer;
-begin
-  if obj = nil then
-    obj := EntitiesConnector.getSingleService('ICELibraryInformer') as ICELibraryInformer;
-  exit(obj);
-end;
-
-function getLibraryInformer: ICELibraryInformer;
-begin
-  exit(EntitiesConnector.getSingleService('ICELibraryInformer') as ICELibraryInformer);
 end;
 {$ENDREGION}
 

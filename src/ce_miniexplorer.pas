@@ -113,6 +113,7 @@ type
     procedure projClosing(aProject: ICECommonProject);
     procedure projFocused(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docFocused(aDoc: TCESynMemo);
@@ -326,6 +327,10 @@ begin
 end;
 
 procedure TCEMiniExplorerWidget.projCompiling(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCEMiniExplorerWidget.projCompiled(aProject: ICECommonProject; success: boolean);
 begin
 end;
 {$ENDREGION}

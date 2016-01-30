@@ -225,9 +225,11 @@ type
     fSymlWidg: TCESymbolListWidget;
     fInfoWidg: TCEInfoWidget;
     fDubProjWidg: TCEDubProjectEditorWidget;
-    fGdbWidg: TCEGdbWidget;
+    //fGdbWidg: TCEGdbWidget;
     fDfmtWidg:  TCEDfmtWidget;
 
+    fRunProjAfterCompArg: boolean;
+    fRunProjAfterCompile: boolean;
     fFirstShown: boolean;
     fProjFromCommandLine: boolean;
     fInitialized: boolean;
@@ -255,6 +257,7 @@ type
     procedure projClosing(aProject: ICECommonProject);
     procedure projFocused(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
 
     // ICEEditableShortcut
     function scedWantFirst: boolean;
@@ -830,7 +833,7 @@ begin
   fSymlWidg := TCESymbolListWidget.create(self);
   fInfoWidg := TCEInfoWidget.create(self);
   fDubProjWidg:= TCEDubProjectEditorWidget.create(self);
-  fGdbWidg  := TCEGdbWidget.create(self);
+  //fGdbWidg  := TCEGdbWidget.create(self);
   fDfmtWidg := TCEDfmtWidget.create(self);
 
   getMessageDisplay(fMsgs);
@@ -849,7 +852,7 @@ begin
   fWidgList.addWidget(@fSymlWidg);
   fWidgList.addWidget(@fInfoWidg);
   fWidgList.addWidget(@fDubProjWidg);
-  fWidgList.addWidget(@fGdbWidg);
+  //fWidgList.addWidget(@fGdbWidg);
   fWidgList.addWidget(@fDfmtWidg);
   fWidgList.sort(@CompareWidgCaption);
 
@@ -1383,6 +1386,20 @@ end;
 
 procedure TCEMainForm.projCompiling(aProject: ICECommonProject);
 begin
+end;
+
+procedure TCEMainForm.projCompiled(aProject: ICECommonProject; success: boolean);
+var
+  runArgs: string = '';
+begin
+  if fRunProjAfterCompile and assigned(fProjectInterface) then
+  begin
+    if fRunProjAfterCompArg and not InputQuery('Execution arguments', '', runargs) then
+      runargs := '';
+    fProjectInterface.run(runargs);
+  end;
+  fRunProjAfterCompile := false;
+  fRunProjAfterCompArg := false;
 end;
 {$ENDREGION}
 
@@ -1991,18 +2008,13 @@ end;
 
 procedure TCEMainForm.actProjCompileAndRunExecute(Sender: TObject);
 begin
-  if fProjectInterface.compile then
-    fProjectInterface.run;
+  fRunProjAfterCompile := true;
+  fProjectInterface.compile;
 end;
 
 procedure TCEMainForm.actProjCompAndRunWithArgsExecute(Sender: TObject);
-var
-  runargs: string = '';
 begin
-  if not fProjectInterface.compile then
-    exit;
-  if InputQuery('Execution arguments', '', runargs) then
-    fProjectInterface.run(runargs);
+ fRunProjAfterCompArg := true;
 end;
 
 procedure TCEMainForm.actProjRunExecute(Sender: TObject);

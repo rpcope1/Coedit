@@ -5,13 +5,15 @@ unit ce_dubproject;
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, jsonscanner, process, strutils,
-  ce_common, ce_interfaces, ce_observer, ce_dialogs;
+  Classes, SysUtils, fpjson, jsonparser, jsonscanner, process, strutils, LazFileUtils,
+  ce_common, ce_interfaces, ce_observer, ce_dialogs, ce_processes;
 
 type
 
   TCEDubProject = class(TComponent, ICECommonProject)
   private
+    fDubProc: TCEProcess;
+    fPreCompilePath: string;
     fPackageName: string;
     fFilename: string;
     fModified: boolean;
@@ -29,6 +31,7 @@ type
     fModificationCount: integer;
     fOutputFileName: string;
     fSaveAsUtf8: boolean;
+    fCompiled: boolean;
     //
     procedure doModified;
     procedure updateFields;
@@ -39,7 +42,8 @@ type
     procedure updateImportPathsFromJson;
     procedure updateOutputNameFromJson;
     function findTargetKindInd(value: TJSONObject): boolean;
-    procedure dubProcOutput(proc: TProcess);
+    procedure dubProcOutput(proc: TObject);
+    procedure dubProcTerminated(proc: TObject);
     function getCurrentCustomConfig: TJSONObject;
     function compileOrRun(run: boolean; const runArgs: string = ''): boolean;
   public
@@ -73,7 +77,8 @@ type
     procedure setActiveConfigurationIndex(index: integer);
     function configurationName(index: integer): string;
     //
-    function compile: boolean;
+    procedure compile;
+    function compiled: boolean;
     function run(const runArgs: string = ''): boolean;
     function targetUpToDate: boolean;
     //
@@ -348,7 +353,7 @@ end;
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION ICECommonProject: actions ---------------------------------------------}
-procedure TCEDubProject.dubProcOutput(proc: TProcess);
+procedure TCEDubProject.dubProcOutput(proc: TObject);
 var
   lst: TStringList;
   str: string;
@@ -357,7 +362,7 @@ begin
   lst := TStringList.Create;
   msgs := getMessageDisplay;
   try
-    processOutputToStrings(proc, lst);
+    fDubProc.getFullLines(lst);
     for str in lst do
       msgs.message(str, self as ICECommonProject, amcProj, amkAuto);
   finally
@@ -365,65 +370,93 @@ begin
   end;
 end;
 
+procedure TCEDubProject.dubProcTerminated(proc: TObject);
+var
+  msgs: ICEMessagesDisplay;
+  prjname: string;
+begin
+  dubProcOutput(proc);
+  msgs := getMessageDisplay;
+  prjname := shortenPath(filename);
+  fCompiled := fDubProc.ExitStatus = 0;
+  if fCompiled then
+    msgs.message(prjname + ' has been successfully compiled',
+      self as ICECommonProject, amcProj, amkInf)
+  else
+    msgs.message(prjname + ' has not been compiled',
+      self as ICECommonProject, amcProj, amkWarn);
+  subjProjCompiled(fProjectSubject, self as ICECommonProject, fCompiled);
+  SetCurrentDirUTF8(fPreCompilePath);
+end;
+
 function TCEDubProject.compileOrRun(run: boolean; const runArgs: string = ''): boolean;
 var
-  dubproc: TProcess;
   olddir: string;
   prjname: string;
   msgs: ICEMessagesDisplay;
 begin
-  result := false;
+  msgs := getMessageDisplay;
+  if fDubProc.isNotNil and fDubProc.Active then
+  begin
+    msgs.message('the project is already being compiled',
+      self as ICECommonProject, amcProj, amkWarn);
+    exit;
+  end;
+  killProcess(fDubProc);
+  fCompiled := false;
   if not fFilename.fileExists then
   begin
     dlgOkInfo('The DUB project must be saved before being compiled or run !');
     exit;
   end;
-  msgs := getMessageDisplay;
   msgs.clearByData(Self as ICECommonProject);
   prjname := shortenPath(fFilename);
-  dubproc := TProcess.Create(nil);
-  olddir := GetCurrentDir;
+  fDubProc:= TCEProcess.Create(nil);
+  olddir  := GetCurrentDir;
   try
     if not run then
     begin
+      subjProjCompiling(fProjectSubject, self as ICECommonProject);
       msgs.message('compiling ' + prjname, self as ICECommonProject, amcProj, amkInf);
       if modified then saveToFile(fFilename);
     end;
     chDir(fFilename.extractFilePath);
-    dubproc.Executable := 'dub' + exeExt;
-    dubproc.Options := dubproc.Options + [poStderrToOutPut, poUsePipes];
-    dubproc.CurrentDirectory := fFilename.extractFilePath;
-    dubproc.ShowWindow := swoHIDE;
-    if not run then
-      dubproc.Parameters.Add('build')
-    else
-      dubproc.Parameters.Add('run');
-    dubproc.Parameters.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
-    if (fConfigs.Count <> 1) and (fConfigs.Strings[0] <> DubDefaultConfigName) then
-      dubproc.Parameters.Add('--config=' + fConfigs.Strings[fConfigIx]);
-    dubProc.Parameters.Add('--compiler=' + DubCompilerFilename);
-    if run and runArgs.isNotEmpty then
-      dubproc.Parameters.Add('--' + runArgs);
-    dubproc.Execute;
-    while dubproc.Running do
-      dubProcOutput(dubproc);
+    fDubProc.Executable := 'dub' + exeExt;
+    fDubProc.Options := fDubProc.Options + [poStderrToOutPut, poUsePipes];
+    fDubProc.CurrentDirectory := fFilename.extractFilePath;
+    fDubProc.ShowWindow := swoHIDE;
+    fDubProc.OnReadData:= @dubProcOutput;
     if not run then
     begin
-      if dubproc.ExitStatus = 0 then begin
-        msgs.message(prjname + ' has been successfully compiled', self as ICECommonProject, amcProj, amkInf);
-        result := true;
-      end else
-        msgs.message(prjname + ' has not been compiled', self as ICECommonProject, amcProj, amkWarn);
+      fDubProc.Parameters.Add('build');
+      fDubProc.OnTerminate:= @dubProcTerminated;
+    end
+    else
+    begin
+      fDubProc.Parameters.Add('run');
+      fDubProc.OnTerminate:= @dubProcOutput;
     end;
+    fDubProc.Parameters.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
+    if (fConfigs.Count <> 1) and (fConfigs.Strings[0] <> DubDefaultConfigName) then
+      fDubProc.Parameters.Add('--config=' + fConfigs.Strings[fConfigIx]);
+    fDubProc.Parameters.Add('--compiler=' + DubCompilerFilename);
+    if run and runArgs.isNotEmpty then
+      fDubProc.Parameters.Add('--' + runArgs);
+    fDubProc.Execute;
   finally
-    chDir(olddir);
-    dubproc.Free;
+    SetCurrentDirUTF8(olddir);
   end;
 end;
 
-function TCEDubProject.compile: boolean;
+procedure TCEDubProject.compile;
 begin
-  result := compileOrRun(false);
+  fPreCompilePath := GetCurrentDirUTF8;
+  compileOrRun(false);
+end;
+
+function TCEDubProject.compiled: boolean;
+begin
+  exit(fCompiled);
 end;
 
 function TCEDubProject.run(const runArgs: string = ''): boolean;

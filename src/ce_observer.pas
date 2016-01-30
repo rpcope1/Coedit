@@ -65,7 +65,6 @@ type
     // anObserver must be removed.
     procedure removeObserver(anObserver: TObject);
     // optionally implemented to trigger all the methods of the observer interface.
-    procedure updateObservers;
   end;
 
   // Base type for an interface that contains the methods of a subject.
@@ -89,7 +88,6 @@ type
     //
     procedure addObserver(anObserver: TObject);
     procedure removeObserver(anObserver: TObject);
-    procedure updateObservers; virtual;
     //
     property observersCount: Integer read getObserversCount;
     property observers[index: Integer]: TObject read getObserver; default;
@@ -227,7 +225,6 @@ begin
       exit(fServices[i]);
   end;
 end;
-
 {$ENDREGION}
 
 {$REGION TCECustomSubject ------------------------------------------------------}
@@ -272,11 +269,6 @@ procedure TCECustomSubject.removeObserver(anObserver: TObject);
 begin
   fObservers.Remove(anObserver);
 end;
-
-procedure TCECustomSubject.updateObservers;
-begin
-end;
-
 {$ENDREGION}
 
 initialization

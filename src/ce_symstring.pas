@@ -32,6 +32,7 @@ type
     procedure projFocused(aProject: ICECommonProject);
     procedure projChanged(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
@@ -106,6 +107,10 @@ begin
 end;
 
 procedure TCESymbolExpander.projCompiling(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCESymbolExpander.projCompiled(aProject: ICECommonProject; success: boolean);
 begin
 end;
 {$ENDREGION}

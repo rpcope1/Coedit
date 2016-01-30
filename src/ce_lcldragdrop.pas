@@ -19,6 +19,8 @@ type
     procedure projClosing(aProject: ICECommonProject);
     procedure projFocused(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
+    //
     function getFilename(src: TObject): string;
   public
     constructor create;
@@ -68,6 +70,10 @@ begin
 end;
 
 procedure TDDHandler.projCompiling(aProject: ICECommonProject);
+begin
+end;
+
+procedure TDDHandler.projCompiled(aProject: ICECommonProject; success: boolean);
 begin
 end;
 

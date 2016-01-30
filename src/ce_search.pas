@@ -90,6 +90,7 @@ type
     procedure projClosing(aProject: ICECommonProject);
     procedure projFocused(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
     //
     procedure docNew(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
@@ -480,6 +481,10 @@ begin
 end;
 
 procedure TCESearchWidget.projCompiling(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCESearchWidget.projCompiled(aProject: ICECommonProject; success: boolean);
 begin
 end;
 {$ENDREGION}

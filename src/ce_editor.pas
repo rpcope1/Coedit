@@ -75,6 +75,7 @@ type
     procedure projClosing(aProject: ICECommonProject);
     procedure projFocused(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
     //
     function SingleServiceName: string;
     function documentCount: Integer;
@@ -224,6 +225,10 @@ begin
 end;
 
 procedure TCEEditorWidget.projCompiling(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCEEditorWidget.projCompiled(aProject: ICECommonProject; success: boolean);
 begin
 end;
 {$ENDREGION}

@@ -50,6 +50,7 @@ type
     procedure projFocused(aProject: ICECommonProject);
     procedure projChanged(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
   protected
     function contextName: string; override;
     function contextActionCount: integer; override;
@@ -181,6 +182,10 @@ begin
 end;
 
 procedure TCEProjectInspectWidget.projCompiling(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCEProjectInspectWidget.projCompiled(aProject: ICECommonProject; success: boolean);
 begin
 end;
 {$ENDREGION}

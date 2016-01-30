@@ -52,6 +52,7 @@ type
     procedure projClosing(aProject: ICECommonProject);
     procedure projFocused(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
     //
     procedure dataToGrid;
     procedure gridToData;
@@ -125,6 +126,10 @@ begin
 end;
 
 procedure TCELibManEditorWidget.projCompiling(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCELibManEditorWidget.projCompiled(aProject: ICECommonProject; success: boolean);
 begin
 end;
 

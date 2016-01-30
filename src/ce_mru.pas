@@ -68,6 +68,7 @@ type
     procedure projClosing(aProject: ICECommonProject);
     procedure projFocused(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
   public
     constructor create; override;
     destructor destroy; override;
@@ -205,6 +206,10 @@ begin
 end;
 
 procedure TCEMRUProjectList.projCompiling(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCEMRUProjectList.projCompiled(aProject: ICECommonProject; success: boolean);
 begin
 end;
 

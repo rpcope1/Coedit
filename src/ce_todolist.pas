@@ -104,6 +104,7 @@ type
     procedure projClosing(aProject: ICECommonProject);
     procedure projFocused(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
     // ICEEditableOptions
     function optionedWantCategory(): string;
     function optionedWantEditorKind: TOptionEditorKind;
@@ -371,6 +372,10 @@ begin
 end;
 
 procedure TCETodoListWidget.projCompiling(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCETodoListWidget.projCompiled(aProject: ICECommonProject; success: boolean);
 begin
 end;
 {$ENDREGION}

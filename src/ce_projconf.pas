@@ -50,6 +50,7 @@ type
     procedure projChanged(aProject: ICECommonProject);
     procedure projFocused(aProject: ICECommonProject);
     procedure projCompiling(aProject: ICECommonProject);
+    procedure projCompiled(aProject: ICECommonProject; success: boolean);
   protected
     procedure updateImperative; override;
     procedure SetVisible(Value: boolean); override;
@@ -144,6 +145,10 @@ begin
 end;
 
 procedure TCEProjectConfigurationWidget.projCompiling(aProject: ICECommonProject);
+begin
+end;
+
+procedure TCEProjectConfigurationWidget.projCompiled(aProject: ICECommonProject; success: boolean);
 begin
 end;
 {$ENDREGION --------------------------------------------------------------------}
