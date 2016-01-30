@@ -7,7 +7,7 @@ object CurrentProject: TCENativeProject
       outputOptions.unittest = True
       pathsOptions.outputFilename = '../lazproj/cetodo'
       pathsOptions.extraSources.Strings = (
-        '../libdparse/src/*'
+        '../etc/libdparse/src/*'
       )
       runOptions.options = [poUsePipes, poStderrToOutPut]
       runOptions.parameters.Strings = (
@@ -22,7 +22,7 @@ object CurrentProject: TCENativeProject
       outputOptions.release = True
       pathsOptions.outputFilename = '../bin/cetodo'
       pathsOptions.extraSources.Strings = (
-        '../libdparse/src/*'
+        '../etc/libdparse/src/*'
       )
     end>
   Sources.Strings = (

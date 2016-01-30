@@ -7,7 +7,7 @@ object CurrentProject: TCENativeProject
       outputOptions.release = True
       pathsOptions.outputFilename = '../bin/cesyms'
       pathsOptions.extraSources.Strings = (
-        '../libdparse/src/*'
+        '../etc/libdparse/src/*'
       )
     end>
   Sources.Strings = (
