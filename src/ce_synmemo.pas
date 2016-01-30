@@ -1024,8 +1024,13 @@ procedure TCESynMemo.saveToFile(const aFilename: string);
 var
   ext: string;
 begin
-  if readOnly then
+  ext := aFilename.extractFilePath;
+  if FileIsReadOnly(ext) then
+  begin
+    getMessageDisplay.message('No write access in: ' + ext, self, amcEdit, amkWarn);
     exit;
+  end;
+  ReadOnly := false;
   Lines.SaveToFile(aFilename);
   fFilename := aFilename;
   ext := aFilename.extractFileExt;

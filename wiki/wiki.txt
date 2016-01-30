@@ -293,13 +293,15 @@ Here are some more or less complex examples which illustrates the project format
 - the [metad][lnk_metad] meta repository.
 - the tools written for Coedit: [cesyms][lnk_cesyms] and [cetodo][lnk_cetodo].
 
-Even if designed upon _DMD_ options, it's also possible to compile a CE project using [LDC][https://github.com/ldc-developers/ldc]. To do so, the application option _Native project compiler_ must be set accordingly.
+Even if designed upon _DMD_ options, it's also possible to compile a CE project using [LDC](https://github.com/ldc-developers/ldc).
+To do so, the application option _Native project compiler_ must be set accordingly.
 
 # DUB projects.
 
 Since the version 2 alpha 1, Coedit also handles DUB projects.
 
-DUB project description must be in JSON format. JSON format must be strictly compliant with RFC 4627 and trailing commas will cause errors. This restriction will be removed in the future (when CE will be build with FPC 3.0.2).
+DUB project description must be in JSON format. JSON format must be strictly compliant with RFC 4627 and trailing commas will cause errors.
+This restriction will be removed in the future (when CE will be build with FPC 3.0.2).
 
 Dub projects are handled exactly as the native projects are. The _project_ menu proposes the same features.
 However the configuration is done in another widget, see the [dedicated paragraph][lnk_widg_dub].
@@ -786,9 +788,9 @@ The messages can be filtered according to a context, including:
 - Application: filter the Coedit-specific messages (applications warnings, application exceptions).
 - Misc: other messages (various messages emitted by the widgets ones and the custom tools standard output). 
 
-![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/messages3.png)
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/messages1.png)
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/messages2.png)
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/messages3.png)
 
 When double-clicked, a message is parsed in order to extract a *position* and a *file name*.
 If the operation is successful then the *file* will be opened at a *position*.
