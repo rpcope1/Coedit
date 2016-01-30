@@ -7,7 +7,7 @@ version(X86)    version(linux)  version = nux32;
 version(X86_64) version(linux)  version = nux64;
 version(X86)    version(Windows)version = win32;
 
-version(win32) enum exeExt = ".exe";
+version(Windows) enum exeExt = ".exe";
 else enum exeExt = "";
 
 alias ImpType = immutable ubyte[];
@@ -84,7 +84,7 @@ version(linux) immutable bool asSu;
 
 static this()
 {
-    version(win32)
+    version(Windows)
     { 
         exePath = environment.get("PROGRAMFILES") ~ r"\Coedit\";
         datPath = environment.get("APPDATA") ~ r"\Coedit\";
@@ -146,11 +146,11 @@ void main(string[] args)
         return;
     }
 
-    if (!uninstall) Formater.justify!'C'("Coedit 2 alpha 4 - setup");
+    if (!uninstall) Formater.justify!'C'("Coedit 2 rc1 - setup");
     else Formater.justify!'C'("Coedit uninstaller");
     
     Formater.separate;
-    version(win32) Formater.justify!'L'("the setup program must be run as admin");
+    version(Windows) Formater.justify!'L'("the setup program must be run as admin");
     else 
     {   
         if(!asSu) Formater.justify!'L'("Coedit will be accessible to the current user");
@@ -236,7 +236,7 @@ void main(string[] args)
             failures += !done;
         }
         // remove $PF folder
-        version(win32) 
+        version(Windows)
         {
             try rmdir(exePath);
             catch(FileException e) failures++;
@@ -313,13 +313,10 @@ bool tryRemove(string fname)
 /// adds menu entry, shortcut, etc
 void postInstall()
 {
-    version(Win32)
+    version(Windows)
     {
         import std.conv: to;
         import std.random: uniform;
-
-        // shortcut prior to v 1 upd 2 was actually an url.
-        tryRemove(shortCutPath ~ "Coedit.url");
 
         string target = exePath ~ "coedit.exe";
         string vbsName;
@@ -361,10 +358,8 @@ void postInstall()
 /// removes menu entry shortcuts, etc
 void postUninstall()
 {
-    version(Win32)
+    version(Windows)
     {
-        // shortcut prior to v 1 upd 2 was actually an url.
-        tryRemove(shortCutPath ~ "Coedit.url");
         tryRemove(shortCutPath ~ "Coedit.lnk");
     }
     else version(linux)
