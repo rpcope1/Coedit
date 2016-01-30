@@ -234,6 +234,7 @@ begin
   fContent.OnDragOver:=value;
   fTabs.OnDragOver:=value;
 end;
+
 procedure TCEPageControl.setOnDragDrop(value: TDragDropEvent);
 begin
   if fOnDragDrop = value then
@@ -365,10 +366,10 @@ begin
   fPages.Delete(index);
   fTabs.Tabs.Delete(index);
 
-  updateButtonsState;
   if fPages.Count = 0 then
-    exit;
+    fPageIndex:=-1;
 
+  updateButtonsState;
   setPageIndex(fPageIndex);
 end;
 
