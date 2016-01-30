@@ -472,6 +472,7 @@ begin
     editorStatus.Panels[1].Text := '';
     editorStatus.Panels[2].Text := '';
     editorStatus.Panels[3].Text := '';
+    editorStatus.Panels[4].Text := '';
   end else begin
     editorStatus.Panels[0].Text := format('%d : %d | %d', [fDoc.CaretY, fDoc.CaretX, fDoc.SelEnd - fDoc.SelStart]);
     editorStatus.Panels[1].Text := modstr[fDoc.modified];
@@ -481,7 +482,13 @@ begin
       editorStatus.Panels[2].Text := 'no macro'
     else
       editorStatus.Panels[2].Text := 'macro ready';
-    editorStatus.Panels[3].Text := fDoc.fileName;
+    if fDoc.ReadOnly then
+    begin
+      editorStatus.Panels[3].Width:= 120;
+      editorStatus.Panels[3].Text := '(read-only)';
+    end else
+      editorStatus.Panels[3].Width:= 0;
+    editorStatus.Panels[4].Text := fDoc.fileName;
     if Visible and (pageControl.currentPage <> nil) and ((pageControl.currentPage.Caption = '') or
       (pageControl.currentPage.Caption = '<new document>')) then
     begin

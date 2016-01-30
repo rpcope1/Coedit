@@ -1008,6 +1008,7 @@ begin
   Lines.LoadFromFile(aFilename);
   fFilename := aFilename;
   FileAge(fFilename, fFileDate);
+  ReadOnly := FileIsReadOnly(fFilename);
   //
   fModified := false;
   if Showing then
@@ -1023,6 +1024,8 @@ procedure TCESynMemo.saveToFile(const aFilename: string);
 var
   ext: string;
 begin
+  if readOnly then
+    exit;
   Lines.SaveToFile(aFilename);
   fFilename := aFilename;
   ext := aFilename.extractFileExt;
@@ -1036,6 +1039,8 @@ end;
 
 procedure TCESynMemo.save;
 begin
+  if readOnly then
+    exit;
   Lines.SaveToFile(fFilename);
   FileAge(fFilename, fFileDate);
   fModified := false;
