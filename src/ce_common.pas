@@ -28,9 +28,6 @@ type
 
   TCECompiler = (dmd, gdc, ldc);
 
-
-type
-
   // aliased to get a custom prop inspector
   TCEPathname = type string;
   TCEFilename = type string;
@@ -58,6 +55,7 @@ type
     function fileExists: boolean;
     function dirExists: boolean;
     function upperCase: string;
+    function length: integer;
   end;
 
   (**
@@ -368,6 +366,11 @@ begin
   exit(sysutils.upperCase(self));
 end;
 
+function TStringHelper.length: integer;
+begin
+  exit(system.length(self));
+end;
+
 {$IFDEF LINUX}
 constructor TCheckedAsyncProcess.Create(aOwner: TComponent);
 begin
@@ -495,8 +498,8 @@ var
   dir: string;
 begin
   dir := ExtractFileDrive(src);
-  if length(dir) > 0 then
-    result := src[length(dir)+1..length(src)]
+  if dir.length > 0 then
+    result := src[dir.length+1..src.length]
   else
     result := src;
   i := pos(invalid, result);
@@ -595,20 +598,20 @@ var
   drv: string;
   pth1: string;
 begin
-  if length(aPath) <= charThresh then
+  if aPath.length <= charThresh then
     exit(aPath);
 
   drv := extractFileDrive(aPath);
-  i := length(aPath);
-  while(i <> length(drv)+1) do
+  i := aPath.length;
+  while(i <> drv.length+1) do
   begin
     Inc(sepCnt, Byte(aPath[i] = directorySeparator));
     if sepCnt = 2 then
       break;
     Dec(i);
   end;
-  pth1 := aPath[i..length(aPath)];
-  exit( format('%s%s...%s',[drv,directorySeparator,pth1]) );
+  pth1 := aPath[i..aPath.length];
+  exit(format('%s%s...%s', [drv, directorySeparator, pth1]));
 end;
 
 function getUserDataPath: string;
@@ -624,7 +627,7 @@ begin
   {$ENDIF}
   if not DirectoryExists(result) then
     raise Exception.Create('Coedit failed to retrieve the user data folder');
-  if result[length(result)] <> DirectorySeparator then
+  if result[result.length] <> DirectorySeparator then
     result += directorySeparator;
 end;
 
@@ -708,11 +711,11 @@ begin
   if aPath.isEmpty then
     exit;
   //
-  if aPath[length(aPath)] = '*' then
+  if aPath[aPath.length] = '*' then
   begin
-    pth := aPath[1..length(aPath)-1];
-    if pth[length(pth)] in ['/', '\'] then
-      pth := pth[1..length(pth)-1];
+    pth := aPath[1..aPath.length-1];
+    if pth[pth.length] in ['/', '\'] then
+      pth := pth[1..pth.length-1];
     if not pth.dirExists then exit(false);
     //
     files := TStringList.Create;
@@ -930,7 +933,7 @@ var
   value: char = #0;
   le: string = LineEnding;
 begin
-  result := length(le);
+  result := le.length;
   if not fileExists(aFilename) then
     exit;
   with TMemoryStream.Create do
@@ -1139,7 +1142,7 @@ begin
     exit;
   if str[1] = ';' then
     result := true;
-  if (length(str) > 1) and (str[1..2] = '//') then
+  if (str.length > 1) and (str[1..2] = '//') then
     result := true;
 end;
 

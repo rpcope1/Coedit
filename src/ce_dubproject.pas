@@ -247,7 +247,7 @@ begin
       saver.WriteDWord($00BFBBEF);
       saver.Position:=saver.Position-1;
     end;
-    saver.Write(str[1], length(str));
+    saver.Write(str[1], str.length);
     saver.SaveToFile(fFilename);
   finally
     saver.Free;

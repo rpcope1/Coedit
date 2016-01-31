@@ -186,10 +186,10 @@ var
 begin
   inherited;
   for i := fMrReplacements.Count-1 downto 0 do
-    if length(fMrReplacements[i]) > 128 then
+    if fMrReplacements[i].length > 128 then
       fMrReplacements.Delete(i);
   for i := fMrSearches.Count-1 downto 0 do
-      if length(fMrSearches[i]) > 128 then
+      if fMrSearches[i].length > 128 then
         fMrSearches.Delete(i);
 end;
 {$ENDREGION}
@@ -384,7 +384,7 @@ begin
     if chkBack.Checked then
       fDoc.CaretX := fDoc.CaretX - 1
     else
-      fDoc.CaretX := fDoc.CaretX + length(fToFind);
+      fDoc.CaretX := fDoc.CaretX + fToFind.length;
   end;
   if fDoc.SearchReplace(fToFind, '', getOptions) = 0 then
     dlgOkInfo('the expression cannot be found')
@@ -420,7 +420,7 @@ begin
     if chkBack.Checked then
       fDoc.CaretX := fDoc.CaretX - 1
     else
-      fDoc.CaretX := fDoc.CaretX + length(fToFind);
+      fDoc.CaretX := fDoc.CaretX + fToFind.length;
   end;
   if fDoc.SearchReplace(fToFind, fReplaceWth, getOptions + [ssoReplace]) <> 0 then
     fHasSearched := true;

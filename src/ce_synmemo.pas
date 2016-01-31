@@ -376,7 +376,7 @@ begin
   fname := getCoeditDocPath + 'editorcache' + DirectorySeparator;
   ForceDirectories(fname);
   chksm := crc32(0, nil, 0);
-  chksm := crc32(chksm, @tempn[1], length(tempn));
+  chksm := crc32(chksm, @tempn[1], tempn.length);
   fname := fname + format('%.8X.txt', [chksm]);
   saveToFile(fname);
 end;
@@ -392,7 +392,7 @@ begin
   //
   fname := getCoeditDocPath + 'editorcache' + DirectorySeparator;
   chksm := crc32(0, nil, 0);
-  chksm := crc32(chksm, @tempn[1], length(tempn));
+  chksm := crc32(chksm, @tempn[1], tempn.length);
   fname := fname + format('%.8X.txt', [chksm]);
   //
   if not fname.fileExists then exit;
@@ -765,9 +765,9 @@ begin
   if beg.isEmpty then exit;
   while true do
   begin
-    if (i > length(beg)) or not (beg[i] in blk) then
+    if (i > beg.length) or not (beg[i] in blk) then
       break;
-    i += 1
+    i += 1;
   end;
   i -= 1;
   editor.BeginUndoBlock;
@@ -958,7 +958,7 @@ procedure TCESynMemo.completionCodeCompletion(var Value: string;
   Shift: TShiftState);
 begin
   // warning: '20' depends on ce_dcd, case knd of, string literals length
-  Value := Value[1..length(Value)-20];
+  Value := Value[1..Value.length-20];
 end;
 
 function TCESynMemo.completionItemPaint(const AKey: string; ACanvas: TCanvas;X, Y: integer;
@@ -972,8 +972,8 @@ begin
   // otherwise always at least 20 chars but...
   // ... '20' depends on ce_dcd, case knd of, string literals length
   result := true;
-  lft := AKey[1 .. length(AKey)-20];
-  rgt := AKey[length(AKey)-19 .. length(AKey)];
+  lft := AKey[1 .. AKey.length-20];
+  rgt := AKey[AKey.length-19 .. AKey.length];
   ACanvas.Font.Style := [fsBold];
   len := ACanvas.TextExtent(lft).cx;
   ACanvas.TextOut(2 + X , Y, lft);
@@ -1010,19 +1010,19 @@ var
   i: integer;
 begin
   fIdentifier := GetWordAtRowCol(LogicalCaretXY);
-  if (length(fIdentifier) > 2) and (not SelAvail) then
+  if (fIdentifier.length > 2) and (not SelAvail) then
     SetHighlightSearch(fIdentifier, fMatchIdentOpts)
   else if SelAvail then
   begin
     str := SelText;
-    for i := 1 to length(str) do
+    for i := 1 to str.length do
     begin
       if not (str[i] in [' ', #10, #13]) then
       begin
         SetHighlightSearch(str, fMatchSelectionOpts);
         break;
       end;
-      if i = length(str) then
+      if i = str.length then
         SetHighlightSearch('', []);
     end;
   end
@@ -1194,7 +1194,7 @@ var
 begin
   result := 0;
   if fMousePos.y-1 > Lines.Count-1 then exit;
-  llen := length(Lines.Strings[fMousePos.y-1]);
+  llen := Lines.Strings[fMousePos.y-1].length;
   if fMousePos.X > llen  then exit;
   //
   // something note really clear:
@@ -1202,7 +1202,7 @@ begin
   // TCESynMemo.getMouseFileBytePos works when using the line ending from the system.
   len := getSysLineEndLen;
   for i:= 0 to fMousePos.y-2 do
-    result += length(Lines.Strings[i]) + len;
+    result += Lines.Strings[i].length + len;
   result += fMousePos.x;
 end;
 {$ENDREGION --------------------------------------------------------------------}
@@ -1270,7 +1270,7 @@ begin
       begin
         if fAutoCloseCurlyBrace = autoCloseAlways then
           curlyBraceCloseAndIndent(self)
-        else if (CaretY = Lines.Count) and (CaretX = length(LineText)+1) then
+        else if (CaretY = Lines.Count) and (CaretX = LineText.length+1) then
           curlyBraceCloseAndIndent(self);
       end;
   end;

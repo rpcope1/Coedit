@@ -483,8 +483,8 @@ begin
   category  := 'Code editor';
   identifier:= shrct.actionName;
   // SynEdit shortcuts start with 'ec'
-  if length(identifier) > 2 then
-    identifier := identifier[3..length(identifier)];
+  if identifier.length > 2 then
+    identifier := identifier[3..identifier.length];
   aShortcut := shrct.shortcut;
   //
   fShortcutCount += 1;
@@ -501,9 +501,9 @@ begin
   for i:= 0 to fShortCuts.Count-1 do
   begin
     shc := TCEPersistentShortcut(fShortCuts.Items[i]);
-    if length(shc.actionName) > 2 then
+    if shc.actionName.length > 2 then
     begin
-      if shc.actionName[3..length(shc.actionName)] <> identifier then
+      if shc.actionName[3..shc.actionName.length] <> identifier then
         continue;
     end else if shc.actionName <> identifier then
       continue;

@@ -801,7 +801,7 @@ begin
     for i := 0 to fToDemangle.Count-1 do
     begin
       str := fToDemangle.Strings[i] + LineEnding;
-      fDemangler.Input.Write(str[1], length(str));
+      fDemangler.Input.Write(str[1], str.length);
     end;
     fDemangler.CloseInput;
   end;
@@ -954,7 +954,7 @@ begin
   result := amkBub;
   while(true) do
   begin
-    if pos > length(aMessg) then
+    if pos > aMessg.length then
       exit;
     if aMessg[pos] in [#0..#32, ',', ':', ';'] then
     begin
@@ -988,16 +988,16 @@ begin
   i := 1;
   while (true) do
   begin
-    if i > length(aMessage) then exit;
+    if i > aMessage.length then exit;
     if aMessage[i] = '(' then
     begin
       inc(i);
-      if i > length(aMessage) then exit;
+      if i > aMessage.length then exit;
       while( isNumber(aMessage[i]) or (aMessage[i] = ',') or (aMessage[i] = ':')) do
       begin
         ident += aMessage[i];
         inc(i);
-        if i > length(aMessage) then exit;
+        if i > aMessage.length then exit;
       end;
       if aMessage[i] = ')' then
       begin
@@ -1008,7 +1008,7 @@ begin
         else
         begin
           result.y := strToIntDef(ident[1..j-1], -1);
-          result.x := strToIntDef(ident[j+1..length(ident)], -1);
+          result.x := strToIntDef(ident[j+1..ident.length], -1);
         end;
         exit;
       end;
@@ -1027,12 +1027,12 @@ begin
   while (true) do
   begin
     inc(i);
-    if i > length(aMessage) then
+    if i > aMessage.length then
       exit;
     // '(': line will be indicated after fname
     // -mixin: dmd, error in mixin(token string) '<fname>-mixinXX<index>('
     if isEditable(ident.extractFileExt) and ((aMessage[i] = '(') or
-      ((aMessage[i] = '-') and (i < length(aMessage)-5)
+      ((aMessage[i] = '-') and (i < aMessage.length-5)
         and (aMessage[i..i+5] = '-mixin'))) then
     begin
       // absolute fname

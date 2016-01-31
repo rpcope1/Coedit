@@ -1849,7 +1849,7 @@ begin
     if (j > -1) and (j < i) then
       continue;
     // not a switch
-    if length(cur) < 2 then
+    if cur.length < 2 then
       continue;
     if cur[1] <> '-' then
       continue;
@@ -1861,8 +1861,8 @@ begin
     RemoveTrailingChars(cur, [#0..#30]);
     fRunnableSw += (cur + #13);
   end;
-  if fRunnableSw.isNotEmpty and (fRunnableSw[length(fRunnableSw)] = #13) then
-    fRunnableSw := fRunnableSw[1..length(fRunnableSw)-1];
+  if fRunnableSw.isNotEmpty and (fRunnableSw[fRunnableSw.length] = #13) then
+    fRunnableSw := fRunnableSw[1..fRunnableSw.length-1];
   if fRunnableSw.isEmpty then
     fRunnableSw := '-vcolumns'#13'-w'#13'-wi';
   //
@@ -1884,7 +1884,7 @@ begin
   if fDoc.Lines.Count = 0 then exit;
 
   firstlineFlags := fDoc.Lines[0];
-  i := length(firstlineFlags);
+  i := firstlineFlags.length;
   if ( i > 18) then
   begin
     if firstlineFlags.upperCase[1..17] = '#!RUNNABLE-FLAGS:' then

@@ -286,7 +286,7 @@ begin
   for i:= 0 to fFileLineBrks.Count-1 do
   begin
     str := 'break ' + fFileLineBrks.Strings[i] + ':' + intToStr(PtrUInt(fFileLineBrks.Objects[i])) + #10;
-    fGdb.Input.Write(str[1], length(str));
+    fGdb.Input.Write(str[1], str.length);
   end;
   // break on druntime exceptions heper + throw'
   fGdb.OnReadData := @processSilently;
@@ -354,7 +354,7 @@ begin
   aCommand += #10;
   if assigned(outputCatcher) then
     fGdb.OnReadData := outputCatcher;
-  fGdb.Input.Write(aCommand[1], length(aCommand));
+  fGdb.Input.Write(aCommand[1], aCommand.length);
 end;
 
 procedure TCEGdbWidget.infoRegs;

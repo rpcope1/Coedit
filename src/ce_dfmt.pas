@@ -264,7 +264,7 @@ begin
     prc.Executable:= exeFullName('dfmt' + exeExt);
     prc.Execute;
     inp := fDoc.Lines.Text;
-    prc.Input.Write(inp[1], length(inp));
+    prc.Input.Write(inp[1], inp.length);
     prc.CloseInput;
     while prc.Running do (*!*);
     try

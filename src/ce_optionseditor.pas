@@ -250,7 +250,7 @@ begin
   if aEditor.GetComponent(0) is TComponent then
   begin
     nme := aEditor.GetPropInfo^.Name;
-    len := length(nme);
+    len := nme.length;
     // TODO-cbugfix: filtering does not work on sub componenets 'e.g D2HL options)
     if (len > 2) and (nme[len - 2 .. len] = 'Tag') then
       aShow := false

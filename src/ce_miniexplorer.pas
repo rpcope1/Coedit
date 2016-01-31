@@ -466,7 +466,7 @@ begin
   fname := PString(lstFiles.Selected.Data)^;
   if not fname.fileExists then exit;
   {$IFNDEF WINDOWS}
-  fname := fname[2..length(fname)];
+  fname := fname[2..fname.length];
   {$ENDIF}
   if isValidNativeProject(fname) then
   begin
@@ -572,7 +572,7 @@ begin
     for drv in lst do
     begin
       itm := Tree.Items.Add(nil, drv);
-      itm.Data := NewStr(drv[1..length(drv)-1]);
+      itm.Data := NewStr(drv[1..drv.length-1]);
       treeScanSubFolders(itm);
     end;
   finally
@@ -662,7 +662,7 @@ var
 begin
   result := false;
   {$IFDEF LINUX}
-  if (length(aPath) >= 2) and (aPath[2] <> '/') then
+  if (aPath.length >= 2) and (aPath[2] <> '/') then
     aPath := '/' + aPath;
   {$ENDIF}
   for i := 0 to aRoot.Count-1 do
@@ -670,7 +670,7 @@ begin
     if aRoot.Items[i].Data.isNil then
       continue;
     str := PString(aRoot.Items[i].Data)^;
-    if SameText(LeftStr(aPath, length(str)), str) then
+    if SameText(LeftStr(aPath, str.length), str) then
     begin
       result := true;
       Tree.Selected := aRoot.Items[i];

@@ -671,7 +671,7 @@ begin
   fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);
   fToolProc.Execute;
   str := fDoc.Text;
-  fToolProc.Input.Write(str[1], length(str));
+  fToolProc.Input.Write(str[1], str.length);
   fToolProc.CloseInput;
 end;
 

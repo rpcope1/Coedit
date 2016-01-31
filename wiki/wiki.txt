@@ -298,9 +298,9 @@ To do so, the application option _Native project compiler_ must be set according
 
 # DUB projects.
 
-Since the version 2 alpha 1, Coedit also handles DUB projects.
+Since the version 2 alpha 1, Coedit also handles [DUB](http://code.dlang.org/getting_started) projects.
 
-DUB project description must be in JSON format, SDL in not supported.
+DUB project description must be in [JSON format](http://code.dlang.org/package-format?lang=json), [SDL](http://code.dlang.org/package-format?lang=sdl) in not supported.
 
 DUB projects are handled exactly as CE projects are. The _project_ menu proposes the same features.
 However the configuration is done in another widget, see the [dedicated paragraph][lnk_widg_dub].
@@ -541,7 +541,7 @@ Coedit handles the task automatically (see later in the project configuration wi
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_up.png) **/** ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/arrow/arrow_down.png): change selected entry position.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_link.png): if the current project _binaryKind_ is set to _staticlib_ then the _libman_ will use its parameters to create an entry. This avoids to browse in the dialogs, for example if you wish to setup several [_metad_][lnk_metad] items. Note that sometimes the sources root folder has to be adjusted.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_open.png): if the selected item defines a _project_ then closes current project and opens the one matching to the entry.
-- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/dub_small.png): allows to fetch the master version of a DUB registry item. When the button is clicked, an input field allows to type the library name, after what, if the name is valid, the library will be downloaded, compiled and a new entry automatically filled. This features is actually more useful for the CE projects and the runnable modules as the dependencies of a DUB projects are handled automatically. It allows to use every DUB library in a CE project, even if the package doesn't include a CE project file.
+- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/dub_small.png): allows to fetch the master version of a [DUB registry item](http://code.dlang.org/). When the button is clicked, an input field allows to type the library name, after what, if the name is valid, the library will be downloaded, compiled and a new entry automatically filled. This features is actually more useful for the CE projects and the runnable modules as the dependencies of a DUB projects are handled automatically. It allows to use every DUB library in a CE project, even if the package doesn't include a CE project file.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/book/book_edit.png): edit the item alias.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_brick.png): select the library file. In some rare case, this field can be omitted (for example if the library file is set in the _sc.ini_).
 This can be skipped if the library is only a small orphan _d_ source that's not been compiled as a static library or if the entry is only used for the [DCD][lnk_dcd] completion.
@@ -753,7 +753,8 @@ The DUB project editor is widget is divided in two panels:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dub_inspect.png)
 
-The first panel displays the sources list and the combination of _each build type_ with each _build configuration_. Sources can be opened in a new editor by double clicking. To select a configuration defines which type and which configuration will be build by DUB when clicking _compile_ in the _project_ menu.
+The first panel displays the sources list and the combination of _each build type_ with each _build configuration_. Sources can be opened in a new editor by double clicking.
+Selecting a configuration defines which _buildType_ type and which _configuration_ will be build by DUB when clicking _compile_ in the _project_ menu.
 Note that it's possible to specify which compiler DUB uses in the application options _dubCompiler_.
 
 #### Editor
@@ -765,7 +766,7 @@ The second panel displays the tree of the project properties. The can be modifie
 New properties can be added or removed:
 
 * ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/textfield_delete.png): removes the selected property. Note that the effect is not reflected until the project is saved as a file (since Coedit does not communicate directly with DUB).
-* ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/textfield_add.png): show a small dialog that allows to add a new value, a new array or new object. This requires to master the DUB format. In the dialog, the value of the text field is only used when an object or a value is added. It matches to the _key_, not the value itself.
+* ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/other/textfield_add.png): shows a small dialog that allows to add a new value, a new array or a new object. This requires to master the [DUB JSON format](http://code.dlang.org/package-format?lang=json). In the dialog, the value of the text field is only used when an object or a value is added. It matches to the _key_, not the value itself.
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dub_edit2.png)
 
@@ -842,7 +843,7 @@ Toolbar:
 
 A tool can be selected from the left side of the widget. If selected, a property inspector displays the options that can be edited:
 
-- clearMessages: if the tool standard output is redirected to the [messages widget][lnk_widg_msg] then the previous messages are cleared before the execution. The output is redirected to the messages when **popUsePipes** is set and if the **nextToolALias** is empty.
+- clearMessages: if the tool standard output is redirected to the [messages widget][lnk_widg_msg] then the previous messages are cleared before the execution. The output is redirected to the messages when **popUsePipes** is set and if the **nextToolAlias** is empty.
 - editorToInput: when set, the content of the current editor is streamed to the tool standard input.
 - executable: the tool file name. If the system cannot find its path in the environment variables then it must be included. The field can include a [symbolic string][lnk_sym].
 - nextToolAlias: defines the alias of another tool that will be launched after this one returns.

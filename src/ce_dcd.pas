@@ -238,7 +238,7 @@ end;
 procedure TCEDcdWrapper.writeSourceToInput;
 begin
   fInputSource := fDoc.Text;
-  fClient.Input.Write(fInputSource[1], length(fInputSource));
+  fClient.Input.Write(fInputSource[1], fInputSource.length);
   fClient.CloseInput;
 end;
 
@@ -279,7 +279,7 @@ begin
   //
   fTempLines.Delete(0);
   tips := fTempLines.Text;
-  tips := tips[1..length(tips)-1];
+  tips := tips[1..tips.length-1];
 end;
 
 procedure TCEDcdWrapper.getComplAtCursor(aList: TStrings);
@@ -312,8 +312,8 @@ begin
   for i := 1 to fTempLines.Count-1 do
   begin
     item := fTempLines.Strings[i];
-    kind := item[length(item)];
-    setLength(item, length(item)-2);
+    kind := item[item.length];
+    setLength(item, item.length-2);
     case kind of
       'c': item += ' (class)            ';
       'i': item += ' (interface)        ';
@@ -402,7 +402,7 @@ begin
     i := Pos(#9, str);
     if i = -1 then
       exit;
-    loc := str[i+1..length(str)];
+    loc := str[i+1..str.length];
     aFilename := str[1..i-1];
     loc := ReplaceStr(loc, LineEnding, '');
     aPosition := strToIntDef(loc, -1);

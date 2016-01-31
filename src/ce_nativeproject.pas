@@ -498,7 +498,7 @@ var
     // hint for the common dir
     dirHint := fSrcs.Strings[i];
     while (dirHint[1] = '.') or (dirHint[1] = DirectorySeparator) do
-        dirHint := dirHint[2..length(dirHint)];
+        dirHint := dirHint[2..dirHint.length];
     ini := fFilename.extractFilePath;
     if not selectDirectory( format('select the folder (that contains "%s")',[dirHint]), ini, newdir) then
       exit;
@@ -506,7 +506,7 @@ var
     begin
       src := fSrcs.Strings[i];
       while (src[1] = '.') or (src[1] = DirectorySeparator) do
-        src := src[2..length(src)];
+        src := src[2..src.length];
       if fileExists(expandFilenameEx(fBasePath, newdir + DirectorySeparator + src)) then
         fSrcs.Strings[i] := ExtractRelativepath(fBasePath, newdir + DirectorySeparator + src);
       hasPatched := true;

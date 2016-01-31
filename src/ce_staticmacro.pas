@@ -354,12 +354,12 @@ begin
   for i := fMacros.Count-1 downto 0 do
   begin
     text := fMacros.Strings[i];
-    if length(text) >= 4 then
+    if text.length >= 4 then
       if text[1] = '$' then
         if Pos('=', text) > 2 then
         begin
           macro := fMacros.Names[i];
-          if (macro[length(macro)] in ['a'..'z', 'A'..'Z', '0'..'9']) then
+          if (macro[macro.length] in ['a'..'z', 'A'..'Z', '0'..'9']) then
             continue;
         end;
     fMacros.Delete(i);

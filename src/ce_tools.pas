@@ -224,8 +224,8 @@ begin
     begin
       setLength(inp, previous.process.OutputStack.Size);
       previous.process.OutputStack.Position:=0;
-      previous.process.OutputStack.Read(inp[1], length(inp));
-      fProcess.Input.Write(inp[1], length(inp));
+      previous.process.OutputStack.Read(inp[1], inp.length);
+      fProcess.Input.Write(inp[1], inp.length);
       fProcess.CloseInput;
     end;
   end;
@@ -420,7 +420,7 @@ begin
     and aTool.fProcess.Input.isNotNil then
   begin
     txt := fDoc.Text;
-    aTool.fProcess.Input.Write(txt[1], length(txt));
+    aTool.fProcess.Input.Write(txt[1], txt.length);
     aTool.fProcess.CloseInput;
   end;
 end;

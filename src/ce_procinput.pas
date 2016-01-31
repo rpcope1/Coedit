@@ -119,7 +119,7 @@ begin
     inp := symbolExpander.get(txtInp.Text) + lineEnding
   else
     inp := txtInp.Text + lineEnding;
-  fProc.Input.Write(inp[1], length(inp));
+  fProc.Input.Write(inp[1], inp.length);
   txtInp.Text := '';
 end;
 

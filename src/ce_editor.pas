@@ -446,7 +446,7 @@ begin
     len := getLineEndingLength(fDoc.fileName);
     for i := 0 to fDoc.Lines.Count-1 do
     begin
-      linelen := length(fDoc.Lines.Strings[i]);
+      linelen := fDoc.Lines.Strings[i].length;
       if sum + linelen + len > srcpos then
       begin
         fDoc.CaretY := i + 1;

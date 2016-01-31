@@ -144,7 +144,6 @@ begin
     exit;
   fNeedUpdate := true;
 end;
-
 {$ENDREGION}
 
 {$REGION Symbol things ---------------------------------------------------------}
@@ -259,7 +258,7 @@ begin
         end;
       end;
     until
-      i = length(symString);
+      i = symString.length;
     elems.Add(elem);
     elem := '';
     for i := 0 to elems.Count - 1 do
