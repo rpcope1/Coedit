@@ -668,7 +668,7 @@ begin
   fToolProc.Options := [poUsePipes];
   fToolProc.Executable := fToolExeName;
   fToolProc.OnTerminate := @toolTerminated;
-  fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);
+  fToolProc.CurrentDirectory := Application.ExeName.extractFileDir;
   fToolProc.Execute;
   str := fDoc.Text;
   fToolProc.Input.Write(str[1], str.length);

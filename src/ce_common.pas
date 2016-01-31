@@ -52,6 +52,7 @@ type
     function extractFileName: string;
     function extractFileExt: string;
     function extractFilePath: string;
+    function extractFileDir: string;
     function fileExists: boolean;
     function dirExists: boolean;
     function upperCase: string;
@@ -349,6 +350,11 @@ end;
 function TStringHelper.extractFilePath: string;
 begin
   exit(sysutils.extractFilePath(self));
+end;
+
+function TStringHelper.extractFileDir: string;
+begin
+  exit(sysutils.extractFileDir(self));
 end;
 
 function TStringHelper.fileExists: boolean;
@@ -969,7 +975,7 @@ var
 begin
   result := 0;
   while(true) do begin
-    parent := ExtractFileDir(aFilename);
+    parent := aFilename.extractFileDir;
     if parent = aFilename then exit;
     aFilename := parent;
     result += 1;
@@ -1003,14 +1009,14 @@ begin
     for i := sink.Count-1 downto 0 do
     begin
       while (countFolder(sink[i]) <> cnt) do
-        sink[i] := ExtractFileDir(sink[i]);
+        sink[i] := sink[i].extractFileDir;
     end;
     // common folder
     while(true) do
     begin
       for i := sink.Count-1 downto 0 do
       begin
-        dir := ExtractFileDir(sink[i]);
+        dir := sink[i].extractFileDir;
         j := sink.IndexOf(dir);
         if j = -1 then
           sink[i] := dir

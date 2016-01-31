@@ -424,7 +424,7 @@ begin
   fToolProc.Executable := exeFullName(ToolExeName);
   fToolProc.Options := [poUsePipes];
   fToolProc.ShowWindow := swoHIDE;
-  fToolProc.CurrentDirectory := ExtractFileDir(Application.ExeName);
+  fToolProc.CurrentDirectory := Application.ExeName.extractFileDir;
   fToolProc.OnTerminate := @toolTerminated;
 
   // files passed to the tool argument

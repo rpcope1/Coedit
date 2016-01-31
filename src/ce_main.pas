@@ -1952,7 +1952,7 @@ begin
     begin
       fMsgs.message(shortenPath(fDoc.fileName, 25) + ' successfully compiled',
         fDoc, amcEdit, amkInf);
-      fRunProc.CurrentDirectory := extractFileDir(fRunProc.Executable);
+      fRunProc.CurrentDirectory := fRunProc.Executable.extractFileDir;
       if runArgs.isNotEmpty then
       begin
         extraArgs.Clear;

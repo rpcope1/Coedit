@@ -275,10 +275,10 @@ begin
           Caption := nme;
           SubItems.Add(prj.outputFilename);
           if str.Count = 1 then
-            cdy := ExtractFileDir(str[0])
+            cdy := str[0].extractFileDir
           else begin
             cdy := commonFolder(str);
-            cdy := ExtractFileDir(cdy);
+            cdy := cdy.extractFileDir;
           end;
           SubItems.Add(cdy);
           SubItems.Add(prj.filename);
@@ -367,11 +367,11 @@ begin
       str.Add(fProj.sourceAbsolute(i));
     // single source libs usually have the structure "src/<fname>"
     if str.Count = 1 then
-      root := ExtractFileDir(str[0])
+      root := str[0].extractFileDir
     // multi source libs have the structure "src/LibName/<fname>"/...
     else begin
       root := commonFolder(str);
-      root := ExtractFileDir(root);
+      root := root.extractFileDir;
     end;
     if root.isEmpty then
     begin

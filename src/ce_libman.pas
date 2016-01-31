@@ -73,20 +73,20 @@ begin
     if fDmdPath.fileExists then
     begin
       // add phobos
-      fname := ExtractFileDir(fDmdPath);
-      fname := ExtractFileDir(fname);
+      fname := fDmdPath.ExtractFileDir;
+      fname := fname.ExtractFileDir;
       with TLibraryItem(fCol.Add) do begin
         libAlias := 'phobos';
         libFile  := fname + '\lib\phobos.lib';
-        libSourcePath := ExtractFileDir(fname) + '\src\phobos';
+        libSourcePath := fname.ExtractFileDir + '\src\phobos';
       end;
       // add druntime (no lib - only for DCD)
-      fname := ExtractFileDir(fDmdPath);
-      fname := ExtractFileDir(fname);
+      fname := fDmdPath.ExtractFileDir;
+      fname := fname.ExtractFileDir;
       with TLibraryItem(fCol.Add) do begin
         libAlias := 'druntime';
         libFile  := '';
-        libSourcePath := ExtractFileDir(fname) + '\src\druntime\import';
+        libSourcePath := fname.ExtractFileDir + '\src\druntime\import';
       end;
     end;
     {$ENDIF}

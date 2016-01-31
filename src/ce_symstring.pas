@@ -203,7 +203,7 @@ begin
         end;
         fSymbols[CPFS] := str.Text;
         if str.Count = 1 then
-          fSymbols[CPCD] := ExtractFileDir(str[0])
+          fSymbols[CPCD] := str[0].extractFileDir
         else
           fSymbols[CPCD] := commonFolder(str);
       finally
