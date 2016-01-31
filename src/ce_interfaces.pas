@@ -335,7 +335,7 @@ var
   i: Integer;
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEMultiDocObserver).docNew(aDoc);
+    (fObservers[i] as ICEMultiDocObserver).docNew(aDoc);
 end;
 
 procedure subjDocClosing(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);
@@ -343,7 +343,7 @@ var
   i: Integer;
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEMultiDocObserver).docClosing(aDoc);
+    (fObservers[i] as ICEMultiDocObserver).docClosing(aDoc);
 end;
 
 procedure subjDocFocused(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);
@@ -351,7 +351,7 @@ var
   i: Integer;
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEMultiDocObserver).docFocused(aDoc);
+    (fObservers[i] as ICEMultiDocObserver).docFocused(aDoc);
 end;
 
 procedure subjDocChanged(aSubject: TCEMultiDocSubject; aDoc: TCESynMemo);
@@ -359,7 +359,7 @@ var
   i: Integer;
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEMultiDocObserver).docChanged(aDoc);
+    (fObservers[i] as ICEMultiDocObserver).docChanged(aDoc);
 end;
 {$ENDREGION}
 
@@ -369,7 +369,7 @@ var
   i: Integer;
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEProjectObserver).ProjNew(aProj);
+    (fObservers[i] as ICEProjectObserver).ProjNew(aProj);
 end;
 
 procedure subjProjClosing(aSubject: TCEProjectSubject; aProj: ICECommonProject);
@@ -377,7 +377,7 @@ var
   i: Integer;
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEProjectObserver).projClosing(aProj);
+    (fObservers[i] as ICEProjectObserver).projClosing(aProj);
 end;
 
 procedure subjProjFocused(aSubject: TCEProjectSubject; aProj: ICECommonProject);
@@ -385,7 +385,7 @@ var
   i: Integer;
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEProjectObserver).projFocused(aProj);
+    (fObservers[i] as ICEProjectObserver).projFocused(aProj);
 end;
 
 procedure subjProjChanged(aSubject: TCEProjectSubject; aProj: ICECommonProject);
@@ -393,7 +393,7 @@ var
   i: Integer;
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEProjectObserver).projChanged(aProj);
+    (fObservers[i] as ICEProjectObserver).projChanged(aProj);
 end;
 
 procedure subjProjCompiling(aSubject: TCEProjectSubject; aProj: ICECommonProject);
@@ -401,7 +401,7 @@ var
   i: Integer;
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEProjectObserver).projCompiling(aProj);
+    (fObservers[i] as ICEProjectObserver).projCompiling(aProj);
 end;
 
 procedure subjProjCompiled(aSubject: TCEProjectSubject; aProj: ICECommonProject; success: boolean);
@@ -409,7 +409,7 @@ var
   i: Integer;
 begin
   with aSubject do for i:= 0 to fObservers.Count-1 do
-    (fObservers.Items[i] as ICEProjectObserver).projCompiled(aProj, success);
+    (fObservers[i] as ICEProjectObserver).projCompiled(aProj, success);
 end;
 
 {$ENDREGION}

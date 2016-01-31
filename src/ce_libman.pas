@@ -186,9 +186,9 @@ begin
         listFiles(lst, dir);
         for j:= 0 to lst.Count-1 do
         begin
-          if lst.Strings[j].extractFileExt = libExt then
-            if aList.IndexOf(lst.Strings[j]) = -1 then
-              aList.Add(lst.Strings[j]);
+          if lst[j].extractFileExt = libExt then
+            if aList.IndexOf(lst[j]) = -1 then
+              aList.Add(lst[j]);
         end;
       finally
         lst.Free;

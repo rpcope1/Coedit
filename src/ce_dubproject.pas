@@ -208,8 +208,7 @@ begin
       loader.Position:= 0;
     //
     FreeAndNil(fJSON);
-    parser := TJSONParser.Create(loader, true);
-    parser.Options:= parser.Options + [joIgnoreTrailingComma] - [joStrict];
+    parser := TJSONParser.Create(loader, [joIgnoreTrailingComma, joUTF8]);
     //TODO-cfcl-json: remove etc/fcl-json the day they'll merge and rlz the version with 'Options'
     //TODO-cfcl-json: track possible changes and fixes at http://svn.freepascal.org/cgi-bin/viewvc.cgi/trunk/packages/fcl-json/
     try
@@ -268,9 +267,9 @@ begin
   try
     str.Add('dub' + exeExt);
     str.Add('build');
-    str.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
-    if (fConfigs.Count <> 1) and (fConfigs.Strings[0] <> DubDefaultConfigName) then
-      str.Add('--config=' + fConfigs.Strings[fConfigIx]);
+    str.Add('--build=' + fBuildTypes[fBuiltTypeIx]);
+    if (fConfigs.Count <> 1) and (fConfigs[0] <> DubDefaultConfigName) then
+      str.Add('--config=' + fConfigs[fConfigIx]);
     str.Add('--compiler=' + DubCompilerFilename);
     result := str.Text;
   finally
@@ -302,14 +301,14 @@ end;
 
 function TCEDubProject.sourceRelative(index: integer): string;
 begin
-  exit(fSrcs.Strings[index]);
+  exit(fSrcs[index]);
 end;
 
 function TCEDubProject.sourceAbsolute(index: integer): string;
 var
   fname: string;
 begin
-  fname := fSrcs.Strings[index];
+  fname := fSrcs[index];
   if fname.fileExists then
     result := fname
   else
@@ -323,7 +322,7 @@ end;
 
 function TCEDubProject.importPath(index: integer): string;
 begin
-  result := expandFilenameEx(fBasePath, fImportPaths.Strings[index]);
+  result := expandFilenameEx(fBasePath, fImportPaths[index]);
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
@@ -349,8 +348,8 @@ end;
 
 function TCEDubProject.configurationName(index: integer): string;
 begin
-  result := fBuildTypes.Strings[index div fConfigs.Count] + ' - ' +
-    fConfigs.Strings[index mod fConfigs.Count];
+  result := fBuildTypes[index div fConfigs.Count] + ' - ' +
+    fConfigs[index mod fConfigs.Count];
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
@@ -438,9 +437,9 @@ begin
       fDubProc.Parameters.Add('run');
       fDubProc.OnTerminate:= @dubProcOutput;
     end;
-    fDubProc.Parameters.Add('--build=' + fBuildTypes.Strings[fBuiltTypeIx]);
-    if (fConfigs.Count <> 1) and (fConfigs.Strings[0] <> DubDefaultConfigName) then
-      fDubProc.Parameters.Add('--config=' + fConfigs.Strings[fConfigIx]);
+    fDubProc.Parameters.Add('--build=' + fBuildTypes[fBuiltTypeIx]);
+    if (fConfigs.Count <> 1) and (fConfigs[0] <> DubDefaultConfigName) then
+      fDubProc.Parameters.Add('--config=' + fConfigs[fConfigIx]);
     fDubProc.Parameters.Add('--compiler=' + DubCompilerFilename);
     if run and runArgs.isNotEmpty then
       fDubProc.Parameters.Add('--' + runArgs);

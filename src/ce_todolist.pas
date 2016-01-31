@@ -586,9 +586,9 @@ begin
   begin
     col -= 1;
     if col < item1.SubItems.Count then
-      txt1 := item1.SubItems.Strings[col];
+      txt1 := item1.SubItems[col];
     if col < item2.SubItems.Count then
-      txt2 := item2.SubItems.Strings[col];
+      txt2 := item2.SubItems[col];
   end;
   Compare := AnsiCompareStr(txt1, txt2);
   if lstItems.SortDirection = sdDescending then

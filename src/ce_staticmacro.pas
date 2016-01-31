@@ -353,7 +353,7 @@ var
 begin
   for i := fMacros.Count-1 downto 0 do
   begin
-    text := fMacros.Strings[i];
+    text := fMacros[i];
     if text.length >= 4 then
       if text[1] = '$' then
         if Pos('=', text) > 2 then

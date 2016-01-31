@@ -275,7 +275,7 @@ begin
           Caption := nme;
           SubItems.Add(prj.outputFilename);
           if str.Count = 1 then
-            cdy := ExtractFileDir(str.Strings[0])
+            cdy := ExtractFileDir(str[0])
           else begin
             cdy := commonFolder(str);
             cdy := ExtractFileDir(cdy);
@@ -367,7 +367,7 @@ begin
       str.Add(fProj.sourceAbsolute(i));
     // single source libs usually have the structure "src/<fname>"
     if str.Count = 1 then
-      root := ExtractFileDir(str.Strings[0])
+      root := ExtractFileDir(str[0])
     // multi source libs have the structure "src/LibName/<fname>"/...
     else begin
       root := commonFolder(str);
@@ -558,9 +558,9 @@ begin
   begin
     itm := TLibraryItem(LibMan.libraries.Add);
     itm.libAlias := row.Caption;
-    itm.libFile := row.SubItems.Strings[0];
-    itm.libSourcePath := row.SubItems.Strings[1];
-    itm.projectFile:= row.SubItems.Strings[2];
+    itm.libFile := row.SubItems[0];
+    itm.libSourcePath := row.SubItems[1];
+    itm.projectFile:= row.SubItems[2];
   end;
   LibMan.libraries.EndUpdate;
   LibMan.updateDCD;

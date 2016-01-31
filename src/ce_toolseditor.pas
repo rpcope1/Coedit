@@ -83,7 +83,7 @@ var
   i: Integer;
 begin
   for i := 0 to CustomTools.tools.Count-1 do
-    lstTools.Items.Strings[i] := CustomTools[i].toolAlias;
+    lstTools.Items[i] := CustomTools[i].toolAlias;
 end;
 
 procedure TCEToolsEditorWidget.lstToolsSelectionChange(Sender: TObject;

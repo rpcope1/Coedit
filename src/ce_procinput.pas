@@ -138,12 +138,12 @@ begin
     VK_UP: begin
       fMruPos += 1;
       if fMruPos > fMru.Count-1 then fMruPos := 0;
-      txtInp.Text := fMru.Strings[fMruPos];
+      txtInp.Text := fMru[fMruPos];
     end;
     VK_DOWN: begin
       fMruPos -= 1;
       if fMruPos < 0 then fMruPos := fMru.Count-1;
-      txtInp.Text := fMru.Strings[fMruPos];
+      txtInp.Text := fMru[fMruPos];
     end;
   end;
 end;

@@ -228,8 +228,8 @@ begin
     for i:= 0 to ed.Keystrokes.Count-1 do
     begin
       shc := TCEPersistentShortcut(fShortCuts.Add);
-      shc.actionName:= EditorCommandToCodeString(ed.Keystrokes.Items[i].Command);
-      shc.shortcut  := ed.Keystrokes.Items[i].ShortCut;
+      shc.actionName:= EditorCommandToCodeString(ed.Keystrokes[i].Command);
+      shc.shortcut  := ed.Keystrokes[i].ShortCut;
     end;
   finally
     ed.free;

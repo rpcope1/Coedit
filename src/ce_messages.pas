@@ -800,7 +800,7 @@ begin
     fDemangler.Execute;
     for i := 0 to fToDemangle.Count-1 do
     begin
-      str := fToDemangle.Strings[i] + LineEnding;
+      str := fToDemangle[i] + LineEnding;
       fDemangler.Input.Write(str[1], str.length);
     end;
     fDemangler.CloseInput;
@@ -817,7 +817,7 @@ begin
   begin
     itm := TTreeNode(fToDemangleObjs.Items[i]);
     if itm.isNil then continue;
-    itm.Text := fToDemangle.Strings[i];
+    itm.Text := fToDemangle[i];
   end;
   freeDemangler;
 end;

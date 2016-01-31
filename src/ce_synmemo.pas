@@ -1167,8 +1167,8 @@ begin
   if fFileDate = newDate then exit;
   if fFileDate <> 0.0 then
   begin
-    // note: this could cause a bug in France during the switch from winter time to summer time.
-    // e.g: save at 2h59, at 3h00, clock is reset to 2h00, set the focus on the doc: new version message.
+    // note: this could cause a bug during the DST switch.
+    // e.g: save at 2h59, at 3h00 clock is reset to 2h00, set the focus on the doc: new version message.
     if dlgOkCancel(format('"%s" has been modified by another program, load the new version ?',
       [shortenPath(fFilename, 25)])) = mrOk then
     begin
@@ -1194,7 +1194,7 @@ var
 begin
   result := 0;
   if fMousePos.y-1 > Lines.Count-1 then exit;
-  llen := Lines.Strings[fMousePos.y-1].length;
+  llen := Lines[fMousePos.y-1].length;
   if fMousePos.X > llen  then exit;
   //
   // something note really clear:
@@ -1202,7 +1202,7 @@ begin
   // TCESynMemo.getMouseFileBytePos works when using the line ending from the system.
   len := getSysLineEndLen;
   for i:= 0 to fMousePos.y-2 do
-    result += Lines.Strings[i].length + len;
+    result += Lines[i].length + len;
   result += fMousePos.x;
 end;
 {$ENDREGION --------------------------------------------------------------------}

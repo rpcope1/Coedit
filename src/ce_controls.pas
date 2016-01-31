@@ -131,7 +131,7 @@ begin
   inherited;
   ctrl :=  TCEPageControl(owner);
   i := ctrl.getPageIndex(self);
-  if i <> -1 then ctrl.fTabs.Tabs.Strings[i] := caption;
+  if i <> -1 then ctrl.fTabs.Tabs[i] := caption;
 end;
 
 constructor TCEPageControl.Create(aowner: TComponent);
@@ -269,7 +269,7 @@ begin
   if (index < 0) or (index > fPages.Count-1) then
     exit;
 
-  pge := TCEPage(fPages.Items[index]);
+  pge := TCEPage(fPages[index]);
   pge.Visible:=false;
 end;
 
@@ -281,7 +281,7 @@ begin
   if (index < 0) or (index > fPages.Count-1) then
     exit;
 
-  pge := TCEPage(fPages.Items[index]);
+  pge := TCEPage(fPages[index]);
   if (fSplittedPageIndex = -1) or (index = fSplittedPageIndex) then
     pge.Align:=alClient;
   pge.Visible:=true;
@@ -359,7 +359,7 @@ begin
   else if index < fSplittedPageIndex then
     fSplittedPageIndex -= 1;
 
-  TCEPage(fPages.Items[index]).Free;
+  TCEPage(fPages[index]).Free;
   if fPageIndex >= fPages.Count then
     fPageIndex -= 1;
 
@@ -383,7 +383,7 @@ begin
   if (fPageIndex < 0) or (fPageIndex > fPages.Count-1) then
     exit(nil)
   else
-    exit(TCEPage(fPages.Items[fPageIndex]));
+    exit(TCEPage(fPages[fPageIndex]));
 end;
 
 procedure TCEPageControl.setCurrentPage(value: TCEPage);
@@ -398,7 +398,7 @@ end;
 
 function TCEPageControl.getPage(index: integer): TCEPage;
 begin
-  exit(TCEPage(fPages.Items[index]));
+  exit(TCEPage(fPages[index]));
 end;
 
 function TCEPageControl.getSplitPage: TCEPage;

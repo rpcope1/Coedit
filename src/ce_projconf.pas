@@ -187,7 +187,7 @@ var
 begin
   i := fSynchroItem.IndexOf(Item);
   if i = -1 then exit('');
-  result := fSynchroValue.Strings[i];
+  result := fSynchroValue[i];
 end;
 
 procedure TCEProjectConfigurationWidget.syncroGetPropAsString(const ASection, Item, Value: string);

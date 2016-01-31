@@ -203,7 +203,7 @@ begin
         end;
         fSymbols[CPFS] := str.Text;
         if str.Count = 1 then
-          fSymbols[CPCD] := ExtractFileDir(Str.Strings[0])
+          fSymbols[CPCD] := ExtractFileDir(str[0])
         else
           fSymbols[CPCD] := commonFolder(str);
       finally
@@ -264,9 +264,9 @@ begin
     for i := 0 to elems.Count - 1 do
     begin
       if elems.Objects[i].isNil then
-        Result += elems.Strings[i]
+        Result += elems[i]
       else
-        case elems.Strings[i] of
+        case elems[i] of
           '<', '>': continue;
           'CAF', 'CoeditApplicationFile': Result += fSymbols[CAF];
           'CAP', 'CoeditApplicationPath': Result += fSymbols[CAP];

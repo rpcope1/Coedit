@@ -404,8 +404,8 @@ begin
     // prepares the exclusions
     for i := 0 to currentConfiguration.pathsOptions.exclusions.Count-1 do
     begin
-      str := symbolExpander.get(currentConfiguration.pathsOptions.exclusions.Strings[i]);
-      rel := expandFilenameEx(fBasePath, currentConfiguration.pathsOptions.exclusions.Strings[i]);
+      str := symbolExpander.get(currentConfiguration.pathsOptions.exclusions[i]);
+      rel := expandFilenameEx(fBasePath, currentConfiguration.pathsOptions.exclusions[i]);
       if str.fileExists then
         ex_files.Add(str)
       else if str.dirExists then
@@ -425,7 +425,7 @@ begin
     end;
     // libraries: an asterisk in list selects all the entries
     libAliasesPtr := fLibAliases;
-    if (fLibAliases.Count > 0) and (fLibAliases.Strings[0] = '*') then
+    if (fLibAliases.Count > 0) and (fLibAliases[0] = '*') then
       libAliasesPtr := nil;
 
     {$IFDEF WINDOWS}
@@ -496,7 +496,7 @@ var
       'Do you wish to select the new root folder ?') <> mrOk then exit;
     // TODO-cimprovement: use commonFolder() when it'll be compat. with the rel. paths.
     // hint for the common dir
-    dirHint := fSrcs.Strings[i];
+    dirHint := fSrcs[i];
     while (dirHint[1] = '.') or (dirHint[1] = DirectorySeparator) do
         dirHint := dirHint[2..dirHint.length];
     ini := fFilename.extractFilePath;
@@ -504,11 +504,11 @@ var
       exit;
     for i := 0 to fSrcs.Count-1 do
     begin
-      src := fSrcs.Strings[i];
+      src := fSrcs[i];
       while (src[1] = '.') or (src[1] = DirectorySeparator) do
         src := src[2..src.length];
       if fileExists(expandFilenameEx(fBasePath, newdir + DirectorySeparator + src)) then
-        fSrcs.Strings[i] := ExtractRelativepath(fBasePath, newdir + DirectorySeparator + src);
+        fSrcs[i] := ExtractRelativepath(fBasePath, newdir + DirectorySeparator + src);
       hasPatched := true;
     end;
   end;
@@ -631,7 +631,7 @@ begin
   else if Sources.Count > 0 then
   begin
     // ideally, main() should be searched for, when project binaryKind is executable
-    fOutputFilename := Sources.Strings[0].extractFileName;
+    fOutputFilename := Sources[0].extractFileName;
     fOutputFilename := stripFileExt(fOutputFilename);
     if fileName.fileExists then
       fOutputFilename := fileName.extractFilePath + fOutputFilename
@@ -662,12 +662,12 @@ begin
   //
   for i := 0 to processInfo.simpleCommands.Count-1 do
   begin
-    pname := symbolExpander.get(processInfo.simpleCommands.Strings[i]);
+    pname := symbolExpander.get(processInfo.simpleCommands[i]);
     proc := TProcess.Create(nil);
     lst := TStringList.Create;
     try
       CommandToList(pname, lst);
-      proc.Executable := lst.Strings[0];
+      proc.Executable := lst[0];
       proc.Options:= [poUsePipes, poStderrToOutPut];
       lst.Delete(0);
       proc.Parameters.Assign(lst);
@@ -676,7 +676,7 @@ begin
       lst.Clear;
       ce_common.processOutputToStrings(proc, lst);
       for j := 0 to lst.Count -1 do
-        getMessageDisplay.message(lst.Strings[j], self as ICECommonProject, amcProj, amkAuto);
+        getMessageDisplay.message(lst[j], self as ICECommonProject, amcProj, amkAuto);
     finally
       proc.Free;
       lst.Free;
@@ -697,7 +697,7 @@ begin
     proc.Executable := exeFullName(pname);
     j := proc.Parameters.Count-1;
     for i:= 0 to j do
-      proc.Parameters.AddText(symbolExpander.get(proc.Parameters.Strings[i]));
+      proc.Parameters.AddText(symbolExpander.get(proc.Parameters[i]));
     for i:= 0 to j do
       proc.Parameters.Delete(0);
     if proc.CurrentDirectory.isNotEmpty then
@@ -980,14 +980,14 @@ end;
 
 function TCENativeProject.sourceRelative(index: integer): string;
 begin
-  exit(fSrcs.Strings[index]);
+  exit(fSrcs[index]);
 end;
 
 function TCENativeProject.sourceAbsolute(index: integer): string;
 var
   fname: string;
 begin
-  fname := fSrcs.Strings[index];
+  fname := fSrcs[index];
   if fname.fileExists then
     result := fname
   else
@@ -1001,7 +1001,7 @@ end;
 
 function TCENativeProject.importPath(index: integer): string;
 begin
-  result := currentConfiguration.pathsOptions.importModulePaths.Strings[index];
+  result := currentConfiguration.pathsOptions.importModulePaths[index];
   if fBasePath.dirExists then
     result := expandFilenameEx(fBasePath, result);
 end;

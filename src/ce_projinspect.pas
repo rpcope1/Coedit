@@ -287,7 +287,7 @@ begin
       listFiles(lst, dir, true);
       for i := 0 to lst.Count-1 do
       begin
-        fname := lst.Strings[i];
+        fname := lst[i];
         if isDlangCompilable(fname.extractFileExt) then
           fProject.addSource(fname);
       end;

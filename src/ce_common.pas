@@ -533,8 +533,8 @@ var
 begin
   for i:= 0 to sPaths.Count-1 do
   begin
-    str := sPaths.Strings[i];
-    sPaths.Strings[i] := patchPlateformPath(str);
+    str := sPaths[i];
+    sPaths[i] := patchPlateformPath(str);
   end;
 end;
 
@@ -990,7 +990,7 @@ begin
   try
     sink.Assign(someFiles);
     for i := sink.Count-1 downto 0 do
-      if (not sink.Strings[i].fileExists) and (not sink.Strings[i].dirExists) then
+      if (not sink[i].fileExists) and (not sink[i].dirExists) then
         sink.Delete(i);
     // folders count
     cnt := 256;
@@ -1002,25 +1002,25 @@ begin
     end;
     for i := sink.Count-1 downto 0 do
     begin
-      while (countFolder(sink.Strings[i]) <> cnt) do
-        sink.Strings[i] := ExtractFileDir(sink.Strings[i]);
+      while (countFolder(sink[i]) <> cnt) do
+        sink[i] := ExtractFileDir(sink[i]);
     end;
     // common folder
     while(true) do
     begin
       for i := sink.Count-1 downto 0 do
       begin
-        dir := ExtractFileDir(sink.Strings[i]);
+        dir := ExtractFileDir(sink[i]);
         j := sink.IndexOf(dir);
         if j = -1 then
-          sink.Strings[i] := dir
+          sink[i] := dir
         else if j <> i then
           sink.Delete(i);
       end;
       if sink.Count = 1 then
         break;
     end;
-    result := sink.Strings[0];
+    result := sink[0];
   finally
     sink.free;
   end;
@@ -1154,7 +1154,7 @@ begin
   if str = nil then exit;
   for i:= str.Count-1 downto 0 do
     // if less than 0 -> not found -> unsigned -> greater than current index.
-    if cardinal(str.IndexOf(str.Strings[i])) <  i then
+    if cardinal(str.IndexOf(str[i])) <  i then
       str.Delete(i);
   {$HINTS ON}
 end;

@@ -275,7 +275,7 @@ begin
     updateServerlistening;
     exit;
   end;
-  if not (fTempLines.Strings[0] = 'calltips') then exit;
+  if not (fTempLines[0] = 'calltips') then exit;
   //
   fTempLines.Delete(0);
   tips := fTempLines.Text;
@@ -306,12 +306,12 @@ begin
     updateServerlistening;
     exit;
   end;
-  if not (fTempLines.Strings[0] = 'identifiers') then exit;
+  if not (fTempLines[0] = 'identifiers') then exit;
   //
   aList.Clear;
   for i := 1 to fTempLines.Count-1 do
   begin
-    item := fTempLines.Strings[i];
+    item := fTempLines[i];
     kind := item[item.length];
     setLength(item, item.length-2);
     case kind of

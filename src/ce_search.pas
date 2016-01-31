@@ -353,7 +353,7 @@ begin
     fmt := fileName + '(%d,%d): "%s"';
     for i := 0 to high(res) do
     begin
-      msg := format(fmt, [res[i].Y, res[i].X, Trim(lines.Strings[res[i].Y-1])]);
+      msg := format(fmt, [res[i].Y, res[i].X, Trim(lines[res[i].Y-1])]);
       msgs.message(msg, nil, amcMisc, amkInf);
     end;
   finally

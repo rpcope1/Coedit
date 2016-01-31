@@ -622,7 +622,7 @@ begin
   //
   for i := 0 to fDocuments.Count-1 do
   begin
-    str := fDocuments.Strings[i];
+    str := fDocuments[i];
     if str.fileExists then
     begin
       docHandler.openDocument(str);
@@ -1298,7 +1298,7 @@ begin
 
     for i:= 0 to srcLst.Count-1 do
     begin
-      fname := srcLst.Strings[i];
+      fname := srcLst[i];
       itm := TMenuItem.Create(trgMnu);
       itm.Hint := fname;
       itm.Caption := shortenPath(fname, 50);
@@ -1846,7 +1846,7 @@ begin
   fRunnableSw := '';
   for i := memo.Lines.Count-1 downto 0 do
   begin
-    cur := memo.Lines.Strings[i];
+    cur := memo.Lines[i];
     // duplicated item
     j := memo.Lines.IndexOf(cur);
     if (j > -1) and (j < i) then
@@ -2157,7 +2157,7 @@ begin
     for i := 0 to lst.Count-1 do
     begin
       itm := TMenuItem.Create(self);
-      itm.Caption := lst.Strings[i].extractFileName;
+      itm.Caption := lst[i].extractFileName;
       itm.Caption := stripFileExt(itm.Caption);
       itm.OnClick := @layoutMnuItemClick;
       itm.ImageIndex := 32;
