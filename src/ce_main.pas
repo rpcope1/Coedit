@@ -1364,6 +1364,7 @@ end;
 
 procedure TCEMainForm.projChanged(aProject: ICECommonProject);
 begin
+  showProjTitle;
 end;
 
 procedure TCEMainForm.projClosing(aProject: ICECommonProject);
@@ -1373,6 +1374,7 @@ begin
   fProjectInterface := nil;
   fDubProject := nil;
   fNativeProject := nil;
+  showProjTitle;
 end;
 
 procedure TCEMainForm.projFocused(aProject: ICECommonProject);
@@ -1382,6 +1384,7 @@ begin
    pfNative: fNativeProject := TCENativeProject(fProjectInterface.getProject);
    pfDub: fDubProject := TCEDubProject(fProjectInterface.getProject);
  end;
+ showProjTitle;
 end;
 
 procedure TCEMainForm.projCompiling(aProject: ICECommonProject);

@@ -472,7 +472,7 @@ begin
   begin
     if assigned(fProj) then
     begin
-      if fProj.modified and (dlgFileChangeClose(fname) = mrCancel) then
+      if fProj.modified and (dlgFileChangeClose(fProj.filename) = mrCancel) then
         exit;
       fProj.getProject.Free;
     end;
@@ -483,7 +483,7 @@ begin
   begin
     if assigned(fProj) then
     begin
-      if fProj.modified and (dlgFileChangeClose(fname) = mrCancel) then
+      if fProj.modified and (dlgFileChangeClose(fProj.filename) = mrCancel) then
         exit;
       fProj.getProject.Free;
     end;
