@@ -21,6 +21,12 @@ type
     wholeWord = longInt(ssoWholeWord)
   );
 
+  TBraceAutoCloseStyle = (
+    autoCloseNever,
+    autoCloseAtEof,
+    autoCloseAlways
+  );
+
   TIdentifierMatchOptions = set of TIdentifierMatchOption;
 
   TBreakPointModification = (bpAdded, bpRemoved);
@@ -131,6 +137,7 @@ type
     fMatchOpts: TIdentifierMatchOptions;
     fCallTipStrings: TStringList;
     fOverrideColMode: boolean;
+    fAutoCloseCurlyBrace: TBraceAutoCloseStyle;
     procedure setMatchOpts(value: TIdentifierMatchOptions);
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
@@ -211,6 +218,7 @@ type
     property defaultFontSize: Integer read fDefaultFontSize write setDefaultFontSize;
     property ddocDelay: Integer read fDDocDelay write setDDocDelay;
     property autoDotDelay: Integer read fAutoDotDelay write setAutoDotDelay;
+    property autoCloseCurlyBrace: TBraceAutoCloseStyle read fAutoCloseCurlyBrace write fAutoCloseCurlyBrace;
   end;
 
   procedure SetDefaultCoeditKeystrokes(ed: TSynEdit);
@@ -227,6 +235,7 @@ const
   ecPlayMacro         = ecUserFirst + 6;
   ecShowDdoc          = ecUserFirst + 7;
   ecShowCallTips      = ecUserFirst + 8;
+  ecCurlyBraceClose   = ecUserFirst + 9;
 
 var
   D2Syn: TSynD2Syn;     // used as model to set the options when no editor exists.
@@ -706,6 +715,7 @@ begin
     AddKey(ecPlayMacro, ord('P'), [ssCtrl,ssShift], 0, []);
     AddKey(ecShowDdoc, 0, [], 0, []);
     AddKey(ecShowCallTips, 0, [], 0, []);
+    AddKey(ecCurlyBraceClose, 0, [], 0, []);
   end;
 end;
 
@@ -720,6 +730,7 @@ begin
     'ecPlayMacro':          begin Int := ecPlayMacro; exit(true); end;
     'ecShowDdoc':           begin Int := ecShowDdoc; exit(true); end;
     'ecShowCallTips':       begin Int := ecShowCallTips; exit(true); end;
+    'ecCurlyBraceClose':    begin Int := ecCurlyBraceClose; exit(true); end;
     else exit(false);
   end;
 end;
@@ -735,8 +746,41 @@ begin
     ecPlayMacro:          begin Ident := 'ecPlayMacro'; exit(true); end;
     ecShowDdoc:           begin Ident := 'ecShowDdoc'; exit(true); end;
     ecShowCallTips:       begin Ident := 'ecShowCallTips'; exit(true); end;
+    ecCurlyBraceClose:    begin Ident := 'ecCurlyBraceClose'; exit(true); end;
     else exit(false);
   end;
+end;
+
+procedure curlyBraceCloseAndIndent(editor: TSynEdit);
+var
+  beg: string;
+  i: integer = 1;
+  j: integer;
+const
+  blk = [' ', #9];
+begin
+  beg := editor.LineText;
+  if beg.isEmpty then exit;
+  beg := beg[1..editor.CaretX];
+  if beg.isEmpty then exit;
+  while true do
+  begin
+    if (i > length(beg)) or not (beg[i] in blk) then
+      break;
+    i += 1
+  end;
+  i -= 1;
+  editor.BeginUndoBlock;
+  editor.CommandProcessor(ecInsertLine, '', nil);
+  editor.CommandProcessor(ecDown, '', nil);
+  editor.CommandProcessor(ecInsertLine, '', nil);
+  editor.CommandProcessor(ecDown, '', nil);
+  for j := 1 to i do editor.CommandProcessor(ecChar, beg[j], nil);
+  editor.CommandProcessor(ecChar, '}', nil);
+  editor.CommandProcessor(ecUp, '', nil);
+  for j := 1 to i do editor.CommandProcessor(ecChar, beg[j], nil);
+  editor.CommandProcessor(ecTab, '', nil);
+  editor.EndUndoBlock;
 end;
 
 procedure TCESynMemo.DoOnProcessCommand(var Command: TSynEditorCommand;
@@ -766,6 +810,8 @@ begin
       hideDDocs;
       showCallTips;
     end;
+    ecCurlyBraceClose:
+      curlyBraceCloseAndIndent(self);
   end;
   if fOverrideColMode and not SelAvail then
   begin
@@ -1219,6 +1265,13 @@ begin
           hideCallTips
         else
           showCallTips(fCallTipStrings.Text);
+      end;
+    '{': if fAutoCloseCurlyBrace <> autoCloseNever then
+      begin
+        if fAutoCloseCurlyBrace = autoCloseAlways then
+          curlyBraceCloseAndIndent(self)
+        else if (CaretY = Lines.Count) and (CaretX = length(LineText)+1) then
+          curlyBraceCloseAndIndent(self);
       end;
   end;
   if fCompletion.IsActive then

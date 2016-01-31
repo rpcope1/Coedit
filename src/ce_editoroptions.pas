@@ -56,6 +56,7 @@ type
     fCompletionMenuCaseCare: boolean;
     fCompletionMenuWidth: integer;
     fCompletionMenuLines: Byte;
+    fAutoCLoseCurlyBrace: TBraceAutoCloseStyle;
     //
     procedure setFont(value: TFont);
     procedure setSelCol(value: TSynSelectedColor);
@@ -72,6 +73,7 @@ type
     procedure setCompletionMenuLines(value: byte);
     procedure setLineNumEvery(value: integer);
   published
+    property autoCloseCurlyBrace: TBraceAutoCloseStyle read fAutoCLoseCurlyBrace write fAutoCLoseCurlyBrace default TBraceAutoCloseStyle.autoCloseNever;
     property currentLine: TSynSelectedColor read fCurrLineAttribs write setCurrLineAttribs;
     property completionMenuCaseCare: boolean read fCompletionMenuCaseCare write fCompletionMenuCaseCare;
     property completionMenuWidth: integer read fCompletionMenuWidth write fCompletionMenuWidth;
@@ -255,6 +257,7 @@ begin
   begin
     srcopt := TCEEditorOptionsBase(src);
     //
+    fAutoCLoseCurlyBrace := srcopt.fAutoCLoseCurlyBrace;
     fCompletionMenuWidth:=srcopt.fCompletionMenuWidth;
     fCompletionMenuLines:=srcopt.fCompletionMenuLines;
     fCompletionMenuCaseCare:=srcopt.fCompletionMenuCaseCare;
@@ -597,6 +600,7 @@ begin
   anEditor.Font.Assign(font);
   anEditor.Font.Size := savedSize;
 
+  anEditor.autoCloseCurlyBrace            := fAutoCLoseCurlyBrace;
   anEditor.completionMenu.TheForm.Width   := fCompletionMenuWidth;
   anEditor.completionMenu.LinesInWindow   := fCompletionMenuLines;
   anEditor.completionMenu.CaseSensitive   := fCompletionMenuCaseCare;

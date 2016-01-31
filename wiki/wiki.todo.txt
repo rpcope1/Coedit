@@ -1,7 +1,2 @@
 - setup: screenshots.
-- project, pre/post build process, screenshot outdated
-- project, output options, screenshot is outdated.
-- project config widget, base/overridden config specifications. Note about pre/post build proc as their options cant be overridden.
-- project config widget, base/overridden config. screenshot for widget view 'All categories'.
-- applications options (MRU & reload last stuff).
-- editor, toolbar description, split view description + screenshot.
+- project config widget, base/overridden. Note about pre/post build proc as their options cant be overridden.
