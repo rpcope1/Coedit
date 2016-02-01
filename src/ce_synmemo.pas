@@ -236,6 +236,7 @@ const
   ecShowDdoc          = ecUserFirst + 7;
   ecShowCallTips      = ecUserFirst + 8;
   ecCurlyBraceClose   = ecUserFirst + 9;
+  ecCommentSelection  = ecUserFirst + 10;
 
 var
   D2Syn: TSynD2Syn;     // used as model to set the options when no editor exists.
@@ -716,6 +717,7 @@ begin
     AddKey(ecShowDdoc, 0, [], 0, []);
     AddKey(ecShowCallTips, 0, [], 0, []);
     AddKey(ecCurlyBraceClose, 0, [], 0, []);
+    AddKey(ecCommentSelection, ord('/'), [ssCtrl], 0, []);
   end;
 end;
 
@@ -731,6 +733,7 @@ begin
     'ecShowDdoc':           begin Int := ecShowDdoc; exit(true); end;
     'ecShowCallTips':       begin Int := ecShowCallTips; exit(true); end;
     'ecCurlyBraceClose':    begin Int := ecCurlyBraceClose; exit(true); end;
+    'ecCommentSelection':   begin Int := ecCommentSelection; exit(true); end;
     else exit(false);
   end;
 end;
@@ -747,6 +750,7 @@ begin
     ecShowDdoc:           begin Ident := 'ecShowDdoc'; exit(true); end;
     ecShowCallTips:       begin Ident := 'ecShowCallTips'; exit(true); end;
     ecCurlyBraceClose:    begin Ident := 'ecCurlyBraceClose'; exit(true); end;
+    ecCommentSelection:   begin Ident := 'ecCommentSelection'; exit(true); end;
     else exit(false);
   end;
 end;
@@ -783,6 +787,75 @@ begin
   editor.EndUndoBlock;
 end;
 
+procedure commentSelection(editor: TSynEdit);
+  procedure commentHere;
+  begin
+    editor.ExecuteCommand(ecLineTextStart, '', nil);
+    editor.ExecuteCommand(ecChar, '/', nil);
+    editor.ExecuteCommand(ecChar, '/', nil);
+  end;
+  procedure unCommentHere;
+  begin
+    editor.ExecuteCommand(ecLineTextStart, '', nil);
+    editor.ExecuteCommand(ecDeleteChar, '', nil);
+    editor.ExecuteCommand(ecDeleteChar, '', nil);
+  end;
+var
+  i: integer;
+  line: string;
+  undo: boolean = false;
+  pt, cp: TPoint;
+begin
+  if not editor.SelAvail then
+  begin
+    i := editor.CaretX;
+    line := TrimLeft(editor.LineText);
+    undo := (line.length > 1) and (line[1..2] = '//');
+    editor.BeginUndoBlock;
+    if not undo then
+    begin
+      commentHere;
+      editor.CaretX:= i+2;
+    end
+    else
+    begin
+      unCommentHere;
+      editor.CaretX:= i-2;
+    end;
+    editor.EndUndoBlock;
+  end else
+  begin
+    pt.X:= 0;
+    cp := editor.CaretXY;
+    for i := editor.BlockBegin.Y-1 to editor.BlockEnd.Y-1 do
+    begin
+      line := TrimLeft(editor.Lines[i]);
+      if (line.length > 1) and (line[1..2] = '//') then
+        undo := true
+      else begin
+        undo := false;
+        break;
+      end;
+    end;
+    editor.BeginUndoBlock;
+    for i := editor.BlockBegin.Y to editor.BlockEnd.Y do
+    begin
+      pt.Y:= i;
+      editor.ExecuteCommand(ecGotoXY, '', @pt);
+      if not undo then
+        commentHere
+      else
+        unCommentHere;
+    end;
+    if not undo then
+      cp.X += 2
+    else
+      cp.X -= 2;
+    editor.CaretXY := cp;
+    editor.EndUndoBlock;
+  end;
+end;
+
 procedure TCESynMemo.DoOnProcessCommand(var Command: TSynEditorCommand;
   var AChar: TUTF8Char; Data: pointer);
 begin
@@ -812,6 +885,8 @@ begin
     end;
     ecCurlyBraceClose:
       curlyBraceCloseAndIndent(self);
+    ecCommentSelection:
+      commentSelection(self);
   end;
   if fOverrideColMode and not SelAvail then
   begin
