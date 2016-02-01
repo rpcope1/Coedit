@@ -404,6 +404,7 @@ end;
 {$ENDREGION}
 
 initialization
+  RegisterClasses([TStaticMacrosOptions]);
   StaticEditorMacro := TCEStaticEditorMacro.create(nil);
 finalization
   StaticEditorMacro.Free;;

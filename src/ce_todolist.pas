@@ -196,7 +196,6 @@ begin
     fItems.Clear;
   end;
 end;
-
 {$ENDREGIOn}
 
 {$REGION Standard Comp/Obj -----------------------------------------------------}
@@ -336,7 +335,6 @@ begin
   if Visible and fAutoRefresh then
     callToolProcess;
 end;
-
 {$ENDREGION}
 
 {$REGION ICEProjectObserver ----------------------------------------------------}
@@ -648,4 +646,6 @@ begin
 end;
 {$ENDREGION}
 
+initialization
+  RegisterClasses([TCETodoOptions]);
 end.

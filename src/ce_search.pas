@@ -567,4 +567,6 @@ begin
 end;
 {$ENDREGION}
 
+initialization
+  RegisterClasses([TCESearchOptions]);
 end.

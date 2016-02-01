@@ -822,4 +822,6 @@ begin
 end;
 {$ENDREGION --------------------------------------------------------------------}
 
+initialization
+  RegisterClasses([TCESymbolListOptions]);
 end.

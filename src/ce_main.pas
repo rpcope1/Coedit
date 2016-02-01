@@ -1966,7 +1966,7 @@ begin
       sysutils.DeleteFile(fname + objExt);
     end
     else begin
-      fMsgs.message(shortenPath(fDoc.fileName,25) + ' has not been compiled',
+      fMsgs.message(shortenPath(fDoc.fileName, 25) + ' has not been compiled',
         fDoc, amcEdit, amkErr);
     end;
 
@@ -2372,5 +2372,5 @@ end;
 
 initialization
   registerClasses([TCEPersistentMainShortcuts, TCEPersistentMainMrus,
-    TCELastDocsAndProjs]);
+    TCELastDocsAndProjs, TCEApplicationOptionsBase, TCEApplicationOptions]);
 end.

@@ -289,5 +289,7 @@ begin
 end;
 {$ENDREGION}
 
+initialization
+  RegisterClasses([TCEDmtWrapper]);
 end.
 
