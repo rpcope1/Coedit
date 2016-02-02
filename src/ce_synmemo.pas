@@ -10,7 +10,7 @@ uses
   SynHighlighterLFM, SynEditHighlighter, SynEditMouseCmds, SynEditFoldedView,
   SynEditMarks, SynEditTypes, SynHighlighterJScript,
   ce_common, ce_observer, ce_writableComponent, ce_d2syn, ce_txtsyn, ce_dialogs,
-  ce_sharedres;
+  ce_sharedres, ce_dlang;
 
 type
 
@@ -24,7 +24,8 @@ type
   TBraceAutoCloseStyle = (
     autoCloseNever,
     autoCloseAtEof,
-    autoCloseAlways
+    autoCloseAlways,
+    autoCloseLexically
   );
 
   TIdentifierMatchOptions = set of TIdentifierMatchOption;
@@ -138,6 +139,7 @@ type
     fCallTipStrings: TStringList;
     fOverrideColMode: boolean;
     fAutoCloseCurlyBrace: TBraceAutoCloseStyle;
+    fLexToks: TLexTokenList;
     procedure setMatchOpts(value: TIdentifierMatchOptions);
     function getMouseFileBytePos: Integer;
     procedure changeNotify(Sender: TObject);
@@ -164,6 +166,7 @@ type
     procedure removeBreakPoint(line: integer);
     function  findBreakPoint(line: integer): boolean;
     procedure showCallTips(const tips: string);
+    function lexCanCloseBrace: boolean;
   protected
     procedure DoEnter; override;
     procedure DoExit; override;
@@ -468,6 +471,7 @@ begin
   fDefaultFontSize := 10;
   Font.Size:=10;
   SetDefaultCoeditKeystrokes(Self); // not called in inherited if owner = nil !
+  fLexToks:= TLexTokenList.Create;
   //
   OnDragDrop:= @ddHandler.DragDrop;
   OnDragOver:= @ddHandler.DragOver;
@@ -557,6 +561,8 @@ begin
   fCompletion.Free;
   fBreakPoints.Free;
   fCallTipStrings.Free;
+  fLexToks.Clear;
+  fLexToks.Free;
   //
   if fTempFileName.fileExists then
     sysutils.DeleteFile(fTempFileName);
@@ -1072,6 +1078,21 @@ end;
 {$ENDREGION --------------------------------------------------------------------}
 
 {$REGION Coedit memo things ----------------------------------------------------}
+function TCESynMemo.lexCanCloseBrace: boolean;
+var
+  i: integer;
+  c: integer = 0;
+  tok: PLexToken;
+begin
+  for i := 0 to fLexToks.Count-1 do
+  begin
+    tok := PLexToken(fLexToks[i]);
+    c += byte((tok^.kind = TLexTokenKind.ltkSymbol) and (tok^.Data = '{'));
+    c -= byte((tok^.kind = TLexTokenKind.ltkSymbol) and (tok^.Data = '}'));
+  end;
+  exit(c > 0);
+end;
+
 procedure TCESynMemo.SetHighlighter(const Value: TSynCustomHighlighter);
 begin
   inherited;
@@ -1341,13 +1362,20 @@ begin
         else
           showCallTips(fCallTipStrings.Text);
       end;
-    '{': if fAutoCloseCurlyBrace <> autoCloseNever then
-      begin
-        if fAutoCloseCurlyBrace = autoCloseAlways then
-          curlyBraceCloseAndIndent(self)
-        else if (CaretY = Lines.Count) and (CaretX = LineText.length+1) then
-          curlyBraceCloseAndIndent(self);
-      end;
+    '{': case fAutoCloseCurlyBrace of
+          autoCloseAlways:
+            curlyBraceCloseAndIndent(self);
+          autoCloseAtEof:
+            if (CaretY = Lines.Count) and (CaretX = LineText.length+1) then
+              curlyBraceCloseAndIndent(self);
+          autoCloseLexically:
+          begin
+            fLexToks.Clear;
+            lex(lines.Text, fLexToks);
+            if lexCanCloseBrace then
+              curlyBraceCloseAndIndent(self);
+          end;
+        end;
   end;
   if fCompletion.IsActive then
     fCompletion.CurrentString:=GetWordAtRowCol(LogicalCaretXY);

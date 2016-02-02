@@ -470,7 +470,7 @@ Custom macros can be edited in the [options editor][lnk_widg_opts]:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optmacros.png)
 
-Note that since version 2, the pre-defined macros are not hardcoded anymore and they can be completly deleted.
+Note that since version 2, the predefined macros are not hardcoded anymore and they can be completely deleted.
 
 #### Editor options
 
@@ -484,7 +484,7 @@ They cover many aspects of the editor:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/editor.options.png)
 
-The editor shortcuts are listed here:
+The shortcuts are editable from the [option editor][lnk_widg_opts], category _Shortcuts, Code editor_:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/editor.shortcuts.png)
 
@@ -517,13 +517,13 @@ The _find and replace_ widget allows to find and replace text patterns in the fo
 - allow regex: when checked, the search is performed by a regex engine (which doesn't mean that the pattern to find has to be a regex).
 
 By default <kbd>CTRL</kbd> + <kbd>F</kbd> is used to pass the current identifier to the first field  and <kbd>F3</kbd> to execute a search.
-Unless _Find all_ is used, the results are directly visible in the editor.
-_Find all_ results are displayed in the [messages widget][lnk_widg_msg] and are clickable.
+_Find all_ results are displayed in the [messages widget][lnk_widg_msg], with a context and they are clickable.
+
+![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/search2.png)
+
 The scope of _Find all_ can be set, either to the current editor or to the whole project, by clicking the icon at the right.
 
-The most recent searches and replacements are saved between each session.
-
-Note that to find a symbol, <kbd>Ctrl</kbd> + <kbd>MB Left</kbd> or the [symbol list][lnk_widg_symlist] are faster.
+Note that to find the declaration of a symbol, <kbd>Ctrl</kbd> + <kbd>MB Left</kbd> or the [symbol list][lnk_widg_symlist] are faster.
 
 ## Library manager widget
 
@@ -803,7 +803,7 @@ When double-clicked, a message is parsed in order to extract a *position* and a 
 If the operation is successful then the *file* will be opened at a *position*.
 So far, *DMD* and *[_Dscanner_](https://www.github.com/Hackerpilot/Dscanner)* or DUB messages are well parsed.
 The messages emitted by custom tools can be clickable if they follow a similar format. 
-(**`<relative | absolute filename> <(line [:column])><message body>`**).
+(**`<relative|absolute filename><(line[:column])><message body>`**).
 
 The context menu contains a few useful actions, such as *copy messages*, *save message(s) to file*.
 By default only the last 500 messages are displayed, regardless of the categories. 
@@ -958,7 +958,7 @@ This tutorial will cover, from A to Z the integration of this tool to the Coedit
 
 ####Prepare the Coedit Project to build harbored
 
-- [Clone][harbGit] harbored-mod repository and its submodules.
+- [Clone][harbGit] harbored-mod repository and its sub modules.
 - Open Coedit and initialize a new project. Start by adding the **src/** folder to the project files. 
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/tut3_1.png)
@@ -1155,7 +1155,7 @@ In the menu **Project** click **Compile project**.
 The static library is build. We'll add it to the [_libman_][lnk_widg_lib]. 
 Start by adding a new item (icon add). 
 Click on to select the library file produced previously (icon brick). 
-The alias will be set automatically to the library filename, without its extension.
+The alias will be set automatically to the library file name, without its extension.
 
 Click to select the path to the sources. 
 Select **`<path to libdparse>\src`**,
