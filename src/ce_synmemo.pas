@@ -193,6 +193,7 @@ type
     procedure save;
     procedure saveTempFile;
     //
+    procedure invertVersionAllNone;
     procedure showCallTips;
     procedure hideCallTips;
     procedure showDDocs;
@@ -240,6 +241,7 @@ const
   ecShowCallTips      = ecUserFirst + 8;
   ecCurlyBraceClose   = ecUserFirst + 9;
   ecCommentSelection  = ecUserFirst + 10;
+  ecSwapVersionAllNone = ecUserFirst + 11;
 
 var
   D2Syn: TSynD2Syn;     // used as model to set the options when no editor exists.
@@ -724,6 +726,7 @@ begin
     AddKey(ecShowCallTips, 0, [], 0, []);
     AddKey(ecCurlyBraceClose, 0, [], 0, []);
     AddKey(ecCommentSelection, ord('/'), [ssCtrl], 0, []);
+    AddKey(ecSwapVersionAllNone, 0, [], 0, []);
   end;
 end;
 
@@ -740,6 +743,7 @@ begin
     'ecShowCallTips':       begin Int := ecShowCallTips; exit(true); end;
     'ecCurlyBraceClose':    begin Int := ecCurlyBraceClose; exit(true); end;
     'ecCommentSelection':   begin Int := ecCommentSelection; exit(true); end;
+    'ecSwapVersionAllNone': begin Int := ecSwapVersionAllNone; exit(true); end;
     else exit(false);
   end;
 end;
@@ -757,6 +761,7 @@ begin
     ecShowCallTips:       begin Ident := 'ecShowCallTips'; exit(true); end;
     ecCurlyBraceClose:    begin Ident := 'ecCurlyBraceClose'; exit(true); end;
     ecCommentSelection:   begin Ident := 'ecCommentSelection'; exit(true); end;
+    ecSwapVersionAllNone: begin Ident := 'ecSwapVersionAllNone'; exit(true); end;
     else exit(false);
   end;
 end;
@@ -893,12 +898,82 @@ begin
       curlyBraceCloseAndIndent(self);
     ecCommentSelection:
       commentSelection(self);
+    ecSwapVersionAllNone:
+      invertVersionAllNone;
   end;
   if fOverrideColMode and not SelAvail then
   begin
     fOverrideColMode := false;
     Options := Options - [eoScrollPastEol];
   end;
+end;
+
+procedure TCESynMemo.invertVersionAllNone;
+var
+  i: integer;
+  c: char;
+  tok, tok1, tok2, tok3: PLexToken;
+  pt, cp, st, nd: TPoint;
+  sel: boolean;
+begin
+  fLexToks.Clear;
+  lex(lines.Text, fLexToks);
+  cp := CaretXY;
+  if SelAvail then
+  begin
+    sel := true;
+    st := BlockBegin;
+    nd := BlockEnd;
+  end else
+  begin
+    sel := false;
+    st := Point(0,0);
+    nd := Point(0,0);
+  end;
+  for i := fLexToks.Count-1 downto 2 do
+  begin
+    tok := PLexToken(fLexToks[i]);
+    //
+    if sel and ((tok^.position.Y < st.Y)
+      or (tok^.position.Y > nd.Y)) then
+        continue;
+    if ((tok^.Data <> 'all') and (tok^.Data <> 'none'))
+      or (tok^.kind <> ltkIdentifier) or (i < 2) then
+        continue;
+    //
+    if i = 2 then
+      tok1 := nil
+    else
+      tok1 := PLexToken(fLexToks[i-3]);
+    tok2 := PLexToken(fLexToks[i-2]);
+    tok3 := PLexToken(fLexToks[i-1]);
+    //
+    if  ((tok2^.kind = ltkKeyword) and (tok2^.data = 'version')
+      and (tok3^.kind = ltkSymbol) and (tok3^.data = '('))
+    or ((tok1 <> nil) and (tok1^.kind = ltkKeyword) and (tok1^.data = 'version')
+      and (tok3^.kind = ltkComment) and
+        (tok2^.kind = ltkSymbol) and (tok2^.data = '(')) then
+    begin
+      pt := tok^.position;
+      pt.X += 1;
+      BeginUndoBlock;
+      ExecuteCommand(ecGotoXY, '', @pt);
+      case tok^.Data of
+        'all':
+        begin
+          for c in 'all'  do ExecuteCommand(ecDeleteChar, '', nil);
+          for c in 'none' do ExecuteCommand(ecChar, c, nil);
+        end;
+        'none':
+        begin
+          for c in 'none' do ExecuteCommand(ecDeleteChar, '', nil);
+          for c in 'all'  do ExecuteCommand(ecChar, c, nil);
+        end;
+      end;
+      EndUndoBlock;
+    end;
+  end;
+  CaretXY := cp;
 end;
 {$ENDREGIOn}
 

@@ -16,6 +16,12 @@ type
   { TCEEditorWidget }
 
   TCEEditorWidget = class(TCEWidget, ICEMultiDocObserver, ICEMultiDocHandler, ICEProjectObserver)
+    MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
+    mnEdInvAllNone: TMenuItem;
+    mneEdComm: TMenuItem;
+    mnuedPrev: TMenuItem;
+    mnuedNext: TMenuItem;
     mnuedCallTip: TMenuItem;
     mnuedDdoc: TMenuItem;
     mnuedCopy: TMenuItem;
@@ -29,6 +35,10 @@ type
     macRecorder: TSynMacroRecorder;
     editorStatus: TStatusBar;
     mnuEditor: TPopupMenu;
+    procedure mnEdInvAllNoneClick(Sender: TObject);
+    procedure mneEdCommClick(Sender: TObject);
+    procedure mnuedPrevClick(Sender: TObject);
+    procedure mnuedNextClick(Sender: TObject);
     procedure mnuedCallTipClick(Sender: TObject);
     procedure mnuedCopyClick(Sender: TObject);
     procedure mnuedCutClick(Sender: TObject);
@@ -126,6 +136,8 @@ begin
   AssignPng(mnuedRedo.Bitmap, 'arrow_redo');
   AssignPng(mnuedJum2Decl.Bitmap, 'arrow_shoe');
   AssignPng(mnuedCopy.Bitmap, 'copy');
+  AssignPng(mnuedNext.Bitmap, 'go_next');
+  AssignPng(mnuedPrev.Bitmap, 'go_previous');
   //
   EntitiesConnector.addObserver(self);
   EntitiesConnector.addSingleService(self);
@@ -545,27 +557,51 @@ end;
 {$REGION Editor context menu ---------------------------------------------------}
 procedure TCEEditorWidget.mnuedCopyClick(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  fDoc.ExecuteCommand(ecCopy, '', nil);
+  if fDoc.isNotNil then
+    fDoc.ExecuteCommand(ecCopy, '', nil);
 end;
 
 procedure TCEEditorWidget.mnuedCallTipClick(Sender: TObject);
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   mnuEditor.Close;
   fDoc.hideDDocs;
   fDoc.showCallTips;
 end;
 
+procedure TCEEditorWidget.mneEdCommClick(Sender: TObject);
+begin
+  if fDoc.isNotNil then
+    fDoc.CommandProcessor(ecCommentSelection, '', nil);
+end;
+
+procedure TCEEditorWidget.mnuedPrevClick(Sender: TObject);
+begin
+  if fDoc.isNotNil then
+    fDoc.CommandProcessor(ecPreviousLocation, '', nil);
+end;
+
+procedure TCEEditorWidget.mnuedNextClick(Sender: TObject);
+begin
+  if fDoc.isNotNil then
+    fDoc.CommandProcessor(ecNextLocation, '', nil);
+end;
+
+procedure TCEEditorWidget.mnEdInvAllNoneClick(Sender: TObject);
+begin
+  if fDoc.isNotNil then
+    fDoc.CommandProcessor(ecSwapVersionAllNone, '', nil);
+end;
+
 procedure TCEEditorWidget.mnuedCutClick(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  fDoc.ExecuteCommand(ecCut, '', nil);
+  if fDoc.isNotNil then
+    fDoc.ExecuteCommand(ecCut, '', nil);
 end;
 
 procedure TCEEditorWidget.mnuedDdocClick(Sender: TObject);
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   mnuEditor.Close;
   fDoc.hideCallTips;
   fDoc.showDDocs;
@@ -573,31 +609,31 @@ end;
 
 procedure TCEEditorWidget.mnuedPasteClick(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  fDoc.ExecuteCommand(ecPaste, '', nil);
+  if fDoc.isNotNil then
+    fDoc.ExecuteCommand(ecPaste, '', nil);
 end;
 
 procedure TCEEditorWidget.mnuedUndoClick(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  fDoc.ExecuteCommand(ecUndo, '', nil);
+  if fDoc.isNotNil then
+    fDoc.ExecuteCommand(ecUndo, '', nil);
 end;
 
 procedure TCEEditorWidget.mnuedRedoClick(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  fDoc.ExecuteCommand(ecRedo, '', nil);
+  if fDoc.isNotNil then
+    fDoc.ExecuteCommand(ecRedo, '', nil);
 end;
 
 procedure TCEEditorWidget.mnuedJum2DeclClick(Sender: TObject);
 begin
-  if fDoc = nil then exit;
-  getSymbolLoc;
+  if fDoc.isNotNil then
+    getSymbolLoc;
 end;
 
 procedure TCEEditorWidget.mnuEditorPopup(Sender: TObject);
 begin
-  if fDoc = nil then exit;
+  if fDoc.isNil then exit;
   //
   mnuedCut.Enabled:=fDOc.SelAvail;
   mnuedPaste.Enabled:=fDoc.CanPaste;

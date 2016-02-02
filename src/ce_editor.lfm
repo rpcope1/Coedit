@@ -1,25 +1,25 @@
 inherited CEEditorWidget: TCEEditorWidget
   Left = 704
-  Height = 406
+  Height = 434
   Top = 245
   Width = 465
   Caption = 'Source editor'
-  ClientHeight = 406
+  ClientHeight = 434
   ClientWidth = 465
   inherited Back: TPanel
-    Height = 406
+    Height = 434
     Width = 465
-    ClientHeight = 406
+    ClientHeight = 434
     ClientWidth = 465
     inherited Content: TPanel
-      Height = 406
+      Height = 434
       Width = 465
-      ClientHeight = 406
+      ClientHeight = 434
       ClientWidth = 465
       object editorStatus: TStatusBar[0]
         Left = 0
         Height = 20
-        Top = 384
+        Top = 412
         Width = 465
         AutoSize = False
         BorderSpacing.Bottom = 2
@@ -49,6 +49,9 @@ inherited CEEditorWidget: TCEEditorWidget
   inherited contextMenu: TPopupMenu
     left = 24
     top = 16
+    object MenuItem2: TMenuItem[0]
+      Caption = 'New Item1'
+    end
   end
   object macRecorder: TSynMacroRecorder[2]
     RecordShortCut = 0
@@ -83,7 +86,26 @@ inherited CEEditorWidget: TCEEditorWidget
       Caption = 'Redo'
       OnClick = mnuedRedoClick
     end
+    object mnuedPrev: TMenuItem
+      Caption = 'Previous location'
+      OnClick = mnuedPrevClick
+    end
+    object mnuedNext: TMenuItem
+      Caption = 'Next location'
+      OnClick = mnuedNextClick
+    end
     object MenuItem7: TMenuItem
+      Caption = '-'
+    end
+    object mneEdComm: TMenuItem
+      Caption = 'Comment'
+      OnClick = mneEdCommClick
+    end
+    object mnEdInvAllNone: TMenuItem
+      Caption = 'Invert version all none'
+      OnClick = mnEdInvAllNoneClick
+    end
+    object MenuItem1: TMenuItem
       Caption = '-'
     end
     object mnuedJum2Decl: TMenuItem
@@ -91,11 +113,11 @@ inherited CEEditorWidget: TCEEditorWidget
       OnClick = mnuedJum2DeclClick
     end
     object mnuedCallTip: TMenuItem
-      Caption = 'show call tips'
+      Caption = 'Show call tips'
       OnClick = mnuedCallTipClick
     end
     object mnuedDdoc: TMenuItem
-      Caption = 'show ddoc'
+      Caption = 'Show ddoc'
       OnClick = mnuedDdocClick
     end
   end

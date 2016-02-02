@@ -71,6 +71,7 @@ type
     fColumnIndex: Integer;
     fAbsoluteIndex: Integer;
     fReaderHead: PChar;
+    fPreviousLineColum: Integer;
     function getColAndLine: TPoint;
   public
     constructor Create(const aText: PChar; const aColAndLine: TPoint);
@@ -219,26 +220,30 @@ end;
 
 function TReaderHead.Next: PChar;
 begin
-  Inc(fReaderHead);
-  Inc(fAbsoluteIndex);
-  Inc(fColumnIndex);
   if (fReaderHead^ = #10) then
   begin
     Inc(fLineIndex);
-    fColumnIndex := 0;
+    fPreviousLineColum := fColumnIndex;
+    fColumnIndex := -1;
   end;
+  Inc(fReaderHead);
+  Inc(fAbsoluteIndex);
+  Inc(fColumnIndex);
   exit(fReaderHead);
 end;
 
 function TReaderHead.previous: PChar;
 begin
-  // note: it breaks the column but not the line count
   Dec(fReaderHead);
   Dec(fColumnIndex);
   Dec(fAbsoluteIndex);
+  if (fReaderHead^ = #10) then
+  begin
+    Dec(fLineIndex);
+    fColumnIndex:= fPreviousLineColum;
+  end;
   exit(fReaderHead);
 end;
-
 {$ENDREGION}
 
 {$REGION TD2Dictionary----------------------------------------------------------}
@@ -349,7 +354,7 @@ var
 
   function isOutOfBound: boolean;
   begin
-    exit(reader.AbsoluteIndex > length(aText))
+    exit(reader.AbsoluteIndex >= length(aText))
   end;
 
   procedure addToken(aTk: TLexTokenKind);
@@ -359,6 +364,7 @@ var
     ptk := new(PLexToken);
     ptk^.kind := aTk;
     ptk^.position := reader.LineAnColumn;
+    ptk^.position.X -= length(identifier);
     ptk^.Data := identifier;
     aList.Add(ptk);
   end;
@@ -386,9 +392,9 @@ begin
     // skip blanks
     while isWhite(reader.head^) do
     begin
-      reader.Next;
       if isOutOfBound then
         exit;
+      reader.Next;
     end;
 
     // line comment
