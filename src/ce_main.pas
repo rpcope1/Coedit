@@ -935,14 +935,20 @@ begin
     end;
   end;
 
-  // lock space wetween the menu and the widgets
+  // lock space between the menu and the widgets
   if GetDockSplitterOrParent(DockMaster.GetSite(fEditWidg), akTop, topsite) then
   begin
     if topsite is TAnchorDockHostSite then
       if TAnchorDockHostSite(topsite).BoundSplitter.isNotNil then
+      begin
+        TAnchorDockHostSite(topsite).BoundSplitter.MoveSplitter(-500);
         TAnchorDockHostSite(topsite).BoundSplitter.OnCanOffset:= @LockTopWindow;
+      end;
   end else if GetDockSplitter(DockMaster.GetSite(fEditWidg), akTop, topsplt) then
+  begin
+    topsplt.MoveSplitter(-500);
     topsplt.OnCanOffset:= @LockTopWindow;
+  end;
 
 end;
 
