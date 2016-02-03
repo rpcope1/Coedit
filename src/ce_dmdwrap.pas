@@ -88,12 +88,13 @@ type
     property depreciationHandling: TDepHandling read fDepHandling write setDepHandling default warning;
     property verbose: boolean read fVerbose write setVerbose default false;
     property warnings: boolean read fWarnings write setWarnings default true;
-    property additionalWarnings: boolean read fWarnInfo write setWarnInfo stored false; deprecated;
     property warningsAsInfo: boolean read fWarnInfo write setWarnInfo default false;
     property tlsInformations: boolean read fVtls write setVtls default false;
     property quiet: boolean read fQuiet write setQuiet default false;
     property showHiddenAlloc: boolean read fVgc write setVgc default false;
     property showColumnsNumber: boolean read fCol write setCol default false;
+    // TODO-cmaintenance: remove this from 2_update_1
+    property additionalWarnings: boolean write setWarnInfo stored false; deprecated;
   public
     constructor create;
     procedure assign(aValue: TPersistent); override;

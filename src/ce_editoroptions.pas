@@ -74,34 +74,36 @@ type
     procedure setLineNumEvery(value: integer);
   published
     property autoCloseCurlyBrace: TBraceAutoCloseStyle read fAutoCLoseCurlyBrace write fAutoCLoseCurlyBrace default TBraceAutoCloseStyle.autoCloseNever;
-    property currentLine: TSynSelectedColor read fCurrLineAttribs write setCurrLineAttribs;
-    property completionMenuCaseCare: boolean read fCompletionMenuCaseCare write fCompletionMenuCaseCare;
-    property completionMenuWidth: integer read fCompletionMenuWidth write fCompletionMenuWidth;
-    property completionMenuLines: byte read fCompletionMenuLines write setCompletionMenuLines;
     property autoDotDelay: integer read fAutoDotDelay write SetautoDotDelay;
-    property hintDelay: Integer read fDDocDelay write setDDocDelay stored false; deprecated;
-    property ddocDelay: Integer read fDDocDelay write setDDocDelay;
-    property bracketMatch: TSynSelectedColor read fBracketMatchAttribs write setBracketMatchColor;
-    property mouseLink: TSynSelectedColor read fMouseLinkAttribs write setMouseLinkColor;
-    property selection: TSynSelectedColor read fSelAttribs write setSelCol;
-    property folding: TSynSelectedColor read fFoldedColor write setFoldedColor;
-    property identifierMatch: TSynSelectedColor read fIdentifierMarkup write SetIdentifierMarkup;
     property background: TColor read fBackground write fBackground default clWhite;
-    property tabulationWidth: Integer read fTabWidth write fTabWidth default 4;
-    property blockIdentation: Integer read fBlockIdent write fBlockIdent default 4;
-    property lineSpacing: Integer read fLineSpacing write fLineSpacing default 0;
+    property blockIndentation: Integer read fBlockIdent write fBlockIdent default 4;
+    property bracketMatch: TSynSelectedColor read fBracketMatchAttribs write setBracketMatchColor;
     property characterSpacing: Integer read fCharSpacing write fCharSpacing default 0;
-    property rightEdge: Integer read fRightEdge write fRightEdge default 80;
-    property rightEdgeColor: TColor read fRightEdgeColor write fRightEdgeColor default clSilver;
+    property completionMenuCaseCare: boolean read fCompletionMenuCaseCare write fCompletionMenuCaseCare;
+    property completionMenuLines: byte read fCompletionMenuLines write setCompletionMenuLines;
+    property completionMenuWidth: integer read fCompletionMenuWidth write fCompletionMenuWidth;
+    property currentLine: TSynSelectedColor read fCurrLineAttribs write setCurrLineAttribs;
+    property ddocDelay: Integer read fDDocDelay write setDDocDelay;
+    property folding: TSynSelectedColor read fFoldedColor write setFoldedColor;
     property font: TFont read fFont write setFont;
-    property options1: TSynEditorOptions read fOptions1 write fOptions1;
-    property options2: TSynEditorOptions2 read fOptions2 write fOptions2;
-    property mouseOptions: TSynEditorMouseOptions read fMouseOptions write fMouseOptions;
     property highlighterDlang: TPersistent read fD2Syn write setD2Syn;
     property highlighterGeneric: TPersistent read fTxtSyn write setTxtSyn;
-    property shortcuts: TCollection read fShortCuts write setShortcuts;
-    property lineNumberEvery: integer read fLineNumEvery write setLineNumEvery default 5;
+    property identifierMatch: TSynSelectedColor read fIdentifierMarkup write SetIdentifierMarkup;
     property identifierMatchOptions: TIdentifierMatchOptions read fIdentiMatchOpts write fIdentiMatchOpts default [caseSensitive];
+    property lineNumberEvery: integer read fLineNumEvery write setLineNumEvery default 5;
+    property lineSpacing: Integer read fLineSpacing write fLineSpacing default 0;
+    property mouseLink: TSynSelectedColor read fMouseLinkAttribs write setMouseLinkColor;
+    property mouseOptions: TSynEditorMouseOptions read fMouseOptions write fMouseOptions;
+    property options1: TSynEditorOptions read fOptions1 write fOptions1;
+    property options2: TSynEditorOptions2 read fOptions2 write fOptions2;
+    property rightEdge: Integer read fRightEdge write fRightEdge default 80;
+    property rightEdgeColor: TColor read fRightEdgeColor write fRightEdgeColor default clSilver;
+    property selection: TSynSelectedColor read fSelAttribs write setSelCol;
+    property shortcuts: TCollection read fShortCuts write setShortcuts;
+    property tabulationWidth: Integer read fTabWidth write fTabWidth default 4;
+    // TODO-cmaintenance: remove this from 2_update_1
+    property blockIdentation: Integer write fBlockIdent stored false; deprecated;
+    property hintDelay: Integer write setDDocDelay stored false; deprecated;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -204,7 +206,7 @@ begin
   fLineNumEvery := 5;
   rightEdge := 80;
   tabulationWidth := 4;
-  blockIdentation := 4;
+  blockIndentation := 4;
   fBackground := clWhite;
   fRightEdgeColor := clSilver;
   //
@@ -276,7 +278,7 @@ begin
     identifierMatchOptions:=srcopt.identifierMatchOptions;
 
     tabulationWidth := srcopt.tabulationWidth;
-    blockIdentation := srcopt.blockIdentation;
+    blockIndentation := srcopt.blockIndentation;
     lineSpacing := srcopt.lineSpacing;
     characterSpacing := srcopt.characterSpacing;
     options1 := srcopt.options1;
@@ -614,7 +616,7 @@ begin
   anEditor.HighlightAllColor.Assign(fIdentifierMarkup);
   anEditor.LineHighlightColor.Assign(fCurrLineAttribs);
   anEditor.TabWidth := tabulationWidth;
-  anEditor.BlockIndent := blockIdentation;
+  anEditor.BlockIndent := blockIndentation;
   anEditor.ExtraLineSpacing := lineSpacing;
   anEditor.ExtraCharSpacing := characterSpacing;
   anEditor.Options := options1;
