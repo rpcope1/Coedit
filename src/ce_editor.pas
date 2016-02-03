@@ -59,7 +59,6 @@ type
     fDoc: TCESynMemo;
     fProj: ICECommonProject;
     fTokList: TLexTokenList;
-    fErrList: TLexErrorList;
     fModStart: boolean;
     fLastCommand: TSynEditorCommand;
     procedure pageBtnAddCLick(Sender: TObject);
@@ -127,7 +126,6 @@ begin
   AssignPng(pageControl.splitButton, 'splitter');
 
   fTokList := TLexTokenList.Create;
-  fErrList := TLexErrorList.Create;
   //
   AssignPng(mnuedCopy.Bitmap, 'copy');
   AssignPng(mnuedCut.Bitmap, 'cut');
@@ -153,7 +151,6 @@ begin
       if (PageControl.Pages[i].Controls[0] is TCESynMemo) then
         PageControl.Pages[i].Controls[0].Free;
   fTokList.Free;
-  fErrList.Free;
   inherited;
 end;
 
@@ -501,15 +498,14 @@ begin
     end else
       editorStatus.Panels[3].Width:= 0;
     editorStatus.Panels[4].Text := fDoc.fileName;
-    if Visible and (pageControl.currentPage <> nil) and ((pageControl.currentPage.Caption = '') or
+    if Visible and pageControl.currentPage.isNotNil and ((pageControl.currentPage.Caption = '') or
       (pageControl.currentPage.Caption = '<new document>')) then
     begin
-      if fDoc.isDSource then
+      if fDoc.isDSource and (fDoc.CaretY < 50) then
       begin
         lex(fDoc.Lines.Text, fTokList, @lexFindToken);
         md := getModuleName(fTokList);
         fTokList.Clear;
-        fErrList.Clear;
       end;
       if md.isEmpty then md := fDoc.fileName.extractFileName;
       pageControl.currentPage.Caption := md;
@@ -519,14 +515,16 @@ end;
 
 procedure TCEEditorWidget.lexFindToken(const aToken: PLexToken; out doStop: boolean);
 begin
-  if aToken^.kind = ltkKeyword then
-    if aToken^.data = 'module' then
-      fModStart := true;
-  if fModStart then if aToken^.kind = ltkSymbol then
-    if aToken^.data = ';' then begin
-      doStop := true;
-      fModStart := false;
-    end;
+  if (aToken^.kind = ltkKeyword) and (aToken^.data = 'module') then
+  begin
+    fModStart := true;
+    exit;
+  end;
+  if fModStart and (aToken^.kind = ltkSymbol) and (aToken^.data = ';') then
+  begin
+    doStop := true;
+    fModStart := false;
+  end;
 end;
 
 procedure TCEEditorWidget.updateDelayed;
@@ -541,15 +539,13 @@ begin
   if fDoc.Lines.Count = 0 then exit;
   //
   md := '';
-  if fDoc.isDSource then
+  if fDoc.isDSource and (fDoc.CaretY < 50) then
   begin
     lex(fDoc.Lines.Text, fTokList, @lexFindToken);
     md := getModuleName(fTokList);
     fTokList.Clear;
-    fErrList.Clear;
   end;
-  if md.isEmpty then
-    md := fDoc.fileName.extractFileName;
+  if md.isEmpty then md := fDoc.fileName.extractFileName;
   pageControl.currentPage.Caption := md;
 end;
 {$ENDREGION}
