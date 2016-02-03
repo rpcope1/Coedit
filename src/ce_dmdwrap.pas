@@ -207,6 +207,8 @@ type
     fExcl: TStringList;
     fFname: TCEFilename;
     fObjDir: TCEPathname;
+    fForceExt: boolean;
+    procedure setForceExt(aValue: boolean);
     procedure setFname(const aValue: TCEFilename);
     procedure setObjDir(const aValue: TCEPathname);
     procedure setSrcs(aValue: TStringList);
@@ -221,6 +223,7 @@ type
     property extraSources: TStringList read fExtraSrcs write setSrcs;
     property importModulePaths: TStringList read fImpMod write setIncl;
     property importStringPaths: TStringList read fImpStr write setImpt;
+    property forceExtension: boolean read fForceExt write setForceExt default false;
   public
     constructor create;
     destructor destroy; override;
@@ -1032,6 +1035,7 @@ begin
     fImpMod.Assign(src.fImpMod);
     fImpStr.Assign(src.fImpStr);
     fExcl.Assign(src.fExcl);
+    fForceExt:= src.fForceExt;
     fFName  := patchPlateformPath(src.fFname);
     fObjDir := patchPlateformPath(src.fObjDir);
   end
@@ -1045,6 +1049,13 @@ begin
   fImpStr.free;
   fExcl.free;
   inherited;
+end;
+
+procedure TPathsOpts.setForceExt(aValue: boolean);
+begin
+  if fForceExt = aValue then exit;
+  fForceExt:=aValue;
+  doChanged;
 end;
 
 procedure TPathsOpts.setFname(const aValue: TCEFilename);
@@ -1360,6 +1371,10 @@ begin
 end;
 
 procedure TCompilerConfiguration.getOpts(aList: TStrings; base: TCompilerConfiguration = nil);
+var
+  ext, nme: string;
+  fe: boolean;
+  i: integer;
 begin
   if (base = nil) or (base = self) then
   begin
@@ -1369,6 +1384,8 @@ begin
     fOutputOpts.getOpts(aList);
     fPathsOpts.getOpts(aList);
     fOthers.getOpts(aList);
+    fe := fPathsOpts.forceExtension;
+    nme := fPathsOpts.outputFilename;
   end else
   begin
     fDocOpts.getOpts(aList, base.fDocOpts);
@@ -1377,6 +1394,28 @@ begin
     fOutputOpts.getOpts(aList, base.fOutputOpts);
     fPathsOpts.getOpts(aList, base.fPathsOpts);
     fOthers.getOpts(aList, base.fOthers);
+    fe := fPathsOpts.forceExtension or base.fPathsOpts.forceExtension;
+    nme := fPathsOpts.outputFilename;
+    if base.fPathsOpts.outputFilename <> '' then
+      nme := base.fPathsOpts.outputFilename;
+  end;
+  if fe and nme.isNotEmpty then
+  begin
+    ext := nme.extractFileExt;
+    nme := '-of' + nme;
+    i := aList.IndexOf(nme);
+    if i <> -1 then case fOutputOpts.binaryKind of
+      {$IFDEF WINDOWS}
+      executable: if ext <> exeExt then
+        aList[i] := aList[i] + exeExt;
+      {$ENDIF}
+      obj: if ext <> objExt then
+        aList[i] := aList[i] + objExt;
+      sharedlib: if ext <> dynExt then
+        aList[i] := aList[i] + dynExt;
+      staticlib: if ext <> libExt then
+        aList[i] := aList[i] + libExt;
+    end;
   end;
 end;
 

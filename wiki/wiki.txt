@@ -576,7 +576,6 @@ The project inspector widget is mostly designed to manipulate the project source
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/file/document_add.png): adds a D source to the project from a dialog. The new source is not directly opened in the editor. To add a file that is already edited, rather use **"Add file to project"** from the **File** menu.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/file/document_delete.png): removes the selected source (_selected_ in the widget tree, not in the editor) from the project.
 - ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/folder/folder_add.png): adds a folder of D source to the project from a dialog. The procedure is recursive.
-- ![](https://raw.githubusercontent.com/BBasile/Coedit/master/icons/cog/wrench_orange.png): shows the project configuration widget.
 
 Note that instead of using the dialogs to add files, it's also possible to drop items from a file explorer.
 
@@ -699,6 +698,7 @@ These options are defined per-configuration.
 
 - exclusions: some paths or some file to exclude from the main sources. A file can be relative or include [a symbolic string][lnk_sym]. A path is only handled if it's the direct parent of a file.
 - extraSources: either _*.lib_, _*.a_, _*.o_ and _*.obj_,  files or _*.d_, _*.di_ source files. If a path that ends with an asterisk is added (e.g: _folderA\folderB\*_) then every source files located in this folder and its sub-folders will be passed to the compiler.
+- forceExtension: when set, the output filename has always the right file extension. This option is useful when the _outputFilename_ contains periods but no extension (example: `-offoo.bar` under linux generates the executable `foo.bar` but under windows and if the option is set `foo.bar.exe`).
 - importModulePaths: a list of paths where _DMD_ has to look for the libraries sources. (**-I**)
 - importStringPaths: a list of paths used to solve the `import(file)` expressions. (**-J**)
 - objectDirectory: the directory where object files (_*.o_ or _*.obj_) must be written. (**-od**)
@@ -787,23 +787,23 @@ Formatting options are saved between each session in the [Coedit data folder][ln
 ## Message widget
 
 The message widget displays a stream of information about the current file or about the current project.
-The messages can be filtered according to a context, including:
+The messages can be filtered according to their context:
 
 - All: no filter.
-- Editor: filter the messages related to the focused editor (compilation, standard output of the module when executed as a _runnable_).
-- Project: filter the messages related to the current project (DMD messages, pre/post process i/o, project execution).
-- Application: filter the Coedit-specific messages (applications warnings, application exceptions).
-- Misc: other messages (various messages emitted by the widgets ones and the custom tools standard output). 
+- Editor: filter the messages related to the editor that has the focus (compilation, standard output of the module when executed as a [_runnable_][lnk_runa]).
+- Project: filter the messages related to the current project (DMD or DUB messages, pre/post compilation process output, project execution).
+- Application: filter the messages emitted by CE (applications warnings, application exceptions).
+- Misc: miscellaneous messages (messages emitted by the widgets, by the custom tools when their output is redirected, [find all][lnk_widg_find] results, etc). 
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/messages1.png)
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/messages2.png)
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/messages3.png)
 
-When double-clicked, a message is parsed in order to extract a *position* and a *file name*.
+When a message is double-clicked, it is parsed in order to extract a *position* and a *file name*.
 If the operation is successful then the *file* will be opened at a *position*.
-So far, *DMD* and *[_Dscanner_](https://www.github.com/Hackerpilot/Dscanner)* or DUB messages are well parsed.
-The messages emitted by custom tools can be clickable if they follow a similar format. 
-(**`<relative|absolute filename><(line[:column])><message body>`**).
+So far, *DMD*, [*Dscanner*](https://www.github.com/Hackerpilot/Dscanner) or DUB messages are well parsed.
+The messages emitted by the custom tools can also be clickable if they follow a similar format. 
+(**`<relative|absolute filename>(<line[:column]>)<message body>`**).
 
 The context menu contains a few useful actions, such as *copy messages*, *save message(s) to file*.
 By default only the last 500 messages are displayed, regardless of the categories. 
