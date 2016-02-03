@@ -771,6 +771,7 @@ var
   beg: string;
   i: integer = 1;
   j: integer;
+  opts: TSynEditorOptions;
 const
   blk = [' ', #9];
 begin
@@ -785,19 +786,19 @@ begin
     i += 1;
   end;
   i -= 1;
+  opts := editor.Options;
   editor.BeginUndoBlock;
   editor.CommandProcessor(ecInsertLine, '', nil);
   editor.CommandProcessor(ecDown, '', nil);
   editor.CommandProcessor(ecInsertLine, '', nil);
   editor.CommandProcessor(ecDown, '', nil);
-  if not (eoAutoIndent in editor.Options) then
-    for j := 1 to i do editor.CommandProcessor(ecChar, beg[j], nil);
+  for j := 1 to i do editor.CommandProcessor(ecChar, beg[j], nil);
   editor.CommandProcessor(ecChar, '}', nil);
   editor.CommandProcessor(ecUp, '', nil);
   for j := 1 to i do editor.CommandProcessor(ecChar, beg[j], nil);
-  if not (eoAutoIndent in editor.Options) then
-    editor.CommandProcessor(ecTab, '', nil);
+  editor.CommandProcessor(ecTab, '', nil);
   editor.EndUndoBlock;
+  editor.Options := opts;
 end;
 
 procedure commentSelection(editor: TSynEdit);
