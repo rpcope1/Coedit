@@ -787,6 +787,7 @@ begin
   end;
   i -= 1;
   opts := editor.Options;
+  editor.Options := opts - [eoAutoIndent, eoTrimTrailingSpaces];
   editor.BeginUndoBlock;
   editor.CommandProcessor(ecInsertLine, '', nil);
   editor.CommandProcessor(ecDown, '', nil);
