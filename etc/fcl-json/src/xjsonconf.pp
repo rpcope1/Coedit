@@ -28,7 +28,7 @@ unit jsonConf;
 interface
 
 uses
-  SysUtils, Classes, fpjson, jsonscanner, jsonparser;
+  SysUtils, Classes, xfpjson, xjsonscanner, xjsonparser;
 
 
 type

@@ -5,7 +5,7 @@ unit fpjsonrtti;
 interface
 
 uses
-  Classes, SysUtils, contnrs, typinfo, fpjson, rttiutils, jsonparser;
+  Classes, SysUtils, contnrs, typinfo, xfpjson, rttiutils, xjsonparser;
 
 Const
   RFC3339DateTimeFormat = 'yyyy"-"mm"-"dd"T"hh":"nn":"ss';

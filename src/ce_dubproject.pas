@@ -5,7 +5,7 @@ unit ce_dubproject;
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, jsonscanner, process, strutils, LazFileUtils,
+  Classes, SysUtils, xfpjson, xjsonparser, xjsonscanner, process, strutils, LazFileUtils,
   ce_common, ce_interfaces, ce_observer, ce_dialogs, ce_processes;
 
 type

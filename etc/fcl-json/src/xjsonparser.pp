@@ -14,12 +14,12 @@
  **********************************************************************}
 {$mode objfpc}
 {$h+}
-unit jsonparser;
+unit xjsonparser;
 
 interface
 
 uses
-  Classes, SysUtils, fpJSON, jsonscanner;
+  Classes, SysUtils, xfpJSON, xjsonscanner;
   
 Type
 

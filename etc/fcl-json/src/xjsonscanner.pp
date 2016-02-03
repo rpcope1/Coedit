@@ -15,7 +15,7 @@
 {$mode objfpc}
 {$h+}
 
-unit jsonscanner;
+unit xjsonscanner;
 
 interface
 
