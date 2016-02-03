@@ -790,11 +790,13 @@ begin
   editor.CommandProcessor(ecDown, '', nil);
   editor.CommandProcessor(ecInsertLine, '', nil);
   editor.CommandProcessor(ecDown, '', nil);
-  for j := 1 to i do editor.CommandProcessor(ecChar, beg[j], nil);
+  if not (eoAutoIndent in editor.Options) then
+    for j := 1 to i do editor.CommandProcessor(ecChar, beg[j], nil);
   editor.CommandProcessor(ecChar, '}', nil);
   editor.CommandProcessor(ecUp, '', nil);
   for j := 1 to i do editor.CommandProcessor(ecChar, beg[j], nil);
-  editor.CommandProcessor(ecTab, '', nil);
+  if not (eoAutoIndent in editor.Options) then
+    editor.CommandProcessor(ecTab, '', nil);
   editor.EndUndoBlock;
 end;
 
@@ -1533,7 +1535,7 @@ function TCESynMemo.BreakPointLine(index: integer): integer;
 begin
   if index >= fBreakPoints.Count then
     exit(0);
-  {$PUSH}{$WARNINGS OFF}
+  {$PUSH}{$WARNINGS OFF}{$HINTS OFF}
   exit(Integer(fBreakPoints.Items[index]));
   {$POP}
 end;
@@ -1550,7 +1552,7 @@ begin
   m.ImageIndex := 0;
   m.Visible := true;
   Marks.Add(m);
-  {$PUSH}{$WARNINGS OFF}
+  {$PUSH}{$WARNINGS OFF}{$HINTS OFF}
   fBreakPoints.Add(pointer(line));
   {$POP}
   if assigned(fBreakpointEvent) then
@@ -1563,7 +1565,7 @@ begin
     exit;
   if marks.Line[line].isNotNil and (marks.Line[line].Count > 0) then
     marks.Line[line].Clear(true);
-  {$PUSH}{$WARNINGS OFF}
+  {$PUSH}{$WARNINGS OFF}{$HINTS OFF}
   fBreakPoints.Remove(pointer(line));
   {$POP}
   if assigned(fBreakpointEvent) then
@@ -1572,7 +1574,7 @@ end;
 
 function TCESynMemo.findBreakPoint(line: integer): boolean;
 begin
-  {$PUSH}{$WARNINGS OFF}
+  {$PUSH}{$WARNINGS OFF}{$HINTS OFF}
   exit(fBreakPoints.IndexOf(pointer(line)) <> -1);
   {$POP}
 end;

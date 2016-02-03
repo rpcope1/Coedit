@@ -214,7 +214,7 @@ begin
   fCurrLineAttribs.Foreground := clNone;
   //
   options1 :=
-    [eoAutoIndent, eoBracketHighlight, eoGroupUndo, eoTabsToSpaces,
+    [eoAutoIndent, eoBracketHighlight, eoGroupUndo, eoTabsToSpaces, eoTrimTrailingSpaces,
     eoDragDropEditing, eoShowCtrlMouseLinks, eoEnhanceHomeKey, eoTabIndent];
   options2 :=
     [eoEnhanceEndKey, eoFoldedCopyPaste, eoOverwriteBlock];
