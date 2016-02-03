@@ -1401,6 +1401,7 @@ begin
   end;
   if fe and nme.isNotEmpty then
   begin
+    nme := symbolExpander.get(nme);
     ext := nme.extractFileExt;
     nme := '-of' + nme;
     i := aList.IndexOf(nme);
