@@ -60,7 +60,7 @@ The latest Coedit version requires at least DMD 2.066.
 * To uninstall, run the same program but with the `-u` option.
 	* Linux: if coedit has been setup with `sudo` you must also uninstall with elevated privileges: `sudo .\coedit.<version>.<platform>.setup -u`.
 	* Windows: start a console as administrator and execute: `coedit.<version>.win32.setup -u`.
-	* Troubleshooting: run the setup program with the `-l` (or `--list`) option to get the status of the files and use the report to uninstall manually the files.
+	* Troubleshooting: run the setup program with the `-l` (or `--list`) option to get the status of the files and use the report to uninstall manually the files or open a ticket [here](https://github.com/BBasile/Coedit/issue).
 	
 Note for the future versions:
 * Updating doesn't require to uninstall.
@@ -85,31 +85,13 @@ If they are not correctly set, for each of the following file **coedit**, **dcd-
 either set the permission in the context menu (check _allow execution_ or _executable_ depending on the desktop)
 or `chmod a+x` the file in a console.
 
-Under linux, since no **.deb** or **.rpm** are provided, you can verify that the following packages are already present.
-Since they are mostly related to gtk2, they already should be installed:
-
-> libpthread.so.0
-libX11.so.6
-libgdk_pixbuf-2.0.so.0
-libgtk-x11-2.0.so.0
-libgdk-x11-2.0.so.0
-libgobject-2.0.so.0
-libglib-2.0.so.0
-libgthread-2.0.so.0
-libgmodule-2.0.so.0
-libpango-1.0.so.0
-libcairo.so.2
-libatk-1.0.so.0
-libdl.so.2
-libc.so.6
-
 ## Build the sources
 
 Download ans setup the tools:
 
-* [Download](http://lazarus.freepascal.org/index.php?page=downloads) and setup the latest Lazarus version (1.6) and  FPC + FPC sources (3.0.0.1) for your platform.
+* [Download](http://lazarus.freepascal.org/index.php?page=downloads) and setup the latest Lazarus version (1.6) and  FPC + FPC sources (3.0.0) for your platform.
 	* Windows: the three packages are bundled in an installer. Even on Windows 64 bit, the 32 version must be setup.
-	* Linux: the three packages must be downloaded and setup individually. Take care to the version number because the official rpm/deb source of a Linux distribution does not always propose the latest version !
+	* Linux: the three packages must be downloaded and setup individually. It's recommended to download the packages from _SourceForge_ and not from the official repository of the distribution because they don't always propose the latest version.
 
 * [Clone](https://github.com/BBasile/Coedit.git) Coedit git repository. There are two ways to do it (console or a git GUI).
 If you've never used Git at all, you can try [Source-Tree](http://www.sourcetreeapp.com/), a freeware Git/Mercurial GUI that is distributed with a Git copy.
@@ -145,10 +127,10 @@ Only the _x86-64_ _rpm_ is available (Fedora, openSuse, ...). After the installa
 
 # How to contribute
 
-## Programming
+## Development
 
-Any Pascal or Delphi programmer who has interest to the D language can contribute.
-The process is based on _git_ and _Github_, using what's often called the _fork push pull_ model:
+Any Pascal or Delphi programmer who is also interested by the D language can contribute.
+The process is based on _git_ and _Github_, using what's called the _fork push pull_ model:
 
 - fork the _Coedit_ repository in your _Github_ account.
 - clone this fork to your computer.
@@ -161,7 +143,7 @@ The process is based on _git_ and _Github_, using what's often called the _fork 
 
 The maintainer will be notified of the request, which could be merged after review.
 
-## Linux packages
+## Distribution
 
 In addition to the setup program, **.deb** and **.rpm** would be welcome. They can be build using the binaries that are proposed in a zip for each release.
 
@@ -170,16 +152,17 @@ In addition to the setup program, **.deb** and **.rpm** would be welcome. They c
 The documentation (the sources of this wiki) need to be reviewed, as it's currently written by a non native English speaker.
 The wiki can be edited locally by cloning [this git repository](https://github.com/BBasile/Coedit.wiki.git).
 It's also possible to propose pull requests in the main repository since the [wiki source is present](https://github.com/BBasile/Coedit/tree/master/wiki).
-As tool, one of the numerous markdown editor available on the web can be used, for example [StackEdit](https://stackedit.io/editor).
+As tool, one of the many markdown editor available on the web can be used, for example [StackEdit](https://stackedit.io/editor).
 
-There is also a huge need to split the wiki in pages. Because the page became huge and a long to load,
-the browsers often fail to scroll to a particular anchor.
+There is also a huge need to split the wiki in pages. 
+Because the page becomes huge and a long to load, the browsers can fail to scroll to a particular anchor.
 
 ## Bug reports
 
 Bugs can be reported using [this dedicated online utility](https://github.com/BBasile/Coedit/issues).
-It can be a bug report (BR), a feature request (FR). 
-General questions and discussions (Q, BLA) about the use are also allowed since there is no other dedicated place to talk about CE.
+This place can also be used to suggest enhancements and new features.
+
+For discussions, the official D forums [propose a section dedicated to the IDEs](http://forum.dlang.org/group/ide).
 
 # Menu reference
 

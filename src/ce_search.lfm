@@ -1,26 +1,26 @@
 inherited CESearchWidget: TCESearchWidget
   Left = 742
-  Height = 288
+  Height = 309
   Top = 278
-  Width = 393
+  Width = 399
   Caption = 'Search & replace'
-  ClientHeight = 288
-  ClientWidth = 393
+  ClientHeight = 309
+  ClientWidth = 399
   inherited Back: TPanel
-    Height = 288
-    Width = 393
-    ClientHeight = 288
-    ClientWidth = 393
+    Height = 309
+    Width = 399
+    ClientHeight = 309
+    ClientWidth = 399
     inherited Content: TPanel
-      Height = 288
-      Width = 393
-      ClientHeight = 288
-      ClientWidth = 393
+      Height = 309
+      Width = 399
+      ClientHeight = 309
+      ClientWidth = 399
       object cbToFind: TComboBox[0]
         Left = 4
         Height = 23
         Top = 4
-        Width = 385
+        Width = 391
         Align = alTop
         AutoSize = False
         BorderSpacing.Around = 4
@@ -32,8 +32,8 @@ inherited CESearchWidget: TCESearchWidget
       object btnFind: TBitBtn[1]
         Left = 4
         Height = 24
-        Top = 176
-        Width = 385
+        Top = 197
+        Width = 391
         Align = alBottom
         BorderSpacing.Around = 4
         Caption = 'btnFind'
@@ -78,8 +78,8 @@ inherited CESearchWidget: TCESearchWidget
       object btnReplace: TBitBtn[2]
         Left = 4
         Height = 24
-        Top = 232
-        Width = 385
+        Top = 253
+        Width = 391
         Align = alBottom
         BorderSpacing.Around = 4
         Caption = 'btnReplace'
@@ -123,14 +123,14 @@ inherited CESearchWidget: TCESearchWidget
       end
       object grpOpts: TGroupBox[3]
         Left = 4
-        Height = 114
+        Height = 135
         Top = 58
-        Width = 385
+        Width = 391
         Align = alClient
         BorderSpacing.Around = 4
         Caption = 'Options'
-        ClientHeight = 84
-        ClientWidth = 381
+        ClientHeight = 105
+        ClientWidth = 387
         TabOrder = 4
         object chkWWord: TCheckBox
           Left = 8
@@ -190,8 +190,8 @@ inherited CESearchWidget: TCESearchWidget
       object btnReplaceAll: TBitBtn[4]
         Left = 4
         Height = 24
-        Top = 260
-        Width = 385
+        Top = 281
+        Width = 391
         Align = alBottom
         BorderSpacing.Around = 4
         Caption = 'btnReplaceAll'
@@ -237,18 +237,18 @@ inherited CESearchWidget: TCESearchWidget
         Left = 4
         Height = 23
         Top = 31
-        Width = 385
+        Width = 391
         Align = alTop
         BorderSpacing.Around = 4
         BevelOuter = bvNone
         ClientHeight = 23
-        ClientWidth = 385
+        ClientWidth = 391
         TabOrder = 5
         object cbReplaceWth: TComboBox
           Left = 108
           Height = 23
           Top = 0
-          Width = 277
+          Width = 283
           Align = alClient
           Anchors = [akTop, akLeft, akBottom]
           ItemHeight = 0
@@ -270,19 +270,19 @@ inherited CESearchWidget: TCESearchWidget
       object Panel2: TPanel[6]
         Left = 4
         Height = 24
-        Top = 204
-        Width = 385
+        Top = 225
+        Width = 391
         Align = alBottom
         BorderSpacing.Around = 4
         BevelOuter = bvNone
         ClientHeight = 24
-        ClientWidth = 385
+        ClientWidth = 391
         TabOrder = 6
         object btnFindAll: TBitBtn
           Left = 0
           Height = 24
           Top = 0
-          Width = 354
+          Width = 360
           Align = alClient
           Caption = 'btnFindAll'
           Glyph.Data = {
@@ -324,7 +324,7 @@ inherited CESearchWidget: TCESearchWidget
           TabOrder = 0
         end
         object btnAllScope: TBitBtn
-          Left = 356
+          Left = 362
           Height = 24
           Top = 0
           Width = 29

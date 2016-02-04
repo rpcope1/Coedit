@@ -891,7 +891,7 @@ begin
   DockMaster.HeaderStyle := adhsPoints;
   DockMaster.HideHeaderCaptionFloatingControl := true;
 
-  // this is a fix copied from Laz, seems to force the space between the menu and the UI stay 0.
+  // this is a fix copied from Laz.
   if DockManager is TAnchorDockManager then begin
     aManager:=TAnchorDockManager(DockManager);
     aManager.PreferredSiteSizeAsSiteMinimum:=false;
@@ -913,15 +913,14 @@ begin
     // center
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fEditWidg), DockMaster.GetSite(Self), alBottom);
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fMesgWidg), DockMaster.GetSite(fEditWidg), alBottom);
-    DockMaster.ManualDock(DockMaster.GetAnchorSite(fPrInpWidg), DockMaster.GetSite(fMesgWidg), alBottom);
     // left
-    DockMaster.GetAnchorSite(fSymlWidg).Width := 200;
-    DockMaster.GetAnchorSite(fFindWidg).Width := 200;
+    DockMaster.GetAnchorSite(fSymlWidg).Width := 160;
+    DockMaster.GetAnchorSite(fFindWidg).Width := 160;
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fSymlWidg), DockMaster.GetSite(fEditWidg), alLeft);
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fFindWidg), DockMaster.GetAnchorSite(fSymlWidg), alBottom, fSymlWidg);
     // right
-    DockMaster.GetAnchorSite(fProjWidg).Width := 250;
-    DockMaster.GetAnchorSite(fPrjCfWidg).Width := 250;
+    DockMaster.GetAnchorSite(fProjWidg).Width := 260;
+    DockMaster.GetAnchorSite(fPrjCfWidg).Width := 260;
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fProjWidg), DockMaster.GetSite(fEditWidg), alRight);
     DockMaster.ManualDock(DockMaster.GetAnchorSite(fPrjCfWidg), DockMaster.GetAnchorSite(fProjWidg), alBottom, fProjWidg);
     // close remaining and header to top
