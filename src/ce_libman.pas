@@ -140,14 +140,21 @@ end;
 procedure TLibraryManager.updateDCD;
 var
   itm: TLibraryItem;
+  str: TStringList;
   i: Integer;
 begin
   if not DcdWrapper.available then exit;
   // note: new items are directly handled but removed ones still in cache until server restarts.
-  for i := 0 to fCol.Count-1 do
-  begin
-    itm := TLibraryItem(fCol.Items[i]);
-    DcdWrapper.addImportFolder(itm.libSourcePath);
+  str := TStringList.Create;
+  try
+    for i := 0 to fCol.Count-1 do
+    begin
+      itm := TLibraryItem(fCol.Items[i]);
+      str.Add(itm.libSourcePath);
+    end;
+    DcdWrapper.addImportFolders(str);
+  finally
+    str.Free;
   end;
 end;
 

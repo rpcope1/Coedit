@@ -52,6 +52,7 @@ type
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
     //
+    procedure addImportFolders(const folders: TStrings);
     procedure addImportFolder(const aFolder: string);
     procedure getComplAtCursor(aList: TStrings);
     procedure getCallTip(out tips: string);
@@ -155,7 +156,7 @@ begin
       if fold.dirExists and (folds.IndexOf(fold) = -1) then
         folds.Add(fold);
     end;
-    for fold in folds do addImportFolder(fold);
+    addImportFolders(folds);
   finally
     folds.Free;
   end;
@@ -253,6 +254,28 @@ begin
   fClient.Parameters.Add('-I' + aFolder);
   fClient.Execute;
   waitClient;
+end;
+
+procedure TCEDcdWrapper.addImportFolders(const folders: TStrings);
+var
+  imp: string;
+begin
+  if not fAvailable then exit;
+  if not fServerListening then exit;
+  //
+  fClient.Parameters.Clear;
+  for imp in folders do
+  begin
+    if fImportCache.IndexOf(imp) <> -1 then
+      continue;
+    fImportCache.Add(imp);
+    fClient.Parameters.Add('-I' + imp);
+  end;
+  if fClient.Parameters.Count <> 0 then
+  begin
+    fClient.Execute;
+    waitClient;
+  end;
 end;
 
 procedure TCEDcdWrapper.getCallTip(out tips: string);

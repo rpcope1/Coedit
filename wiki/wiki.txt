@@ -315,9 +315,9 @@ _DCD_ also has a native configuration system. Refer to the official [_Readme_](h
 - <kbd>.</kbd> invokes the completion if the editor option _autoDotDelay_ is greater than 0. 
 - <kbd>CTRL</kbd> + <kbd>SHIFT</kbd> + <kbd>UP</kbd>: Jumps to the declaration of the symbol located at the cursor. The default shortcut can be modified.
 - <kbd>CTRL</kbd> + <kbd>LEFT MOUSE BUTTON</kbd>: ditto. 
-- <kbd>(</kbd>: Gets the function call tips.
-- <kbd>)</kbd>: Closes the call tips window.
-- <kbd>ESC</kbd>: ditto.
+- <kbd>(</kbd>: Gets the function call tips. When functions calls are nested, call tips are stacked and separated by a group of hyphen.
+- <kbd>)</kbd>: If the call tips are displayed then decreases by one the stack of call tips.
+- <kbd>ESC</kbd>: Closes the call tips window, whatever is the level of the stack.
  
 Documentation comments associated to a symbol are displayed when hovering the symbol with the mouse.
 
