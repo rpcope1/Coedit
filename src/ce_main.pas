@@ -379,11 +379,13 @@ type
     fReloadLastDocuments: boolean;
     fMaxRecentProjs: integer;
     fMaxRecentDocs: integer;
+    fDcdPort: word;
     function getDubCompiler: TCECompiler;
     function getNativeProjecCompiler: TCECompiler;
     procedure setDubCompiler(value: TCECompiler);
     procedure setNativeProjecCompiler(value: TCECompiler);
   published
+    property dcdPort: word read fDcdPort write fDcdPort;
     property floatingWidgetOnTop: boolean read fFloatingWidgetOnTop write fFloatingWidgetOnTop;
     property reloadLastDocuments: boolean read fReloadLastDocuments write fReloadLastDocuments;
     property maxRecentProjects: integer read fMaxRecentProjs write fMaxRecentProjs;
@@ -464,8 +466,10 @@ begin
   begin
     fMaxRecentProjs:= CEMainForm.fProjMru.maxCount;
     fMaxRecentDocs:= CEMainForm.fFileMru.maxCount;
+    fDcdPort := DcdWrapper.port;
   end else if src = fBackup then
   begin
+    fDcdPort:=fBackup.fDcdPort;
     fMaxRecentDocs:= fBackup.fMaxRecentDocs;
     fMaxRecentProjs:= fBackup.fMaxRecentProjs;
     fReloadLastDocuments:=fBackup.fReloadLastDocuments;
@@ -481,12 +485,14 @@ begin
    CEMainForm.fProjMru.maxCount := fMaxRecentProjs;
    CEMainForm.fFileMru.maxCount := fMaxRecentDocs;
    CEMainForm.updateFloatingWidgetOnTop(fFloatingWidgetOnTop);
+   DcdWrapper.port:=fDcdPort;
   end else if dst = fBackup then
   begin
     fBackup.fMaxRecentDocs:= fMaxRecentDocs;
     fBackup.fMaxRecentProjs:= fMaxRecentProjs;
     fBackup.fReloadLastDocuments:=fReloadLastDocuments;
     fBackup.fFloatingWidgetOnTop:=fFloatingWidgetOnTop;
+    fBackup.fDcdPort:=fDcdPort;
   end
   else inherited;
 end;

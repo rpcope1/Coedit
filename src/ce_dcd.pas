@@ -12,6 +12,8 @@ uses
   ce_common, ce_writableComponent, ce_interfaces, ce_observer, ce_synmemo;
 
 type
+
+
   (**
    * Wrap the dcd-server and dcd-client processes.
    *
@@ -24,7 +26,7 @@ type
     fTempLines: TStringList;
     fInputSource: string;
     fImportCache: TStringList;
-    //fPortNum: Word;
+    fPortNum: Word;
     fServerWasRunning: boolean;
     fClient, fServer: TProcess;
     fAvailable: boolean;
@@ -48,6 +50,8 @@ type
     procedure docFocused(aDoc: TCESynMemo);
     procedure docChanged(aDoc: TCESynMemo);
     procedure docClosing(aDoc: TCESynMemo);
+  published
+    property port: word read fPortNum write fPortNum default 0;
   public
     constructor create(aOwner: TComponent); override;
     destructor destroy; override;
@@ -70,11 +74,18 @@ implementation
 const
   clientName = 'dcd-client' + exeExt;
   serverName = 'dcd-server' + exeExt;
+  optsname = 'dcdoptions.txt';
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEDcdWrapper.create(aOwner: TComponent);
+var
+  fname: string;
 begin
   inherited;
+  //
+  fname := getCoeditDocPath + optsname;
+  if fname.fileExists then
+    loadFromFile(fname);
   //
   fAvailable := exeInSysPath(clientName) and exeInSysPath(serverName);
   if not fAvailable then
@@ -93,6 +104,8 @@ begin
     {$IFNDEF DEBUG}
     fServer.ShowWindow := swoHIDE;
     {$ENDIF}
+    if fPortNum <> 0 then
+      fServer.Parameters.Add('-p' + intToStr(port));
   end;
   fTempLines := TStringList.Create;
   fImportCache := TStringList.Create;
@@ -111,6 +124,7 @@ end;
 
 destructor TCEDcdWrapper.destroy;
 begin
+  saveToFile(getCoeditDocPath + optsname);
   EntitiesConnector.removeObserver(self);
   fImportCache.Free;
   if fTempLines.isNotNil then
