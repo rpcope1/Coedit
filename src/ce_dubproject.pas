@@ -733,14 +733,70 @@ procedure TCEDubProject.updateImportPathsFromJson;
         fImportPaths.Add(arr.Strings[i]);
     end;
   end;
+  // note: dependencies are added as import to allow DCD completion
+  // see TCEDcdWrapper.projChanged()
+  procedure addDepsFrom(obj: TJSONObject);
+  var
+    folds: TStringList;
+    deps: TJSONObject;
+    item: TJSONData;
+    pth: string;
+    str: string;
+    i,j,k: integer;
+  begin
+    item := obj.Find('dependencies');
+    if assigned(item) then
+    begin
+      {$IFDEF WINDOWS}
+      pth := GetEnvironmentVariable('APPDATA') + '\dub\packages\';
+      {$ELSE}
+      pth := GetEnvironmentVariable('HOME') + '/.dub/packages/';
+      {$ENDIF}
+      deps := TJSONObject(item);
+      folds := TStringList.Create;
+      listFolders(folds, pth);
+      try
+        // remove semver from folder names
+        for i := 0 to folds.Count-1 do
+        begin
+          str := folds[i];
+          k := -1;
+          for j := 1 to length(str) do
+            if str[j] = '-' then
+              k := j;
+          if k <> -1 then
+            folds[i] := str[1..k-1] + '=' + str[k .. length(str)];
+        end;
+        // add as import if names match
+        for i := 0 to deps.Count-1 do
+        begin
+          str := pth + deps.Names[i];
+          if folds.IndexOfName(str) <> -1 then
+          begin
+            if (str + folds.Values[str] + DirectorySeparator + 'source').dirExists then
+              fImportPaths.Add(str + DirectorySeparator + 'source')
+            else if (str + folds.Values[str] + DirectorySeparator + 'src').dirExists then
+              fImportPaths.Add(str + DirectorySeparator + 'src');
+          end;
+        end;
+      finally
+        folds.Free;
+      end;
+    end;
+  end;
 var
   conf: TJSONObject;
 begin
   if fJSON.isNil then exit;
   //
   addFrom(fJSON);
+  addDepsFrom(fJSON);
   conf := getCurrentCustomConfig;
-  if conf.isNotNil then addFrom(conf);
+  if conf.isNotNil then
+  begin
+    addFrom(conf);
+    addDepsFrom(conf);
+  end;
 end;
 
 procedure TCEDubProject.updateOutputNameFromJson;

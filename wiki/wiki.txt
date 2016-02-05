@@ -281,7 +281,7 @@ To do so, the application option _Native project compiler_ must be set according
 
 # DUB projects.
 
-Since the version 2 alpha 1, Coedit also handles [DUB](http://code.dlang.org/getting_started) projects.
+Since the version 2, Coedit also handles [DUB](http://code.dlang.org/getting_started) projects.
 
 DUB project description must be in [JSON format](http://code.dlang.org/package-format?lang=json), [SDL](http://code.dlang.org/package-format?lang=sdl) in not supported.
 
@@ -304,7 +304,7 @@ They can be put elsewhere, as long as the target directory is a known operating 
 ### Imports
 
 In _Coedit_, _DCD_ relies on the [library manager][lnk_widg_lib] entries and on the project parameters. 
-If the [_libman_][lnk_widg_lib] is empty then the DCD features will be limited to the content of the current editor or to the content of the other project modules.
+If the [_libman_][lnk_widg_lib] is empty then the the scope of DCD is limited to the current module or the to the current project sources and imports.
 To prevent that, it's absolutely necessary to add at least _phobos_ and _core_ to the [_libman_][lnk_widg_lib] (if not automatically done the first time CE is executed).
 
 _DCD_ also has a native configuration system. Refer to the official [_Readme_](https://github.com/Hackerpilot/DCD#configuration-files).
@@ -327,10 +327,10 @@ Documentation comments associated to a symbol are displayed when hovering the sy
 
 ![DCD call tip](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dcd3.png)
 
-When Coedit starts and if the DCD server is not already listening then it's launched automatically.
+When Coedit starts and if the DCD server is not already listening then it's launched by CE.
 When Coedit stops, the server is automatically shut-down if it was not already running when starting.
-Under Linux it's recommended not to let Coedit start the server.
-If DCD server crashes while Coedit is running then both must be restarted.
+
+If the DCD server crashes while Coedit is running then both must be restarted.
 
 It's also advisable to setup [Dscanner](https://github.com/Hackerpilot/Dscanner), from the same author, as a Coedit [custom tool][lnk_widg_tools].
 
