@@ -111,7 +111,10 @@ begin
   fImportCache := TStringList.Create;
 
   if fServer.isNotNil then
+  begin
     fServer.Execute;
+    sleep(20);
+  end;
   updateServerlistening;
   //
   EntitiesConnector.addObserver(self);
