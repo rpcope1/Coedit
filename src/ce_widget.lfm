@@ -10,7 +10,6 @@ object CEWidget: TCEWidget
   ShowHint = True
   ShowInTaskBar = stNever
   LCLVersion = '1.6.0.2'
-  Visible = False
   object Back: TPanel
     Left = 0
     Height = 121

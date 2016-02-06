@@ -691,6 +691,7 @@ These options are defined per-configuration.
 
 They define the options of two processes and a bunch of commands, respectively executed before and after the compilation.
 These options are defined per-configuration.
+These options are not compatible with the system of _base_ & _overridden_ configuration.
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/projconf.preprocess1.png)
 
@@ -717,6 +718,7 @@ The _executable_ field is not present because it relies on the project parameter
 
 If the output is piped then the [process input widget][lnk_widg_procinp] can be used to pass the input to the program being executed.
 These options are defined per-configuration.
+These options are not compatible with the system of _base_ & _overridden_ configuration.
 
 #### All categories
 
@@ -812,7 +814,7 @@ A few typical examples:
 - launch a console with its working directory set to the project file directory.
 - analyze the current document in _Dscanner_. (see the tutorials).
 - generate the documentation for all the project sources. (see the tutorials).
-- launch a custom build tool (_make_, _DUB_).
+- launch a custom build tool.
 - launch a script that will zip and upload the latest project build.
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/toolseditor1.png)

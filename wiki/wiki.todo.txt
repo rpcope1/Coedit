@@ -1,2 +1,0 @@
-- setup: screenshots.
-- project config widget, base/overridden. Note about pre/post build proc as their options cant be overridden.

@@ -5,8 +5,8 @@ unit ce_dockoptions;
 interface
 
 uses
-  Classes, SysUtils, AnchorDocking, AnchorDockOptionsDlg, XMLPropStorage,
-  AnchorDockStr, Forms, Controls, ce_observer, ce_interfaces;
+  Classes, SysUtils, xAnchorDocking, xAnchorDockOptionsDlg, XMLPropStorage,
+  xAnchorDockStr, Forms, Controls, ce_observer, ce_interfaces;
 
 type
 
@@ -39,7 +39,7 @@ constructor TDockOptionsEditor.Create(TheOwner: TComponent);
 begin
   inherited;
   fBackup := TXMLConfigStorage.Create('', False);
-  Master := AnchorDocking.DockMaster;
+  Master := xAnchorDocking.DockMaster;
   //
   HeaderAlignLeftTrackBar.OnChange := @doChanged;
   HeaderAlignTopTrackBar.OnChange := @doChanged;

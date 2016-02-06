@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LazFileUtils, SynEditKeyCmds, SynHighlighterLFM, Forms, StdCtrls,
-  AnchorDocking, AnchorDockStorage, AnchorDockOptionsDlg, Controls, Graphics, strutils,
+  xAnchorDocking, xAnchorDockStorage, xAnchorDockOptionsDlg, Controls, Graphics, strutils,
   Dialogs, Menus, ActnList, ExtCtrls, process, XMLPropStorage, SynExportHTML,
   ce_common, ce_dmdwrap, ce_nativeproject, ce_dcd, ce_synmemo, ce_writableComponent,
   ce_widget, ce_messages, ce_interfaces, ce_editor, ce_projinspect, ce_projconf,
@@ -1172,8 +1172,8 @@ begin
       LoadLastDocsAndProj;
 
     // http://bugs.freepascal.org/view.php?id=29475
-    // TODO-cgonnawork: activate this when Laz 1.6 released.
-    // DockMaster.ResetSplitter;
+    // TODO-cgonnawork: when Laz 1.6 is rlzd, remove etc/anchordocking and use Laz package
+    DockMaster.ResetSplitters;
 
     fFirstShown := true;
   end;
