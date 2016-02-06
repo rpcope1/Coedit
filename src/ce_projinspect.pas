@@ -36,6 +36,7 @@ type
   private
     fActOpenFile: TAction;
     fActSelConf: TAction;
+    fActBuildConf: TAction;
     fProject: TCENativeProject;
     fFileNode, fConfNode: TTreeNode;
     fImpsNode, fInclNode: TTreeNode;
@@ -44,6 +45,7 @@ type
     procedure actUpdate(sender: TObject);
     procedure TreeDblClick(sender: TObject);
     procedure actOpenFileExecute(sender: TObject);
+    procedure actBuildExecute(sender: TObject);
     //
     procedure projNew(aProject: ICECommonProject);
     procedure projClosing(aProject: ICECommonProject);
@@ -76,6 +78,10 @@ begin
   fActSelConf.Caption := 'Select configuration';
   fActSelConf.OnExecute := @actOpenFileExecute;
   fActSelConf.OnUpdate := @actUpdate;
+  fActBuildConf:= TAction.Create(self);
+  fActBuildConf.Caption := 'Build configuration';
+  fActBuildConf.OnExecute := @actBuildExecute;
+  fActBuildConf.OnUpdate := @actUpdate;
   //
   inherited;
   //
@@ -117,7 +123,7 @@ end;
 
 function TCEProjectInspectWidget.contextActionCount: integer;
 begin
-  exit(2);
+  exit(3);
 end;
 
 function TCEProjectInspectWidget.contextAction(index: integer): TAction;
@@ -125,6 +131,7 @@ begin
   case index of
     0: exit(fActOpenFile);
     1: exit(fActSelConf);
+    2: exit(fActBuildConf);
     else exit(nil);
   end;
 end;
@@ -132,6 +139,15 @@ end;
 procedure TCEProjectInspectWidget.actOpenFileExecute(sender: TObject);
 begin
   TreeDblClick(sender);
+end;
+
+procedure TCEProjectInspectWidget.actBuildExecute(sender: TObject);
+begin
+  if fProject.isNotNil then
+  begin
+    actOpenFileExecute(sender);
+    fProject.compile;
+  end;
 end;
 {$ENDREGION}
 
@@ -237,8 +253,10 @@ procedure TCEProjectInspectWidget.actUpdate(sender: TObject);
 begin
   fActSelConf.Enabled := false;
   fActOpenFile.Enabled := false;
+  fActBuildConf.Enabled:= false;
   if Tree.Selected.isNil then exit;
   fActSelConf.Enabled := Tree.Selected.Parent = fConfNode;
+  fActBuildConf.Enabled := Tree.Selected.Parent = fConfNode;
   fActOpenFile.Enabled := Tree.Selected.Parent = fFileNode;
 end;
 
