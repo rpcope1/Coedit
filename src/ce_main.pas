@@ -287,6 +287,7 @@ type
     // run & exec sub routines
     procedure asyncprocOutput(sender: TObject);
     procedure asyncprocTerminate(sender: TObject);
+    procedure unittestDone(Sender: TObject);
     procedure compileAndRunFile(unittest: boolean = false; redirect: boolean = true;
       const runArgs: string = '');
 
@@ -1899,8 +1900,6 @@ var
   dmdproc: TCEProcess;
   lst: TStringList;
   fname, firstlineFlags: string;
-  covname: string;
-  fullcov: boolean;
 begin
 
   fMsgs.clearByData(fDoc);
@@ -1972,27 +1971,6 @@ begin
     while dmdproc.Running do
       application.ProcessMessages;
 
-    if unittest and fCovModUt then
-    begin
-      fullcov := true;
-      covname := ReplaceStr(fname + '.lst', DirectorySeparator, '-');
-      if covname.fileExists then
-      begin
-        lst.Clear;
-        lst.LoadFromFile(covname);
-        for i := 0 to lst.Count-1 do
-          if lst[i][1..7] = '0000000' then
-          begin
-            fMsgs.message(format('%s(%d): %s',[fDoc.fileName, i+1,
-              'not covered by the unittests']), fDoc, amcEdit, amkWarn);
-            fullcov := false;
-          end;
-        sysutils.DeleteFile(covname);
-        if fullcov then fMsgs.message(shortenPath(fDoc.fileName, 25)
-          + ' is 100% covered by the unittests', fDoc, amcEdit, amkInf);
-      end;
-    end;
-
     if (dmdProc.ExitStatus = 0) then
     begin
       fMsgs.message(shortenPath(fDoc.fileName, 25) + ' successfully compiled',
@@ -2005,6 +1983,8 @@ begin
         fRunProc.Parameters.AddStrings(lst);
       end;
       fRunProc.Executable := fname + exeExt;
+      if unittest and fCovModUt then
+        fRunProc.OnTerminate:=@unittestDone;
       if redirect then
       	getprocInputHandler.addProcess(fRunProc);
       fRunProc.Execute;
@@ -2018,6 +1998,42 @@ begin
   finally
     dmdproc.Free;
     lst.Free;
+  end;
+end;
+
+procedure TCEMainForm.unittestDone(Sender: TObject);
+var
+  fullcov: boolean;
+  fname, covname: string;
+  lst: TStringList;
+  i: integer;
+begin
+  asyncprocTerminate(sender);
+  if fCovModUt then
+  begin
+    fname   := stripFileExt(TProcess(sender).Executable);
+    fullcov := true;
+    covname := ReplaceStr(fname + '.lst', DirectorySeparator, '-');
+    if covname.fileExists then
+    begin
+      lst := TStringList.Create;
+      try
+        lst.LoadFromFile(covname);
+        for i := 0 to lst.Count-1 do
+          if lst[i][1..7] = '0000000' then
+          begin
+            fMsgs.message(format('%s(%d): %s',[fDoc.fileName, i+1,
+              'not covered by the unittests']), fDoc, amcEdit, amkWarn);
+            fullcov := false;
+          end;
+        sysutils.DeleteFile(covname);
+        if fullcov then fMsgs.message(shortenPath(fDoc.fileName, 25)
+          + ' is 100% covered by the unittests', fDoc, amcEdit, amkInf);
+      finally
+        lst.free;
+      end;
+    end else
+      fMsgs.message('the coverage file cannot be found', fDoc, amcEdit, amkWarn);
   end;
 end;
 
