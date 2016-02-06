@@ -102,6 +102,10 @@ begin
         result := fProj.filename.extractFilePath + result;
     end;
   end;
+  {$IFNDEF WINDOWS}
+  if result.length > 1 then
+    result := result[2..result.length];
+  {$ENDIF}
 end;
 
 procedure TDDHandler.DragOver(Sender, Source: TObject; X, Y: Integer;
