@@ -2014,6 +2014,9 @@ begin
     fname   := stripFileExt(TProcess(sender).Executable);
     fullcov := true;
     covname := ReplaceStr(fname + '.lst', DirectorySeparator, '-');
+    {$IFDEF WINDOWS}
+    covname := ReplaceStr(covname, DriveSeparator, '-');
+    {$ENDIF}
     if covname.fileExists then
     begin
       lst := TStringList.Create;
