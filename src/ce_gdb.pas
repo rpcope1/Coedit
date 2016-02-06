@@ -234,10 +234,10 @@ begin
     nme := doc.fileName;
     if not nme.fileExists then
       continue;
-    {$WARNINGS OFF}
+    {$PUSH}{$WARNINGS OFF}{$HINTS OFF}
     for j := 0 to doc.breakPointsCount-1 do
       fFileLineBrks.AddObject(nme, TObject(pointer(doc.BreakPointLine(j))));
-    {$WARNINGS ON}
+    {$POP}
   end;
 end;
 

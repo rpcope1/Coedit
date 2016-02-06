@@ -641,9 +641,9 @@ begin
   if Tree.Selected.isNil then exit;
   if Tree.Selected.Data.isNil then exit;
   //
-  {$HINTS OFF}
+  {$PUSH}{$WARNINGS OFF}{$HINTS OFF}
   line := NativeUInt(Tree.Selected.Data);
-  {$HINTS ON}
+  {$POP}
   fDoc.CaretY := line;
   fDoc.SelectLine;
 end;
@@ -727,9 +727,9 @@ var
   i: Integer;
 begin
   cat := getCatNode(origin, sym.symType);
-  {$HINTS OFF}
+  {$PUSH}{$WARNINGS OFF}{$HINTS OFF}
   node := tree.Items.AddChildObject(cat, sym.name, Pointer(sym.fline));
-  {$HINTS ON}
+  {$POP}
   if not fShowChildCategories then node := nil;
   cat.Visible:=true;
   for i := 0 to sym.subs.Count-1 do
@@ -796,9 +796,9 @@ var
         'Alias', 'Enum', 'Import', 'Variable':
           continue;
       end;
-      {$HINTS OFF}
+      {$PUSH}{$WARNINGS OFF}{$HINTS OFF}
       line := NativeUInt(root.Items[i].Data);
-      {$HINTS ON}
+      {$POP}
       if line > target then
         continue;
       if line > nearest then
