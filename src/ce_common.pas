@@ -1012,7 +1012,7 @@ begin
         sink[i] := sink[i].extractFileDir;
     end;
     // common folder
-    while(true) do
+    while true do
     begin
       for i := sink.Count-1 downto 0 do
       begin
@@ -1023,10 +1023,13 @@ begin
         else if j <> i then
           sink.Delete(i);
       end;
-      if sink.Count = 1 then
+      if sink.Count < 2 then
         break;
     end;
-    result := sink[0];
+    if sink.Count = 0 then
+      result := ''
+    else
+      result := sink[0];
   finally
     sink.free;
   end;
