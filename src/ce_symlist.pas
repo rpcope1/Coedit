@@ -540,6 +540,7 @@ end;
 
 procedure TCESymbolListWidget.btnRefreshClick(Sender: TObject);
 begin
+  checkIfHasToolExe;
   fActRefresh.Execute;
 end;
 
