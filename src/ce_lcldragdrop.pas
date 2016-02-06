@@ -103,7 +103,7 @@ begin
     end;
   end;
   {$IFNDEF WINDOWS}
-  if result.length > 1 then
+  if (result.length > 1) and (result[2] = '/') then
     result := result[2..result.length];
   {$ENDIF}
 end;
