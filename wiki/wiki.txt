@@ -181,9 +181,9 @@ For discussions, the official D forums [propose a section dedicated to the IDEs]
 - **"Compile file and run"**: compiles the current file and execute. See [runnable modules][lnk_runa].
 - **"Compile file and run outside"**: compiles the current file and execute without redirection. See [runnable modules][lnk_runa].
 - **"Compile file and run..."**: compiles the current file and execute with a set of options defined in a simple input-query dialog. The arguments must be separated with spaces and can include double quotes.
-- **"Run file unittests": compiles and run the file with the options **-main -unittest**. This is useful to test a module that is part of a project and that doesn't already contain the _main()_ function.
+- **"Run file unittests": compiles and runs the current file with the options **-main -unittest**. If the application option _coverModuleTests_ is set then CE will also pass **-cov** to DMD and report in the messages the lines of code that are not covered by the unit tests. This action is not usable if the current module already contains a `main()` function.
 - **"Set runnable switches"**: allows to modify the switches passed to DMD when compiling a runnable module. One switch by line, invalid or duplicated switches are removed, such as _-main_ and _-unittest_ since they are set with _Run file unittests_.
-- **"View in mini explorer"**: expands the [mini-explorer][lnk_widg_miniexpl] tree on the folder containing the file.
+- **"View in mini explorer"**: expands the [mini-explorer][lnk_widg_miniexpl] tree on the folder that contains the current file.
 
 ## Project
 

@@ -200,6 +200,7 @@ type
 
   private
 
+    fCovModUt: boolean;
     fDoc: TCESynMemo;
     fActionHandler: TCEActionProviderSubject;
     fMultidoc: ICEMultiDocHandler;
@@ -377,6 +378,7 @@ type
     fNoGdcWarn: boolean;
     fFloatingWidgetOnTop: boolean;
     fReloadLastDocuments: boolean;
+    fCovModUt: boolean;
     fMaxRecentProjs: integer;
     fMaxRecentDocs: integer;
     fDcdPort: word;
@@ -385,13 +387,16 @@ type
     procedure setDubCompiler(value: TCECompiler);
     procedure setNativeProjecCompiler(value: TCECompiler);
   published
-    property dcdPort: word read fDcdPort write fDcdPort;
+    property coverModuleTests: boolean read fCovModUt write fCovModUt;
     property floatingWidgetOnTop: boolean read fFloatingWidgetOnTop write fFloatingWidgetOnTop;
     property reloadLastDocuments: boolean read fReloadLastDocuments write fReloadLastDocuments;
     property maxRecentProjects: integer read fMaxRecentProjs write fMaxRecentProjs;
     property maxRecentDocuments: integer read fMaxRecentDocs write fMaxRecentDocs;
     property dubCompiler: TCECompiler read getDubCompiler write setDubCompiler;
     property nativeProjecCompiler: TCECompiler read getNativeProjecCompiler write setNativeProjecCompiler;
+
+    // stored by DCD wrapper since it reloads before CEMainForm instantiation
+    property dcdPort: word read fDcdPort write fDcdPort stored false;
   end;
 
   TCEApplicationOptions = class(TCEApplicationOptionsBase, ICEEditableOptions)
@@ -467,8 +472,10 @@ begin
     fMaxRecentProjs:= CEMainForm.fProjMru.maxCount;
     fMaxRecentDocs:= CEMainForm.fFileMru.maxCount;
     fDcdPort := DcdWrapper.port;
+    fCovModUt:= CEMainForm.fCovModUt;
   end else if src = fBackup then
   begin
+    fCovModUt:=fBackup.fCovModUt;
     fDcdPort:=fBackup.fDcdPort;
     fMaxRecentDocs:= fBackup.fMaxRecentDocs;
     fMaxRecentProjs:= fBackup.fMaxRecentProjs;
@@ -482,10 +489,11 @@ procedure TCEApplicationOptions.assignTo(dst: TPersistent);
 begin
   if dst = CEMainForm then
   begin
-   CEMainForm.fProjMru.maxCount := fMaxRecentProjs;
-   CEMainForm.fFileMru.maxCount := fMaxRecentDocs;
-   CEMainForm.updateFloatingWidgetOnTop(fFloatingWidgetOnTop);
-   DcdWrapper.port:=fDcdPort;
+    CEMainForm.fCovModUt:= fCovModUt;
+    CEMainForm.fProjMru.maxCount := fMaxRecentProjs;
+    CEMainForm.fFileMru.maxCount := fMaxRecentDocs;
+    CEMainForm.updateFloatingWidgetOnTop(fFloatingWidgetOnTop);
+    DcdWrapper.port:=fDcdPort;
   end else if dst = fBackup then
   begin
     fBackup.fMaxRecentDocs:= fMaxRecentDocs;
@@ -493,6 +501,7 @@ begin
     fBackup.fReloadLastDocuments:=fReloadLastDocuments;
     fBackup.fFloatingWidgetOnTop:=fFloatingWidgetOnTop;
     fBackup.fDcdPort:=fDcdPort;
+    fBackup.fCovModUt:=fCovModUt;
   end
   else inherited;
 end;
@@ -1888,8 +1897,10 @@ procedure TCEMainForm.compileAndRunFile(unittest: boolean = false; redirect: boo
 var
   i: integer;
   dmdproc: TCEProcess;
-  extraArgs: TStringList;
+  lst: TStringList;
   fname, firstlineFlags: string;
+  covname: string;
+  fullcov: boolean;
 begin
 
   fMsgs.clearByData(fDoc);
@@ -1921,7 +1932,7 @@ begin
     {$ENDIF}
   end;
 
-  extraArgs := TStringList.Create;
+  lst := TStringList.Create;
   dmdproc := TCEProcess.Create(nil);
   try
 
@@ -1943,12 +1954,13 @@ begin
     dmdproc.Parameters.Add(fDoc.fileName);
     dmdproc.Parameters.Add('-J' + fDoc.fileName.extractFilePath);
     dmdproc.Parameters.AddText(fRunnableSw);
-    CommandToList(firstlineFlags, extraArgs);
-    dmdproc.Parameters.AddStrings(extraArgs);
+    CommandToList(firstlineFlags, lst);
+    dmdproc.Parameters.AddStrings(lst);
     if unittest then
     begin
       dmdproc.Parameters.Add('-main');
       dmdproc.Parameters.Add('-unittest');
+      dmdproc.Parameters.Add('-cov');
     end
     else dmdproc.Parameters.Add('-version=runnable_module');
     dmdproc.Parameters.Add('-of' + fname + exeExt);
@@ -1959,6 +1971,27 @@ begin
     while dmdproc.Running do
       application.ProcessMessages;
 
+    if unittest and fCovModUt then
+    begin
+      fullcov := true;
+      covname := ReplaceStr(fname + '.lst', DirectorySeparator, '-');
+      if covname.fileExists then
+      begin
+        lst.Clear;
+        lst.LoadFromFile(covname);
+        for i := 0 to lst.Count-1 do
+          if lst[i][1..7] = '0000000' then
+          begin
+            fMsgs.message(format('%s(%d):%s',[fDoc.fileName, i+1,
+              'is not cevered by the unittests']), fDoc, amcEdit, amkWarn);
+            fullcov := false;
+          end;
+        sysutils.DeleteFile(covname);
+        if fullcov then fMsgs.message(shortenPath(fDoc.fileName, 25)
+          + ' is 100% covered by the unittests', fDoc, amcEdit, amkInf);
+      end;
+    end;
+
     if (dmdProc.ExitStatus = 0) then
     begin
       fMsgs.message(shortenPath(fDoc.fileName, 25) + ' successfully compiled',
@@ -1966,9 +1999,9 @@ begin
       fRunProc.CurrentDirectory := fRunProc.Executable.extractFileDir;
       if runArgs.isNotEmpty then
       begin
-        extraArgs.Clear;
-        CommandToList(symbolExpander.get(runArgs), extraArgs);
-        fRunProc.Parameters.AddStrings(extraArgs);
+        lst.Clear;
+        CommandToList(symbolExpander.get(runArgs), lst);
+        fRunProc.Parameters.AddStrings(lst);
       end;
       fRunProc.Executable := fname + exeExt;
       if redirect then
@@ -1983,7 +2016,7 @@ begin
 
   finally
     dmdproc.Free;
-    extraArgs.Free;
+    lst.Free;
   end;
 end;
 
