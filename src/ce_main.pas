@@ -889,9 +889,10 @@ begin
 end;
 
 procedure TCEMainForm.LockTopWindow(Sender: TObject; var NewSize: Integer;
-    var Accept: Boolean);
+  var Accept: Boolean);
 begin
-  accept := false;
+  //TODO-cdocking: top splitter pos can change even if locked (e.g after resize)
+  accept := GetKeyShiftState = [ssCtrl];
 end;
 
 procedure TCEMainForm.InitDocking;
@@ -964,7 +965,6 @@ begin
     topsplt.MoveSplitter(-500);
     topsplt.OnCanOffset:= @LockTopWindow;
   end;
-
 end;
 
 procedure TCEMainForm.LoadSettings;

@@ -29,6 +29,8 @@
 [lnk_cetodo]:	https://github.com/BBasile/Coedit/tree/master/cetodo
 [lnk_cesyms]:	https://github.com/BBasile/Coedit/tree/master/cesyms
 
+[lnk_bugtracker]: https://github.com/BBasile/Coedit/issue
+
 Welcome to Coedit Wiki, the documentation source for the small Windows & Linux IDE for the D programming language.
 A summary of the content is accessible in the right side-bar.
 
@@ -60,7 +62,7 @@ The latest Coedit version requires at least DMD 2.066.
 * To uninstall, run the same program but with the `-u` option.
 	* Linux: if coedit has been setup with `sudo` you must also uninstall with elevated privileges: `sudo .\coedit.<version>.<platform>.setup -u`.
 	* Windows: start a console as administrator and execute: `coedit.<version>.win32.setup -u`.
-	* Troubleshooting: run the setup program with the `-l` (or `--list`) option to get the status of the files and use the report to uninstall manually the files or open a ticket [here](https://github.com/BBasile/Coedit/issue).
+	* Troubleshooting: run the setup program with the `-l` (or `--list`) option to get the status of the files and use the report to uninstall manually the files or open a ticket [here][lnk_bugtracker].
 	
 Note for the future versions:
 * Updating doesn't require to uninstall.
@@ -159,7 +161,7 @@ Because the page becomes huge and a long to load, the browsers can fail to scrol
 
 ## Bug reports
 
-Bugs can be reported using [this dedicated online utility](https://github.com/BBasile/Coedit/issues).
+Bugs can be reported using [this dedicated online utility][lnk_bugtracker].
 This place can also be used to suggest enhancements and new features.
 
 For discussions, the official D forums [propose a section dedicated to the IDEs](http://forum.dlang.org/group/ide).
@@ -388,9 +390,10 @@ Docking can be customized in the [option editor][lnk_widg_opts]:
 
 ![](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/optdock.png)
 
-Note that this feature relies on a component which is in beta state and in case of errors,
-it can be necessary to delete the configuration file named _docking.xml_ from the [data folder][lnk_widg_opts],
-after what Coedit will start with the default layout.
+Note that the docking relies on a component that's in beta state and problems might be encountered:
+- space between the menu and the workspace: the splitter can be moved when pressing the <kbd>CTRL</kbd> key.
+- strange looking layout after reloading (missing splitter between two widgets, or nothing between two splitters): close CE, delete the configuration file named _docking.xml_ from the [data folder][lnk_widg_opts], after what Coedit will start with the default layout.
+- other problem: [file an issue][lnk_bugtracker].
 
 # Widgets
 
