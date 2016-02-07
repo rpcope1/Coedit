@@ -39,6 +39,7 @@ type
     fIdentifierMarkup: TSynSelectedColor;
     fFont: TFont;
     //
+    fResetFontSize: boolean;
     fIdentiMatchOpts: TIdentifierMatchOptions;
     fLineNumEvery: Integer;
     fDDocDelay: Integer;
@@ -96,6 +97,7 @@ type
     property mouseOptions: TSynEditorMouseOptions read fMouseOptions write fMouseOptions;
     property options1: TSynEditorOptions read fOptions1 write fOptions1;
     property options2: TSynEditorOptions2 read fOptions2 write fOptions2;
+    property resetFontSize: boolean read fResetFontSize write fResetFontSize default false;
     property rightEdge: Integer read fRightEdge write fRightEdge default 80;
     property rightEdgeColor: TColor read fRightEdgeColor write fRightEdgeColor default clSilver;
     property selection: TSynSelectedColor read fSelAttribs write setSelCol;
@@ -259,6 +261,7 @@ begin
   begin
     srcopt := TCEEditorOptionsBase(src);
     //
+    fResetFontSize:=srcopt.fResetFontSize;
     fAutoCLoseCurlyBrace := srcopt.fAutoCLoseCurlyBrace;
     fCompletionMenuWidth:=srcopt.fCompletionMenuWidth;
     fCompletionMenuLines:=srcopt.fCompletionMenuLines;
@@ -600,7 +603,8 @@ begin
   savedSize := anEditor.Font.Size;
   anEditor.defaultFontSize := font.Size;
   anEditor.Font.Assign(font);
-  anEditor.Font.Size := savedSize;
+  if not fResetFontSize then
+    anEditor.Font.Size := savedSize;
 
   anEditor.autoCloseCurlyBrace            := fAutoCLoseCurlyBrace;
   anEditor.completionMenu.TheForm.Width   := fCompletionMenuWidth;

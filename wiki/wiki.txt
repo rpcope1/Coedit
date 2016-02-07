@@ -29,7 +29,7 @@
 [lnk_cetodo]:	https://github.com/BBasile/Coedit/tree/master/cetodo
 [lnk_cesyms]:	https://github.com/BBasile/Coedit/tree/master/cesyms
 
-[lnk_bugtracker]: https://github.com/BBasile/Coedit/issue
+[lnk_bugtracker]: https://github.com/BBasile/Coedit/issues
 
 Welcome to Coedit Wiki, the documentation source for the small Windows & Linux IDE for the D programming language.
 A summary of the content is accessible in the right side-bar.
