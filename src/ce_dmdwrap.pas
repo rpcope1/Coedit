@@ -85,7 +85,7 @@ type
     procedure setVgc(const aValue: boolean);
     procedure setCol(const aValue: boolean);
   published
-    property depreciationHandling: TDepHandling read fDepHandling write setDepHandling default warning;
+    property deprecationHandling: TDepHandling read fDepHandling write setDepHandling default warning;
     property verbose: boolean read fVerbose write setVerbose default false;
     property warnings: boolean read fWarnings write setWarnings default true;
     property warningsAsInfo: boolean read fWarnInfo write setWarnInfo default false;
@@ -95,6 +95,7 @@ type
     property showColumnsNumber: boolean read fCol write setCol default false;
     // TODO-cmaintenance: remove this from 2_update_1
     property additionalWarnings: boolean write setWarnInfo stored false; deprecated;
+    property depreciationHandling: TDepHandling write setDepHandling stored false; deprecated;
   public
     constructor create;
     procedure assign(aValue: TPersistent); override;
