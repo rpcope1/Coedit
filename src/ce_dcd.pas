@@ -38,6 +38,7 @@ type
     procedure waitClient; inline;
     procedure updateServerlistening;
     procedure writeSourceToInput; inline;
+    function checkDcdSocket: boolean;
     //
     procedure projNew(aProject: ICECommonProject);
     procedure projChanged(aProject: ICECommonProject);
@@ -76,33 +77,6 @@ const
   serverName = 'dcd-server' + exeExt;
   optsname = 'dcdoptions.txt';
 
-
-function checkDcdSocket: boolean;
-var
-  str: string;
-begin
-  sleep(100);
-  // nix/osx: the file might exists from a previous session that crashed
-  // however the 100 ms might be enough for DCD to initializes
-  {$IFDEF LINUX}
-  str := sysutils.GetEnvironmentVariable('XDG_RUNTIME_DIR');
-  if (str + DirectorySeparator + 'dcd.socket').fileExists then
-    exit(true);
-  str := sysutils.GetEnvironmentVariable('UID');
-  if ('/tmp/dcd-' + str + '.socket').fileExists then
-    exit(true);
-  {$ENDIF}
-  {$IFDEF DARWIN}
-  str := sysutils.GetEnvironmentVariable('UID');
-  if ('/var/tmp/dcd-' + str + '.socket').fileExists then
-    exit(true);
-  {$ENDIF}
-  //windows: just hope that the 100 ms were enough
-  {$IFDEF WINDOWS}
-  exit(true);
-  {$ENDIF}
-  exit(false);
-end;
 
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEDcdWrapper.create(aOwner: TComponent);
@@ -160,15 +134,26 @@ begin
 end;
 
 destructor TCEDcdWrapper.destroy;
+var
+  i: integer = 0;
 begin
   saveToFile(getCoeditDocPath + optsname);
   EntitiesConnector.removeObserver(self);
   fImportCache.Free;
   if fTempLines.isNotNil then
     fTempLines.Free;
-  if fServer.isNotNil then begin
+  if fServer.isNotNil then
+  begin
     if not fServerWasRunning then
+    begin
       killServer;
+      while true do
+      begin
+        if (not checkDcdSocket) or (i = 10) then
+          break;
+        i +=1;
+      end;
+    end;
     fServer.Free;
   end;
   fClient.Free;
@@ -262,6 +247,64 @@ procedure TCEDcdWrapper.terminateClient;
 begin
   if fClient.Running then
     fClient.Terminate(0);
+end;
+
+function TCEDcdWrapper.checkDcdSocket: boolean;
+var
+  str: string;
+  {$IFDEF WINDOWS}
+  prt: word = 9166;
+  prc: TProcess;
+  lst: TStringList;
+  {$ENDIF}
+begin
+  sleep(100);
+  // nix/osx: the file might exists from a previous session that crashed
+  // however the 100 ms might be enough for DCD to initializes
+  {$IFDEF LINUX}
+  str := sysutils.GetEnvironmentVariable('XDG_RUNTIME_DIR');
+  if (str + DirectorySeparator + 'dcd.socket').fileExists then
+    exit(true);
+  str := sysutils.GetEnvironmentVariable('UID');
+  if ('/tmp/dcd-' + str + '.socket').fileExists then
+    exit(true);
+  {$ENDIF}
+  {$IFDEF DARWIN}
+  str := sysutils.GetEnvironmentVariable('UID');
+  if ('/var/tmp/dcd-' + str + '.socket').fileExists then
+    exit(true);
+  {$ENDIF}
+  {$IFDEF WINDOWS}
+  result := false;
+  if port <> 0 then prt := port;
+  prc := TProcess.Create(nil);
+  try
+    prc.Options:= [poUsePipes, poNoConsole];
+    prc.Executable := 'netstat';
+    prc.Parameters.Add('-o');
+    prc.Parameters.Add('-a');
+    prc.Parameters.Add('-n');
+    prc.Execute;
+    lst := TStringList.Create;
+    try
+      processOutputToStrings(prc,lst);
+      for str in lst do
+      if AnsiContainsText(str, '127.0.0.1:' + intToStr(prt))
+      and AnsiContainsText(str, 'TCP')
+      and AnsiContainsText(str, 'LISTENING') then
+      begin
+        result := true;
+        break;
+      end;
+    finally
+      lst.Free;
+    end;
+  finally
+    prc.Free;
+  end;
+  exit(result);
+  {$ENDIF}
+  exit(false);
 end;
 
 procedure TCEDcdWrapper.killServer;
