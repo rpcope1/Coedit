@@ -76,10 +76,39 @@ const
   serverName = 'dcd-server' + exeExt;
   optsname = 'dcdoptions.txt';
 
+
+function checkDcdSocket: boolean;
+var
+  str: string;
+begin
+  sleep(100);
+  // nix/osx: the file might exists from a previous session that crashed
+  // however the 100 ms might be enough for DCD to initializes
+  {$IFDEF LINUX}
+  str := sysutils.GetEnvironmentVariable('XDG_RUNTIME_DIR');
+  if (str + DirectorySeparator + 'dcd.socket').fileExists then
+    exit(true);
+  str := sysutils.GetEnvironmentVariable('UID');
+  if ('/tmp/dcd-' + str + '.socket').fileExists then
+    exit(true);
+  {$ENDIF}
+  {$IFDEF DARWIN}
+  str := sysutils.GetEnvironmentVariable('UID');
+  if ('/var/tmp/dcd-' + str + '.socket').fileExists then
+    exit(true);
+  {$ENDIF}
+  //windows: just hope that the 100 ms were enough
+  {$IFDEF WINDOWS}
+  exit(true);
+  {$ENDIF}
+  exit(false);
+end;
+
 {$REGION Standard Comp/Obj------------------------------------------------------}
 constructor TCEDcdWrapper.create(aOwner: TComponent);
 var
   fname: string;
+  i: integer = 0;
 begin
   inherited;
   //
@@ -113,7 +142,12 @@ begin
   if fServer.isNotNil then
   begin
     fServer.Execute;
-    sleep(20);
+    while true do
+    begin
+      if (i = 10) or checkDcdSocket then
+        break;
+      i += 1;
+    end;
   end;
   updateServerlistening;
   //
@@ -238,13 +272,7 @@ begin
   fClient.Parameters.Clear;
   fClient.Parameters.Add('--shutdown');
   fClient.Execute;
-  {$IFDEF LINUX}
-  fClient.Terminate(0);
-  fServer.Terminate(0);
-  {$ENDIF}
-  {$IFDEF DARWIN}
-  //
-  {$ENDIF}
+  sleep(500);
 end;
 
 procedure TCEDcdWrapper.waitClient;
