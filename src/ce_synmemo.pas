@@ -1029,6 +1029,11 @@ begin
     fCallTipStrings.Objects[0] := TObject(pointer(i));
     {$POP}
     str := fCallTipStrings.Text;
+    {$IFDEF WINDOWS}
+    str := str[1..str.length-2];
+    {$ELSE}
+    str := str[1..str.length-1];
+    {$ENDIF}
     showCallTips(str);
   end;
 end;

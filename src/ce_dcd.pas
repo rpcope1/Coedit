@@ -390,7 +390,11 @@ begin
   //
   fTempLines.Delete(0);
   tips := fTempLines.Text;
+  {$IFDEF WINDOWS}
+  tips := tips[1..tips.length-2];
+  {$ELSE}
   tips := tips[1..tips.length-1];
+  {$ENDIF}
 end;
 
 procedure TCEDcdWrapper.getComplAtCursor(aList: TStrings);
