@@ -258,9 +258,10 @@ begin
   fRefreshOnFocus := true;
   fShowChildCategories := true;
   fAutoExpandErrors := true;
+  fAutoRefresh := true;
   fSmartFilter := true;
   fSortSymbols := false;
-  fAutoRefreshDelay := 1500;
+  fAutoRefreshDelay := 750;
 end;
 
 procedure TCESymbolListOptions.Assign(Source: TPersistent);

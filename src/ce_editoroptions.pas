@@ -165,10 +165,15 @@ begin
   inherited;
   //
   fFont := TFont.Create;
+  {$IFDEF WINDOWS}
   fFont.Name := 'Courier New';
+  {$ELSE}
+  fFont.Name := 'DejaVu Sans Mono';
+  {$ENDIF}
   fFont.Quality := fqProof;
   fFont.Pitch := fpFixed;
   fFont.Size := 10;
+  fResetFontSize:=true;
   //
   fD2Syn := TSynD2Syn.Create(self);
   fD2Syn.Assign(D2Syn);

@@ -202,6 +202,7 @@ type
 
     fCovModUt: boolean;
     fDoc: TCESynMemo;
+    fFirstTimeCoedit: boolean;
     fActionHandler: TCEActionProviderSubject;
     fMultidoc: ICEMultiDocHandler;
     fScCollectCount: Integer;
@@ -996,7 +997,8 @@ begin
   begin
     fAppliOpts.loadFromFile(fname);
     fAppliOpts.assignTo(self);
-  end;
+  end
+  else fFirstTimeCoedit := true;
 end;
 
 procedure TCEMainForm.SaveSettings;
@@ -1174,6 +1176,9 @@ begin
     // http://bugs.freepascal.org/view.php?id=29475
     // TODO-cgonnawork: when Laz 1.6 is rlzd, remove etc/anchordocking and use Laz package
     DockMaster.ResetSplitters;
+
+    if fFirstTimeCoedit then
+      actFileNewRun.Execute;
 
     fFirstShown := true;
   end;
@@ -1609,6 +1614,14 @@ begin
 end;
 
 procedure TCEMainForm.actFileNewRunExecute(Sender: TObject);
+const
+  body: array[boolean] of string =
+  (
+    LineEnding,
+    '    // this file can be directly executed using menu file/compile & run' + LineEnding +
+    '    // phobos and libman imports are allowed' + LineEnding +
+    '    writeln("hello runnable module");' + LineEnding
+  );
 begin
   newFile;
   fDoc.Text :=
@@ -1618,9 +1631,7 @@ begin
   LineEnding +
   'void main(string[] args)' + LineEnding +
   '{' + LineEnding +
-  '    // this file can be directly executed using menu file/compile & run' + LineEnding +
-  '    // phobos and libman imports are allowed' + LineEnding +
-  '    writeln("hello runnable module");' + LineEnding +
+      body[fFirstTimeCoedit] +
   '}';
   fDoc.setFocus;
 end;
