@@ -378,6 +378,7 @@ procedure TCEEditorWidget.memoKeyUp(Sender: TObject; var Key: Word; Shift: TShif
 begin
   case fLastCommand of
     ecSelectionStart..ecSelectionEnd: updateImperative;
+    ecLeft..ecHalfWordRight: updateImperative;
   end;
 end;
 

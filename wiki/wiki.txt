@@ -44,9 +44,9 @@ There are four ways to get the program, from the simplest to the most complex:
 * download and run the setup program build for each release.
 * download and extract the binaries build for each release.
 * build the program from the sources.
-* (not recommended) download and install the official package for a linux distribution.
+* download and install the official package for a linux distribution.
 
-In the three cases, the _DMD_ D2 compiler must setup and its location added to your environment PATH variable:
+In all the cases, the _DMD_ D2 compiler must setup and its location added to your environment PATH variable:
 If it's not already installed, [download](http://dlang.org/download.html) and setup DMD2 for your platform. 
 The latest Coedit version requires at least DMD 2.066.
 
@@ -321,7 +321,7 @@ _DCD_ also has a native configuration system. Refer to the official [_Readme_](h
 - <kbd>)</kbd>: If the call tips are displayed then decreases by one the stack of call tips.
 - <kbd>ESC</kbd>: Closes the call tips window, whatever is the level of the stack.
  
-Documentation comments associated to a symbol are displayed when hovering the symbol with the mouse.
+Documentation comments associated to a symbol are displayed when the cursor motion stops over a symbol.
 
 ![DCD completion](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dcd1.png)
 
@@ -330,7 +330,7 @@ Documentation comments associated to a symbol are displayed when hovering the sy
 ![DCD call tip](https://raw.githubusercontent.com/BBasile/CoeditWikiData/master/dcd3.png)
 
 When Coedit starts and if the DCD server is not already listening then it's launched by CE.
-When Coedit stops, the server is automatically shut-down if it was not already running when starting.
+When Coedit stops, the server is only terminated if it was not already running when starting.
 
 If the DCD server crashes while Coedit is running then both must be restarted.
 
