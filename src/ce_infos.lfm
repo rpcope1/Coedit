@@ -36,7 +36,7 @@ inherited CEInfoWidget: TCEInfoWidget
           Align = alClient
           Alignment = taCenter
           AutoSize = False
-          Caption = 'Coedit 2 - rc1'
+          Caption = 'Coedit 2'
           Font.Height = -16
           Font.Style = [fsBold]
           Layout = tlCenter
