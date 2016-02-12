@@ -63,7 +63,7 @@ inherited CEMiniExplorerWidget: TCEMiniExplorerWidget
           Top = 32
           Width = 335
           Align = alTop
-          DefaultItemHeight = 16
+          DefaultItemHeight = 18
           Images = imgList
           ReadOnly = True
           ScrollBars = ssAutoBoth

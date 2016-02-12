@@ -28,7 +28,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
         TabOrder = 0
         object TabSheet1: TTabSheet
           Caption = 'Inspector'
-          ClientHeight = 380
+          ClientHeight = 388
           ClientWidth = 395
           object pnlToolBar1: TPanel
             Left = 4
@@ -59,15 +59,16 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
           end
           object treeInspect: TTreeView
             Left = 4
-            Height = 344
+            Height = 352
             Top = 32
             Width = 387
             Align = alClient
             BorderSpacing.Around = 4
-            DefaultItemHeight = 16
+            DefaultItemHeight = 18
             DragMode = dmAutomatic
             HideSelection = False
             Images = imgList
+            PopupMenu = contextMenu
             ReadOnly = True
             ScrollBars = ssAutoBoth
             TabOrder = 1
@@ -91,7 +92,7 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
             Width = 387
             Align = alClient
             BorderSpacing.Around = 4
-            DefaultItemHeight = 16
+            DefaultItemHeight = 18
             HideSelection = False
             Images = imgList
             ReadOnly = True
@@ -189,6 +190,10 @@ inherited CEDubProjectEditorWidget: TCEDubProjectEditorWidget
   inherited contextMenu: TPopupMenu
     left = 248
     top = 8
+    object MenuItem1: TMenuItem[0]
+      Caption = 'Refresh'
+      OnClick = MenuItem1Click
+    end
   end
   object imgList: TImageList[2]
     left = 208

@@ -32,6 +32,7 @@ type
     edProp: TEdit;
     fltEdit: TTreeFilterEdit;
     imgList: TImageList;
+    MenuItem1: TMenuItem;
     PageControl1: TPageControl;
     Panel1: TPanel;
     pnlToolBar: TPanel;
@@ -44,6 +45,7 @@ type
     procedure btnAcceptPropClick(Sender: TObject);
     procedure btnAddPropClick(Sender: TObject);
     procedure btnDelPropClick(Sender: TObject);
+    procedure MenuItem1Click(Sender: TObject);
     procedure propTreeSelectionChanged(Sender: TObject);
     procedure treeInspectDblClick(Sender: TObject);
   private
@@ -311,6 +313,13 @@ begin
   fProj.endModification;
   //
   updateValueEditor;
+end;
+
+procedure TCEDubProjectEditorWidget.MenuItem1Click(Sender: TObject);
+begin
+  if fProj.isNil then exit;
+  fProj.beginModification;
+  fProj.endModification;
 end;
 
 procedure TCEDubProjectEditorWidget.setJsonValueFromEditor;
