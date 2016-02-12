@@ -26,20 +26,20 @@ Coedit is an IDE for the D programming language [D2](http://dlang.org).
 
 **Project information**
 ---
-- latest version: version 2 rc 1.
+- latest version: version 2 gold.
 - licensed under the term of the MIT license.
 
 **Download the latest build**
 ---
 Download the zipped binaries or the zipped setup program for you platform:
 
-- :package: [setup program for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/2_rc1/coedit.2rc1.linux32.setup.zip)
-- :package: [binaries for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/2_rc1/coedit.2rc1.linux32.zip)
-- :package: [setup program for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_rc1/coedit.2rc1.linux64.setup.zip)
-- :package: [binaries for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_rc1/coedit.2rc1.linux64.zip)
-- :package: [setup program for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/2_rc1/coedit.2rc1.win32.setup.zip)
-- :package: [binaries for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/2_rc1/coedit.2rc1.win32.zip)
-- :package: [rpm for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_rc1/coedit-2-rc1.x86_64.rpm)
+- :package: [setup program for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/2_gold/coedit.2gold.linux32.setup.zip)
+- :package: [binaries for Linux 32 bit](https://github.com/BBasile/Coedit/releases/download/2_gold/coedit.2gold.linux32.zip)
+- :package: [setup program for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_gold/coedit.2gold.linux64.setup.zip)
+- :package: [binaries for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_gold/coedit.2gold.linux64.zip)
+- :package: [setup program for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/2_gold/coedit.2gold.win32.setup.zip)
+- :package: [binaries for Windows 32/64 bit](https://github.com/BBasile/Coedit/releases/download/2_gold/coedit.2gold.win32.zip)
+- :package: [rpm for Linux 64 bit](https://github.com/BBasile/Coedit/releases/download/2_gold/coedit-2-gold.x86_64.rpm)
 
 [**See the wiki**](https://github.com/BBasile/Coedit/wiki#detailed-setup-procedure) for more information about the setup. 
 
