@@ -536,7 +536,7 @@ begin
     if lstFav.Selected.Data.isNil then exit;
     fname := PString(lstFav.Selected.Data)^;
   end;
-  if fname.fileExists then if not shellOpen(fname) then
+  if fname.fileExists or  fname.dirExists then if not shellOpen(fname) then
     getMessageDisplay.message((format('the shell failed to open "%s"',
     [shortenPath(fname, 25)])), nil, amcMisc, amkErr);
 end;
